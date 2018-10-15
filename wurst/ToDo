@@ -1,0 +1,40 @@
+
+
+TO DO
+
+[ ] 1) Map________________________
+
+    [ ] Create Arena
+    [ ] Create Shop
+
+[ ] 2) Game Functions_____________
+
+    [ ] Game Initializer
+    [ ] Between Rounds (Round starter)
+
+[ ] 3) Hero_______________________
+    
+    [ ] Hero Unit
+    [ ] Abilities
+    [ ] Items
+
+[ ] 4) Unit Spawner Class_________
+
+    [ ] Start / Stop Functions
+    [ ] Finish Detection
+    [ ] Setup Functions
+
+[ ] 5) Rounds Class_______________
+    
+    [ ] Finish Detection
+    [ ] Setup
+    [ ] Round Start
+    [ ] Round End
+
+
+[ ] 6) Transition_________________
+    
+    [ ] To Shop
+    [ ] To Arena
+
+[ ] 7) Create Rounds______________
