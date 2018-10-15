@@ -1,0 +1,9 @@
+---
+projectName: "SimpleHeroSurvival"
+dependencies:
+- "https://github.com/wurstscript/wurstStdlib2"
+buildMapData:
+  name: "Simple Hero Survival"
+  fileName: "SimpleHeroSurvival"
+  author: "Lake"
+  playerCount: 1
