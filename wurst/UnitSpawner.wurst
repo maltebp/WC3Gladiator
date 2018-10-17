@@ -1,5 +1,7 @@
 package UnitSpawner
 
+import TimerUtils
+
 public class UnitSpawner
 //=========================================================================================================================================================
 
@@ -13,7 +15,7 @@ public class UnitSpawner
     // Instance Variables
     private real spawnFrequency
     private real spawnCount
-    private real currentCount
+    private real currentCount = 0
     private real spawnFrequencyDeviation
     private real startDelay
     private int  unitId
@@ -21,12 +23,16 @@ public class UnitSpawner
     private rect spawnRect
     private group spawnedUnits
     private boolean randomSpawnPoint // Toggles it to spawn somewhere random in spawnRect
+    private timer timer_Spawn
 
     
 // -------------------------------------------------------------------------------------------------------------------------------------
 // Methods
 
     construct(int unitId, real spawnFrequency)
+        this.unitId = unitId
+        this.spawnFrequency = spawnFrequency
+        timer_Spawn = getTimer()
 
     function start()
 
