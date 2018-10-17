@@ -96,6 +96,12 @@ public class UnitSpawner
     function setUnitSpawnFacing( real spawnFacing )
         this.spawnFacing = spawnFacing
 
+    /** Sets an effect to create everytime a unit spawns. The effect is immediately
+        destroy, so use an effect which has a "death" animation for it to be shown.
+        @param effectPath: the filepath of the effect model to create*/
+    function setSpawnEffect(string effectPath)
+        this.spawnEffect = effectPath
+
     /** Creates a sound to play when a unit spawns. It's 3D and is played on the
         spawnPos.
         @ param soundPath: the string path for the sound file. Use Sounds (it's public)*/
@@ -113,6 +119,7 @@ public class UnitSpawner
 
         if instance.spawnEffect != null
             addEffect(instance.spawnEffect, instance.spawnPos )
+            ..destr()
 
         if instance.targetOnSpawn != null
             spawnedUnit.issueTargetOrder("attack", instance.targetOnSpawn)
