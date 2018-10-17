@@ -30,15 +30,18 @@ public class UnitSpawner
 // -------------------------------------------------------------------------------------------------------------------------------------
 // Methods
 
-    construct(int unitId, real spawnFrequency)
+    construct(int unitId, vec2 spawnPos, real spawnFrequency)
         this.unitId = unitId
         this.spawnFrequency = spawnFrequency
+        this.spawnPos = spawnPos
 
         timer_Spawn = getTimer()
+
 
     ondestroy
         if timer_Spawn != null
             timer_Spawn.release()
+
 
     function start()
 
@@ -59,8 +62,6 @@ public class UnitSpawner
     /** Default startDelay is spawnFrequency
     */
     function setStartDelay()
-
-    function setPos()
 
     function setRandomSpawn()
 
