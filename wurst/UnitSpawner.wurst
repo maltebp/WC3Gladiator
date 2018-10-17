@@ -17,7 +17,7 @@ public class UnitSpawner
     // Instance Variables
     private real spawnFrequency
     private real spawnCount
-    private real currentCount = 0
+    private real currentSpawnCount = 0
     private real spawnFrequencyDeviation
     private real startDelay
     private int  unitId
@@ -30,6 +30,7 @@ public class UnitSpawner
     private timer timer_Spawn
     private boolean isActivated = ACTIVATEONCONSTRUCT
     private string spawnEffect
+    private boolean isRunning = false
     private unit targetOnSpawn
     private SoundDefinition soundOnspawn
 
@@ -54,6 +55,7 @@ public class UnitSpawner
         if not isActivated
             activate()
 
+        isRunning = true
         timer_Spawn.start(startDelay, function spawn) 
         
 
@@ -102,4 +104,9 @@ public class UnitSpawner
 
         if instance.targetOnSpawn != null
             spawnedUnit.issueTargetOrder("attack", instance.targetOnSpawn)
+
+        if instance.spawnCount != 0
+            instance.currentSpawnCount++
+            if instance.currentSpawnCount >= instance.spawnCount
+                
         
