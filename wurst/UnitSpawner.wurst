@@ -25,6 +25,7 @@ public class UnitSpawner
     private group spawnedUnits
     private boolean randomSpawnPoint // Toggles it to spawn somewhere random in spawnRect
     private timer timer_Spawn
+    private boolean isActivated = ACTIVATEONCONSTRUCT
 
     
 // -------------------------------------------------------------------------------------------------------------------------------------
@@ -35,15 +36,19 @@ public class UnitSpawner
         this.spawnFrequency = spawnFrequency
         this.spawnPos = spawnPos
 
-        timer_Spawn = getTimer()
+        if ACTIVATEONCONSTRUCT
+            activate()
 
 
     ondestroy
-        if timer_Spawn != null
-            timer_Spawn.release()
-
+        deactivate()
+        
 
     function start()
+
+        if not isActivated
+            activate()
+        
 
     function stop()
 
@@ -52,9 +57,13 @@ public class UnitSpawner
 
     /** Sets up the spawner (creating timers and triggers) */
     function activate()
+        isActivated = true
+        timer_Spawn = getTimer()
     
     /** Releases timers and destroys triggers */
     function deactivate()
+        isActivated = false
+        timer_Spawn.release()
 
     /** Sets the amount of that it will make before automatically stopping*/
     function setSpawnCount()
