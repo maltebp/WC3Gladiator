@@ -16,8 +16,8 @@ public class UnitSpawner
 
     // Instance Variables
     private real spawnFrequency
-    private real spawnCount
-    private real currentSpawnCount = 0
+    private int spawnCount
+    private int currentSpawnCount = 0
     private real spawnFrequencyDeviation
     private real startDelay
     private int  unitId
@@ -76,8 +76,12 @@ public class UnitSpawner
         timer_Spawn.release()
         spawnedUnits.destr()
 
-    /** Sets the amount of that it will make before automatically stopping*/
-    function setSpawnCount()
+    /** Sets the amount of that it will make before automatically stopping.
+        @param spawnCount The number of units to spawn. 0 means it will spawn
+        until it's turned off again (default).*/
+    function setSpawnCount(int spawnCount)
+        this.spawnCount = spawnCount
+        
 
     /** Sets the start delay of the timer. Default startDelay is spawnFrequency. */
     function setStartDelay(real startDelay)
@@ -95,6 +99,7 @@ public class UnitSpawner
     /** Spawns the unit, and if it's set, make effect and order attack*/
     private static function spawn()
         thistype instance = GetExpiredTimer().getData() castTo thistype
+
         angle spawnFacing = (instance.spawnFacing==-1) ? angle(GetRandomReal(0, 2*PI)) : angle(instance.spawnFacing)
         unit spawnedUnit = createUnit(instance.owner, instance.unitId, instance.spawnPos, spawnFacing)
         instance.spawnedUnits.addUnit(spawnedUnit)
@@ -107,6 +112,9 @@ public class UnitSpawner
 
         if instance.spawnCount != 0
             instance.currentSpawnCount++
-            if instance.currentSpawnCount >= instance.spawnCount
+            if instance.currentSpawnCount < instance.spawnCount
+                instance.timer_Spawn.start(instance.spawnFrequency, function spawn)
+        else
+            instance.timer_Spawn.start(instance.spawnFrequency, function spawn)
                 
         
