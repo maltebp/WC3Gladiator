@@ -19,22 +19,33 @@ public class UnitSpawner
     private int  unitId
     private vec2 spawnPos
     private rect spawnRect
+    private group spawnedUnits
     private boolean randomSpawnPoint // Toggles it to spawn somewhere random in spawnRect
 
     
 // -------------------------------------------------------------------------------------------------------------------------------------
 // Methods
 
-    construct()
+    construct(int unitId, real spawnFrequency)
 
     function start()
 
     function stop()
 
+    /** Stops the spawner, and removes all the units that it has made */
     function clear()
+
+    /** Sets the amount of that it will make before automatically stopping*/
+    function setSpawnCount()
+
+    /** Default startDelay is spawnFrequency
+    */
+    function setStartDelay()
 
     function setPos()
 
     function setRandomSpawn()
+
+    function setDeviation()
 
     private function spawn()
