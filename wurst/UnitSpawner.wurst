@@ -2,6 +2,7 @@ package UnitSpawner
 
 import TimerUtils
 import public SoundUtils
+import Orders
 
 public class UnitSpawner
 //=========================================================================================================================================================
@@ -32,6 +33,7 @@ public class UnitSpawner
     private string spawnEffect
     private boolean isRunning = false
     private unit targetOnSpawn
+    private rect targetRect // The rect in which it has to search for a random target
     private SoundDefinition soundOnspawn
 
     
@@ -91,8 +93,20 @@ public class UnitSpawner
 
     function setDeviation()
 
+    
+    /** Sets a rect in which to find a random target to attack when spawned. It 
+        will "move-attack", so it will attack the first target it meets.
+        It will prioritize a specific target set with setUnitTargetOnSpawn(),
+        over this (if you by accident set them both).
+        @param rectToTarget: The rect in which to search for a target */
+    function setRandomTargetOnSpawn(rect rectToTarget )
+        this.targetRect = rectToTarget
+        
+
     /** Sets a unit target for the unit spawned to attack, once it spawns.
         If no target is assigned, it will just stand when spawned.
+        It will prioritize this over setRandomTargetOnSpawn() if both are
+        set by accident.
         @param target: the unit to target when spawned.*/
     function setUnitTargetOnSpawn(unit target)
         this.targetOnSpawn = target
@@ -117,6 +131,25 @@ public class UnitSpawner
         this.soundOnspawn = new SoundDefinition(soundPath, false, true)
         
 
+    /** Gets a random unit from the spawner's targetRect (this is set with then
+        setRandomTargetOnSpawn() method).
+        @return:    a random unit from the targetRect, that is alive and is an enemy
+        of the owner of the spawner. It returns null if no unit is found.*/
+    private function getRandomTargetInRect() returns unit
+        
+        group targets = ENUM_GROUP
+        targets.enumUnitsInRect(targetRect)
+
+        // Removing the units not to be hit
+        for u in targets
+            if( not u.isAlive() or u.getOwner().isAllyOf(owner) )
+                targets.removeUnit(u)
+
+        unit target = targets.getRandomUnit()
+        targets.clear()
+        return target
+
+
     /** Spawns the unit, and if it's set, make effect and order attack*/
     private static function spawn()
         thistype instance = GetExpiredTimer().getData() castTo thistype
@@ -132,8 +165,14 @@ public class UnitSpawner
         if instance.targetOnSpawn != null
             spawnedUnit.issueTargetOrder("attack", instance.targetOnSpawn)
 
+        else if instance.targetRect != null
+            unit randomTarget = instance.getRandomTargetInRect()
+            if randomTarget != null
+                spawnedUnit.issuePointOrderById(Orders.attackground, randomTarget.getPos())            
+
         if instance.soundOnspawn != null
             instance.soundOnspawn.playOnPoint(instance.spawnPos.toVec3())
+            
 
         if instance.spawnCount != 0
             instance.currentSpawnCount++
