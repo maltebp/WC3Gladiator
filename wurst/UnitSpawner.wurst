@@ -7,6 +7,7 @@ public class UnitSpawner
 
     // Settings
 
+    private static constant boolean ACTIVATEONCONSTRUCT = true
 
 // =========================================================================================================================================================
 
@@ -32,7 +33,12 @@ public class UnitSpawner
     construct(int unitId, real spawnFrequency)
         this.unitId = unitId
         this.spawnFrequency = spawnFrequency
+
         timer_Spawn = getTimer()
+
+    ondestroy
+        if timer_Spawn != null
+            timer_Spawn.release()
 
     function start()
 
@@ -40,6 +46,12 @@ public class UnitSpawner
 
     /** Stops the spawner, and removes all the units that it has made */
     function clear()
+
+    /** Sets up the spawner (creating timers and triggers) */
+    function activate()
+    
+    /** Releases timers and destroys triggers */
+    function deactivate()
 
     /** Sets the amount of that it will make before automatically stopping*/
     function setSpawnCount()
