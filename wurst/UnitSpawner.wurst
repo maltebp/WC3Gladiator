@@ -11,5 +11,30 @@ public class UnitSpawner
     // Class Variables
 
     // Instance Variables
-    private static real spawnFrequency
+    private real spawnFrequency
+    private real spawnCount
+    private real currentCount
+    private real spawnFrequencyDeviation
+    private real startDelay
+    private int  unitId
+    private vec2 spawnPos
+    private rect spawnRect
+    private boolean randomSpawnPoint // Toggles it to spawn somewhere random in spawnRect
+
     
+// -------------------------------------------------------------------------------------------------------------------------------------
+// Methods
+
+    construct()
+
+    function start()
+
+    function stop()
+
+    function clear()
+
+    function setPos()
+
+    function setRandomSpawn()
+
+    private function spawn()
