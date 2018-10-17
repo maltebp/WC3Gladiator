@@ -96,6 +96,13 @@ public class UnitSpawner
     function setUnitSpawnFacing( real spawnFacing )
         this.spawnFacing = spawnFacing
 
+    /** Creates a sound to play when a unit spawns. It's 3D and is played on the
+        spawnPos.
+        @ param soundPath: the string path for the sound file. Use Sounds (it's public)*/
+    function setSoundOnSpawn( string soundPath )
+        this.soundOnspawn = new SoundDefinition(soundPath, false, true)
+        
+
     /** Spawns the unit, and if it's set, make effect and order attack*/
     private static function spawn()
         thistype instance = GetExpiredTimer().getData() castTo thistype
@@ -109,6 +116,9 @@ public class UnitSpawner
 
         if instance.targetOnSpawn != null
             spawnedUnit.issueTargetOrder("attack", instance.targetOnSpawn)
+
+        if instance.soundOnspawn != null
+            instance.soundOnspawn.playOnPoint(instance.spawnPos.toVec3())
 
         if instance.spawnCount != 0
             instance.currentSpawnCount++
