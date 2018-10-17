@@ -91,6 +91,14 @@ public class UnitSpawner
 
     function setDeviation()
 
+    /** Sets a unit target for the unit spawned to attack, once it spawns.
+        If no target is assigned, it will just stand when spawned.
+        @param target: the unit to target when spawned.*/
+    function setUnitTargetOnSpawn(unit target)
+        this.targetOnSpawn = target
+        // FIX THIS: It's appropriate to have the same unit being the target
+        // for allt he units spawned with this spawner.
+
     /** Sets a fixed facing for spawned units.-1 sets it to random, which is default
         @param spawnFacing: the angle in radians. -1 sets it facing to random*/
     function setUnitSpawnFacing( real spawnFacing )
