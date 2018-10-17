@@ -62,10 +62,15 @@ public class UnitSpawner
         
 
     function stop()
-
+        isActivated = false
+        timer_Spawn.pause()
+    
     /** Stops the spawner, and removes all the units that it has made */
     function clear()
-
+        for spawnedUnit from spawnedUnits
+            spawnedUnit.remove()
+        stop()
+            
     /** Sets up the spawner (creating timers and triggers) */
     function activate()
         isActivated = true
@@ -89,7 +94,13 @@ public class UnitSpawner
     function setStartDelay(real startDelay)
         this.startDelay = startDelay
 
-    function setRandomSpawn()
+    /** Enable random spawn position, by setting a rect in which to find this
+        random position.
+        @param spawnRect: A rect in which the unit should spawn. If null, it
+        will use it's specific position.*/
+    function setRandomSpawn(rect spawnRect)
+        this.spawnRect = spawnRect
+        
 
     function setDeviation()
 
@@ -154,14 +165,19 @@ public class UnitSpawner
     private static function spawn()
         thistype instance = GetExpiredTimer().getData() castTo thistype
 
+        // Finding Spawn Pos
+        vec2 spawnPos
+        if instance.spawnRect != null
+            spawnPos = instance.spawnRect.randomPoint()
+        else
+            spawnPos = instance.spawnPos
+
+        // Spawning units
         angle spawnFacing = (instance.spawnFacing==-1) ? angle(GetRandomReal(0, 2*PI)) : angle(instance.spawnFacing)
-        unit spawnedUnit = createUnit(instance.owner, instance.unitId, instance.spawnPos, spawnFacing)
+        unit spawnedUnit = createUnit(instance.owner, instance.unitId, spawnPos, spawnFacing)
         instance.spawnedUnits.addUnit(spawnedUnit)
 
-        if instance.spawnEffect != null
-            addEffect(instance.spawnEffect, instance.spawnPos )
-            ..destr()
-
+        // Find target to attack on spawn
         if instance.targetOnSpawn != null
             spawnedUnit.issueTargetOrder("attack", instance.targetOnSpawn)
 
@@ -170,14 +186,23 @@ public class UnitSpawner
             if randomTarget != null
                 spawnedUnit.issuePointOrderById(Orders.attackground, randomTarget.getPos())            
 
+        // Creating effects
         if instance.soundOnspawn != null
             instance.soundOnspawn.playOnPoint(instance.spawnPos.toVec3())
             
+        if instance.spawnEffect != null
+            addEffect(instance.spawnEffect, instance.spawnPos )
+            ..destr()
 
+        /*  Rerun Timer
+            It first checks if it's restricted by a number of spawns,
+            or if it has spawned what it should.*/
         if instance.spawnCount != 0
             instance.currentSpawnCount++
             if instance.currentSpawnCount < instance.spawnCount
                 instance.timer_Spawn.start(instance.spawnFrequency, function spawn)
+            else
+                instance.stop()
         else
             instance.timer_Spawn.start(instance.spawnFrequency, function spawn)
                 
