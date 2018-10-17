@@ -58,9 +58,10 @@ public class UnitSpawner
             activate()
 
         isRunning = true
-        timer_Spawn.start(startDelay, function spawn) 
+        timer_Spawn.start(getStartDelayWithDeviation(), function spawn) 
         
-
+    /** Stops the unit spawner from spawning. Does not remove units or deactivate
+        the spawner. Use deactivate() and clear() for that.*/
     function stop()
         isActivated = false
         timer_Spawn.pause()
@@ -100,9 +101,14 @@ public class UnitSpawner
         will use it's specific position.*/
     function setRandomSpawn(rect spawnRect)
         this.spawnRect = spawnRect
-        
-
-    function setDeviation()
+    
+    /** Adds a possible deviation (positive and negative) percentage to the frequency
+        and startDelay of the unitspawner.
+        The deviation is calculated before it spawns a new unit, so that the first unit
+        make take x seconds to spawn, but the second might take x*0.95 to spawn.
+        @param deviation: the deviation in decimal percent (0.05 = 5%)*/
+    function setFrequencyDeviation(real deviation)
+        this.spawnFrequencyDeviation = deviation
 
     
     /** Sets a rect in which to find a random target to attack when spawned. It 
@@ -161,6 +167,14 @@ public class UnitSpawner
         return target
 
 
+    /** Calculate a random frequency using the set frequency +/- the deviation.*/
+    private function getFrequencyWithDeviation() returns real
+        return GetRandomReal(spawnFrequency*(1-spawnFrequencyDeviation),spawnFrequency*(1+spawnFrequencyDeviation))
+
+    /** Calculate a random startDelay using the set startDelay +/- the deviation.*/
+    private function getStartDelayWithDeviation() returns real
+        return GetRandomReal(startDelay*(1-spawnFrequencyDeviation),startDelay*(1+spawnFrequencyDeviation))
+
     /** Spawns the unit, and if it's set, make effect and order attack*/
     private static function spawn()
         thistype instance = GetExpiredTimer().getData() castTo thistype
@@ -200,10 +214,10 @@ public class UnitSpawner
         if instance.spawnCount != 0
             instance.currentSpawnCount++
             if instance.currentSpawnCount < instance.spawnCount
-                instance.timer_Spawn.start(instance.spawnFrequency, function spawn)
+                instance.timer_Spawn.start(instance.getFrequencyWithDeviation(), function spawn)
             else
                 instance.stop()
         else
-            instance.timer_Spawn.start(instance.spawnFrequency, function spawn)
+            instance.timer_Spawn.start(instance.getFrequencyWithDeviation(), function spawn)
                 
         
