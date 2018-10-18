@@ -1,6 +1,5 @@
 package RoundSetup
 
-import Round
 import Game
 
 init

@@ -1,7 +1,13 @@
 package Game
 
+import public Round 
+import Sound
+
 public unit hero
-public constant player ENEMYPLAYER = Player(PLAYER_NEUTRAL_AGGRESSIVE)
+public constant player ENEMYPLAYER = Player(11)
+
+SoundDefinition snd_StartRound = new SoundDefinition(Sounds.goodJob, false)
+
 
 // Game Init --------------------------------------------------------------------------------------------------------------------
 init
@@ -17,4 +23,8 @@ init
     ..addAction(function startRound)
 
 function startRound()
-    
+
+    if not Round.isARoundRunning()
+        snd_StartRound.play()
+        Round.startRound()
+
