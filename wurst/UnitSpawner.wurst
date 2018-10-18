@@ -3,7 +3,7 @@ package UnitSpawner
 import TimerUtils
 import public SoundUtils
 import Orders
-import LinkedList
+import public LinkedList
 
 
 /*
@@ -84,6 +84,8 @@ public class UnitSpawner
     ondestroy
         deactivate()
         allSpawners.remove(this)
+        if codeOnSpawn != null
+            destroy codeOnSpawn
 
     /** Starts the spawner spawning units. The first spawn will happen after spawnDelay, and all
         spawns after that will happen after spawnFrequency. */
@@ -91,12 +93,13 @@ public class UnitSpawner
         if not isActivated
             activate()
         isRunning = true
-        timer_Spawn.start(getStartDelayWithDeviation(), function spawn) 
+        currentSpawnCount = 0
+        timer_Spawn.start(getRealWithDeviation(startDelay), function spawn) 
         
     /** Stops the unit spawner from spawning. Does not remove units or deactivate
         the spawner. Use deactivate() and clear() for that.*/
     function stop()
-        isActivated = false
+        isRunning = false
         timer_Spawn.pause()
     
     /** Stops the spawner, and removes all the units that it has made */
@@ -118,8 +121,7 @@ public class UnitSpawner
         clear()
         timer_Spawn.release()
         spawnedUnits.destr()
-        if codeOnSpawn != null
-            destroy codeOnSpawn
+        
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Setters
@@ -210,12 +212,8 @@ public class UnitSpawner
 
     /** Returns a list of ALL the spawners (deactivated, running, stopped etc.)
         @return: A copy of the list of all spawners as arraylist of UnitSpawner type.  */
-    function getAllSpawners() returns UnitSpawner array
-        UnitSpawner array spawners
-        int index = 0
-        for spawner in allSpawners
-            spawners[index] = spawner
-        return spawners
+    static function getAllSpawners() returns LinkedList<UnitSpawner>
+        return  allSpawners.copy()
 
     /** Returns the last spawned unit from THIS spawner. If none has spawned or the
         spawner has been cleared, then it will return null.*/
@@ -265,13 +263,13 @@ public class UnitSpawner
            
         return target
 
-    /** Calculate a random frequency using the set frequency +/- the deviation.*/
-    private function getFrequencyWithDeviation() returns real
-        return GetRandomReal(spawnFrequency*(1-spawnFrequencyDeviation),spawnFrequency*(1+spawnFrequencyDeviation))
-
-    /** Calculate a random startDelay using the set startDelay +/- the deviation.*/
-    private function getStartDelayWithDeviation() returns real
-        return GetRandomReal(startDelay*(1-spawnFrequencyDeviation),startDelay*(1+spawnFrequencyDeviation))
+    /** Adds a random deviation to real variable. The interval of the deviation
+        is the instance's deviation.*/
+    private function getRealWithDeviation(real realToAdjust) returns real
+        real realWithDeviation = GetRandomReal(realToAdjust*(1-spawnFrequencyDeviation),realToAdjust*(1+spawnFrequencyDeviation))
+        if realWithDeviation < 0
+            realWithDeviation = 0
+        return realWithDeviation
 
     /** Spawns the unit, and if it's set, make effect and order attack*/
     private static function spawn()
@@ -323,11 +321,11 @@ public class UnitSpawner
         if instance.spawnCount != 0
             instance.currentSpawnCount++
             if instance.currentSpawnCount < instance.spawnCount
-                instance.timer_Spawn.start(instance.getFrequencyWithDeviation(), function spawn)
+                instance.timer_Spawn.start(instance.getRealWithDeviation(instance.spawnFrequency), function spawn)
             else
                 instance.stop()
         else
-            instance.timer_Spawn.start(instance.getFrequencyWithDeviation(), function spawn)
+            instance.timer_Spawn.start(instance.getRealWithDeviation(instance.spawnFrequency), function spawn)
   
 
 //---------------------------------------------------------------------------------------------------------------------------------------
@@ -345,5 +343,5 @@ public function unit.isFromAnySpawner() returns boolean
 public function unit.isFromSpawner(UnitSpawner whichSpawner) returns boolean
     return whichSpawner.spawnedUnits.contains(this)
 
-public interface RemoteFunction<T>
-    function run(T t)
+public interface RemoteFunction<UnitSpawner>
+    function run(UnitSpawner unitSpawner)

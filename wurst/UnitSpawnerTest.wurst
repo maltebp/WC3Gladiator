@@ -1,23 +1,36 @@
 package UnitSpawnerTest
 import UnitSpawner
+import TimerUtils
+import Orders
 
 /*
     Tests
 
-        [ ] Clear function
-        [ ] Remote Code
+        [x] Clear
+        [x] Remote Code
         [x] Attack specific On Spawn
-        [ ] Attack Random on spawn
+        [x] Attack Random on spawn
+        [x] Attack nearest target 
         [x] Special Effect
         [x] Sound
-        [ ] Spawn Count
+        [x] Random pos
+        [x] Spawn Count
         [x] Spawn neverending
+        [x] Deviation
         [ ] Get All Spawners
-        [ ] Unit is of spawner
+        [x] Unit is of spawner
+        [x] Destroy
+        [x] Deactivate -> Activate -> Start
 
 
 
 */
+
+UnitSpawner spawner1 
+UnitSpawner spawner2
+UnitSpawner spawner3
+UnitSpawner spawner4
+real time = 0
 
 
 init
@@ -45,16 +58,32 @@ init
     unit mountainKing = u
 
 
+    RemoteFunction<UnitSpawner> remoteCode = (UnitSpawner spawner) -> begin
+        
+    end
+
     vec2 spawnPos1 = vec2(624,1551)
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, GetPlayableMapRect(), false, false).start()
 
-    
-    new UnitSpawner('nanm', Player(11), spawnPos1, 2)
-    ..setStartDelay(10)
-    ..setRandomTargetOnSpawn(GetPlayableMapRect())
+    spawner1 = new UnitSpawner('nanm', Player(11), spawnPos1, 2)
+    ..setStartDelay(8)
+    ..setSpawnCount(4)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..start()
     ..setSpawnEffect("Abilities\\Spells\\NightElf\\FaerieDragonInvis\\FaerieDragon_Invis.mdl")
     ..setSoundOnSpawn(Sounds.arachnathidYes2)
     
+    spawner2 = new UnitSpawner('nrzt', Player(11), spawnPos1, 1)
+    ..setRandomSpawn(gg_rct_Region_000)
+    ..setSpawnCount(5)
+    ..setStartDelay(5)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setFrequencyDeviation(0.5)
+    ..setCodeOnSpawn(remoteCode)
+    ..start()
 
+    getTimer().start( 20, function clearAll)
+
+function clearAll()
+    
     
