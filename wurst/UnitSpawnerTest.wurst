@@ -1,0 +1,56 @@
+package UnitSpawnerTest
+import UnitSpawner
+
+/*
+    Tests
+
+        [ ] Clear function
+        [ ] Remote Code
+        [ ] Attack On Spawn
+        [ ] Special Effect
+        [ ] Sound
+        [ ] Spawn Count
+        [ ] Spawn neverending
+        [ ] Get All Spawners
+        [ ] Unit is of spawner
+
+
+
+*/
+
+
+init
+    // Creating Hero
+    unit u
+    u = CreateUnit( Player(0), 'Hmkg', -89.6, 518.3, 244.033 )
+    SetHeroLevel( u, 10, false )
+    SetUnitColor( u, ConvertPlayerColor(21) )
+    SelectHeroSkill( u, 'AHtb' )
+    SelectHeroSkill( u, 'AHtb' )
+    SelectHeroSkill( u, 'AHtb' )
+    SelectHeroSkill( u, 'AHtc' )
+    SelectHeroSkill( u, 'AHtc' )
+    SelectHeroSkill( u, 'AHtc' )
+    SelectHeroSkill( u, 'AHbh' )
+    SelectHeroSkill( u, 'AHbh' )
+    SelectHeroSkill( u, 'AHbh' )
+    SelectHeroSkill( u, 'AHav' )
+    UnitAddItemToSlotById( u, 'bspd', 0 )
+    UnitAddItemToSlotById( u, 'gcel', 1 )
+    UnitAddItemToSlotById( u, 'srbd', 2 )
+    UnitAddItemToSlotById( u, 'rat9', 3 )
+    UnitAddItemToSlotById( u, 'shhn', 4 )
+    UnitAddItemToSlotById( u, 'shdt', 5 )
+    unit mountainKing = u
+
+
+    vec2 spawnPos1 = vec2(624,1551)
+    CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, GetPlayableMapRect(), false, false).start()
+
+    new UnitSpawner('nanm', Player(11), spawnPos1, 2)
+    ..setStartDelay(10)
+    ..setUnitTargetOnSpawn(mountainKing)
+    ..start()
+    
+
+    
