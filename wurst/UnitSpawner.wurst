@@ -6,24 +6,29 @@ import Orders
 import LinkedList
 
 
-// function testFunction()
-//     RemoteFunction<UnitSpawner> remoteFunction = spawner -> begin 
-//     end
+/*
+---------------------------------------------------------------------------------------------------------------------------------------
 
-//     new UnitSpawner('0000',Player(0),vec2(0,0),0)
-//     ..setCodeOnSpawn(remoteFunction)
+    Description
+    This class creates object (a spawner) that can spawn units. The spawner may customized in many ways,
+    and can be started / at will.
 
-public interface RemoteFunction<T>
-    function run(T t)
+    How To use:
+    Create a new object. Doing this will grant you a ready spawner, but it may be altered with the set
+    methods.
+    
+---------------------------------------------------------------------------------------------------------------------------------------
+*/
 
 public class UnitSpawner
+
 //=========================================================================================================================================================
 
     // Settings
 
     private static constant boolean ACTIVATEONCONSTRUCT = true
 
-// =========================================================================================================================================================
+//=========================================================================================================================================================
 
     // Class Variables
     protected static LinkedList<UnitSpawner> allSpawners = new LinkedList<UnitSpawner>
@@ -40,6 +45,7 @@ public class UnitSpawner
     private real spawnFacing = -1
     private rect spawnRect
     protected group spawnedUnits
+    private unit lastSpawnedUnit
     private timer timer_Spawn
     private boolean isActivated = ACTIVATEONCONSTRUCT
     private string spawnEffect
@@ -50,8 +56,13 @@ public class UnitSpawner
     private RemoteFunction<UnitSpawner> codeOnSpawn 
 
     
-// -------------------------------------------------------------------------------------------------------------------------------------
-// Methods
+// ======================================================================================================================================
+
+    
+
+
+//---------------------------------------------------------------------------------------------------------------------------------------
+//  Creation and management functions
 
     construct(int unitId, player owner, vec2 spawnPos, real spawnFrequency)
         this.unitId = unitId
@@ -87,6 +98,7 @@ public class UnitSpawner
     function clear()
         for spawnedUnit from spawnedUnits
             spawnedUnit.remove()
+        lastSpawnedUnit = null
         stop()
      
     /** Sets up the spawner (creating timers and triggers) */
@@ -103,6 +115,9 @@ public class UnitSpawner
         spawnedUnits.destr()
         if codeOnSpawn != null
             destroy codeOnSpawn
+
+//---------------------------------------------------------------------------------------------------------------------------------------
+// Setters
 
     /** Sets the amount of that it will make before automatically stopping.
         @param spawnCount The number of units to spawn. 0 means it will spawn
@@ -174,11 +189,13 @@ public class UnitSpawner
     function setCodeOnSpawn( RemoteFunction<UnitSpawner> codeOnSpawn)
         this.codeOnSpawn = codeOnSpawn
 
+//---------------------------------------------------------------------------------------------------------------------------------------
+// Getters
+
     /** Checks if the spawner is finished; it has been stopped (either by stop() MAP_RESOURCE_TRADING_ALLIES_ONLY
         or becuase it has spawned spawnCount units)*/
     function isFinished() returns boolean
         return not isRunning
-
 
     /** Returns a list of ALL the spawners (deactivated, running, stopped etc.)
         @return: A copy of the list of all spawners as arraylist of UnitSpawner type.  */
@@ -189,6 +206,14 @@ public class UnitSpawner
             spawners[index] = spawner
         return spawners
 
+    /** Returns the last spawned unit from THIS spawner. If none has spawned or the
+        spawner has been cleared, then it will return null.*/
+    function getLastSpawnedUnit() returns unit
+        return lastSpawnedUnit
+
+//---------------------------------------------------------------------------------------------------------------------------------------
+// Private Methods
+    
     /** Gets a random unit from the spawner's targetRect (this is set with then
         setRandomTargetOnSpawn() method).
         @return:    a random unit from the targetRect, that is alive and is an enemy
@@ -230,6 +255,7 @@ public class UnitSpawner
         angle spawnFacing = (instance.spawnFacing==-1) ? angle(GetRandomReal(0, 2*PI)) : angle(instance.spawnFacing)
         unit spawnedUnit = createUnit(instance.owner, instance.unitId, spawnPos, spawnFacing)
         instance.spawnedUnits.addUnit(spawnedUnit)
+        instance.lastSpawnedUnit = spawnedUnit
 
         // Find target to attack on spawn
         if instance.targetOnSpawn != null
@@ -265,6 +291,9 @@ public class UnitSpawner
             instance.timer_Spawn.start(instance.getFrequencyWithDeviation(), function spawn)
   
 
+//---------------------------------------------------------------------------------------------------------------------------------------
+// Other Stuff
+
 /** Checks if the unit is spawned by any spawner*/
 public function unit.isFromAnySpawner() returns boolean
     for spawner in UnitSpawner.allSpawners
@@ -276,9 +305,6 @@ public function unit.isFromAnySpawner() returns boolean
 /** Checks if unit is spawned by a specific spawner */
 public function unit.isFromSpawner(UnitSpawner whichSpawner) returns boolean
     return whichSpawner.spawnedUnits.contains(this)
-        
-/* TO DO:
-    - Add functionality for setting a code to launch on unitspawn
-    - TEST THE SHIT DAMNIT
-    - Add a package Description
-        */
+
+public interface RemoteFunction<T>
+    function run(T t)
