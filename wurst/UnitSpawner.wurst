@@ -223,6 +223,13 @@ public class UnitSpawner
     function getLastSpawnedUnit() returns unit
         return lastSpawnedUnit
 
+    /** Checks if all units spawned by this UnitSpawner are dead. */
+    function allSpawnedUnitsAreDead() returns boolean
+        for spawnedUnit in spawnedUnits
+            if spawnedUnit.isAliveTrick()
+                return false
+        return true
+
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Private Methods
     
