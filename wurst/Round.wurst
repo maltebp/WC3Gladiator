@@ -1,7 +1,7 @@
 package Round
 
 import LinkedList
-import UnitSpawner
+import public UnitSpawner
 import ErrorHandling
 
 

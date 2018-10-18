@@ -1,2 +1,13 @@
 package RoundSetup
 
+import Round
+import Game
+
+init
+    Round round
+
+    round = new Round
+
+    round.addSpawner(new UnitSpawner('nanc', ENEMYPLAYER, vec2(-639,1025), 5))
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    
