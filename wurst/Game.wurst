@@ -10,3 +10,11 @@ init
     ..setLevel(10, false)
 
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, GetPlayableMapRect(), false, false).start()
+
+
+    CreateTrigger()
+    ..registerPlayerEvent(Player(0), EVENT_PLAYER_END_CINEMATIC)
+    ..addAction(function startRound)
+
+function startRound()
+    
