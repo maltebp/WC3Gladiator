@@ -16,6 +16,7 @@ public class Round
 //  Settings 
 
     private static constant SoundDefinition snd_RoundWon = new SoundDefinition(Sounds.questCompleted, false)
+    private static constant SoundDefinition snd_RoundLost = new SoundDefinition(Sounds.questFailed, false)
 
 //=========================================================================================================================================================
 
@@ -26,6 +27,7 @@ public class Round
     private static int nextRoundNumber = 1
     private static int totalNumberOfRounds = 0
     private static int currentRound = 0
+    private static boolean roundWon = false
 
     private static boolean aRoundIsRunning = false
 
@@ -84,8 +86,12 @@ public class Round
         if totalNumberOfRounds != 0
             if currentRound == 0
                 currentRound = 1
-                initializeRound()
             
+            if not currentRound > totalNumberOfRounds
+                initializeRound()
+
+            else
+                error("No more rounds")
 
         else
             error("No rounds added")
@@ -94,6 +100,7 @@ public class Round
     static function initializeRound()
             print("Starting round "+currentRound.toString())
             aRoundIsRunning = true
+            roundWon = false
             rounds.get(currentRound-1).activateSpawners()
 
             
@@ -104,13 +111,26 @@ public class Round
                 spawner.start()
         
 
+    private static function clearRound()
+        Round round = rounds.get(currentRound-1)
+
+        for spawner in round.spawners
+            spawner.clear()
+
+        if roundWon
+            currentRound++
+
+        aRoundIsRunning = false
+
     private static function endRound()
         snd_RoundWon.play()
         aRoundIsRunning = false
         
         print("You completed round "+currentRound.toString())
 
-        currentRound++
+        roundWon =true
+
+        clearRound()
         
 
     private static function spawnedUnitDies()
@@ -118,7 +138,7 @@ public class Round
 
         boolean allSpawnersFinished = true
         for spawner in round.spawners
-            if not spawner.isFinished()
+            if not spawner.isFinished() or not spawner.allSpawnedUnitsAreDead()
                 allSpawnersFinished = false
             
         if allSpawnersFinished
@@ -128,7 +148,10 @@ public class Round
 
 
     private static function heroDies()
-        
+        print("You lost round"+currentRound.toString()+". Try again")
+        snd_RoundLost.play()
+        clearRound()
+        hero.revive(vec2(-70,451), true)
 
 
 
