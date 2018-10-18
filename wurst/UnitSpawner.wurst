@@ -127,7 +127,7 @@ public class UnitSpawner
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Setters
 
-    /** Sets the amount of that it will make before automatically stopping.s
+    /** Sets the amount of that it will make before automatically stopping.
         @param spawnCount The number of units to spawn. 0 means it will spawn
         until it's turned off again (default).*/
     function setSpawnCount(int spawnCount)

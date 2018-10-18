@@ -1,2 +1,153 @@
 package Round
 
+import LinkedList
+import public UnitSpawner
+import ErrorHandling
+import initlater Game
+import SoundUtils
+
+
+
+
+public class Round
+
+//=========================================================================================================================================================
+
+//  Settings 
+
+    private static constant SoundDefinition snd_RoundWon = new SoundDefinition(Sounds.questCompleted, false)
+
+//=========================================================================================================================================================
+
+ 
+
+    private static LinkedList<Round> rounds = new LinkedList<Round>
+    
+    private static int nextRoundNumber = 1
+    private static int totalNumberOfRounds = 0
+    private static int currentRound = 0
+
+    private static boolean aRoundIsRunning = false
+
+    private LinkedList<UnitSpawner> spawners = new LinkedList<UnitSpawner>
+    private int number
+    private int goldReward
+    private int trainingPointsReward
+
+
+// ======================================================================================================================================
+
+// Methods
+
+    //---------------------------------------------------------------------------------------------------------------------------------------
+    //  Creation and management functions
+
+    construct()
+        
+        number = nextRoundNumber
+        nextRoundNumber++
+        totalNumberOfRounds++
+        rounds.add(this)
+    
+    
+    
+//---------------------------------------------------------------------------------------------------------------------------------------
+// Setters
+
+    function setReward( int goldReward, int trainingPointsReward)
+        this.goldReward = goldReward
+        this.trainingPointsReward = trainingPointsReward
+
+    function addSpawner(UnitSpawner spawner) returns UnitSpawner
+        spawners.add(spawner)
+        return spawner
+
+    /** Manually changes the current round to a certain round. If no round
+        of that number exists, it will not do change anything */
+    static function setCurrentRound(int roundNumber)
+        currentRound = (roundNumber>totalNumberOfRounds) ? currentRound : roundNumber
+
+//---------------------------------------------------------------------------------------------------------------------------------------
+// Getters
+
+    function getNumber() returns int
+        return number
+
+    static function isARoundRunning() returns boolean
+        return aRoundIsRunning
+
+//---------------------------------------------------------------------------------------------------------------------------------------
+//  Running
+    
+    /** Starts the currentRound */
+    static function startRound()
+        if totalNumberOfRounds != 0
+            if currentRound == 0
+                currentRound = 1
+                initializeRound()
+            
+
+        else
+            error("No rounds added")
+            
+
+    static function initializeRound()
+            print("Starting round "+currentRound.toString())
+            aRoundIsRunning = true
+            rounds.get(currentRound-1).activateSpawners()
+
+            
+    private function activateSpawners()
+
+        if not spawners.isEmpty()
+            for spawner in spawners
+                spawner.start()
+        
+
+    private static function endRound()
+        snd_RoundWon.play()
+        aRoundIsRunning = false
+        
+        print("You completed round "+currentRound.toString())
+
+        currentRound++
+        
+
+    private static function spawnedUnitDies()
+        Round round = rounds.get(currentRound-1)
+
+        boolean allSpawnersFinished = true
+        for spawner in round.spawners
+            if not spawner.isFinished()
+                allSpawnersFinished = false
+            
+        if allSpawnersFinished
+            endRound()
+
+
+
+
+    private static function heroDies()
+        
+
+
+
+    protected static function anyUnitDies()
+        unit dying = GetDyingUnit()
+        
+        if dying == hero
+            heroDies()
+        else
+            spawnedUnitDies()
+            
+
+ 
+                
+init
+    CreateTrigger()
+    ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_DEATH)
+    ..addAction(function Round.anyUnitDies)
+        
+        
+        
+        

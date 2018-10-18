@@ -1,1 +1,30 @@
 package Game
+
+import public Round 
+import Sound
+
+public unit hero
+public constant player ENEMYPLAYER = Player(11)
+
+SoundDefinition snd_StartRound = new SoundDefinition(Sounds.goodJob, false)
+
+
+// Game Init --------------------------------------------------------------------------------------------------------------------
+init
+    
+    hero = createUnit(Player(0), 'Hmkg', vec2(-70,451), angle(0))
+    ..setLevel(10, false)
+
+    CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, GetPlayableMapRect(), false, false).start()
+
+
+    CreateTrigger()
+    ..registerPlayerEvent(Player(0), EVENT_PLAYER_END_CINEMATIC)
+    ..addAction(function startRound)
+
+function startRound()
+
+    if not Round.isARoundRunning()
+        snd_StartRound.play()
+        Round.startRound()
+
