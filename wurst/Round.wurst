@@ -114,7 +114,7 @@ public class Round
         
 
     private static function spawnedUnitDies()
-        Round round = rounds.get(currentRound)
+        Round round = rounds.get(currentRound-1)
 
         boolean allSpawnersFinished = true
         for spawner in round.spawners
