@@ -1,0 +1,120 @@
+package Transitions
+
+import SoundUtils
+import TimerUtils
+import Camera
+import FadeAndFilters
+import initlater Game
+
+SoundDefinition snd_StartRound = new SoundDefinition(Sounds.goodJob, false)
+SoundDefinition snd_EscapePress = new SoundDefinition(Sounds.bigButtonClick, false)
+SoundDefinition snd_RoundWon = new SoundDefinition(Sounds.questCompleted, false)
+SoundDefinition snd_RoundLost = new SoundDefinition(Sounds.questFailed, false)
+
+
+boolean hasWon = false 
+
+
+init
+    
+
+function transitionToShop(boolean won)
+    
+    hasWon = won
+
+    if hasWon
+        hero.setInvulnerable(true)
+        hero.pause()
+
+    getTimer().start(2, function toShop_PlaySound )    
+
+function toShop_PlaySound()
+
+    if hasWon
+        snd_RoundWon.play()
+        
+    else
+        snd_RoundLost.play()
+
+    GetExpiredTimer().start(2, function toShop_StartFade)
+
+function toShop_StartFade()
+    new Fade
+    ..setStartDelay(0)
+    ..onFadeOut(function toShop_OnFadeOut )
+    ..onFadeIn(function toShop_OnFadeIn )
+    ..start(FADEOUTIN)
+
+function toShop_OnFadeOut()
+    
+    Player(0).setCameraBoundsToRect(gg_rct_Arena_CamBounds)
+    Player(0).setCameraPosition(HEROSPAWN_ARENA)
+
+function toShop_OnFadeIn()
+    if hasWon
+        hero.setPos(HEROSPAWN_SHOP)
+    else
+        hero.revive(HEROSPAWN_SHOP, true)
+        hero.pause()
+
+    getTimer().start(1, function toShop_ReviewRound)
+
+function toShop_ReviewRound()
+    reviewRound()
+    GetExpiredTimer.start(3, function toShop_SetNextRound)
+
+
+
+public function transitionToArena()
+    snd_StartRound.play()
+    print("Starting Round "+Round.getCurrentRoundNumber().toString())
+    hero.pause()
+    getTimer().start(2, function toArena_StartingFade )
+
+function toArena_StartingFade()
+    new Fade
+    ..setStartDelay(0)
+    ..onFadeOut(function toArena_OnFadeOut )
+    ..onFadeIn(function toArena_OnFadeIn )
+    ..start(FADEOUTIN)
+
+function toArena_OnFadeOut()
+    hero.setPos(HEROSPAWN_ARENA)
+    Player(0).setCameraBoundsToRect(gg_rct_Arena_CamBounds)
+    Player(0).setCameraPosition(HEROSPAWN_ARENA)
+
+function toArena_OnFadeIn()
+    hero.unpause()
+    Round.startRound()
+    
+    
+
+/*
+    To Arena
+    Press escape
+    Wait 1 second
+    Play sound and pause hero
+    Wait 3 seconds
+    Fade out
+    On Fade Out: move hero to arena
+    Fade in
+    On Fade in: wait 2 seconds
+    Play sound, release hero, star spawners
+
+    On Fight end
+    Make Hero invulnerable
+    Wait 2 seconds
+    Play Sound (win or lose)
+    wait 3 seconds
+    Fade out
+    On Fade out: clear arena
+    On Fade in:
+        if hero alive: teleport in
+        if hero dead: revive
+    wait 2 seconds
+    Grant reward or tell to try again
+    wait 2 seconds
+    inform on next round, allow to start next round
+
+
+    */

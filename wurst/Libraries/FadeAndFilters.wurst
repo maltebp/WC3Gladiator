@@ -1,0 +1,163 @@
+package FadeAndFilters
+
+import public TimerUtils
+
+public constant integer FADEOUT = 1
+public constant integer FADEIN = 2
+public constant integer FADEOUTIN = 3
+
+public class Fade
+
+    
+    
+
+    private integer typeOfFade = 0
+
+    private static code codeOnFadeOut
+    private static code codeOnFadeIn
+
+    real fadeOutDuration    = 1.0
+    real fadeInDuration     = 1.0
+
+    private real startDelay         = 0
+    private real midDelay           = 0
+    private real endDelay           = 0
+    
+    boolean stayFadedOut = false
+
+    private boolean cinematicMode = true
+
+    integer array[3] startColor = [0,0,0]
+    integer array[3] endColor = [0,0,0] 
+    
+    private timer t1
+    private timer t2
+
+// --------------------------
+    ondestroy
+        t1.release()
+        t2.release()
+        codeOnFadeIn = null
+        codeOnFadeOut = null
+
+    construct()
+
+        t1 = getTimer()
+        t1.setData(this castTo int)
+
+        t2 = getTimer()
+
+        stayFadedOut = true
+
+// End Fade
+    private static function endFade()
+        thistype instance = GetExpiredTimer().getData() castTo thistype
+
+        if not instance.stayFadedOut
+            DisplayCineFilter(false)
+            ShowInterface(true, 0.01)
+            EnableUserControl(true)
+        
+        destroy instance
+        
+
+    
+// Fade IN
+    private static function OnFadeIn()
+        thistype instance = GetExpiredTimer().getData() castTo thistype  
+        
+
+        if codeOnFadeIn != null
+            instance.t2.start(instance.endDelay, codeOnFadeIn)
+        
+        DisplayCineFilter(false)
+        ShowInterface(true, 0.01)
+        EnableUserControl(true)
+
+
+    private static function fadeIn()
+        thistype instance = GetExpiredTimer().getData() castTo thistype    
+       
+        if instance.cinematicMode 
+            ShowInterface(instance.cinematicMode, 0.01)
+            EnableUserControl(instance.cinematicMode)
+
+        SetCineFilterTexture("ReplaceableTextures\\CameraMasks\\White_mask.blp")
+        SetCineFilterBlendMode(BLEND_MODE_BLEND)
+        SetCineFilterStartColor(instance.startColor[0], instance.startColor[1], instance.startColor[2], 255)
+        SetCineFilterEndColor(instance.startColor[0], instance.startColor[1], instance.startColor[2], 0)
+        SetCineFilterDuration(instance.fadeInDuration)
+        DisplayCineFilter(true)
+
+        instance.t1.start( instance.fadeInDuration, function OnFadeIn )
+    
+// Fade OUT
+    private static function OnFadeOut()
+        thistype instance = GetExpiredTimer().getData() castTo thistype    
+
+    
+        if codeOnFadeOut != null
+            instance.t2.start(0, codeOnFadeOut)
+
+        if instance.typeOfFade == FADEOUTIN
+            instance.t1.start( instance.midDelay, function fadeIn )
+        else
+            instance.t1.start( instance.midDelay, function endFade ) 
+
+    private static function fadeOut() 
+        thistype instance = GetExpiredTimer().getData() castTo thistype    
+
+        if instance.cinematicMode
+            ShowInterface(instance.cinematicMode, 0.01)
+            EnableUserControl(instance.cinematicMode)
+
+        SetCineFilterTexture("ReplaceableTextures\\CameraMasks\\White_mask.blp")
+        SetCineFilterBlendMode(BLEND_MODE_BLEND)
+        SetCineFilterStartColor(instance.startColor[0], instance.startColor[1], instance.startColor[2], 0)
+        SetCineFilterEndColor(instance.startColor[0], instance.startColor[1], instance.startColor[2], 255)
+        SetCineFilterDuration(instance.fadeOutDuration)
+        DisplayCineFilter(true)
+
+        instance.t1.start( instance.fadeOutDuration, function OnFadeOut )
+
+// Start Fade
+    function start( integer fadeType )
+        
+        typeOfFade = fadeType
+
+        if fadeType == FADEOUT or fadeType == FADEOUTIN
+            t1.start( startDelay, function fadeOut )
+
+        else if fadeType == FADEIN
+            t1.start( startDelay, function fadeIn)
+
+// Set Methods
+    function onFadeOut(code codeToFire )
+        codeOnFadeOut = codeToFire
+
+    function onFadeIn(code codeToFire )
+        codeOnFadeIn = codeToFire
+    
+    function setStartDelay( real duration )
+        startDelay = duration
+
+    function setMidDelay( real duration )
+        midDelay = duration
+    
+    function setEndDelay( real duration )
+        endDelay = duration
+
+    /** Default = true */
+    function setCinematicMode( boolean flag )
+        cinematicMode = not flag
+    
+    /** Standard duration: 1 second */
+    function setFadeInDuration( real duration )
+        fadeInDuration = duration
+    
+    /** Standard duration: 1 second */
+    function setFadeOutDuration( real duration)
+        fadeOutDuration = duration
+
+    function setData( int data )
+        t2.setData(data)

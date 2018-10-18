@@ -15,8 +15,7 @@ public class Round
 
 //  Settings 
 
-    private static constant SoundDefinition snd_RoundWon = new SoundDefinition(Sounds.questCompleted, false)
-    private static constant SoundDefinition snd_RoundLost = new SoundDefinition(Sounds.questFailed, false)
+   
 
     private static constant string TEXTCOLOR_GOLD = "|c00FF7F00"
     private static constant string TEXTCOLOR_TRAINPOINT = "|c001CE6B9"
@@ -63,6 +62,9 @@ public class Round
         this.goldReward = goldReward
         this.trainingPointsReward = trainingPointsReward
 
+    static function setARoundRunning()
+        aRoundIsRunning = true
+
     function addSpawner(UnitSpawner spawner) returns UnitSpawner
         spawners.add(spawner)
         return spawner
@@ -80,6 +82,9 @@ public class Round
 
     static function isARoundRunning() returns boolean
         return aRoundIsRunning
+
+    static function getCurrentRoundNumber() returns int
+        return currentRound
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 //  Running
@@ -138,15 +143,17 @@ public class Round
         
 
     private static function spawnedUnitDies()
-        Round round = rounds.get(currentRound-1)
+        
+        if hero.isAliveTrick()
+            Round round = rounds.get(currentRound-1)
 
-        boolean allSpawnersFinished = true
-        for spawner in round.spawners
-            if not spawner.isFinished() or not spawner.allSpawnedUnitsAreDead()
-                allSpawnersFinished = false
-            
-        if allSpawnersFinished
-            endRound()
+            boolean allSpawnersFinished = true
+            for spawner in round.spawners
+                if not spawner.isFinished() or not spawner.allSpawnedUnitsAreDead()
+                    allSpawnersFinished = false
+                
+            if allSpawnersFinished
+                endRound()
 
 
     private function giveReward()
@@ -155,9 +162,24 @@ public class Round
         Player(0).addLumber(goldReward)
 
 
+    private static function reviewRound()
+        Round round = rounds.get(currentRound-1)
+        
+        if roundWon
+            print("You completed round "+currentRound.toString())
+            round.giveReward()
+
+        else
+            print("You lost the round - try again.")
+        
+    private static function nextRound()
+        aRoundIsRunning = false
+        
+
+
     private static function heroDies()
         print("You lost round"+currentRound.toString()+". Try again")
-        snd_RoundLost.play()
+
         clearRound()
         hero.revive(vec2(-70,451), true)
 
