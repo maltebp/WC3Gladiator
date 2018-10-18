@@ -53,8 +53,8 @@ init
 
 
 function createHero()
-    hero = createUnit(Player(0), 'Hmkg', spawnPosOnInit, angle(0))
-    ..setLevel(10, false)
+    hero = createUnit(Player(0), 'O000', spawnPosOnInit, angle(0))
+    ..suspendXp(true)
 
     teleportEffect = addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
     getTimer().start(3, function deleteTeleportEffect)
