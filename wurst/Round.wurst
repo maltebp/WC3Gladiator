@@ -3,6 +3,8 @@ package Round
 import LinkedList
 import public UnitSpawner
 import ErrorHandling
+import initlater Game
+import SoundUtils
 
 
 
@@ -13,8 +15,11 @@ public class Round
 
 //  Settings 
 
+    private static constant SoundDefinition snd_RoundWon = new SoundDefinition(Sounds.questCompleted, false)
 
 //=========================================================================================================================================================
+
+ 
 
     private static LinkedList<Round> rounds = new LinkedList<Round>
     
@@ -87,6 +92,7 @@ public class Round
             
 
     static function initializeRound()
+            print("Starting round "+currentRound.toString())
             aRoundIsRunning = true
             rounds.get(currentRound-1).activateSpawners()
 
@@ -97,8 +103,50 @@ public class Round
             for spawner in spawners
                 spawner.start()
         
-    
+
+    private static function endRound()
+        snd_RoundWon.play()
+        aRoundIsRunning = false
         
+        print("You completed round "+currentRound.toString())
+
+        currentRound++
+        
+
+    private static function spawnedUnitDies()
+        Round round = rounds.get(currentRound)
+
+        boolean allSpawnersFinished = true
+        for spawner in round.spawners
+            if not spawner.isFinished()
+                allSpawnersFinished = false
+            
+        if allSpawnersFinished
+            endRound()
+
+
+
+
+    private static function heroDies()
+        
+
+
+
+    protected static function anyUnitDies()
+        unit dying = GetDyingUnit()
+        
+        if dying == hero
+            heroDies()
+        else
+            spawnedUnitDies()
+            
+
+ 
+                
+init
+    CreateTrigger()
+    ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_DEATH)
+    ..addAction(function Round.anyUnitDies)
         
         
         
