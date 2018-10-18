@@ -14,11 +14,13 @@ SoundDefinition snd_RoundLost = new SoundDefinition(Sounds.questFailed, false)
 
 boolean hasWon = false 
 
+effect teleport 
+
 
 init
     
 
-function transitionToShop(boolean won)
+public function transitionToShop(boolean won)
     
     hasWon = won
 
@@ -41,27 +43,43 @@ function toShop_PlaySound()
 function toShop_StartFade()
     new Fade
     ..setStartDelay(0)
+    ..setMidDelay(1)
     ..onFadeOut(function toShop_OnFadeOut )
     ..onFadeIn(function toShop_OnFadeIn )
     ..start(FADEOUTIN)
 
 function toShop_OnFadeOut()
+    Player(0).setCameraBoundsToRect(gg_rct_Shop_CamBounds)
+    Player(0).setCameraPosition(HEROSPAWN_SHOP)
+    Round.clearCurrentRound()
     
-    Player(0).setCameraBoundsToRect(gg_rct_Arena_CamBounds)
-    Player(0).setCameraPosition(HEROSPAWN_ARENA)
 
 function toShop_OnFadeIn()
     if hasWon
         hero.setPos(HEROSPAWN_SHOP)
+        addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", HEROSPAWN_SHOP)
+        getTimer().start(3, function deleteTeleportEffect)
+        
     else
         hero.revive(HEROSPAWN_SHOP, true)
         hero.pause()
+    
+    hero.setInvulnerable(false)
 
     getTimer().start(1, function toShop_ReviewRound)
 
+function deleteTeleportEffect()
+    GetExpiredTimer().release()
+    teleport.destr()
+
 function toShop_ReviewRound()
-    reviewRound()
-    GetExpiredTimer.start(3, function toShop_SetNextRound)
+    Round.reviewRound()
+    hero.unpause()
+    GetExpiredTimer().start(3, function toShop_SetNextRound)
+
+function toShop_SetNextRound()
+    Round.nextRound()
+    GetExpiredTimer().release()
 
 
 

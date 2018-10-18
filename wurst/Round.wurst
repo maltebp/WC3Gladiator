@@ -5,6 +5,7 @@ import public UnitSpawner
 import ErrorHandling
 import initlater Game
 import SoundUtils
+import Transitions
 
 
 
@@ -119,41 +120,26 @@ public class Round
                 spawner.start()
         
 
-    private static function clearRound()
+    static function clearCurrentRound()
         Round round = rounds.get(currentRound-1)
-
         for spawner in round.spawners
             spawner.clear()
 
-        if roundWon
-            currentRound++
-
-        aRoundIsRunning = false
-
-    private static function endRound()
-        snd_RoundWon.play()
-        aRoundIsRunning = false
         
-        print("You completed round "+currentRound.toString())
-        rounds.get(currentRound-1).giveReward()
-
-        roundWon =true
-
-        clearRound()
+        
         
 
-    private static function spawnedUnitDies()
+    private static function wasLastUnit() returns boolean
         
         if hero.isAliveTrick()
             Round round = rounds.get(currentRound-1)
-
-            boolean allSpawnersFinished = true
             for spawner in round.spawners
                 if not spawner.isFinished() or not spawner.allSpawnedUnitsAreDead()
-                    allSpawnersFinished = false
+                    return false
+            return true
+        return false
                 
-            if allSpawnersFinished
-                endRound()
+
 
 
     private function giveReward()
@@ -162,7 +148,7 @@ public class Round
         Player(0).addLumber(goldReward)
 
 
-    private static function reviewRound()
+    static function reviewRound()
         Round round = rounds.get(currentRound-1)
         
         if roundWon
@@ -172,26 +158,30 @@ public class Round
         else
             print("You lost the round - try again.")
         
-    private static function nextRound()
+    static function nextRound()
         aRoundIsRunning = false
-        
+        if( roundWon )
+            currentRound++
+            print("Next round is Round "+currentRound.toString())
+    
 
+    private static function roundLost()
+        roundWon = true
+        transitionToShop(false)
 
-    private static function heroDies()
-        print("You lost round"+currentRound.toString()+". Try again")
-
-        clearRound()
-        hero.revive(vec2(-70,451), true)
-
-
-
+    private static function roundWon()
+        roundWon =true
+        transitionToShop(true)
+            
+    
     protected static function anyUnitDies()
         unit dying = GetDyingUnit()
         
         if dying == hero
-            heroDies()
-        else
-            spawnedUnitDies()
+            roundLost()
+        else if wasLastUnit()
+            roundWon()
+            
             
 
  
