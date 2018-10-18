@@ -48,11 +48,14 @@ public class UnitSpawner
         this.startDelay =  spawnFrequency
         this.spawnPos = spawnPos
 
+        allSpawners.add(this)
+
         if ACTIVATEONCONSTRUCT
             activate()
 
     ondestroy
         deactivate()
+        allSpawners.remove(this)
 
     function start()
         if not isActivated
@@ -153,6 +156,16 @@ public class UnitSpawner
         or becuase it has spawned spawnCount units)*/
     function isFinished() returns boolean
         return not isRunning
+
+
+    /** Returns a list of ALL the spawners (deactivated, running, stopped etc.)
+        @return: A copy of the list of all spawners as arraylist of UnitSpawner type.  */
+    function getAllSpawners() returns UnitSpawner array
+        UnitSpawner array spawners
+        int index = 0
+        for spawner in allSpawners
+            spawners[index] = spawner
+        return spawners
 
     /** Gets a random unit from the spawner's targetRect (this is set with then
         setRandomTargetOnSpawn() method).
