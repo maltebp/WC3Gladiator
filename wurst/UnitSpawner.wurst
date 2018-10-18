@@ -78,9 +78,10 @@ public class UnitSpawner
         timer_Spawn = getTimer()..setData(this castTo int)
         spawnedUnits = CreateGroup()
     
-    /** Releases timers and destroys triggers */
+    /** Releases timers and destroys triggers. Calls clear function. */
     function deactivate()
         isActivated = false
+        clear()
         timer_Spawn.release()
         spawnedUnits.destr()
 
@@ -166,7 +167,6 @@ public class UnitSpawner
         targets.clear()
         return target
 
-
     /** Calculate a random frequency using the set frequency +/- the deviation.*/
     private function getFrequencyWithDeviation() returns real
         return GetRandomReal(spawnFrequency*(1-spawnFrequencyDeviation),spawnFrequency*(1+spawnFrequencyDeviation))
@@ -221,3 +221,11 @@ public class UnitSpawner
             instance.timer_Spawn.start(instance.getFrequencyWithDeviation(), function spawn)
                 
         
+/* TO DO:
+    - Remove unit from unit group as they die
+    - Remove add some sort of event handler for when a spawner has finished spawning all,
+      or when all units are dead from the spawner, and the spawner is finished.
+    - Add functionality for setting a code to launch on unitspawn
+    - TEST THE SHIT DAMNIT
+    - Add a package Description
+        */
