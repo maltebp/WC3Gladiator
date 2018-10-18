@@ -2,6 +2,7 @@ package Round
 
 import LinkedList
 import UnitSpawner
+import ErrorHandling
 
 
 
@@ -15,14 +16,17 @@ public class Round
 
 //=========================================================================================================================================================
 
-
+    private static LinkedList<Round> rounds = new LinkedList<Round>
+    
     private static int nextRoundNumber = 1
     private static int totalNumberOfRounds = 0
+    private static int currentRound = 0
 
     private LinkedList<UnitSpawner> spawners = new LinkedList<UnitSpawner>
     private int number
     private int goldReward
     private int trainingPointsReward
+
 
 // ======================================================================================================================================
 
@@ -31,11 +35,13 @@ public class Round
     //---------------------------------------------------------------------------------------------------------------------------------------
     //  Creation and management functions
 
-
+    construct()
+        
+        number = nextRoundNumber
+        nextRoundNumber++
+        totalNumberOfRounds++
+        rounds.add(this)
     
-
-    
-
     
     
 //---------------------------------------------------------------------------------------------------------------------------------------
@@ -45,13 +51,48 @@ public class Round
         this.goldReward = goldReward
         this.trainingPointsReward = trainingPointsReward
 
-
-    function addSpawner(UnitSpawner spawner)
+    function addSpawner(UnitSpawner spawner) returns UnitSpawner
         spawners.add(spawner)
+        return spawner
 
-        
+    /** Manually changes the current round to a certain round. If no round
+        of that number exists, it will not do change anything */
+    static function setCurrentRound(int roundNumber)
+        currentRound = (roundNumber>totalNumberOfRounds) ? currentRound : roundNumber
+
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Getters
 
     function getNumber() returns int
         return number
+
+//---------------------------------------------------------------------------------------------------------------------------------------
+//  Running
+    
+    /** Starts the currentRound */
+    static function startRound()
+        if totalNumberOfRounds != 0
+            if currentRound == 0
+                currentRound = 1
+            
+
+        else
+            error("No rounds added")
+            
+
+    static function initializeRound()
+            rounds.get(currentRound).activateSpawners()
+
+            
+    private function activateSpawners()
+
+        if not spawners.isEmpty()
+            for spawner in spawners
+                spawner.start()
+        
+    
+        
+        
+        
+        
+        
