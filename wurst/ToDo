@@ -17,13 +17,14 @@ TO DO
     [ ] Hero Unit
     [ ] Abilities
     [ ] Items
+   ([ ] Training Points)
 
-[ ] 4) Unit Spawner Class_________
+[x] 4) Unit Spawner Class_________
 
-    [ ] Start / Stop Functions
-    [ ] Finish Detection
-    [ ] Setup Functions
-    [ ] Test
+    [x] Start / Stop Functions
+    [x] Finish Detection
+    [x] Setup Functions
+    [x] Test
 
 [ ] 5) Rounds Class_______________
     
