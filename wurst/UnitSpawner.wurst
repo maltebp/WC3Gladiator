@@ -3,6 +3,7 @@ package UnitSpawner
 import TimerUtils
 import public SoundUtils
 import Orders
+import LinkedList
 
 public class UnitSpawner
 //=========================================================================================================================================================
@@ -14,6 +15,7 @@ public class UnitSpawner
 // =========================================================================================================================================================
 
     // Class Variables
+    protected static LinkedList<UnitSpawner> allSpawners = new LinkedList<UnitSpawner>
 
     // Instance Variables
     private real spawnFrequency
@@ -26,7 +28,7 @@ public class UnitSpawner
     private vec2 spawnPos
     private real spawnFacing = -1
     private rect spawnRect
-    private group spawnedUnits
+    protected group spawnedUnits
     private boolean randomSpawnPoint // Toggles it to spawn somewhere random in spawnRect
     private timer timer_Spawn
     private boolean isActivated = ACTIVATEONCONSTRUCT
@@ -49,7 +51,6 @@ public class UnitSpawner
         if ACTIVATEONCONSTRUCT
             activate()
 
-
     ondestroy
         deactivate()
 
@@ -71,7 +72,7 @@ public class UnitSpawner
         for spawnedUnit from spawnedUnits
             spawnedUnit.remove()
         stop()
-            
+     
     /** Sets up the spawner (creating timers and triggers) */
     function activate()
         isActivated = true
@@ -147,7 +148,11 @@ public class UnitSpawner
         @ param soundPath: the string path for the sound file. Use Sounds (it's public)*/
     function setSoundOnSpawn( string soundPath )
         this.soundOnspawn = new SoundDefinition(soundPath, false, true)
-        
+
+    /** Checks if the spawner is finished; it has been stopped (either by stop() MAP_RESOURCE_TRADING_ALLIES_ONLY
+        or becuase it has spawned spawnCount units)*/
+    function isFinished() returns boolean
+        return not isRunning
 
     /** Gets a random unit from the spawner's targetRect (this is set with then
         setRandomTargetOnSpawn() method).
@@ -219,7 +224,17 @@ public class UnitSpawner
                 instance.stop()
         else
             instance.timer_Spawn.start(instance.getFrequencyWithDeviation(), function spawn)
-                
+  
+/** Checks if the unit is spawned by any spawner*/
+public function unit.isFromAnySpawner() returns boolean
+    for spawner in UnitSpawner.allSpawners
+        if spawner.spawnedUnits.contains(this)
+            return true
+    return false
+
+/** Checks if unit is spawned by a specific spawner */
+public function unit.isFromSpawner(UnitSpawner whichSpawner) returns boolean
+    return whichSpawner.spawnedUnits.contains(this)
         
 /* TO DO:
     - Remove unit from unit group as they die
