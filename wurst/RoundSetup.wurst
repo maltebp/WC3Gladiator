@@ -6,6 +6,7 @@ init
     Round round
 
     round = new Round
+    ..setReward(200, 5)
 
     round.addSpawner(new UnitSpawner('nelb', ENEMYPLAYER, vec2(-639,1025), 1))
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
@@ -17,6 +18,7 @@ init
     ..setSpawnCount(4)
 
     round = new Round
+    ..setReward(300, 5)
 
     round.addSpawner(new UnitSpawner('npfl', ENEMYPLAYER, vec2(-639,1025), 3))
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
