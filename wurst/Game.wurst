@@ -1,1 +1,12 @@
-package Game    
+package Game
+
+public unit hero
+public constant player ENEMYPLAYER = Player(PLAYER_NEUTRAL_AGGRESSIVE)
+
+// Game Init --------------------------------------------------------------------------------------------------------------------
+init
+    
+    hero = createUnit(Player(0), 'Hmkg', vec2(-70,451), angle(0))
+    ..setLevel(10, false)
+
+    CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, GetPlayableMapRect(), false, false).start()
