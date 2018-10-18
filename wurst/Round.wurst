@@ -166,7 +166,7 @@ public class Round
     
 
     private static function roundLost()
-        roundWon = true
+        roundWon = false
         transitionToShop(false)
 
     private static function roundWon()

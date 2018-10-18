@@ -14,7 +14,7 @@ SoundDefinition snd_RoundLost = new SoundDefinition(Sounds.questFailed, false)
 
 boolean hasWon = false 
 
-effect teleport 
+effect teleportEffect
 
 
 init
@@ -41,6 +41,7 @@ function toShop_PlaySound()
     GetExpiredTimer().start(2, function toShop_StartFade)
 
 function toShop_StartFade()
+    GetExpiredTimer().release()
     new Fade
     ..setStartDelay(0)
     ..setMidDelay(1)
@@ -57,7 +58,7 @@ function toShop_OnFadeOut()
 function toShop_OnFadeIn()
     if hasWon
         hero.setPos(HEROSPAWN_SHOP)
-        addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", HEROSPAWN_SHOP)
+        teleportEffect = addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", HEROSPAWN_SHOP)
         getTimer().start(3, function deleteTeleportEffect)
         
     else
@@ -70,7 +71,7 @@ function toShop_OnFadeIn()
 
 function deleteTeleportEffect()
     GetExpiredTimer().release()
-    teleport.destr()
+    teleportEffect.destr()
 
 function toShop_ReviewRound()
     Round.reviewRound()
@@ -90,6 +91,7 @@ public function transitionToArena()
     getTimer().start(2, function toArena_StartingFade )
 
 function toArena_StartingFade()
+    GetExpiredTimer().release()
     new Fade
     ..setStartDelay(0)
     ..onFadeOut(function toArena_OnFadeOut )
@@ -97,11 +99,18 @@ function toArena_StartingFade()
     ..start(FADEOUTIN)
 
 function toArena_OnFadeOut()
-    hero.setPos(HEROSPAWN_ARENA)
+    
     Player(0).setCameraBoundsToRect(gg_rct_Arena_CamBounds)
     Player(0).setCameraPosition(HEROSPAWN_ARENA)
 
 function toArena_OnFadeIn()
+    hero.setPos(HEROSPAWN_ARENA)
+    teleportEffect = addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", HEROSPAWN_ARENA)
+    getTimer().start(3, function deleteTeleportEffect)
+    getTimer().start(2, function toArena_StartRound )
+
+function toArena_StartRound()
+    GetExpiredTimer().release()
     hero.unpause()
     Round.startRound()
     

@@ -9,8 +9,8 @@ TO DO
 
 [ ] 2) Game Functions_____________
 
-    [ ] Game Initializer
-    [ ] Between Rounds (Round starter)
+    [x] Game Initializer
+    [x] Between Rounds (Round starter)
 
 [ ] 3) Hero_______________________
     
@@ -26,17 +26,17 @@ TO DO
     [x] Setup Functions
     [x] Test
 
-[ ] 5) Rounds Class_______________
+[x] 5) Rounds Class_______________
     
     [x] Finish Detection
     [x] Setup
-    [ ] Round Start
-    [ ] Round End
+    [x] Round Start
+    [x] Round End
 
 
-[ ] 6) Transition_________________
+[x] 6) Transition_________________
     
-    [ ] To Shop
-    [ ] To Arena
+    [x] To Shop
+    [x] To Arena
 
 [ ] 7) Create Rounds______________
