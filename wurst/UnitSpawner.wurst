@@ -5,6 +5,17 @@ import public SoundUtils
 import Orders
 import LinkedList
 
+
+// function testFunction()
+//     RemoteFunction<UnitSpawner> remoteFunction = spawner -> begin 
+//     end
+
+//     new UnitSpawner('0000',Player(0),vec2(0,0),0)
+//     ..setCodeOnSpawn(remoteFunction)
+
+public interface RemoteFunction<T>
+    function run(T t)
+
 public class UnitSpawner
 //=========================================================================================================================================================
 
@@ -29,7 +40,6 @@ public class UnitSpawner
     private real spawnFacing = -1
     private rect spawnRect
     protected group spawnedUnits
-    private boolean randomSpawnPoint // Toggles it to spawn somewhere random in spawnRect
     private timer timer_Spawn
     private boolean isActivated = ACTIVATEONCONSTRUCT
     private string spawnEffect
@@ -37,6 +47,7 @@ public class UnitSpawner
     private unit targetOnSpawn
     private rect targetRect // The rect in which it has to search for a random target
     private SoundDefinition soundOnspawn
+    private RemoteFunction<UnitSpawner> codeOnSpawn 
 
     
 // -------------------------------------------------------------------------------------------------------------------------------------
@@ -47,7 +58,8 @@ public class UnitSpawner
         this.spawnFrequency = spawnFrequency
         this.startDelay =  spawnFrequency
         this.spawnPos = spawnPos
-
+        this.owner = owner
+        
         allSpawners.add(this)
 
         if ACTIVATEONCONSTRUCT
@@ -57,10 +69,11 @@ public class UnitSpawner
         deactivate()
         allSpawners.remove(this)
 
+    /** Starts the spawner spawning units. The first spawn will happen after spawnDelay, and all
+        spawns after that will happen after spawnFrequency. */
     function start()
         if not isActivated
             activate()
-
         isRunning = true
         timer_Spawn.start(getStartDelayWithDeviation(), function spawn) 
         
@@ -88,6 +101,8 @@ public class UnitSpawner
         clear()
         timer_Spawn.release()
         spawnedUnits.destr()
+        if codeOnSpawn != null
+            destroy codeOnSpawn
 
     /** Sets the amount of that it will make before automatically stopping.
         @param spawnCount The number of units to spawn. 0 means it will spawn
@@ -151,6 +166,13 @@ public class UnitSpawner
         @ param soundPath: the string path for the sound file. Use Sounds (it's public)*/
     function setSoundOnSpawn( string soundPath )
         this.soundOnspawn = new SoundDefinition(soundPath, false, true)
+
+    /** Sets a piece of code to run whenever a unit spawns. The code will contain the spawner
+         instance so that you can get the units and everything.
+        @param codeOnSpawn: A lambda expression, which has to use the RemoteFunction
+        interface from this package. It has to take UnitSpawner as its only parameter.*/
+    function setCodeOnSpawn( RemoteFunction<UnitSpawner> codeOnSpawn)
+        this.codeOnSpawn = codeOnSpawn
 
     /** Checks if the spawner is finished; it has been stopped (either by stop() MAP_RESOURCE_TRADING_ALLIES_ONLY
         or becuase it has spawned spawnCount units)*/
@@ -226,6 +248,10 @@ public class UnitSpawner
             addEffect(instance.spawnEffect, instance.spawnPos )
             ..destr()
 
+        // Running Remote Functions
+        if instance.codeOnSpawn != null
+            instance.codeOnSpawn.run(instance)
+
         /*  Rerun Timer
             It first checks if it's restricted by a number of spawns,
             or if it has spawned what it should.*/
@@ -238,6 +264,7 @@ public class UnitSpawner
         else
             instance.timer_Spawn.start(instance.getFrequencyWithDeviation(), function spawn)
   
+
 /** Checks if the unit is spawned by any spawner*/
 public function unit.isFromAnySpawner() returns boolean
     for spawner in UnitSpawner.allSpawners
@@ -245,14 +272,12 @@ public function unit.isFromAnySpawner() returns boolean
             return true
     return false
 
+
 /** Checks if unit is spawned by a specific spawner */
 public function unit.isFromSpawner(UnitSpawner whichSpawner) returns boolean
     return whichSpawner.spawnedUnits.contains(this)
         
 /* TO DO:
-    - Remove unit from unit group as they die
-    - Remove add some sort of event handler for when a spawner has finished spawning all,
-      or when all units are dead from the spawner, and the spawner is finished.
     - Add functionality for setting a code to launch on unitspawn
     - TEST THE SHIT DAMNIT
     - Add a package Description
