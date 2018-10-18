@@ -16,7 +16,11 @@ import LinkedList
     How To use:
     Create a new object. Doing this will grant you a ready spawner, but it may be altered with the set
     methods.
-    
+
+
+    To Be Updated:
+    - Add several sound, and let it pick a random one (so it's not the same sound, again, again, again)
+
 ---------------------------------------------------------------------------------------------------------------------------------------
 */
 
@@ -52,6 +56,7 @@ public class UnitSpawner
     private boolean isRunning = false
     private unit targetOnSpawn
     private rect targetRect // The rect in which it has to search for a random target
+    private boolean getNearestTarget = false
     private SoundDefinition soundOnspawn
     private RemoteFunction<UnitSpawner> codeOnSpawn 
 
@@ -153,7 +158,12 @@ public class UnitSpawner
         @param rectToTarget: The rect in which to search for a target */
     function setRandomTargetOnSpawn(rect rectToTarget )
         this.targetRect = rectToTarget
-        
+    
+    /** Sets the spawned unit to find the nearest target in the parameter
+        rect rectToTarget */
+    function setNearestTargetOnSpawn(rect rectToTarget)
+        this.targetRect = rectToTarget
+        this.getNearestTarget = true
 
     /** Sets a unit target for the unit spawned to attack, once it spawns.
         If no target is assigned, it will just stand when spawned.
@@ -181,6 +191,7 @@ public class UnitSpawner
         @ param soundPath: the string path for the sound file. Use Sounds (it's public)*/
     function setSoundOnSpawn( string soundPath )
         this.soundOnspawn = new SoundDefinition(soundPath, false, true)
+
 
     /** Sets a piece of code to run whenever a unit spawns. The code will contain the spawner
          instance so that you can get the units and everything.
@@ -232,6 +243,28 @@ public class UnitSpawner
         targets.clear()
         return target
 
+    /** Gets the unit nearest the spawnedUnit from the spawner's targetRect.*/
+    private function getNearestTargetInRect(unit spawnedUnit) returns unit 
+        group targets = ENUM_GROUP
+        targets.enumUnitsInRect(targetRect)
+
+        // Removing the units not to be hit
+        for u in targets
+            if( not u.isAlive() or u.getOwner().isAllyOf(owner) )
+                targets.removeUnit(u)
+
+        // Finding nearest target
+        real shortestDist = 999999
+        unit target = null
+        vec2 spawnedUnitPos = spawnedUnit.getPos()
+        for u from targets
+            real distance = u.getPos().distanceTo(spawnedUnitPos)
+            if distance < shortestDist
+                shortestDist = distance
+                target = u
+           
+        return target
+
     /** Calculate a random frequency using the set frequency +/- the deviation.*/
     private function getFrequencyWithDeviation() returns real
         return GetRandomReal(spawnFrequency*(1-spawnFrequencyDeviation),spawnFrequency*(1+spawnFrequencyDeviation))
@@ -262,13 +295,19 @@ public class UnitSpawner
             spawnedUnit.issueTargetOrder("attack", instance.targetOnSpawn)
 
         else if instance.targetRect != null
-            unit randomTarget = instance.getRandomTargetInRect()
-            if randomTarget != null
-                spawnedUnit.issuePointOrderById(Orders.attackground, randomTarget.getPos())            
+            if instance.getNearestTarget
+                unit nearestTarget = instance.getNearestTargetInRect(spawnedUnit)
+                if nearestTarget != null
+                    spawnedUnit.issueTargetOrder("attack", nearestTarget )
+            else
+                unit randomTarget = instance.getRandomTargetInRect()
+                if randomTarget != null
+                    spawnedUnit.issueTargetOrder("attack", randomTarget)        
 
         // Creating effects
         if instance.soundOnspawn != null
-            instance.soundOnspawn.playOnPoint(instance.spawnPos.toVec3())
+            instance.soundOnspawn.playOnPoint(instance.spawnPos.toVec3()).snd.setVolume(90)
+        
             
         if instance.spawnEffect != null
             addEffect(instance.spawnEffect, instance.spawnPos )
