@@ -3,7 +3,18 @@ package Round
 import LinkedList
 import UnitSpawner
 
+
+
+
 public class Round
+
+//=========================================================================================================================================================
+
+//  Settings 
+
+
+//=========================================================================================================================================================
+
 
     private static int nextRoundNumber = 1
     private static int totalNumberOfRounds = 0
@@ -13,12 +24,34 @@ public class Round
     private int goldReward
     private int trainingPointsReward
 
-    function addSpawner(UnitSpawner spawner)
-        spawners.add(spawner)
+// ======================================================================================================================================
 
-    function getNumber() returns int
-        return number
+// Methods
+
+    //---------------------------------------------------------------------------------------------------------------------------------------
+    //  Creation and management functions
+
+
+    
+
+    
+
+    
+    
+//---------------------------------------------------------------------------------------------------------------------------------------
+// Setters
 
     function setReward( int goldReward, int trainingPointsReward)
         this.goldReward = goldReward
         this.trainingPointsReward = trainingPointsReward
+
+
+    function addSpawner(UnitSpawner spawner)
+        spawners.add(spawner)
+
+        
+//---------------------------------------------------------------------------------------------------------------------------------------
+// Getters
+
+    function getNumber() returns int
+        return number
