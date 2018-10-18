@@ -199,7 +199,9 @@ public class UnitSpawner
     /** Sets a piece of code to run whenever a unit spawns. The code will contain the spawner
          instance so that you can get the units and everything.
         @param codeOnSpawn: A lambda expression, which has to use the RemoteFunction
-        interface from this package. It has to take UnitSpawner as its only parameter.*/
+        interface from this package. It has to take UnitSpawner as its only parameter.
+        DO NOT pass the same RemoteFunction object to the several spawners - instead
+        create seperate objects that call a regular function.*/
     function setCodeOnSpawn( RemoteFunction<UnitSpawner> codeOnSpawn)
         this.codeOnSpawn = codeOnSpawn
 
