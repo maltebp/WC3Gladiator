@@ -1,0 +1,16 @@
+package Cleave
+
+function onCast()
+
+    print("Ability cast")
+
+    if GetSpellAbilityId() == 'A007'
+        print("Is Cleave")
+        unit caster = GetSpellAbilityUnit()
+        print("Caster: "+caster.getName())
+        caster.setAnimation(3)
+
+init 
+    CreateTrigger()
+    ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST)
+    ..addAction(function onCast)
