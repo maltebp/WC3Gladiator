@@ -9,16 +9,16 @@ constant real  DEFAULTENERGY = 100
 constant real DEFAULTREGEN = 15 // Per second
 
 /** @param percentReduction: 1 = 100% REDUCTION, mana regen will be at 200% */
-function unit.reduceEnergyRegen(real percentReduction)
+public function unit.reduceEnergyRegen(real percentReduction)
     EnergySystem.adjustRegen(this, -percentReduction, 0)
 
 /** @param percentIncrease: 1 = 100% INCREASE, mana regen will be at 200% */
-function unit.increaseEnergyRegen( real percentIncrease)
+public function unit.increaseEnergyRegen( real percentIncrease)
     EnergySystem.adjustRegen(this, percentIncrease, 0)
     
 /** Increases the units energy regeneration by flatIncrease
     per second */
-function unit.increaseEnergyRegen( int flatIncrease )
+public function unit.increaseEnergyRegen( int flatIncrease )
 
     
 public class EnergySystem

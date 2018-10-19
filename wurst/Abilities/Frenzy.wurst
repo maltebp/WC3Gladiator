@@ -1,3 +1,46 @@
 package Frenzy
 
+import SoundUtils
+import RegisterEvents
 
+import TimerUtils
+
+import EnergySystem
+
+constant real REGENINCREASE = 1 // Percent
+constant real  DURATION = 8
+
+constant int ABILITYID = 'A006'
+
+constant SoundDefinition snd_OnCast= new SoundDefinition(Sounds.bloodlustTarget, false, true)
+
+function endEffect()
+    timer expiredTimer = GetExpiredTimer()
+
+    Caster data = expiredTimer.getData() castTo Caster
+
+    data.caster.reduceEnergyRegen(REGENINCREASE)
+    
+    expiredTimer.release()
+    
+
+function onCast()
+    unit caster = GetSpellAbilityUnit()
+
+    snd_OnCast.playOnPoint(caster.getPos3Fly())
+
+    caster.increaseEnergyRegen(REGENINCREASE)
+    
+    getTimer()
+    ..setData( new Caster(caster) castTo int)
+    ..start(DURATION, function endEffect )
+
+
+class Caster
+    unit caster
+             
+    construct(unit caster)
+        this.caster = caster
+
+init
+    registerSpellEffectEvent(ABILITYID, function onCast)
