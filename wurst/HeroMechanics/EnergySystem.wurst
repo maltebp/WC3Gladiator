@@ -1,0 +1,74 @@
+package EnergySystem
+
+import TimerUtils
+import HashMap
+import ErrorHandling
+
+
+constant real  DEFAULTENERGY = 100
+constant real DEFAULTREGEN = 20 // Per second
+
+
+function unit.reduceEnergyRegen(real percentReduction)
+
+
+function unit.increaseEnergyRegen( real percentIncreases)
+
+
+/** Increases the units energy regeneration by flatIncrease
+    per second */
+function unit.increaseEnergyRegen( int flatIncrease )
+
+    
+public class EnergySystem
+
+    /*  It increases energy regeneration, not by increasing the amount regenerated
+        but by increasing the frequency of the regen */ 
+    
+
+    private static HashMap<unit, EnergySystem> units = new HashMap<unit, EnergySystem>
+
+    private real energyMax = DEFAULTENERGY
+    private real energyRegenFlatInc = 0
+    private real energyRegenPercInc = 0
+    private unit theUnit
+    private real regenFreq
+    private timer timer_Regen 
+
+    /** Setup the unit to the system with default settings*/
+    construct(unit whichUnit)
+        theUnit = whichUnit
+        energyMax = DEFAULTENERGY   
+        timer_Regen = getTimer()..setData(this castTo int)
+
+        if theUnit.getMaxMana()>0
+            updateUnit(whichUnit)
+        else
+            error("Tried to add unit to EnergySystem, but unit has no mana!")
+
+    /** Updates the unit's regeneration to newly set regen */
+    static function updateUnit(unit whichUnit)
+
+        if not containsUnit(whichUnit)
+            addUnit(whichUnit)
+        
+        thistype instance = units.get(whichUnit)    
+        
+        real energyToRegen = (DEFAULTREGEN+instance.energyRegenFlatInc)*(1+instance.energyRegenPercInc)
+        instance.regenFreq = (1/energyToRegen)*2
+        instance.timer_Regen.startPeriodic(instance.regenFreq, function regen)
+
+    /** Adds a unit to the energy system */
+    static function addUnit(unit whichUnit)
+        units.put( whichUnit, new EnergySystem(whichUnit) )
+        
+    /** Checks if a unit is in the system already*/
+    static function containsUnit( unit whichUnit ) returns boolean
+        return units.has(whichUnit)
+
+    /** Regenerate energy for the unit */
+    private static function regen()
+        thistype instance = GetExpiredTimer().getData() castTo thistype
+        instance.theUnit.setMana(instance.theUnit.getMana()+2)
+        
+        
