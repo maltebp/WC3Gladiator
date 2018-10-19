@@ -4,7 +4,6 @@ import TimerUtils
 import HashMap
 import ErrorHandling
 
-
 constant real  DEFAULTENERGY = 100
 constant real DEFAULTREGEN = 15 // Per second
 
