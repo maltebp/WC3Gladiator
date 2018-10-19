@@ -13,10 +13,14 @@ public constant player ENEMYPLAYER = Player(11)
 constant int START_TRAININGPOINTS = 0
 constant int START_GOLD             = 200
 
-boolean MAPTESTING = false
+boolean MAPTESTING = true
+
+boolean escapeIsEnabled = false
 
 public constant vec2 HEROSPAWN_SHOP = vec2(-8129,-8198)
 public constant vec2 HEROSPAWN_ARENA = vec2(173,501)
+
+SoundDefinition snd_HeroInit = new SoundDefinition(Sounds.gromWhat3, false)
 
 vec2 spawnPosOnInit
 
@@ -53,8 +57,11 @@ init
 
 
 function createHero()
-    hero = createUnit(Player(0), 'O000', spawnPosOnInit, angle(0))
+    hero = createUnit(Player(0), 'O000', spawnPosOnInit, angle(3*PIHALF))
     ..suspendXp(true)
+    ..setColor(PLAYER_COLOR_WHEAT)
+    
+    
 
     teleportEffect = addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
     getTimer().start(3, function deleteTeleportEffect)
@@ -65,6 +72,8 @@ function enableControls()
     Player(0)
     ..enableUserControl()
     ..selectSingle(hero)
+    snd_HeroInit.play()
+    escapeIsEnabled = true
 
 function deleteTeleportEffect()
     GetExpiredTimer().release()
@@ -79,9 +88,11 @@ function delayedInit()
 
 function startRound()
 
-    if not Round.isARoundRunning()
-        Round.setARoundRunning()
-        transitionToArena()
+    if escapeIsEnabled
+
+        if not Round.isARoundRunning()
+            Round.setARoundRunning()
+            transitionToArena()
         
 
 

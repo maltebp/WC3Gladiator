@@ -1,0 +1,46 @@
+package WhirlingStrike
+
+import RegisterEvents
+import SoundUtils
+
+
+class WhirlingStrike
+//
+
+//  Settings
+
+    private static constant real RANGE = 250
+
+    private static constant real BASEDAMAGE = 0
+    private static constant real ATTACKDAMAGESCALE = 7
+
+    protected static constant int ABILITYID = 'A000'
+    protected static constant SoundDefinition snd_OnHit = new SoundDefinition(Sounds.impaleHit, false, true)
+
+//
+    protected static function onCast()
+        print("Whirling Strike cast!")
+        unit caster = GetSpellAbilityUnit()
+        print("Caster: "+caster.getName())
+        group targets = ENUM_GROUP
+
+        targets.enumUnitsInRange(caster.getPos(), 250)
+
+        print("Group size: "+targets.size().toString())
+
+        for target in targets
+            if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAliveTrick() 
+                targets.removeUnit(target)
+                print("Removing "+target.getName())
+
+        if targets.size() > 0
+            snd_OnHit.playOnPoint(caster.getPos3Fly())
+
+        for target from targets
+            caster.damageTarget(target, I2R(caster.getBaseDamage(1)*7))
+            print("Damaging "+target.getName())
+            // FIX THIS target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl", "chest")
+
+init
+    print(WhirlingStrike.ABILITYID)
+    registerSpellEffectEvent(WhirlingStrike.ABILITYID, function WhirlingStrike.onCast )
