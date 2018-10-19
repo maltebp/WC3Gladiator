@@ -1,0 +1,44 @@
+package Cleave
+
+import RegisterEvents
+import SoundUtils
+import AttackDamage
+import TimedSpecialEffects
+
+
+// Settings
+
+constant real RANGE = 125
+constant real BASEDAMAGE = 50
+constant real DAMAGEFACTOR = 2
+
+constant int ABILITYID  = 'A007'
+constant string array snd_OnAttack_File = [Sounds.metalHeavySliceFlesh3, Sounds.metalHeavySliceFlesh1, Sounds.metalHeavySliceFlesh2]
+
+SoundDefinition array snd_OnAttack 
+
+
+function onCast()
+
+    if snd_OnAttack[0] == null
+        for i=0 to 2
+            snd_OnAttack[i] = new SoundDefinition(snd_OnAttack_File[i], false, true)
+
+    unit mainTarget = GetSpellTargetUnit()
+    unit caster = GetSpellAbilityUnit()
+    group targets = ENUM_GROUP..enumUnitsInRange(mainTarget.getPos(), RANGE)
+
+    for target in targets
+        if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAliveTrick() 
+            targets.removeUnit(target)
+
+    for target from targets
+        caster.damageTarget(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)
+        target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl","chest")
+        ..setDuration(3)
+        target.addEffect("Abilities\\Weapons\\SentinelMissile\\SentinelMissile.mdl", "origin")
+        ..destr()
+        snd_OnAttack[GetRandomInt(0, 2)].playOnPoint(target.getPos3Fly())
+
+init 
+    registerSpellEffectEvent( ABILITYID, function onCast)

@@ -2,40 +2,50 @@
 
 TO DO
 
-[ ] 1) Map________________________
+[x] 1) Map________________________
 
-    [ ] Create Arena
-    [ ] Create Shop
+    [x] Create Arena
+    [x] Create Shop
 
-[ ] 2) Game Functions_____________
+[x] 2) Game Functions_____________
 
-    [ ] Game Initializer
-    [ ] Between Rounds (Round starter)
+    [x] Game Initializer
+    [x] Between Rounds (Round starter)
 
 [ ] 3) Hero_______________________
-    
-    [ ] Hero Unit
-    [ ] Abilities
+    [x] AttackDamage System
+    [ ] Life Orbs
+    [x] Hero Unit
+    [x] Energy
+    [x] Abilities
+        [x] Whirling Strike
+        [x] Cleave
+        [x] Frenzy
+        [x] Wounding Strike
+        [x] Impeding Roar
     [ ] Items
+   ([ ] Training Points)
 
-[ ] 4) Unit Spawner Class_________
+[x] 4) Unit Spawner Class_________
 
-    [ ] Start / Stop Functions
-    [ ] Finish Detection
-    [ ] Setup Functions
-    [ ] Test
+    [x] Start / Stop Functions
+    [x] Finish Detection
+    [x] Setup Functions
+    [x] Test
 
-[ ] 5) Rounds Class_______________
+[x] 5) Rounds Class_______________
     
-    [ ] Finish Detection
-    [ ] Setup
-    [ ] Round Start
-    [ ] Round End
+    [x] Finish Detection
+    [x] Setup
+    [x] Round Start
+    [x] Round End
 
 
-[ ] 6) Transition_________________
+[x] 6) Transition_________________
     
-    [ ] To Shop
-    [ ] To Arena
+    [x] To Shop
+    [x] To Arena
 
 [ ] 7) Create Rounds______________
+
+[ ] 8) Music

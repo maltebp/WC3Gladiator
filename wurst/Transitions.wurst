@@ -1,0 +1,150 @@
+package Transitions
+
+import SoundUtils
+import TimerUtils
+import Camera
+import FadeAndFilters
+import initlater Game
+
+SoundDefinition snd_StartRound = new SoundDefinition(Sounds.goodJob, false)
+SoundDefinition snd_EscapePress = new SoundDefinition(Sounds.bigButtonClick, false)
+SoundDefinition snd_RoundWon = new SoundDefinition(Sounds.questCompleted, false)
+SoundDefinition snd_RoundLost = new SoundDefinition(Sounds.questFailed, false)
+
+
+boolean hasWon = false 
+
+effect teleportEffect
+
+
+init
+    
+
+public function transitionToShop(boolean won)
+    
+    hasWon = won
+
+    if hasWon
+        hero.setInvulnerable(true)
+        hero.pause()
+
+    getTimer().start(2, function toShop_PlaySound )    
+
+function toShop_PlaySound()
+
+    if hasWon
+        snd_RoundWon.play()
+        
+    else
+        snd_RoundLost.play()
+
+    GetExpiredTimer().start(2, function toShop_StartFade)
+
+function toShop_StartFade()
+    GetExpiredTimer().release()
+    new Fade
+    ..setStartDelay(0)
+    ..setMidDelay(1)
+    ..onFadeOut(function toShop_OnFadeOut )
+    ..onFadeIn(function toShop_OnFadeIn )
+    ..start(FADEOUTIN)
+
+function toShop_OnFadeOut()
+    Player(0).setCameraBoundsToRect(gg_rct_Shop_CamBounds)
+    Player(0).setCameraPosition(HEROSPAWN_SHOP)
+    Round.clearCurrentRound()
+    
+
+function toShop_OnFadeIn()
+    if hasWon
+        hero.setPos(HEROSPAWN_SHOP)
+        teleportEffect = addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", HEROSPAWN_SHOP)
+        getTimer().start(3, function deleteTeleportEffect)
+        
+    else
+        hero.revive(HEROSPAWN_SHOP, true)
+        hero.pause()
+
+    hero.setHP(hero.getMaxHP())
+    hero.setMana(hero.getMaxMana())
+    
+    hero.setInvulnerable(false)
+
+    getTimer().start(1, function toShop_ReviewRound)
+
+function deleteTeleportEffect()
+    GetExpiredTimer().release()
+    teleportEffect.destr()
+
+function toShop_ReviewRound()
+    Round.reviewRound()
+    hero.unpause()
+    GetExpiredTimer().start(3, function toShop_SetNextRound)
+
+function toShop_SetNextRound()
+    Round.nextRound()
+    GetExpiredTimer().release()
+
+
+
+public function transitionToArena()
+    snd_StartRound.play()
+    print("Starting Round "+Round.getCurrentRoundNumber().toString())
+    hero.pause()
+    getTimer().start(2, function toArena_StartingFade )
+
+function toArena_StartingFade()
+    GetExpiredTimer().release()
+    new Fade
+    ..setStartDelay(0)
+    ..onFadeOut(function toArena_OnFadeOut )
+    ..onFadeIn(function toArena_OnFadeIn )
+    ..start(FADEOUTIN)
+
+function toArena_OnFadeOut()
+    
+    Player(0).setCameraBoundsToRect(gg_rct_Arena_CamBounds)
+    Player(0).setCameraPosition(HEROSPAWN_ARENA)
+
+function toArena_OnFadeIn()
+    hero.setPos(HEROSPAWN_ARENA)
+    teleportEffect = addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", HEROSPAWN_ARENA)
+    getTimer().start(3, function deleteTeleportEffect)
+    getTimer().start(2, function toArena_StartRound )
+
+function toArena_StartRound()
+    GetExpiredTimer().release()
+    hero.unpause()
+    Round.startRound()
+    
+    
+
+/*
+    To Arena
+    Press escape
+    Wait 1 second
+    Play sound and pause hero
+    Wait 3 seconds
+    Fade out
+    On Fade Out: move hero to arena
+    Fade in
+    On Fade in: wait 2 seconds
+    Play sound, release hero, star spawners
+
+    On Fight end
+    Make Hero invulnerable
+    Wait 2 seconds
+    Play Sound (win or lose)
+    wait 3 seconds
+    Fade out
+    On Fade out: clear arena
+    On Fade in:
+        if hero alive: teleport in
+        if hero dead: revive
+    wait 2 seconds
+    Grant reward or tell to try again
+    wait 2 seconds
+    inform on next round, allow to start next round
+
+
+    */
