@@ -8,7 +8,7 @@ import TimedSpecialEffects
 
 // Settings
 
-constant real RANGE = 150
+constant real RANGE = 125
 constant real BASEDAMAGE = 50
 constant real DAMAGEFACTOR = 2
 
@@ -33,10 +33,10 @@ function onCast()
             targets.removeUnit(target)
 
     for target from targets
-        caster.damageTarget(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage() ))
-        target.addEffect("Abilities\\Spells\\Other\\Stampede\\StampedeMissileDeath.mdl","origin")
+        caster.damageTarget(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)
+        target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl","chest")
         ..setDuration(3)
-        target.addEffect("Abilities\\Weapons\\GlaiveMissile\\GlaiveMissile.mdl", "origin")
+        target.addEffect("Abilities\\Weapons\\SentinelMissile\\SentinelMissile.mdl", "origin")
         ..destr()
         snd_OnAttack[GetRandomInt(0, 2)].playOnPoint(target.getPos3Fly())
 

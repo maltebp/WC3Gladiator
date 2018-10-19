@@ -16,12 +16,13 @@ TO DO
     [x] AttackDamage System
     [ ] Life Orbs
     [x] Hero Unit
+    [ ] Energy
     [ ] Abilities
-        [ ] Whirling Strike
-        [ ] Cleave
+        [x] Whirling Strike
+        [x] Cleave
         [ ] Frenzy
-        [ ] Wounding Strike
-        [ ] Impeding Roar
+        [x] Wounding Strike
+        [x] Impeding Roar
     [ ] Items
    ([ ] Training Points)
 

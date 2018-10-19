@@ -1,2 +1,105 @@
 package WoundingStrike
 
+import SoundUtils
+import RegisterEvents
+import AttackDamage
+import TimerUtils
+import InstantDummyCaster
+import Orders
+import HashMap
+import TimedSpecialEffects
+
+
+constant real BASEDAMAGE = 100
+constant real DAMAGEFACTOR = 2
+constant real DOT_BASEDAMAGE = 30
+constant real DOT_DAMAGEFACTOR = 0.5
+constant int  DURATION = 5
+// For Slow Factor: see ability in Editor
+
+constant int ABILITYID = 'A005'
+
+constant string array snd_OnAttack_File = [Sounds.metalHeavySliceFlesh3, Sounds.metalHeavySliceFlesh1, Sounds.metalHeavySliceFlesh2]
+SoundDefinition array snd_OnAttack
+
+
+
+
+
+function onCast()
+    unit caster = GetSpellAbilityUnit()
+    unit target = GetSpellTargetUnit()
+
+    // Sound
+    if snd_OnAttack[0] == null
+        for i=0 to 2
+            snd_OnAttack[i] = new SoundDefinition(snd_OnAttack_File[i], false, true)
+    snd_OnAttack[GetRandomInt(0, 2)].playOnPoint(target.getPos3Fly())
+
+    target.addEffect("Abilities\\Spells\\Other\\Stampede\\StampedeMissileDeath.mdl","origin")
+    ..setDuration(3)
+    target.addEffect("Abilities\\Weapons\\GlaiveMissile\\GlaiveMissile.mdl", "origin")
+    ..destr()
+
+    caster.damageTarget(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)
+    
+    real dotDamage = DOT_BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DOT_DAMAGEFACTOR
+    WoundingStrikeBuff.add(target, caster, dotDamage)
+
+
+
+class WoundingStrikeBuff
+    private static HashMap<unit, thistype> targets = new HashMap<unit, thistype>
+
+    private unit target
+    private unit source
+    private timer timer_Duration
+    private timer timer_Dot
+    private real dotDamage
+
+    construct(unit whichTarget, unit source, real dotDamage)
+        target = whichTarget
+        this.source = source
+        this.dotDamage = dotDamage
+        timer_Duration = getTimer()..setData(this castTo int)
+        timer_Dot = getTimer()..setData(this castTo int)
+        
+        InstantDummyCaster.castTarget(source.getOwner(), 'A00A', 1, Orders.slow, target)
+
+    ondestroy
+        if target.isAliveTrick()
+            target.removeAbility('B002')
+
+        timer_Duration.release()
+        timer_Dot.release()
+        
+        targets.remove(target)
+
+
+    static function add(unit whichTarget, unit source, real dotDamage)   
+        
+        if not targets.has(whichTarget)
+            targets.put(whichTarget, new WoundingStrikeBuff(whichTarget, source, dotDamage) )
+        else
+            thistype instance = targets.get(whichTarget)
+            instance.dotDamage = dotDamage
+            instance.source = source
+
+        targets.get(whichTarget).start()
+        
+    private function start()
+        timer_Duration.start(I2R(DURATION), function removeBuff)
+        timer_Dot.startPeriodic(1, function dealDamage)
+
+    static function dealDamage()
+        thistype instance = GetExpiredTimer().getData() castTo thistype
+        instance.source.damageTarget(instance.target, instance.dotDamage)
+        instance.target.addEffect("Objects\\Spawnmodels\\Human\\HumanBlood\\HeroBloodElfBlood.mdl", "origin")
+            ..setDuration(3)
+
+    static function removeBuff()
+        destroy GetExpiredTimer().getData() castTo thistype
+                
+
+init
+    registerSpellEffectEvent(ABILITYID, function onCast)
