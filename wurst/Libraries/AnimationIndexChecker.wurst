@@ -1,0 +1,21 @@
+package AnimationIndexChecker
+
+constant boolean ENABLED = true
+constant int animationIndexMax = 12
+int animationIndex = 0
+
+function playAnimation()
+    group selectedUnits = GetUnitsSelectedAll(Player(0))
+
+    print("Play animation "+animationIndex.toString()+" for:")
+
+    for selectedUnit from selectedUnits
+        print(selectedUnit.getName())
+        selectedUnit.setAnimation(animationIndex)
+        
+    animationIndex = (animationIndex >= animationIndexMax ) ? 0 : animationIndex+1
+
+init
+    if ENABLED
+        CreateTrigger()
+        ..registerPlayerChatEvent(Player(0), "-animation", true)
