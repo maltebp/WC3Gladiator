@@ -4,12 +4,18 @@ import RegisterEvents
 
 HashMap<unit, int> unitDamage = new HashMap<unit, int>
 
-public function unit.getAttackDamage() returns int
-    int totalDamage
-    this.getBaseDamage(1)
+/** Gets the total attack damage of the unit (base + bonus)
+    damage.*/
+public function unit.getTotalAttackDamage() returns int
+    return this.getBaseDamage(1) + this.getBonusAttackDamage()
 
-    return 0
-
+/** Returns the bonus attack damage the unit has. It only
+    includes bonus damage set through this package.*/
+public function unit.getBonusAttackDamage() returns int
+    if unitDamage.has(this)
+        return unitDamage.get(this)
+    else
+        return 0
 
 function unit.setBonusAttackDamage(int damage)
     
