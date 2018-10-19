@@ -2,20 +2,27 @@
 
 TO DO
 
-[ ] 1) Map________________________
+[x] 1) Map________________________
 
     [x] Create Arena
     [x] Create Shop
 
-[ ] 2) Game Functions_____________
+[x] 2) Game Functions_____________
 
     [x] Game Initializer
     [x] Between Rounds (Round starter)
 
 [ ] 3) Hero_______________________
-    
-    [ ] Hero Unit
-    [ ] Abilities
+    [x] AttackDamage System
+    [ ] Life Orbs
+    [x] Hero Unit
+    [x] Energy
+    [x] Abilities
+        [x] Whirling Strike
+        [x] Cleave
+        [x] Frenzy
+        [x] Wounding Strike
+        [x] Impeding Roar
     [ ] Items
    ([ ] Training Points)
 
@@ -40,3 +47,5 @@ TO DO
     [x] To Arena
 
 [ ] 7) Create Rounds______________
+
+[ ] 8) Music

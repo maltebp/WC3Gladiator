@@ -1,0 +1,83 @@
+package ImpedingRoar
+
+import SoundUtils
+import RegisterEvents
+import AttackDamage
+import TimerUtils
+import InstantDummyCaster
+import Orders
+import HashMap
+
+
+constant real BASEDAMAGE = 100
+constant real DAMAGEFACTOR = 2
+constant real RANGE = 400
+constant int  DURATION = 8
+// For Slow Factor: see ability in Editor
+
+constant int ABILITYID = 'A008'
+
+constant SoundDefinition snd_OnCast= new SoundDefinition(Sounds.howlOfTerror, false, true)
+
+
+
+
+
+
+
+
+
+function onCast()
+    unit caster = GetSpellAbilityUnit()
+
+    snd_OnCast.playOnPoint(caster.getPos3Fly())
+
+    group targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), RANGE)
+
+    for target in targets
+        if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAliveTrick() 
+            targets.removeUnit(target)
+
+    for target from targets
+        caster.damageTarget(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage() ))
+        target.addEffect("Abilities\\Spells\\Human\\SpellSteal\\SpellStealMissile.mdl","chest")
+        ..destr()
+        InstantDummyCaster.castTarget(caster.getOwner(), 'A009', 1, Orders.slow, target)
+        Buff.add(target)
+
+
+
+class Buff
+    private static HashMap<unit, thistype> targets = new HashMap<unit, thistype>
+
+    private unit target
+    private timer timer_Duration
+
+    construct(unit whichTarget)
+        target = whichTarget
+        timer_Duration = getTimer()..setData(this castTo int)
+        
+
+    ondestroy
+        timer_Duration.release()
+        if target.isAliveTrick()
+            target.removeAbility('B001')
+        targets.remove(target)
+
+
+    static function add(unit whichTarget)   
+        
+        if not targets.has(whichTarget)
+            targets.put(whichTarget, new Buff(whichTarget) )
+
+        targets.get(whichTarget).start()
+        
+    private function start()
+        timer_Duration.start(I2R(DURATION), function removeBuff)
+
+    static function removeBuff()
+        destroy GetExpiredTimer().getData() castTo thistype
+                
+
+init
+    registerSpellEffectEvent(ABILITYID, function onCast)

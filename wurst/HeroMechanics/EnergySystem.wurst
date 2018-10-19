@@ -1,0 +1,105 @@
+package EnergySystem
+
+import TimerUtils
+import HashMap
+import ErrorHandling
+
+constant real  DEFAULTENERGY = 100
+constant real DEFAULTREGEN = 15 // Per second
+
+/** @param percentReduction: 1 = 100% REDUCTION, mana regen will be at 200% */
+public function unit.reduceEnergyRegen(real percentReduction)
+    EnergySystem.adjustRegen(this, -percentReduction, 0)
+
+/** @param percentIncrease: 1 = 100% INCREASE, mana regen will be at 200% */
+public function unit.increaseEnergyRegen( real percentIncrease)
+    EnergySystem.adjustRegen(this, percentIncrease, 0)
+    
+/** Increases the units energy regeneration by flatIncrease
+    per second */
+public function unit.increaseEnergyRegen( int flatIncrease )
+
+    
+public class EnergySystem
+
+    /*  It increases energy regeneration, not by increasing the amount regenerated
+        but by increasing the frequency of the regen */ 
+    
+
+    private static HashMap<unit, EnergySystem> units = new HashMap<unit, EnergySystem>
+
+    private real energyMax = DEFAULTENERGY
+    private real energyRegenFlatInc = 0
+    private real energyRegenPercInc = 0
+    private unit theUnit
+    private real regenFreq
+    private timer timer_Regen 
+
+    /** Setup the unit to the system with default settings*/
+    private construct(unit whichUnit)
+        print("Construct: 1")
+        theUnit = whichUnit
+        print("Construct: 2")
+        energyMax = DEFAULTENERGY
+        print("Construct: 3")   
+        timer_Regen = getTimer()..setData(this castTo int)
+        print("Construct: 4")
+        
+
+    /** Updates the unit's regeneration to newly set regen */
+    private static function updateUnit(unit whichUnit)
+        print("UpdateUnit: 1")
+
+        if not containsUnit(whichUnit)
+            print("UpdateUnit: 1.1")
+            addUnit(whichUnit)
+            print("UpdateUnit: 1.2")
+        
+        print("UpdateUnit: 2")
+        thistype instance = units.get(whichUnit)  
+        print("UpdateUnit: 3")
+        
+        instance.theUnit.setMaxMana(R2I(instance.energyMax), true)
+        print("UpdateUnit: 4")
+        
+        real energyToRegen = (DEFAULTREGEN+instance.energyRegenFlatInc)*(1+instance.energyRegenPercInc)
+        print(energyToRegen)
+        instance.regenFreq = (1/energyToRegen)*2
+        print(instance.regenFreq)
+        print("UpdateUnit: 6")
+        instance.timer_Regen.startPeriodic(instance.regenFreq, function regen)
+        print("UpdateUnit: 7")
+
+    /** Adds a unit to the energy system */
+    static function addUnit(unit whichUnit)
+        print("addUnit: 1")
+
+        if whichUnit.getMaxMana()>0
+            print("Construct: 5")
+            units.put( whichUnit, new EnergySystem(whichUnit) )
+            updateUnit(whichUnit)
+            print("Construct: 6")
+        else
+            error("Tried to add unit to EnergySystem, but unit has no mana!")
+
+        print("addUnit: 2")
+        
+    /** Checks if a unit is in the system already*/
+    private static function containsUnit( unit whichUnit ) returns boolean
+        return units.has(whichUnit)
+
+    protected static function adjustRegen(unit whichUnit, real percentAdjust, real flatAdjust)
+        if containsUnit(whichUnit)
+            thistype instance = units.get(whichUnit)
+            instance.energyRegenFlatInc += flatAdjust
+            instance.energyRegenPercInc += percentAdjust
+            updateUnit(whichUnit)
+    
+
+    /** Regenerate energy for the unit */
+    private static function regen()
+        thistype instance = GetExpiredTimer().getData() castTo thistype
+        if instance.theUnit.isAlive() and instance.theUnit.getMana()<instance.theUnit.getMaxMana()
+            instance.theUnit.setMana(instance.theUnit.getMana()+2)
+        
+        

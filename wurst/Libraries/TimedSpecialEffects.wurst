@@ -1,0 +1,28 @@
+package TimedSpecialEffects
+
+import TimerUtils
+
+/** Adds a duration to effect. After the duration
+    the effect is destroyed */
+public function effect.setDuration(real duration)
+    new TimedSpecialEffect(this, duration)
+    
+class TimedSpecialEffect
+
+    private effect sfx
+
+    construct( effect sfx, real duration )
+        this.sfx = sfx
+        getTimer()
+        ..setData(this castTo int)
+        ..start(duration, function destroyEffect)
+
+    private static function destroyEffect()
+        timer t = GetExpiredTimer()
+        thistype instance = t.getData() castTo thistype
+        instance.sfx.destr()
+        t.release()
+        destroy instance
+
+
+        

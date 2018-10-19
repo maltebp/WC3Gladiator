@@ -120,6 +120,14 @@ public class Fade
 
         instance.t1.start( instance.fadeOutDuration, function OnFadeOut )
 
+
+    private static function setBlack()
+        SetCineFilterTexture("ReplaceableTextures\\CameraMasks\\White_mask.blp")
+        SetCineFilterBlendMode(BLEND_MODE_BLEND)
+        SetCineFilterEndColor(0, 0, 0, 255)
+        SetCineFilterDuration(0)
+        DisplayCineFilter(true)
+
 // Start Fade
     function start( integer fadeType )
         
@@ -129,6 +137,7 @@ public class Fade
             t1.start( startDelay, function fadeOut )
 
         else if fadeType == FADEIN
+            setBlack()
             t1.start( startDelay, function fadeIn)
 
 // Set Methods

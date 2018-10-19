@@ -64,6 +64,9 @@ function toShop_OnFadeIn()
     else
         hero.revive(HEROSPAWN_SHOP, true)
         hero.pause()
+
+    hero.setHP(hero.getMaxHP())
+    hero.setMana(hero.getMaxMana())
     
     hero.setInvulnerable(false)
 
