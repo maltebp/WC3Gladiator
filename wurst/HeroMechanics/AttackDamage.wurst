@@ -1,15 +1,68 @@
 package AttackDamage
 import HashMap
+import RegisterEvents
+
+HashMap<unit, int> unitDamage = new HashMap<unit, int>
+
+public function unit.getAttackDamage() returns int
+    int totalDamage
+    this.getBaseDamage(1)
+
+    return 0
 
 
+function unit.setBonusAttackDamage(int damage)
+    
+    if this.getAbilityLevel('A004') < 1
+        this.addAbility('A004')
+    
+    int remainingDamage = damage
 
-public class AttackDamageItem
+    int dmg100 = remainingDamage div 100
+    remainingDamage = remainingDamage - dmg100
 
-    private static HashMap<int,int> items = new HashMap<int,int>
+    int dmg10 = remainingDamage div 10
+    remainingDamage = remainingDamage - dmg10
+
+    int dmg1 = damage div 1
+
+    this.setAbilityLevel('A003', dmg100+1)
+    this.setAbilityLevel('A001', dmg10+1)
+    this.setAbilityLevel('A004', dmg10+1)
+
+
+function updateAttackDamage()
+    unit unitToUpdate = GetManipulatingUnit()
+    int totalDamage = 0
+
+    if unitToUpdate.isType(UNIT_TYPE_HERO)
+        
+        for itemSlot=0 to 5
+            int itemInSlot = UnitItemInSlot(unitToUpdate, itemSlot).getTypeId()
+            if AttackDamageItem.items.has(itemInSlot)
+                totalDamage += AttackDamageItem.items.get(itemInSlot)            
+
+        if unitDamage.has(unitToUpdate)
+            unitDamage.getAndRemove(unitToUpdate)
+            
+        unitDamage.put(unitToUpdate, totalDamage)
+        unitToUpdate.setBonusAttackDamage(totalDamage)
+
+
+class AttackDamageItem
+
+    protected static HashMap<int,int> items = new HashMap<int,int>
 
     construct( int itemId, int attackDamage )
         items.put(itemId, attackDamage)
 
+ 
 init
-    new AttackDamageItem( 'I000', 5 ) 
-    
+    Player(0).setAbilityAvailable('A004', false)
+    new AttackDamageItem( 'I000', 5 )
+
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_PAWN_ITEM, function updateAttackDamage)
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function updateAttackDamage)
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM, function updateAttackDamage)
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SELL_ITEM, function updateAttackDamage)
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_USE_ITEM, function updateAttackDamage)
