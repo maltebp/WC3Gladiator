@@ -7,8 +7,6 @@ import TimerUtils
 public function effect.setDuration(real duration)
     new TimedSpecialEffect(this, duration)
     
-
-
 class TimedSpecialEffect
 
     private effect sfx

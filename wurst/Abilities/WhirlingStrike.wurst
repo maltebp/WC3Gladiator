@@ -2,6 +2,7 @@ package WhirlingStrike
 
 import RegisterEvents
 import SoundUtils
+import TimedSpecialEffects
 
 
 class WhirlingStrike
@@ -39,7 +40,8 @@ class WhirlingStrike
         for target from targets
             caster.damageTarget(target, I2R(caster.getBaseDamage(1)*7))
             print("Damaging "+target.getName())
-            // FIX THIS target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl", "chest")
+            target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl", "chest")
+            ..setDuration(3)
 
 init
     print(WhirlingStrike.ABILITYID)

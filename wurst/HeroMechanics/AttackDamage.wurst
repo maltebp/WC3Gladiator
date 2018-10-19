@@ -1,0 +1,15 @@
+package AttackDamage
+import HashMap
+
+
+
+public class AttackDamageItem
+
+    private static HashMap<int,int> items = new HashMap<int,int>
+
+    construct( int itemId, int attackDamage )
+        items.put(itemId, attackDamage)
+
+init
+    new AttackDamageItem( 'I000', 5 ) 
+    
