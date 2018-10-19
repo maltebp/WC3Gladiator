@@ -6,6 +6,7 @@ import Transitions
 import TimerUtils
 import FadeAndFilters
 import Camera
+import EnergySystem
 
 public unit hero
 public constant player ENEMYPLAYER = Player(11)
@@ -60,6 +61,8 @@ function createHero()
     hero = createUnit(Player(0), 'O000', spawnPosOnInit, angle(3*PIHALF))
     ..suspendXp(true)
     ..setColor(PLAYER_COLOR_WHEAT)
+    
+    EnergySystem.addUnit(hero)
     
     
 
