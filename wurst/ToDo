@@ -2,19 +2,20 @@
 
 TO DO
 
-[ ] 1) Map________________________
+[x] 1) Map________________________
 
     [x] Create Arena
     [x] Create Shop
 
-[ ] 2) Game Functions_____________
+[x] 2) Game Functions_____________
 
     [x] Game Initializer
     [x] Between Rounds (Round starter)
 
 [ ] 3) Hero_______________________
-    
-    [ ] Hero Unit
+    [x] AttackDamage System
+    [ ] Life Orbs
+    [x] Hero Unit
     [ ] Abilities
     [ ] Items
    ([ ] Training Points)

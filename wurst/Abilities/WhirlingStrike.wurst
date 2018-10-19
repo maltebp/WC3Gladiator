@@ -3,6 +3,7 @@ package WhirlingStrike
 import RegisterEvents
 import SoundUtils
 import TimedSpecialEffects
+import AttackDamage
 
 
 class WhirlingStrike
@@ -38,7 +39,7 @@ class WhirlingStrike
             snd_OnHit.playOnPoint(caster.getPos3Fly())
 
         for target from targets
-            caster.damageTarget(target, I2R(caster.getBaseDamage(1)*7))
+            caster.damageTarget(target, I2R(caster.getTotalAttackDamage()*7))
             print("Damaging "+target.getName())
             target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl", "chest")
             ..setDuration(3)
