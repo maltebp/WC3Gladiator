@@ -1,0 +1,93 @@
+package Orb
+
+import TimerUtils
+import SoundUtils
+import LinkedList
+
+class Orb
+
+    protected static constant LinkedList<Orb> orbs = new LinkedList<Orb>
+    protected static constant real ACTIVATION_RANGE = 125
+    protected static constant real UPDATE_FREQ = 0.2
+
+    private static timer updateTimer    
+
+    protected vec2 pos
+    protected LinkedList<unit> activationUnits
+
+    protected effect orb
+    protected effect additionalSfx1
+
+    construct( playercolor orbColor, vec2 pos)
+        this.pos = pos
+        orb = addEffect("units\\nightelf\\Wisp\\Wisp.mdl", pos)
+        ..setColorByPlayer(orbColor.getPlayer())
+
+        startUpdate()
+
+
+    private static function startUpdate()
+        if orbs.size() == 0
+            updateTimer = getTimer()
+            ..startPeriodic( UPDATE_FREQ, function update )      
+
+    private static function update()
+        
+        for orb in orbs
+            group unitsInRange = ENUM_GROUP
+            unitsInRange.enumUnitsInRange(orb.pos, ACTIVATION_RANGE)
+            
+            // Checking if any units are in range
+            if unitsInRange.size() > 0
+
+                // Sorting dead units
+                for unitInRange in unitsInRange
+                    if not unitInRange.isAliveTrick()
+                        unitsInRange.removeUnit(unitInRange)
+
+                // Sorting set activationUnits
+                if orb.activationUnits != null
+                    for unitInRange in unitsInRange
+                        if not orb.activationUnits.contains(unitInRange)
+                            unitsInRange.removeUnit(unitInRange)
+                
+                // Finding the nearest Unit
+                if unitsInRange.size() > 1
+                    unit nearestUnit = null
+                    real distanceToNearestUnit = 99999
+                    for unitInRange from unitsInRange
+                        real distanceToUnitInRange = unitInRange.getPos().distanceTo(orb.pos)
+                        if distanceToUnitInRange < distanceToNearestUnit
+                            nearestUnit = unitInRange
+                            distanceToNearestUnit = distanceToUnitInRange
+
+                    orb.consume(nearestUnit)
+                    
+                else if unitsInRange.size() > 0
+                    orb.consume(unitsInRange.next())
+                    
+                unitsInRange.clear()
+            
+
+    
+    function consume(unit whichUnit)
+
+
+public class HealthOrb extends Orb
+
+    private real healthToRegenerate 
+
+    construct(vec2 pos)
+        super(PLAYER_COLOR_GREEN, pos)
+        orbs.add(this)
+        
+    function addAdditionalEffect( string sfxPath ) returns effect
+        additionalSfx1 = addEffect(sfxPath, pos)
+        return additionalSfx1
+
+    function setHealOverTime()
+
+    function setHealInstant()
+    
+    override function consume(unit whichUnit)
+        
