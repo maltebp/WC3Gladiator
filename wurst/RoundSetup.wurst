@@ -8,12 +8,12 @@ init
     round = new Round
     ..setReward(200, 5)
 
-    round.addSpawner(new UnitSpawner('nelb', ENEMYPLAYER, vec2(-639,1025), 1))
+    round.addSpawner(new UnitSpawner('nanc', ENEMYPLAYER, vec2(-639,1025), 1))
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(8)
+    ..setSpawnCount(10)
 
-    round.addSpawner(new UnitSpawner('nanm', ENEMYPLAYER, vec2(527,1025), 1))
-    ..setStartDelay(7)
+    round.addSpawner(new UnitSpawner('nanm', ENEMYPLAYER, vec2(527,1025), 3))
+    ..setStartDelay(5)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(4)
 

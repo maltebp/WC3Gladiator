@@ -6,6 +6,8 @@ import ErrorHandling
 import initlater Game
 import SoundUtils
 import Transitions
+import TimerUtils
+import Orb
 
 
 
@@ -16,8 +18,8 @@ public class Round
 
 //  Settings 
 
-    private static constant real HEALTHORB_SPAWNFREQ = 0
-    private static constant real HEALTHORB_SPAWNDURATION = 0
+    private static constant real HEALTHORB_SPAWNFREQ = 4
+    private static constant real HEALTHORB_SPAWNDURATION = 20
 
     private static constant string TEXTCOLOR_GOLD = "|c00FF7F00"
     private static constant string TEXTCOLOR_TRAINPOINT = "|c001CE6B9"
@@ -39,6 +41,12 @@ public class Round
     private int number
     private int goldReward
     private int trainingPointsReward
+    private real healthOrb_FlatToHealInstant
+    private real healthOrb_PercToHealInstant
+    private real healthOrb_FlatToHealOverTime
+    private real healthOrb_PercToHealOverTime
+    private timer timer_HealthOrbDuration
+    private timer timer_HealthOrbSpawn
 
     private static SoundDefinition snd_GoldReward = new SoundDefinition(Sounds.receiveGold, false)
 
@@ -54,6 +62,8 @@ public class Round
         number = nextRoundNumber
         nextRoundNumber++
         totalNumberOfRounds++
+        timer_HealthOrbDuration = getTimer()..setData(this castTo int)
+        timer_HealthOrbSpawn = getTimer()..setData(this castTo int)
         rounds.add(this)
     
     
@@ -77,8 +87,11 @@ public class Round
     static function setCurrentRound(int roundNumber)
         currentRound = (roundNumber>totalNumberOfRounds) ? currentRound : roundNumber
 
-    static function setHealthOrbSpawn( real healthFlatToHealInstant, real healthPercToHealInstant, real healthFlatToHealOverTime, real healthPercToHealOverTime )
-        
+    function setHealthOrbSpawn( real healthFlatToHealInstant, real healthPercToHealInstant, real healthFlatToHealOverTime, real healthPercToHealOverTime )
+        this.healthOrb_FlatToHealInstant = healthFlatToHealInstant
+        this.healthOrb_PercToHealInstant = healthPercToHealInstant
+        this.healthOrb_FlatToHealOverTime = healthFlatToHealOverTime
+        this.healthOrb_PercToHealOverTime = healthPercToHealOverTime
 
 
 //---------------------------------------------------------------------------------------------------------------------------------------
@@ -116,9 +129,12 @@ public class Round
             print("Starting round "+currentRound.toString())
             aRoundIsRunning = true
             roundWon = false
-            rounds.get(currentRound-1).activateSpawners()
+            rounds.get(currentRound-1)
+            ..activateSpawners()
+            ..activateHealthOrbSpawn()
 
             
+        
     private function activateSpawners()
 
         if not spawners.isEmpty()
@@ -128,11 +144,32 @@ public class Round
 
     static function clearCurrentRound()
         Round round = rounds.get(currentRound-1)
+        Orb.destroyAll()
         for spawner in round.spawners
             spawner.clear()
 
         
+    private function activateHealthOrbSpawn()
+        timer_HealthOrbDuration.start(HEALTHORB_SPAWNDURATION, function stopHealthOrbSpawn )
+        timer_HealthOrbSpawn.start(HEALTHORB_SPAWNFREQ, function spawnHealthOrb)
         
+
+
+    private static function spawnHealthOrb()
+        thistype round = GetExpiredTimer().getData() castTo thistype
+
+        vec2 spawnPos = gg_rct_Arena_CamBounds.randomPoint()
+
+        new HealthOrb(spawnPos)
+        ..setHealInstant(round.healthOrb_FlatToHealInstant, round.healthOrb_PercToHealInstant )
+        ..setHealInstant(round.healthOrb_FlatToHealOverTime, round.healthOrb_PercToHealOverTime )
+        ..addActivationUnit(hero)
+        
+
+    private static function stopHealthOrbSpawn()
+        thistype round = GetExpiredTimer().getData() castTo thistype
+        round.timer_HealthOrbSpawn.pause()
+
         
 
     private static function wasLastUnit() returns boolean

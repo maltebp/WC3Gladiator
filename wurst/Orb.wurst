@@ -15,7 +15,7 @@ class Orb
     private static timer updateTimer    
 
     protected vec2 pos
-    protected LinkedList<unit> activationUnits
+    protected LinkedList<unit> activationUnits = new LinkedList<unit>
 
     protected effect orb
     protected effect additionalSfx1
@@ -38,6 +38,8 @@ class Orb
             updateTimer
             ..pause()
             ..release()
+
+        destroy activationUnits
 
     /** For testing purposes */
     protected static function printOrbs()
@@ -88,7 +90,13 @@ class Orb
                     
                 unitsInRange.clear()
             
+    function addActivationUnit( unit whichUnit )
 
+        activationUnits.add(whichUnit)
+
+    static function destroyAll()
+        for orb in orbs
+            destroy orb
     
     function consume(unit whichUnit)
         
