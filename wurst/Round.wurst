@@ -167,7 +167,7 @@ public class Round
 
         new HealthOrb(spawnPos)
         ..setHealInstant(round.healthOrb_FlatToHealInstant, round.healthOrb_PercToHealInstant )
-        ..setHealInstant(round.healthOrb_FlatToHealOverTime, round.healthOrb_PercToHealOverTime )
+        ..setHealOverTime(round.healthOrb_FlatToHealOverTime, round.healthOrb_PercToHealOverTime, 6 )
         ..addActivationUnit(hero)
         
 
