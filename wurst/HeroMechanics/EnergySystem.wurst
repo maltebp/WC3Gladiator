@@ -37,52 +37,48 @@ public class EnergySystem
 
     /** Setup the unit to the system with default settings*/
     private construct(unit whichUnit)
-        print("Construct: 1")
+        
         theUnit = whichUnit
-        print("Construct: 2")
-        energyMax = DEFAULTENERGY
-        print("Construct: 3")   
+        energyMax = DEFAULTENERGY  
         timer_Regen = getTimer()..setData(this castTo int)
-        print("Construct: 4")
         
 
     /** Updates the unit's regeneration to newly set regen */
     private static function updateUnit(unit whichUnit)
-        print("UpdateUnit: 1")
+        
 
         if not containsUnit(whichUnit)
-            print("UpdateUnit: 1.1")
+    
             addUnit(whichUnit)
-            print("UpdateUnit: 1.2")
         
-        print("UpdateUnit: 2")
+        
         thistype instance = units.get(whichUnit)  
-        print("UpdateUnit: 3")
+    
         
         instance.theUnit.setMaxMana(R2I(instance.energyMax), true)
-        print("UpdateUnit: 4")
+
         
         real energyToRegen = (DEFAULTREGEN+instance.energyRegenFlatInc)*(1+instance.energyRegenPercInc)
         print(energyToRegen)
         instance.regenFreq = (1/energyToRegen)*2
         print(instance.regenFreq)
-        print("UpdateUnit: 6")
+        
         instance.timer_Regen.startPeriodic(instance.regenFreq, function regen)
-        print("UpdateUnit: 7")
+        
 
     /** Adds a unit to the energy system */
     static function addUnit(unit whichUnit)
-        print("addUnit: 1")
+        
 
         if whichUnit.getMaxMana()>0
-            print("Construct: 5")
+            
             units.put( whichUnit, new EnergySystem(whichUnit) )
             updateUnit(whichUnit)
-            print("Construct: 6")
+    
         else
-            error("Tried to add unit to EnergySystem, but unit has no mana!")
+            
 
-        print("addUnit: 2")
+        
         
     /** Checks if a unit is in the system already*/
     private static function containsUnit( unit whichUnit ) returns boolean

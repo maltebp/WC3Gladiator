@@ -3,6 +3,7 @@ package Orb
 import TimerUtils
 import SoundUtils
 import LinkedList
+import TimedSpecialEffects
 
 class Orb
 
@@ -22,12 +23,31 @@ class Orb
         this.pos = pos
         orb = addEffect("units\\nightelf\\Wisp\\Wisp.mdl", pos)
         ..setColorByPlayer(orbColor.getPlayer())
-
+        ..setTimeScale(0.5)
+        orbs.add(this)
         startUpdate()
 
+    ondestroy
+        print("destroying orb")
+        orbs.remove(this)
+        orb.destr()
+        if additionalSfx1 != null
+            additionalSfx1.destr()
 
-    private static function startUpdate()
         if orbs.size() == 0
+            updateTimer
+            ..pause()
+            ..release()
+
+    /** For testing purposes */
+    protected static function printOrbs()
+        if orbs.size() > 0
+            for orb in orbs
+                print(orb castTo int)
+        
+        
+    private static function startUpdate()
+        if orbs.size() == 1
             updateTimer = getTimer()
             ..startPeriodic( UPDATE_FREQ, function update )      
 
@@ -71,15 +91,22 @@ class Orb
 
     
     function consume(unit whichUnit)
+        print("consuming orb")
 
 
 public class HealthOrb extends Orb
 
-    private real healthToRegenerate 
+     
 
     construct(vec2 pos)
         super(PLAYER_COLOR_GREEN, pos)
-        orbs.add(this)
+        print("Creating health orb!")
+        //orbs.add(this)
+        Orb.printOrbs()
+
+    ondestroy
+        print("destroying health orb")
+        Orb.printOrbs()
         
     function addAdditionalEffect( string sfxPath ) returns effect
         additionalSfx1 = addEffect(sfxPath, pos)
@@ -90,4 +117,12 @@ public class HealthOrb extends Orb
     function setHealInstant()
     
     override function consume(unit whichUnit)
+        whichUnit.addEffect("Abilities\\Spells\\NightElf\\ManaBurn\\ManaBurnTarget.mdl", "chest")
+        ..setDuration(3)
+        print("Consuming health orb")
+        destroy this
         
+init
+    new HealthOrb(vec2(100,-90))
+    new HealthOrb(vec2(600,-90))
+    new HealthOrb(vec2(360,-90))
