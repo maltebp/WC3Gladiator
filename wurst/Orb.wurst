@@ -4,6 +4,7 @@ import TimerUtils
 import SoundUtils
 import LinkedList
 import TimedSpecialEffects
+import HashMap
 
 class Orb
 
@@ -28,7 +29,6 @@ class Orb
         startUpdate()
 
     ondestroy
-        print("destroying orb")
         orbs.remove(this)
         orb.destr()
         if additionalSfx1 != null
@@ -91,37 +91,142 @@ class Orb
 
     
     function consume(unit whichUnit)
-        print("consuming orb")
+        
 
 
 public class HealthOrb extends Orb
 
-     
+    private static SoundDefinition snd_OnConsume = new SoundDefinition(Sounds.healTarget1, false, true)
+    
+    private real healOverTimePerc
+    private real healOverTimeFlat
+    private real healOverTimerDuration
+    private real healInstantFlat
+    private real healInstantPerc
+
 
     construct(vec2 pos)
         super(PLAYER_COLOR_GREEN, pos)
-        print("Creating health orb!")
-        //orbs.add(this)
-        Orb.printOrbs()
+        orb.setColor(150, 255, 150)
+        additionalSfx1 = addEffect("Abilities\\Weapons\\FaerieDragonMissile\\FaerieDragonMissile.mdl", pos)
+        ..setPos(pos.withTerrainZ(65))
+        ..setScale(1.75)
 
     ondestroy
-        print("destroying health orb")
         Orb.printOrbs()
         
     function addAdditionalEffect( string sfxPath ) returns effect
         additionalSfx1 = addEffect(sfxPath, pos)
         return additionalSfx1
 
-    function setHealOverTime()
+    function setHealOverTime(real healFlat, real healPerc, real duration)
+        healOverTimerDuration = duration
+        healOverTimePerc = healPerc
+        healOverTimeFlat = healFlat
 
-    function setHealInstant()
+    function setHealInstant(real healFlat, real healPerc)
+        healInstantPerc = healPerc
+        healInstantFlat = healFlat
     
     override function consume(unit whichUnit)
         whichUnit.addEffect("Abilities\\Spells\\NightElf\\ManaBurn\\ManaBurnTarget.mdl", "chest")
         ..setDuration(3)
-        print("Consuming health orb")
+        whichUnit.addEffect("Abilities\\Spells\\Human\\Heal\\HealTarget.mdl","chest")
+        ..setDuration(3)
+
+        // Heal instant
+        if whichUnit.getHP() != whichUnit.getMaxHP() and healInstantPerc>0 
+            whichUnit.setHP(whichUnit.getHP()+whichUnit.getMaxHP()*healInstantPerc)
+        if whichUnit.getHP() != whichUnit.getMaxHP() and healInstantFlat>0 
+            whichUnit.setHP(whichUnit.getHP()+healInstantFlat)
+
+        // Heal over time
+        if healOverTimeFlat > 0 or healOverTimePerc > 0
+            RegenerateOverTime.forUnit(whichUnit)
+            ..setHealthToRegen(healOverTimeFlat, healInstantPerc)
+            ..start(healOverTimerDuration)
+
         destroy this
         
+
+
+
+class RegenerateOverTime
+
+    private static HashMap<unit, thistype> units = new HashMap<unit,thistype>
+
+    private static real REGENFREQ = 1
+
+    private unit unitToRegen
+    private real healthRegenFlat
+    private real healthRegenPerc
+    private real manaRegenFlat
+    private real manaRegenPerc
+    private timer timer_Duration
+    private timer timer_Regen
+
+    private construct(unit unitToRegen)
+        this.unitToRegen = unitToRegen
+
+    ondestroy
+        units.remove(unitToRegen)
+        timer_Duration
+        ..pause()
+        ..release()
+        timer_Regen
+        ..pause()
+        ..release()
+
+
+    private static function stop()
+        thistype instance = GetExpiredTimer().getData() castTo thistype
+        destroy instance
+
+    private static function callRegen()
+        thistype instance = GetExpiredTimer().getData() castTo thistype
+        instance.regen()
+
+        
+    private function regen()
+        if (healthRegenFlat>0 or healthRegenPerc>0 )
+            if unitToRegen.getHP() != unitToRegen.getMaxHP() and healthRegenPerc>0 
+                unitToRegen.setHP(unitToRegen.getHP()+unitToRegen.getMaxHP()*healthRegenPerc)
+            if unitToRegen.getHP() != unitToRegen.getMaxHP() and healthRegenFlat>0 
+                unitToRegen.setHP(unitToRegen.getHP()+healthRegenFlat)
+
+            unitToRegen.addEffect("Abilities\\Spells\\Human\\Heal\\HealTarget.mdl","chest")
+            ..setDuration(3)
+
+        if (manaRegenFlat>0 or manaRegenPerc>0)
+            
+            if unitToRegen.getMana() != unitToRegen.getMaxMana() and manaRegenPerc>0 
+                unitToRegen.setMana(unitToRegen.getMana()+unitToRegen.getMaxMana()*manaRegenPerc)
+            if unitToRegen.getMana() != unitToRegen.getMaxMana() and manaRegenFlat>0 
+                unitToRegen.setMana(unitToRegen.getMana()+manaRegenFlat)
+            
+            unitToRegen.addEffect("Abilities\\Spells\\Human\\Heal\\HealTarget.mdl","chest")
+            ..setDuration(3)
+
+
+    protected static function forUnit(unit unitToRegen) returns thistype
+        if units.has(unitToRegen)
+            destroy units.get(unitToRegen)
+
+        return new RegenerateOverTime(unitToRegen)
+
+    protected function setHealthToRegen( real healthRegenFlat, real healthRegenPerc)
+        this.healthRegenFlat = healthRegenFlat
+        this.healthRegenPerc = healthRegenPerc
+
+    protected function setManaToRegen( real manaRegenFlat, real manaRegenPerc)
+        this.manaRegenFlat = manaRegenFlat
+        this.manaRegenPerc = manaRegenPerc
+        
+    protected function start(real duration)
+        timer_Duration = getTimer()..setData(this castTo int)..start(duration+0.1, function stop)
+        timer_Regen = getTimer()..setData(this castTo int)..startPeriodic(REGENFREQ, function callRegen)
+
+
 init
     new HealthOrb(vec2(100,-90))
     new HealthOrb(vec2(600,-90))

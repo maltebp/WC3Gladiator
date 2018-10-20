@@ -16,7 +16,8 @@ public class Round
 
 //  Settings 
 
-   
+    private static constant real HEALTHORB_SPAWNFREQ = 0
+    private static constant real HEALTHORB_SPAWNDURATION = 0
 
     private static constant string TEXTCOLOR_GOLD = "|c00FF7F00"
     private static constant string TEXTCOLOR_TRAINPOINT = "|c001CE6B9"
@@ -39,6 +40,7 @@ public class Round
     private int goldReward
     private int trainingPointsReward
 
+    private static SoundDefinition snd_GoldReward = new SoundDefinition(Sounds.receiveGold, false)
 
 // ======================================================================================================================================
 
@@ -74,6 +76,10 @@ public class Round
         of that number exists, it will not do change anything */
     static function setCurrentRound(int roundNumber)
         currentRound = (roundNumber>totalNumberOfRounds) ? currentRound : roundNumber
+
+    static function setHealthOrbSpawn( real healthFlatToHealInstant, real healthPercToHealInstant, real healthFlatToHealOverTime, real healthPercToHealOverTime )
+        
+
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Getters
@@ -143,6 +149,7 @@ public class Round
 
 
     private function giveReward()
+        snd_GoldReward.play()
         print("You've been granted "+TEXTCOLOR_GOLD+goldReward.toString()+" gold|r"+" and "+TEXTCOLOR_TRAINPOINT+trainingPointsReward.toString()+" training points|r.")
         Player(0).addGold(goldReward)
         Player(0).addLumber(goldReward)

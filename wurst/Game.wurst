@@ -14,7 +14,7 @@ public constant player ENEMYPLAYER = Player(11)
 constant int START_TRAININGPOINTS = 0
 constant int START_GOLD             = 200
 
-boolean MAPTESTING = true
+boolean MAPTESTING = false
 
 boolean escapeIsEnabled = false
 
