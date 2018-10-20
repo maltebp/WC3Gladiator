@@ -19,8 +19,8 @@ public class Round
 
 //  Settings 
 
-    private static constant real HEALTHORB_SPAWNFREQ = 4 
-    private static constant real HEALTHORB_SPAWNDURATION = 20
+    private static constant real HEALTHORB_SPAWNFREQ = 15 
+    private static constant real HEALTHORB_SPAWNDURATION = 200
 
     private static constant string TEXTCOLOR_GOLD = "|c00FF7F00"
     private static constant string TEXTCOLOR_TRAINPOINT = "|c001CE6B9"
@@ -46,8 +46,10 @@ public class Round
     private real healthOrb_PercToHealInstant
     private real healthOrb_FlatToHealOverTime
     private real healthOrb_PercToHealOverTime
+    private real healthOrb_SpawnDuration
     private timer timer_HealthOrbDuration
     private timer timer_HealthOrbSpawn
+
 
     private static SoundDefinition snd_GoldReward = new SoundDefinition(Sounds.receiveGold, false)
 
@@ -88,11 +90,13 @@ public class Round
     static function setCurrentRound(int roundNumber)
         currentRound = (roundNumber>totalNumberOfRounds) ? currentRound : roundNumber
 
-    function setHealthOrbSpawn( real healthFlatToHealInstant, real healthPercToHealInstant, real healthFlatToHealOverTime, real healthPercToHealOverTime )
+    function setHealthOrbSpawn( real duration, real healthFlatToHealInstant, real healthPercToHealInstant, real healthFlatToHealOverTime, real healthPercToHealOverTime )
+        this.healthOrb_SpawnDuration = duration
         this.healthOrb_FlatToHealInstant = healthFlatToHealInstant
         this.healthOrb_PercToHealInstant = healthPercToHealInstant
         this.healthOrb_FlatToHealOverTime = healthFlatToHealOverTime
         this.healthOrb_PercToHealOverTime = healthPercToHealOverTime
+
 
 
 //---------------------------------------------------------------------------------------------------------------------------------------
@@ -151,7 +155,7 @@ public class Round
 
         
     private function activateHealthOrbSpawn()
-        timer_HealthOrbDuration.start(HEALTHORB_SPAWNDURATION, function stopHealthOrbSpawn )
+        timer_HealthOrbDuration.start(healthOrb_SpawnDuration+0.1, function stopHealthOrbSpawn )
         timer_HealthOrbSpawn.startPeriodic(HEALTHORB_SPAWNFREQ, function spawnHealthOrb)
         
 
@@ -190,7 +194,7 @@ public class Round
         snd_GoldReward.play()
         print("You've been granted "+TEXTCOLOR_GOLD+goldReward.toString()+" gold|r"+" and "+TEXTCOLOR_TRAINPOINT+trainingPointsReward.toString()+" training points|r.")
         Player(0).addGold(goldReward)
-        Player(0).addLumber(goldReward)
+        Player(0).addLumber(trainingPointsReward)
 
 
     static function reviewRound()

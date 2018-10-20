@@ -11,6 +11,8 @@ init
     round.addSpawner(new UnitSpawner('nanc', ENEMYPLAYER, vec2(-639,1025), 1))
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(10)
+    
+    round.setHealthOrbSpawn(60, 100, 0.2, 20, 0.1)
 
     round.addSpawner(new UnitSpawner('nanm', ENEMYPLAYER, vec2(527,1025), 3))
     ..setStartDelay(5)
