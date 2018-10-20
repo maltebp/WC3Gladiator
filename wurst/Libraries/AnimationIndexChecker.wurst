@@ -1,7 +1,20 @@
+
+
 package AnimationIndexChecker
 
-constant boolean ENABLED = true
-constant int animationIndexMax = 14
+/*
+    A simple system to check animation indexes of a certain unit.
+    It plays an animation with current index, and increments
+    the index.
+*/
+
+// ================================================================================================
+
+constant boolean    ENABLED             = true
+constant int        ANIMATIONINDEX_MAX  = 14
+
+// ================================================================================================
+
 int animationIndex = 0
 
 function playAnimation()
@@ -13,7 +26,7 @@ function playAnimation()
         print(selectedUnit.getName())
         selectedUnit.setAnimation(animationIndex)
         
-    animationIndex = (animationIndex >= animationIndexMax ) ? 0 : animationIndex+1
+    animationIndex = (animationIndex >= ANIMATIONINDEX_MAX ) ? 0 : animationIndex+1
 
 init
     if ENABLED
