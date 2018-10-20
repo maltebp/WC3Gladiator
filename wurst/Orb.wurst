@@ -119,9 +119,6 @@ public class HealthOrb extends Orb
         additionalSfx1 = addEffect("Abilities\\Weapons\\FaerieDragonMissile\\FaerieDragonMissile.mdl", pos)
         ..setPos(pos.withTerrainZ(65))
         ..setScale(1.75)
-
-    ondestroy
-        Orb.printOrbs()
         
     function addAdditionalEffect( string sfxPath ) returns effect
         additionalSfx1 = addEffect(sfxPath, pos)
@@ -234,8 +231,3 @@ class RegenerateOverTime
         timer_Duration = getTimer()..setData(this castTo int)..start(duration+0.1, function stop)
         timer_Regen = getTimer()..setData(this castTo int)..startPeriodic(REGENFREQ, function callRegen)
 
-
-init
-    new HealthOrb(vec2(100,-90))
-    new HealthOrb(vec2(600,-90))
-    new HealthOrb(vec2(360,-90))

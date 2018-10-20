@@ -5,6 +5,7 @@ import TimerUtils
 import Camera
 import FadeAndFilters
 import initlater Game
+import Music
 
 SoundDefinition snd_StartRound = new SoundDefinition(Sounds.goodJob, false)
 SoundDefinition snd_EscapePress = new SoundDefinition(Sounds.bigButtonClick, false)
@@ -65,6 +66,7 @@ function toShop_OnFadeIn()
         hero.revive(HEROSPAWN_SHOP, true)
         hero.pause()
 
+    playMusic(Sounds.orcX1)
     hero.setHP(hero.getMaxHP())
     hero.setMana(hero.getMaxMana())
     
@@ -83,6 +85,7 @@ function toShop_ReviewRound()
 
 function toShop_SetNextRound()
     Round.nextRound()
+    
     GetExpiredTimer().release()
 
 
@@ -114,6 +117,7 @@ function toArena_OnFadeIn()
 
 function toArena_StartRound()
     GetExpiredTimer().release()
+    playMusic(Sounds.orcVictory)
     hero.unpause()
     Round.startRound()
     

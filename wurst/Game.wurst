@@ -7,6 +7,7 @@ import TimerUtils
 import FadeAndFilters
 import Camera
 import EnergySystem
+import Music
 
 public unit hero
 public constant player ENEMYPLAYER = Player(11)
@@ -34,6 +35,7 @@ effect teleportEffect
 
 init
 
+    stopMusic()
     spawnPosOnInit = (MAPTESTING) ? HEROSPAWN_ARENA : HEROSPAWN_SHOP
 
     Player(0)
@@ -76,7 +78,9 @@ function enableControls()
     ..enableUserControl()
     ..selectSingle(hero)
     snd_HeroInit.play()
+    playMusic(Sounds.orcX1)
     escapeIsEnabled = true
+    
 
 function deleteTeleportEffect()
     GetExpiredTimer().release()
@@ -95,6 +99,7 @@ function startRound()
 
         if not Round.isARoundRunning()
             Round.setARoundRunning()
+            stopMusic()
             transitionToArena()
         
 
