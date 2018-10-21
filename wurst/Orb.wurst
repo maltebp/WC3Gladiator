@@ -16,6 +16,7 @@ class Orb
 
     protected vec2 pos
     protected LinkedList<unit> activationUnits = new LinkedList<unit>
+    // If not empty, this is a list of the ONLY units that may activate the orb
 
     protected effect orb
     protected effect additionalSfx1
@@ -67,7 +68,7 @@ class Orb
                     if not unitInRange.isAliveTrick()
                         unitsInRange.removeUnit(unitInRange)
 
-                // Sorting set activationUnits
+                // Sorting activationUnits
                 if orb.activationUnits != null
                     for unitInRange in unitsInRange
                         if not orb.activationUnits.contains(unitInRange)

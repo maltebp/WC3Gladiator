@@ -31,6 +31,7 @@ public function transitionToShop(boolean won)
 
     getTimer().start(2, function toShop_PlaySound )    
 
+
 function toShop_PlaySound()
 
     if hasWon
@@ -41,6 +42,7 @@ function toShop_PlaySound()
 
     GetExpiredTimer().start(2, function toShop_StartFade)
 
+
 function toShop_StartFade()
     GetExpiredTimer().release()
     new Fade
@@ -49,6 +51,7 @@ function toShop_StartFade()
     ..onFadeOut(function toShop_OnFadeOut )
     ..onFadeIn(function toShop_OnFadeIn )
     ..start(FADEOUTIN)
+
 
 function toShop_OnFadeOut()
     Player(0).setCameraBoundsToRect(gg_rct_Shop_CamBounds)
@@ -74,20 +77,30 @@ function toShop_OnFadeIn()
 
     getTimer().start(1, function toShop_ReviewRound)
 
+
 function deleteTeleportEffect()
     GetExpiredTimer().release()
     teleportEffect.destr()
 
+
 function toShop_ReviewRound()
-    Round.reviewRound()
-    hero.unpause()
-    GetExpiredTimer().start(3, function toShop_SetNextRound)
+
+    if hasWon and Round.getCurrentRoundNumber() == Round.getNumberOfRounds()
+        playMusic(Sounds.heroicVictory)
+        print("Congratulations, you've completed all rounds!")
+        GetExpiredTimer().start(5, function gameVictory)
+    else
+        Round.reviewRound()
+        hero.unpause()
+        GetExpiredTimer().start(3, function toShop_SetNextRound)
 
 function toShop_SetNextRound()
     Round.nextRound()
     
     GetExpiredTimer().release()
 
+function gameVictory()
+    CustomVictoryBJ(Player(0), true, false)
 
 
 public function transitionToArena()
@@ -96,6 +109,7 @@ public function transitionToArena()
     hero.pause()
     getTimer().start(2, function toArena_StartingFade )
 
+
 function toArena_StartingFade()
     GetExpiredTimer().release()
     new Fade
@@ -103,6 +117,7 @@ function toArena_StartingFade()
     ..onFadeOut(function toArena_OnFadeOut )
     ..onFadeIn(function toArena_OnFadeIn )
     ..start(FADEOUTIN)
+
 
 function toArena_OnFadeOut()
     

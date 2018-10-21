@@ -1,17 +1,12 @@
 package Round
 
-import LinkedList
 import public UnitSpawner
 import ErrorHandling
 import initlater Game
-import SoundUtils
 import Transitions
 import TimerUtils
 import Orb
 import Music
-
-
-
 
 public class Round
 
@@ -72,7 +67,7 @@ public class Round
     
     
 //---------------------------------------------------------------------------------------------------------------------------------------
-// Setters
+// Setters & Adders
 
     function setReward( int goldReward, int trainingPointsReward)
         this.goldReward = goldReward
@@ -110,6 +105,10 @@ public class Round
 
     static function getCurrentRoundNumber() returns int
         return currentRound
+
+    static function getNumberOfRounds() returns int
+        return totalNumberOfRounds
+
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 //  Running
@@ -178,7 +177,6 @@ public class Round
         
 
     private static function wasLastUnit() returns boolean
-        
         if hero.isAliveTrick()
             Round round = rounds.get(currentRound-1)
             for spawner in round.spawners
@@ -187,8 +185,6 @@ public class Round
             return true
         return false
                 
-
-
 
     private function giveReward()
         snd_GoldReward.play()
@@ -199,14 +195,13 @@ public class Round
 
     static function reviewRound()
         Round round = rounds.get(currentRound-1)
-        
         if roundWon
             print("You completed round "+currentRound.toString())
             round.giveReward()
-
         else
             print("You lost the round - try again.")
         
+
     static function nextRound()
         aRoundIsRunning = false
         if( roundWon )
