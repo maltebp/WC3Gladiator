@@ -7,6 +7,8 @@ init
 
     round = new Round
     ..setReward(200, 5)
+    ..setTitle("Gnolls")
+    ..setDescription("Gnolls shouldn't be a problem for an aspiring champion.")
 
     round.addSpawner(new UnitSpawner('nanc', ENEMYPLAYER, vec2(-639,1025), 1))
     ..setNearestTargetOnSpawn(GetPlayableMapRect())

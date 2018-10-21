@@ -127,18 +127,20 @@ function enableControls()
     Player(0)
     ..selectSingle(hero)
 
-    
-   
-
     GetExpiredTimer().start(3, function printStartInfo)
+
+
 
 function printStartInfo()
     snd_GameIntro.play()
 
-    printTimed("Prepare yourself now, and when you're ready, press '"+"|cffffcc00"+"escape|r' to start the round.",7)
+    printTimed("Prepare yourself now, and when you're ready, press '"+"|cffffcc00"+"escape|r' to start the round.",5)
     escapeIsEnabled = true
 
-    GetExpiredTimer().release()
+    GetExpiredTimer().start(8, function printRoundInfo)
+
+function printRoundInfo()
+    Round.nextRound()
 
 function delayedInit()
     GetExpiredTimer().release()
@@ -146,8 +148,6 @@ function delayedInit()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Shop_Visibility, false, false).start()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Arena_Visibility, false, false).start()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_MASKED, GetPlayableMapRect(), false, false).start()
-
-    
 
 
 function startRound()
