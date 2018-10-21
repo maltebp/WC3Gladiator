@@ -8,7 +8,7 @@ import TimedSpecialEffects
 
 // Settings
 
-constant real RANGE = 125
+constant real RANGE = 175
 constant real BASEDAMAGE = 50
 constant real DAMAGEFACTOR = 2
 
