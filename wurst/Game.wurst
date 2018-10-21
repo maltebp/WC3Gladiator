@@ -20,13 +20,13 @@ boolean MAPTESTING = false
 boolean escapeIsEnabled = false
 boolean canSkipGameInfo
 
-timer timer_GameIntro = getTimer()
+public timer timer_GameIntro = getTimer()
 
 public constant vec2 HEROSPAWN_SHOP = vec2(-8129,-8198)
 public constant vec2 HEROSPAWN_ARENA = vec2(173,501)
 
-SoundDefinition snd_HeroInit = new SoundDefinition(Sounds.gromWhat3, false)
-SoundDefinition snd_GameIntro = new SoundDefinition(Sounds.questActivateWhat1, false)
+public SoundDefinition snd_HeroInit = new SoundDefinition(Sounds.gromWhat3, false)
+public SoundDefinition snd_Text = new SoundDefinition(Sounds.questActivateWhat1, false)
 
 vec2 spawnPosOnInit
 
@@ -71,13 +71,13 @@ init
 
 
 function gameIntro()
-    snd_GameIntro.play()
+    snd_Text.play()
     canSkipGameInfo = true
     printTimed("|cffffcc00"+"Welcome to the Simple Hero Survival!"+"|r",10)
     printTimed("You will have to face fierce opponents, whose only goal is make you regret the day you "+
        "chose to step into the arena. You have to survive "+Round.getNumberOfRounds().toString()+ " merciless rounds of"+
        " slaughter, to call yourself the true champion.",10)
-    printTimed("Good luck!", 9)
+    printTimed("Good luck!", 10)
 
 
     timer_GameIntro.start(13, function fadeIn)
@@ -132,15 +132,15 @@ function enableControls()
 
 
 function printStartInfo()
-    snd_GameIntro.play()
-
+    snd_Text.play()
     printTimed("Prepare yourself now, and when you're ready, press '"+"|cffffcc00"+"escape|r' to start the round.",5)
-    escapeIsEnabled = true
-
+    
     GetExpiredTimer().start(8, function printRoundInfo)
+    
 
 function printRoundInfo()
-    Round.nextRound()
+    Round.printNextRound()
+    escapeIsEnabled = true
 
 function delayedInit()
     GetExpiredTimer().release()
@@ -155,9 +155,7 @@ function startRound()
     if escapeIsEnabled
 
         if not Round.isARoundRunning()
-            Round.setARoundRunning()
-            stopMusic()
-            transitionToArena()
+            Round.startNextRound()
 
     else if canSkipGameInfo
         fadeIn()

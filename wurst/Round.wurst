@@ -50,6 +50,8 @@ public class Round
 
 
     private static SoundDefinition snd_GoldReward = new SoundDefinition(Sounds.receiveGold, false)
+    private static SoundDefinition snd_RoundInfo = new SoundDefinition(Sounds.questLog, false)
+    private static SoundDefinition snd_StartRound = new SoundDefinition(Sounds.goodJob, false)
 
 // ======================================================================================================================================
 
@@ -79,9 +81,6 @@ public class Round
     function setReward( int goldReward, int trainingPointsReward)
         this.goldReward = goldReward
         this.trainingPointsReward = trainingPointsReward
-
-    static function setARoundRunning()
-        aRoundIsRunning = true
 
     function addSpawner(UnitSpawner spawner) returns UnitSpawner
         spawners.add(spawner)
@@ -126,31 +125,20 @@ public class Round
     static function getCurrentRound() returns Round
         return currentRound
 
+    function getTitle() returns string
+        return "|cffffcc00Round "+number.toString() + " - "+title+"|r"
+
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 //  Running
     
     /** Starts the currentRound */
     static function startRound()
-        if totalNumberOfRounds != 0
+        
             
-            if not currentRoundNumber > totalNumberOfRounds
-                initializeRound()
-
-            else
-                error("No more rounds")
-
-        else
-            error("No rounds added")
-            
-
-    static function initializeRound()
-            print( "Starting round "+currentRoundNumber.toString() )
-            aRoundIsRunning = true
-            roundWon = false
-            rounds.get(currentRoundNumber-1)
-            ..activateSpawners()
-            ..activateHealthOrbSpawn()
+    function initialize()
+        activateSpawners()
+        activateHealthOrbSpawn()
 
             
         
@@ -160,12 +148,17 @@ public class Round
             for spawner in spawners
                 spawner.start()
         
+    function clear()
+        Orb.destroyAll()
+        timer_HealthOrbDuration.pause()
+        timer_HealthOrbSpawn.pause()
+        for spawner in spawners
+            spawner.clear()
 
     static function clearCurrentRound()
-        Round round = rounds.get(currentRoundNumber-1)
-        Orb.destroyAll()
-        for spawner in round.spawners
-            spawner.clear()
+        currentRound.clear()
+        
+        
 
         
     private function activateHealthOrbSpawn()
@@ -201,38 +194,47 @@ public class Round
         return false
                 
 
-    private function giveReward()
+    private function reward()
         snd_GoldReward.play()
-        print("You've been granted "+TEXTCOLOR_GOLD+goldReward.toString()+"|r gold"+" and "+TEXTCOLOR_TRAINPOINT+trainingPointsReward.toString()+"|r training points.")
+        printTimed(" ", 5)
+        printTimed("You've been granted "+TEXTCOLOR_GOLD+goldReward.toString()+"|r gold"+" and "+TEXTCOLOR_TRAINPOINT+trainingPointsReward.toString()+"|r training points.", 5)
         Player(0).addGold(goldReward)
         Player(0).addLumber(trainingPointsReward)
 
 
-    static function reviewRound()
-        Round round = rounds.get(currentRoundNumber-1)
-        if roundWon
-            print("You completed round "+currentRoundNumber.toString())
-            round.giveReward()
-        else
-            print("You lost the round - try again.")
+    static function giveReward()
+        currentRound.reward()
+
+
+    static function wonRound()
         
-            
-    function printInfo()
-        print("Next round is round is: ")
-        rounds.get(currentRoundNumber).printInfo()
-        print("")
-        print("|cffffcc00Round "+number.toString() + " - "+title+"|r")
-        print(description)
 
-    static function nextRound()
-        aRoundIsRunning = false
-        if( roundWon )
-            currentRoundNumber++
+    static function printNextRound()
+        snd_RoundInfo.play()
+        printTimed("Next round: ",7)
+        printTimed(" ",7)
+        currentRound.toString()
 
-            
-            
-            
+
+    function toString()
+        printTimed("|cffffcc00Round "+number.toString() + " - '"+title+"'|r",7)
+        printTimed(description,7)
+
     
+    static function setNextRound()
+
+        if currentRoundNumber < totalNumberOfRounds
+            currentRoundNumber++
+            currentRound = rounds.get(currentRoundNumber-1)
+            aRoundIsRunning = false
+            
+        else
+            error("No more rounds")
+
+
+
+    static function setRoundReady()
+        aRoundIsRunning = false
 
     private static function roundLost()
         roundWon = false
@@ -253,7 +255,31 @@ public class Round
         else if wasLastUnit()
             roundWon()
             
+
+     static function startNextRound()
+        if totalNumberOfRounds != 0
             
+            if not currentRoundNumber > totalNumberOfRounds
+
+                aRoundIsRunning = true
+                roundWon = false
+
+                snd_StartRound.play()
+                
+                stopMusic()
+
+                transitionToArena()
+
+            else
+                error("No more rounds")
+
+        else
+            error("No rounds added")
+
+        
+
+        
+               
 
  
                 

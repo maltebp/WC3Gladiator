@@ -96,6 +96,7 @@ class Orb
         activationUnits.add(whichUnit)
 
     static function destroyAll()
+        
         for orb in orbs
             destroy orb
     
