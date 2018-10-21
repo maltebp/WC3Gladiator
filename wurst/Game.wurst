@@ -18,6 +18,9 @@ constant int START_GOLD             = 200
 boolean MAPTESTING = false
 
 boolean escapeIsEnabled = false
+boolean canSkipGameInfo
+
+timer timer_GameIntro = getTimer()
 
 public constant vec2 HEROSPAWN_SHOP = vec2(-8129,-8198)
 public constant vec2 HEROSPAWN_ARENA = vec2(173,501)
@@ -43,7 +46,9 @@ init
     Player(0)
     ..setLumber(START_TRAININGPOINTS)
     ..setGold(START_GOLD)
-    ..setCameraPosition(spawnPosOnInit)
+    ..setCameraPosition(gg_rct_Shop_CamBounds.getCenter())
+
+    
 
     EnableSelect(false, false)
     EnablePreSelect(false, false)
@@ -62,22 +67,27 @@ init
 
     getTimer().start(0.5, function delayedInit)
 
-    getTimer().start(3.0, function gameIntro )
+    timer_GameIntro.start(3.0, function gameIntro )
 
 
 function gameIntro()
     snd_GameIntro.play()
+    canSkipGameInfo = true
     printTimed("|cffffcc00"+"Welcome to the Simple Hero Survival!"+"|r",10)
-    printTimed("You will have to face fierce opponents, whos only goal is make you regret the day you "+
-       "chose to stepped into the arena. You have to survive "+Round.getNumberOfRounds().toString()+ " merciless rounds of"+
-       " slaughter, to call yourself the true champion. Good luck!", 10) 
-       
-    
+    printTimed("You will have to face fierce opponents, whose only goal is make you regret the day you "+
+       "chose to step into the arena. You have to survive "+Round.getNumberOfRounds().toString()+ " merciless rounds of"+
+       " slaughter, to call yourself the true champion.",10)
+    printTimed("Good luck!", 9)
 
-    getTimer().start(10, function fadeIn)
+
+    timer_GameIntro.start(13, function fadeIn)
 
 
 function fadeIn()
+    canSkipGameInfo = false
+
+    ClearTextMessages()
+    timer_GameIntro.pause()
 
     new Fade
     ..setEndDelay(1)
@@ -96,8 +106,6 @@ function createHero()
 
     getTimer().start(1.25, function playHeroSound)
 
-
-
 function playHeroSound()
     snd_HeroInit.play()
     GetExpiredTimer().start(2, function disableCinematicMode )
@@ -106,7 +114,7 @@ function disableCinematicMode()
     /*  The Fade object should be able to do this cinematic fading,
         but it hasn't been implemented to enable and disable cinematic
         fading offest from the fade. - Has to be implemented */ 
-    ShowInterface(false, 1.5)
+    ShowInterface(true, 1.5)
     GetExpiredTimer().start(1.5, function enableControls )
     
 function enableControls()
@@ -127,7 +135,7 @@ function enableControls()
 function printStartInfo()
     snd_GameIntro.play()
 
-    print("Prepare yourself now, and when you're ready, press '"+"|cffffcc00"+"escape|r' to start the round.")
+    printTimed("Prepare yourself now, and when you're ready, press '"+"|cffffcc00"+"escape|r' to start the round.",7)
     escapeIsEnabled = true
 
     GetExpiredTimer().release()
@@ -150,6 +158,9 @@ function startRound()
             Round.setARoundRunning()
             stopMusic()
             transitionToArena()
+
+    else if canSkipGameInfo
+        fadeIn()
         
 
 
