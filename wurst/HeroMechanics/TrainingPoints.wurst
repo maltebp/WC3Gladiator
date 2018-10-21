@@ -1,2 +1,44 @@
 package TrainingPoints
 
+/*
+
+    Health
+    Attack Damage
+    Attack Speed
+    Armor
+
+*/
+
+constant real ARMOR_PER_POINT = 0
+constant real HEALTH_PER_POINT = 0
+constant real POWER_PER_POINT = 0
+constant real ATTACKSPEED_PER_POINT = 0
+
+
+enum TrainType
+    HEALTH
+    POWER
+    ATTACKSPEED
+    ARMOR
+
+
+class HeroTrainingPoints
+    private player  owner
+    private unit    hero
+    private real health
+    private real power
+    private real armor
+    private real attackSpeed
+
+    private real pointsTrained
+
+    protected function resetPoints()
+
+    protected function train(TrainType whatToTrain)
+
+    
+
+
+init
+    // Setup item tooltips
+
