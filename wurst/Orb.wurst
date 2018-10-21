@@ -200,7 +200,7 @@ class RegenerateOverTime
             if unitToRegen.getHP() != unitToRegen.getMaxHP() and healthRegenFlat>0 
                 unitToRegen.setHP(unitToRegen.getHP()+healthRegenFlat)
 
-            unitToRegen.addEffect("Abilities\\Spells\\Human\\Heal\\HealTarget.mdl","chest")
+            unitToRegen.addEffect("Abilities\\Spells\\Human\\Heal\\HealTarget.mdl","origin")
             ..setDuration(3)
 
         if (manaRegenFlat>0 or manaRegenPerc>0)
@@ -210,7 +210,7 @@ class RegenerateOverTime
             if unitToRegen.getMana() != unitToRegen.getMaxMana() and manaRegenFlat>0 
                 unitToRegen.setMana(unitToRegen.getMana()+manaRegenFlat)
             
-            unitToRegen.addEffect("Abilities\\Spells\\Human\\Heal\\HealTarget.mdl","chest")
+            unitToRegen.addEffect("Abilities\\Spells\\Human\\Heal\\HealTarget.mdl","origin")
             ..setDuration(3)
 
 

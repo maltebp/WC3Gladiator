@@ -17,8 +17,8 @@ public class Round
     private static constant real HEALTHORB_SPAWNFREQ = 15 
     private static constant real HEALTHORB_SPAWNDURATION = 200
 
-    private static constant string TEXTCOLOR_GOLD = "|c00FF7F00"
-    private static constant string TEXTCOLOR_TRAINPOINT = "|c001CE6B9"
+    private static constant string TEXTCOLOR_GOLD = "|cffffcc00"
+    private static constant string TEXTCOLOR_TRAINPOINT = "|cff00FA9A"
 
 //=========================================================================================================================================================
 
@@ -188,7 +188,7 @@ public class Round
 
     private function giveReward()
         snd_GoldReward.play()
-        print("You've been granted "+TEXTCOLOR_GOLD+goldReward.toString()+" gold|r"+" and "+TEXTCOLOR_TRAINPOINT+trainingPointsReward.toString()+" training points|r.")
+        print("You've been granted "+TEXTCOLOR_GOLD+goldReward.toString()+"|r gold"+" and "+TEXTCOLOR_TRAINPOINT+trainingPointsReward.toString()+"|r training points.")
         Player(0).addGold(goldReward)
         Player(0).addLumber(trainingPointsReward)
 

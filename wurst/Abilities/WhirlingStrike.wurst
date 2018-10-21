@@ -21,34 +21,27 @@ class WhirlingStrike
 
 //
     protected static function onCast()
-        print("Whirling Strike cast!")
         unit caster = GetSpellAbilityUnit()
-        print("Caster: "+caster.getName())
         group targets = ENUM_GROUP
 
         targets.enumUnitsInRange(caster.getPos(), 250)
 
-        print("Group size: "+targets.size().toString())
 
         for target in targets
             if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAliveTrick() 
                 targets.removeUnit(target)
-                print("Removing "+target.getName())
 
         for target in targets
             if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAliveTrick() 
-                targets.removeUnit(target)
-                print("Removing "+target.getName())    
+                targets.removeUnit(target)   
 
         if targets.size() > 0
             snd_OnHit.playOnPoint(caster.getPos3Fly())
 
         for target from targets
             caster.damageTarget(target, I2R(caster.getTotalAttackDamage()*7))
-            print("Damaging "+target.getName())
             target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl", "chest")
             ..setDuration(3)
 
 init
-    print(WhirlingStrike.ABILITYID)
     registerSpellEffectEvent(WhirlingStrike.ABILITYID, function WhirlingStrike.onCast )

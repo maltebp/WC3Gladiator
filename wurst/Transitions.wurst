@@ -137,33 +137,3 @@ function toArena_StartRound()
     Round.startRound()
     
     
-
-/*
-    To Arena
-    Press escape
-    Wait 1 second
-    Play sound and pause hero
-    Wait 3 seconds
-    Fade out
-    On Fade Out: move hero to arena
-    Fade in
-    On Fade in: wait 2 seconds
-    Play sound, release hero, star spawners
-
-    On Fight end
-    Make Hero invulnerable
-    Wait 2 seconds
-    Play Sound (win or lose)
-    wait 3 seconds
-    Fade out
-    On Fade out: clear arena
-    On Fade in:
-        if hero alive: teleport in
-        if hero dead: revive
-    wait 2 seconds
-    Grant reward or tell to try again
-    wait 2 seconds
-    inform on next round, allow to start next round
-
-
-    */

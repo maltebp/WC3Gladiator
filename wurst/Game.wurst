@@ -1,13 +1,12 @@
 package Game
 
 import public Round 
-import Sound
 import Transitions
-import TimerUtils
 import FadeAndFilters
 import Camera
 import EnergySystem
 import Music
+import TimedSpecialEffects
 
 public unit hero
 public constant player ENEMYPLAYER = Player(11)
@@ -42,7 +41,10 @@ init
     ..setLumber(START_TRAININGPOINTS)
     ..setGold(START_GOLD)
     ..setCameraPosition(spawnPosOnInit)
-    ..disableUserControl()
+
+    EnableSelect(false, false)
+    EnablePreSelect(false, false)
+    EnableDragSelect(false, false)
 
     if not MAPTESTING
         Player(0).setCameraBoundsToRect(gg_rct_Shop_CamBounds)
@@ -63,28 +65,34 @@ function createHero()
     hero = createUnit(Player(0), 'O000', spawnPosOnInit, angle(3*PIHALF))
     ..suspendXp(true)
     ..setColor(PLAYER_COLOR_WHEAT)
-    
     EnergySystem.addUnit(hero)
-    
-    
+    addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
+    ..setDuration(3)
 
-    teleportEffect = addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
-    getTimer().start(3, function deleteTeleportEffect)
-    getTimer().start(2, function enableControls)
+    getTimer().start(2, function playHeroSound)
 
-function enableControls()
-    GetExpiredTimer().release()
-    Player(0)
-    ..enableUserControl()
-    ..selectSingle(hero)
+
+
+function playHeroSound()
+    GetExpiredTimer().start(2, function enableControls )
+
     snd_HeroInit.play()
+    
+    
+function enableControls()
+
+    EnableSelect(true, true)
+    EnablePreSelect(true, true)
+    EnableDragSelect(true, true)
+
+    Player(0)
+    ..selectSingle(hero)
+
     playMusic(Sounds.orcX1)
     escapeIsEnabled = true
-    
 
-function deleteTeleportEffect()
     GetExpiredTimer().release()
-    teleportEffect.destr()
+    
 
 function delayedInit()
     GetExpiredTimer().release()
@@ -92,6 +100,7 @@ function delayedInit()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Shop_Visibility, false, false).start()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Arena_Visibility, false, false).start()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_MASKED, GetPlayableMapRect(), false, false).start()
+
 
 function startRound()
 
