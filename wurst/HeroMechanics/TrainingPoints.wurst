@@ -9,10 +9,10 @@ constant int POWER_PER_POINT = 0
 constant real ATTACKSPEED_PER_POINT = 0.01
 
 // Update these at some point
-constant integer    TRAINID_HEALTH = '1'
-constant integer    TRAINID_ARMOR = '2'
-constant integer    TRAINID_POWER = '3'
-constant integer    TRAINID_ATTACKSPEED = '4'
+constant integer    TRAINID_HEALTH = 'I002'
+constant integer    TRAINID_ARMOR = 'I003'
+constant integer    TRAINID_POWER = 'I004'
+constant integer    TRAINID_ATTACKSPEED = 'I001'
 
 
 class HeroTrainingPoints
