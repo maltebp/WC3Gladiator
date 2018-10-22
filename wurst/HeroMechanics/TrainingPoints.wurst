@@ -1,18 +1,18 @@
 package TrainingPoints
 
 import HashMap
-import RegisterEvents
 
-constant real ARMOR_PER_POINT = 0
-constant int    HEALTH_PER_POINT = 0
-constant int POWER_PER_POINT = 0
-constant real ATTACKSPEED_PER_POINT = 0.01
+constant real ARMOR_PER_POINT = 1
+constant int    HEALTH_PER_POINT = 15
+constant int POWER_PER_POINT = 1
+constant real ATTACKSPEED_PER_POINT = 0.01 
 
 // Update these at some point
 constant integer    TRAINID_HEALTH = 'I002'
 constant integer    TRAINID_ARMOR = 'I003'
 constant integer    TRAINID_POWER = 'I004'
 constant integer    TRAINID_ATTACKSPEED = 'I001'
+constant integer    TRAINID_RESET = 'I005'
 
 
 class HeroTrainingPoints
@@ -31,10 +31,13 @@ class HeroTrainingPoints
         this.owner = whichUnit.getOwner()
         instances.put(whichUnit, this)
 
+
     ondestroy
         instances.remove(hero)
 
+
     protected function resetPoints()
+        print("Reset points")
         owner.addLumber(pointsTrained)
         pointsTrained = 0
 
@@ -50,27 +53,34 @@ class HeroTrainingPoints
     protected function adjustHealth(int adjustAmount)
         hero.setMaxHP(R2I(hero.getMaxHP())+adjustAmount, true)
         health += adjustAmount
+        pointsTrained++
 
     protected function adjustArmor(real adjustAmount)
         hero.setArmor(hero.getArmor()+adjustAmount)
         armor += adjustAmount
+        pointsTrained++
 
     protected function adjustPower(int adjustAmount)
+        print(hero.getName() )
         hero.setBaseDamage(hero.getBaseDamage(1)+adjustAmount, 1)
         power += adjustAmount
+        pointsTrained++
         
+
     protected function adjustAttackSpeed(real adjustAmount)
         //Resetting attack speed
+        print("Training attack speed")
         hero.setAttackCooldown(hero.getAttackCooldown(1)/(1/(1+attackSpeed)), 1)
         attackSpeed += adjustAmount
         hero.setAttackCooldown(hero.getAttackCooldown(1)*(1/(1+attackSpeed)), 1)
-
+        print(hero.getAttackCooldown(1).toString())
+        pointsTrained++
         
     /** Gets the instances containing information about training points for
         a speficic unit. If that doesn't exists, it will create one, and
         return that. */
     protected static function getUnitInstance(unit whichUnit) returns thistype
-
+        
         if not instances.has(whichUnit)
             new HeroTrainingPoints(whichUnit)
          
@@ -78,9 +88,10 @@ class HeroTrainingPoints
     
 
     protected static function train()
-        unit unitToTrain = GetManipulatingUnit()
+        
+        unit unitToTrain = GetBuyingUnit()
         thistype instance = getUnitInstance(unitToTrain)
-        integer whatToTrain = GetManipulatedItem().getTypeId()
+        integer whatToTrain = GetSoldItem().getTypeId()
 
         if whatToTrain == TRAINID_HEALTH
             instance.adjustHealth(HEALTH_PER_POINT)
@@ -94,13 +105,20 @@ class HeroTrainingPoints
         else if whatToTrain == TRAINID_POWER
             instance.adjustPower(POWER_PER_POINT) 
 
+        else if whatToTrain == TRAINID_RESET
+            instance.resetPoints()
+
 
 function itemBoughtFilter() returns boolean
-    integer itemId = GetManipulatedItem().getTypeId()
-    return itemId == TRAINID_HEALTH or itemId == TRAINID_ARMOR or itemId == TRAINID_ATTACKSPEED or itemId == TRAINID_POWER
+    integer itemId = GetSoldItem().getTypeId()
+    print(itemId)
+    return itemId == TRAINID_HEALTH or itemId == TRAINID_ARMOR or itemId == TRAINID_ATTACKSPEED or itemId == TRAINID_POWER or itemId == TRAINID_RESET
 
-init
-    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SELL_ITEM, function itemBoughtFilter, function HeroTrainingPoints.train)
+init 
+    CreateTrigger()
+    ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_SELL_ITEM)
+    ..addCondition(Condition(function itemBoughtFilter))
+    .addAction(function HeroTrainingPoints.train)
 
     // Setup item tooltips
 
