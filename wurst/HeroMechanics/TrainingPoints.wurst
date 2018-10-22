@@ -1,5 +1,8 @@
 package TrainingPoints
 
+import HashMap
+import RegisterEvents
+
 /*
 
     Health
@@ -10,35 +13,69 @@ package TrainingPoints
 */
 
 constant real ARMOR_PER_POINT = 0
-constant real HEALTH_PER_POINT = 0
+constant int    HEALTH_PER_POINT = 0
 constant real POWER_PER_POINT = 0
 constant real ATTACKSPEED_PER_POINT = 0
 
-
-enum TrainType
-    HEALTH
-    POWER
-    ATTACKSPEED
-    ARMOR
+constant integer TRAINID_HEALTH = '1'
 
 
 class HeroTrainingPoints
+    private static HashMap <unit, thistype> instances = new HashMap<unit, thistype>
+    
     private player  owner
     private unit    hero
-    private real health
-    private real power
-    private real armor
-    private real attackSpeed
+    private int     health
+    private real    power
+    private real    armor
+    private real    attackSpeed
+    private real    pointsTrained
 
-    private real pointsTrained
+    construct(unit whichUnit)
+        this.hero = whichUnit
+        this.owner = whichUnit.getOwner()
+        instances.put(whichUnit, this)
+
 
     protected function resetPoints()
+        adjustHealth(-health)
 
-    protected function train(TrainType whatToTrain)
 
+    /** Can be negative */
+    protected function adjustHealth(int adjustAmount)
+        hero.setMaxHP(R2I(hero.getMaxHP())+adjustAmount, true)
+        health += adjustAmount
     
+        
+    /** Gets the instances containing information about training points for
+        a speficic unit. If that doesn't exists, it will create one, and
+        return that. */
+    protected static function getUnitInstance(unit whichUnit) returns thistype
+
+        if not instances.has(whichUnit)
+            new HeroTrainingPoints(whichUnit)
+         
+        return instances.get(whichUnit)
+
+
+    protected static function train()
+        unit unitToTrain = GetManipulatingUnit()
+        thistype instance = getUnitInstance(unitToTrain)
+        integer whatToTrain = GetManipulatedItem().getTypeId()
+
+        if whatToTrain == TRAINID_HEALTH
+            instance.adjustHealth(HEALTH_PER_POINT)
+
+
+function itemBoughtFilter() returns boolean
+    integer itemId = GetManipulatedItem().getTypeId()
+    return itemId == TRAINID_HEALTH
+
 
 
 init
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SELL_ITEM, function itemBoughtFilter, function HeroTrainingPoints.train)
+
     // Setup item tooltips
+
 
