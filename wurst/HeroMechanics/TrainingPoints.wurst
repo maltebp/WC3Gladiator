@@ -17,7 +17,10 @@ constant int    HEALTH_PER_POINT = 0
 constant real POWER_PER_POINT = 0
 constant real ATTACKSPEED_PER_POINT = 0
 
-constant integer TRAINID_HEALTH = '1'
+// Update these at some point
+constant integer    TRAINID_HEALTH = '1'
+constant integer    TRAINID_ARMOR = '2'
+
 
 
 class HeroTrainingPoints
@@ -29,7 +32,7 @@ class HeroTrainingPoints
     private real    power
     private real    armor
     private real    attackSpeed
-    private real    pointsTrained
+    private int    pointsTrained
 
     construct(unit whichUnit)
         this.hero = whichUnit
@@ -38,6 +41,9 @@ class HeroTrainingPoints
 
 
     protected function resetPoints()
+        owner.addLumber(pointsTrained)
+        pointsTrained = 0
+
         adjustHealth(-health)
 
 
@@ -45,7 +51,12 @@ class HeroTrainingPoints
     protected function adjustHealth(int adjustAmount)
         hero.setMaxHP(R2I(hero.getMaxHP())+adjustAmount, true)
         health += adjustAmount
+
     
+    protected function adjustArmor(real adjustAmount)
+        hero.setArmor(hero.getArmor()+adjustAmount)
+        armor += adjustAmount
+
         
     /** Gets the instances containing information about training points for
         a speficic unit. If that doesn't exists, it will create one, and
@@ -66,10 +77,13 @@ class HeroTrainingPoints
         if whatToTrain == TRAINID_HEALTH
             instance.adjustHealth(HEALTH_PER_POINT)
 
+        else if whatToTrain == TRAINID_ARMOR
+            instance.adjustHealth(HEALTH_PER_POINT)
+
 
 function itemBoughtFilter() returns boolean
     integer itemId = GetManipulatedItem().getTypeId()
-    return itemId == TRAINID_HEALTH
+    return itemId == TRAINID_HEALTH or itemId == TRAINID_ARMOR 
 
 
 
