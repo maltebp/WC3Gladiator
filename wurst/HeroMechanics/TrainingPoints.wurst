@@ -21,7 +21,7 @@ class HeroTrainingPoints
     private player  owner
     private unit    hero
     private int     health
-    private int    power
+    private int     power
     private real    armor
     private real    attackSpeed
     private int    pointsTrained
@@ -37,7 +37,6 @@ class HeroTrainingPoints
 
 
     protected function resetPoints()
-        print("Reset points")
         owner.addLumber(pointsTrained)
         pointsTrained = 0
 
@@ -61,7 +60,6 @@ class HeroTrainingPoints
         pointsTrained++
 
     protected function adjustPower(int adjustAmount)
-        print(hero.getName() )
         hero.setBaseDamage(hero.getBaseDamage(1)+adjustAmount, 1)
         power += adjustAmount
         pointsTrained++
@@ -69,11 +67,9 @@ class HeroTrainingPoints
 
     protected function adjustAttackSpeed(real adjustAmount)
         //Resetting attack speed
-        print("Training attack speed")
         hero.setAttackCooldown(hero.getAttackCooldown(1)/(1/(1+attackSpeed)), 1)
         attackSpeed += adjustAmount
         hero.setAttackCooldown(hero.getAttackCooldown(1)*(1/(1+attackSpeed)), 1)
-        print(hero.getAttackCooldown(1).toString())
         pointsTrained++
         
     /** Gets the instances containing information about training points for
@@ -111,7 +107,6 @@ class HeroTrainingPoints
 
 function itemBoughtFilter() returns boolean
     integer itemId = GetSoldItem().getTypeId()
-    print(itemId)
     return itemId == TRAINID_HEALTH or itemId == TRAINID_ARMOR or itemId == TRAINID_ATTACKSPEED or itemId == TRAINID_POWER or itemId == TRAINID_RESET
 
 init 
