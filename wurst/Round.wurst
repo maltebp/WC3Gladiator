@@ -139,7 +139,6 @@ public class Round
     function initialize()
         activateSpawners()
         activateHealthOrbSpawn()
-
             
         
     private function activateSpawners()

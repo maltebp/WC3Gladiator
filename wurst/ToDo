@@ -23,8 +23,8 @@ TO DO
         [x] Frenzy
         [x] Wounding Strike
         [x] Impeding Roar
-    [ ] Items
-   ([ ] Training Points)
+    [ ] Items 
+   ([ ] Training Points) ( FIX ITEM TOOLTIPS IN TRIGGER + set training sounds)
 
 [x] 4) Unit Spawner Class_________
 
@@ -51,3 +51,8 @@ TO DO
 [x] 8) Create Game victoy
 
 [x] 9) Music
+
+[ ] 10) Bonus Stuff
+    [ ] Make food into round numbers
+    [ ] Change attackDamage to Power
+    [ ] Change minimap to all black
