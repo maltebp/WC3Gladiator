@@ -16,6 +16,7 @@ class Orb
 
     protected vec2 pos
     protected LinkedList<unit> activationUnits = new LinkedList<unit>
+    // If not empty, this is a list of the ONLY units that may activate the orb
 
     protected effect orb
     protected effect additionalSfx1
@@ -67,7 +68,7 @@ class Orb
                     if not unitInRange.isAliveTrick()
                         unitsInRange.removeUnit(unitInRange)
 
-                // Sorting set activationUnits
+                // Sorting activationUnits
                 if orb.activationUnits != null
                     for unitInRange in unitsInRange
                         if not orb.activationUnits.contains(unitInRange)
@@ -95,6 +96,7 @@ class Orb
         activationUnits.add(whichUnit)
 
     static function destroyAll()
+        
         for orb in orbs
             destroy orb
     
@@ -199,7 +201,7 @@ class RegenerateOverTime
             if unitToRegen.getHP() != unitToRegen.getMaxHP() and healthRegenFlat>0 
                 unitToRegen.setHP(unitToRegen.getHP()+healthRegenFlat)
 
-            unitToRegen.addEffect("Abilities\\Spells\\Human\\Heal\\HealTarget.mdl","chest")
+            unitToRegen.addEffect("Abilities\\Spells\\Human\\Heal\\HealTarget.mdl","origin")
             ..setDuration(3)
 
         if (manaRegenFlat>0 or manaRegenPerc>0)
@@ -209,7 +211,7 @@ class RegenerateOverTime
             if unitToRegen.getMana() != unitToRegen.getMaxMana() and manaRegenFlat>0 
                 unitToRegen.setMana(unitToRegen.getMana()+manaRegenFlat)
             
-            unitToRegen.addEffect("Abilities\\Spells\\Human\\Heal\\HealTarget.mdl","chest")
+            unitToRegen.addEffect("Abilities\\Spells\\Human\\Heal\\HealTarget.mdl","origin")
             ..setDuration(3)
 
 

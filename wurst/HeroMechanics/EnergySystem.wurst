@@ -51,17 +51,12 @@ public class EnergySystem
     
             addUnit(whichUnit)
         
-        
         thistype instance = units.get(whichUnit)  
-    
         
         instance.theUnit.setMaxMana(R2I(instance.energyMax), true)
 
-        
         real energyToRegen = (DEFAULTREGEN+instance.energyRegenFlatInc)*(1+instance.energyRegenPercInc)
-        print(energyToRegen)
         instance.regenFreq = (1/energyToRegen)*2
-        print(instance.regenFreq)
         
         instance.timer_Regen.startPeriodic(instance.regenFreq, function regen)
         

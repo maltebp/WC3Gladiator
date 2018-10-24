@@ -20,6 +20,7 @@ public function playMusic(string music)
 
 public function stopMusic()
     loopTimer.pause()
-    StopMusic(true)
+    PlayMusic(Sounds.war2IntroMusic)
+    StopMusic(false)
   
 

@@ -1,28 +1,32 @@
 package Game
 
 import public Round 
-import Sound
 import Transitions
-import TimerUtils
 import FadeAndFilters
 import Camera
 import EnergySystem
 import Music
+import TimedSpecialEffects
+import WeatherEffects
 
 public unit hero
 public constant player ENEMYPLAYER = Player(11)
 
-constant int START_TRAININGPOINTS = 0
+constant int START_TRAININGPOINTS   = 10
 constant int START_GOLD             = 200
 
 boolean MAPTESTING = false
 
 boolean escapeIsEnabled = false
+boolean canSkipGameInfo
+
+public timer timer_GameIntro = getTimer()
 
 public constant vec2 HEROSPAWN_SHOP = vec2(-8129,-8198)
 public constant vec2 HEROSPAWN_ARENA = vec2(173,501)
 
-SoundDefinition snd_HeroInit = new SoundDefinition(Sounds.gromWhat3, false)
+public SoundDefinition snd_HeroInit = new SoundDefinition(Sounds.gromWhat3, false)
+public SoundDefinition snd_Text = new SoundDefinition(Sounds.questActivateWhat1, false)
 
 vec2 spawnPosOnInit
 
@@ -35,56 +39,108 @@ effect teleportEffect
 
 init
 
-    stopMusic()
+    playMusic(Sounds.orcX1)
+
     spawnPosOnInit = (MAPTESTING) ? HEROSPAWN_ARENA : HEROSPAWN_SHOP
 
     Player(0)
     ..setLumber(START_TRAININGPOINTS)
     ..setGold(START_GOLD)
-    ..setCameraPosition(spawnPosOnInit)
-    ..disableUserControl()
+    ..setCameraPosition(gg_rct_Shop_CamBounds.getCenter())
 
+    
+
+    EnableSelect(false, false)
+    EnablePreSelect(false, false)
+    EnableDragSelect(false, false)
     if not MAPTESTING
         Player(0).setCameraBoundsToRect(gg_rct_Shop_CamBounds)
-        
-    new Fade
-    ..setStartDelay(1)
-    ..onFadeIn(function createHero )
-    ..start(FADEIN)
 
     CreateTrigger()
     ..registerPlayerEvent(Player(0), EVENT_PLAYER_END_CINEMATIC)
     ..addAction(function startRound)
 
+    new Fade
+    ..setCinematicMode(true)
+    ..setFadeOutDuration(0)
+    ..start(FADEOUT)
+
     getTimer().start(0.5, function delayedInit)
+
+    timer_GameIntro.start(3.0, function gameIntro )
+
+
+function gameIntro()
+    snd_Text.play()
+    canSkipGameInfo = true
+    printTimed("|cffffcc00"+"Welcome to the Simple Hero Survival!"+"|r",10)
+    printTimed("You will have to face fierce opponents, whose only goal is make you regret the day you "+
+       "chose to step into the arena. You have to survive "+Round.getNumberOfRounds().toString()+ " merciless rounds of"+
+       " slaughter, to call yourself the true champion.",10)
+    printTimed("Good luck!", 10)
+
+
+    timer_GameIntro.start(13, function fadeIn)
+
+
+function fadeIn()
+    canSkipGameInfo = false
+
+    ClearTextMessages()
+    timer_GameIntro.pause()
+
+    new Fade
+    ..setEndDelay(1)
+    ..onFadeIn(function createHero )
+    ..start(FADEIN)
 
 
 function createHero()
-    hero = createUnit(Player(0), 'O000', spawnPosOnInit, angle(3*PIHALF))
+
+    hero = createUnit(Player(PLAYER_NEUTRAL_PASSIVE), 'O000', spawnPosOnInit, angle(3*PIHALF))
     ..suspendXp(true)
     ..setColor(PLAYER_COLOR_WHEAT)
-    
     EnergySystem.addUnit(hero)
-    
-    
+    addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
+    ..setDuration(3)
 
-    teleportEffect = addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
-    getTimer().start(3, function deleteTeleportEffect)
-    getTimer().start(2, function enableControls)
+    getTimer().start(1.25, function playHeroSound)
 
-function enableControls()
-    GetExpiredTimer().release()
-    Player(0)
-    ..enableUserControl()
-    ..selectSingle(hero)
+function playHeroSound()
     snd_HeroInit.play()
-    playMusic(Sounds.orcX1)
-    escapeIsEnabled = true
+    GetExpiredTimer().start(2, function disableCinematicMode )
+
+function disableCinematicMode()
+    /*  The Fade object should be able to do this cinematic fading,
+        but it hasn't been implemented to enable and disable cinematic
+        fading offest from the fade. - Has to be implemented */ 
+    ShowInterface(true, 1.5)
+    GetExpiredTimer().start(1.5, function enableControls )
+    
+function enableControls()
+
+    EnableSelect(true, true)
+    EnablePreSelect(true, true)
+    EnableDragSelect(true, true)
+
+    hero.setOwner(Player(0), false)
+    Player(0)
+    ..selectSingle(hero)
+
+    GetExpiredTimer().start(3, function printStartInfo)
+
+
+
+function printStartInfo()
+    snd_Text.play()
+    printTimed("Prepare yourself now, and when you're ready, press '"+"|cffffcc00"+"escape|r' to start the round.",5)
+    
+    GetExpiredTimer().start(8, function printRoundInfo)
     
 
-function deleteTeleportEffect()
-    GetExpiredTimer().release()
-    teleportEffect.destr()
+function printRoundInfo()
+    Round.printNextRound()
+    escapeIsEnabled = true
 
 function delayedInit()
     GetExpiredTimer().release()
@@ -93,14 +149,16 @@ function delayedInit()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Arena_Visibility, false, false).start()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_MASKED, GetPlayableMapRect(), false, false).start()
 
+
 function startRound()
 
     if escapeIsEnabled
 
         if not Round.isARoundRunning()
-            Round.setARoundRunning()
-            stopMusic()
-            transitionToArena()
+            Round.startNextRound()
+
+    else if canSkipGameInfo
+        fadeIn()
         
 
 
