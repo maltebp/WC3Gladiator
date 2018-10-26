@@ -65,7 +65,10 @@ class AttackDamageItem
  
 init
     Player(0).setAbilityAvailable('A004', false)
-    new AttackDamageItem( 'I000', 23 )
+
+    new AttackDamageItem( 'I000', 5 )
+    new AttackDamageItem( 'I00L', 10 )
+    new AttackDamageItem( 'I00F', 10 )
 
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_PAWN_ITEM, function updateAttackDamage)
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function updateAttackDamage)

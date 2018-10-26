@@ -13,7 +13,7 @@ public unit hero
 public constant player ENEMYPLAYER = Player(11)
 
 constant int START_TRAININGPOINTS   = 10
-constant int START_GOLD             = 200
+constant int START_GOLD             = 75
 
 boolean MAPTESTING = false
 
