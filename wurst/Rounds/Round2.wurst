@@ -14,12 +14,14 @@ init
     ..setTitle("Necromancers")
     ..setDescription("If you think they stand alone, it will cost you dearly")
 
+    
     round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(-639,1025), 3))
     ..setStartDelay(4)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(16)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+
 
     round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(527,1025), 1))
     ..setStartDelay(4)
