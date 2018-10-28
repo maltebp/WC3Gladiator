@@ -5,7 +5,6 @@ import public Game
 public Round round
 
 init
-    Round round
 
     /*
 

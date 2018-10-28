@@ -32,6 +32,9 @@ vec2 spawnPosOnInit
 
 effect teleportEffect
 
+boolean EDITORSSTART = true
+int STARTINGROUND = 2
+
 
 // Game Init --------------------------------------------------------------------------------------------------------------------
 
@@ -65,7 +68,7 @@ init
     ..setFadeOutDuration(0)
     ..start(FADEOUT)
 
-    getTimer().start(0.5, function delayedInit)
+    getTimer().start(2, function delayedInit)
 
     timer_GameIntro.start(3.0, function gameIntro )
 
@@ -148,6 +151,24 @@ function delayedInit()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Shop_Visibility, false, false).start()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Arena_Visibility, false, false).start()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_MASKED, GetPlayableMapRect(), false, false).start()
+
+    setRound()
+
+
+function setRound()
+
+    if EDITORSSTART
+
+        LinkedList<Round> rounds = Round.getRounds()
+        for round in rounds
+            if  round.getNumber() < STARTINGROUND
+                round.giveRewardNotFancy()
+            else
+                break
+        destroy rounds
+            
+        Round.setCurrentRound(STARTINGROUND)
+        print("Editor start: first round is round "+STARTINGROUND.toCharsetString())
 
 
 function startRound()

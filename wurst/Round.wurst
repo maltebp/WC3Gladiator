@@ -90,6 +90,7 @@ public class Round
         of that number exists, it will not do change anything */
     static function setCurrentRound(int roundNumber)
         currentRoundNumber = (roundNumber>totalNumberOfRounds) ? currentRoundNumber : roundNumber
+        currentRound = rounds.get(currentRoundNumber-1)
 
     function setTitle(string title)
         this.title = title
@@ -127,6 +128,9 @@ public class Round
 
     function getTitle() returns string
         return "|cffffcc00Round "+number.toString() + " - "+title+"|r"
+
+    static function getRounds() returns LinkedList<Round>
+        return rounds.copy()
 
 
 //---------------------------------------------------------------------------------------------------------------------------------------
@@ -204,6 +208,9 @@ public class Round
     static function giveReward()
         currentRound.reward()
 
+    function giveRewardNotFancy()
+        Player(0).addGold(goldReward)
+        Player(0).addLumber(trainingPointsReward)
 
     static function wonRound()
         
