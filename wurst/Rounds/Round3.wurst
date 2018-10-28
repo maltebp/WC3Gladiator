@@ -23,12 +23,12 @@ init
         new Grow(spawner.getLastSpawnedUnit(),1.1)
     end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(-639,1025), 20))
+    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(-639,1025), 16))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(6)
+    ..setSpawnCount(8)
     ..setSpawnEffect("Abilities\\Spells\\Undead\\DeathPact\\DeathPactTarget.mdl")
     ..setCodeOnSpawn(func)
     ..setSoundOnSpawn(Sounds.obsidianAvengerWhat2)
@@ -38,8 +38,8 @@ init
         new Grow(spawner.getLastSpawnedUnit(),1.1)
     end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 20))
-    ..setStartDelay(50)
+    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 30))
+    ..setStartDelay(30)
     ..setFrequencyDeviation(0.05)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
@@ -53,8 +53,8 @@ init
         new Grow(spawner.getLastSpawnedUnit(),1.1)
     end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 20))
-    ..setStartDelay(80)
+    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 30))
+    ..setStartDelay(70)
     ..setFrequencyDeviation(0.05)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
@@ -78,11 +78,11 @@ class Grow
     private int startDamage
     private real startScale
 
-    private int damagePerGrowth
+    private real damagePerGrowth
     private real scalePerGrowth
 
     private integer growthCounter = 1 
-    private unit    mob = null
+    private unit    mob
     private timer   timer_Grow
 
     construct(unit whichUnit, real startScale)
@@ -92,7 +92,7 @@ class Grow
         this.startDamage = mob.getBaseDamage(1)
         
         scalePerGrowth = (startScale * GROWTH_SCALE) / I2R(GROWTH_MAXCOUNT)
-        damagePerGrowth = R2I((I2R(startDamage)*GROWTH_DMG) / I2R(GROWTH_MAXCOUNT))
+        damagePerGrowth = (I2R(startDamage)*GROWTH_DMG) / I2R(GROWTH_MAXCOUNT)
         
         timer_Grow = getTimer()
         ..setData(this castTo int)
@@ -111,10 +111,12 @@ class Grow
             if( growthCounter <= GROWTH_MAXCOUNT )
                 growthCounter = growthCounter + 1
 
-                mob.setBaseDamage(startDamage+damagePerGrowth*growthCounter, 1)
+                mob.setBaseDamage(startDamage+R2I(damagePerGrowth*growthCounter), 1)
                 mob.setScale(startScale+scalePerGrowth*growthCounter)
                 
 
+            else
+                destroy this
         else
             destroy this
 

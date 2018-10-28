@@ -32,8 +32,8 @@ vec2 spawnPosOnInit
 
 effect teleportEffect
 
-boolean EDITORSSTART = true
-int STARTINGROUND = 2
+boolean EDITORSSTART = false
+int STARTINGROUND = 3
 
 
 // Game Init --------------------------------------------------------------------------------------------------------------------
@@ -78,8 +78,8 @@ function gameIntro()
     canSkipGameInfo = true
     printTimed("|cffffcc00"+"Welcome to the Simple Hero Survival!"+"|r",10)
     printTimed("You will have to face fierce opponents, whose only goal is make you regret the day you "+
-       "chose to step into the arena. You have to survive "+Round.getNumberOfRounds().toString()+ " merciless rounds of"+
-       " slaughter, to call yourself the true champion.",10)
+       "chose to step into the arena. To call yourself the true champion, you have to survive "+Round.getNumberOfRounds().toString()+ " merciless rounds of"+
+       " slaughter.",10)
     printTimed("Good luck!", 10)
 
 

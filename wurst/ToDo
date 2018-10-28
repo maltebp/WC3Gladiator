@@ -61,3 +61,4 @@ TO DO
     [ ] Update Arena
     [ ] Add spell cast functionality to UnitSpawner
     [ ] Fix bug with moving the cam on spawn
+    [ ] Fix bug with UnitSpawner and decayed units (see UnitSpawner.clear() )
