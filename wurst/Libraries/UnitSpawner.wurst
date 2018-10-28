@@ -314,11 +314,10 @@ public class UnitSpawner
 
         // Creating effects
         if instance.soundOnspawn != null
-            instance.soundOnspawn.playOnPoint(instance.spawnPos.toVec3()).snd.setVolume(90)
-        
-            
+            instance.soundOnspawn.playOnPoint(spawnPos.toVec3()).snd.setVolume(90)
+
         if instance.spawnEffect != null
-            addEffect(instance.spawnEffect, instance.spawnPos )
+            addEffect(instance.spawnEffect, spawnPos )
             ..destr()
 
         // Running Remote Functions
