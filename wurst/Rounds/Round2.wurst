@@ -8,44 +8,118 @@ import TimedSpecialEffects
 init
     //=========================================================================================================================================================
     //  Gnolls (Round 1)
-    
-    print("setting up necromancers")
 
 
     
 
     round = new Round
-    ..setReward(100, 5)
+    ..setReward(100, 3)
     ..setTitle("Necromancers")
     ..setDescription("If you think they stand alone, it will cost you dearly")
+    ..setHealthOrbSpawn(90, 60, 0.1, 10, 0.02)
 
     RemoteFunction<UnitSpawner> func
 
+    // Spawner 1
     func = (UnitSpawner spawner) -> begin
         new SummonSkeletons(spawner.getLastSpawnedUnit(), spawner)
     end
 
-    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(-639,1025), 12))
-    ..setStartDelay(4)
+    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(-639,1025), 8))
+    ..setStartDelay(3)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(20)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    ..setCodeOnSpawn(func)
+
+    //Spawner 2
+    func = (UnitSpawner spawner) -> begin
+        new SummonSkeletons(spawner.getLastSpawnedUnit(), spawner)
+    end
+
+    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(527,1025), 12))
+    ..setStartDelay(30)
+    ..setFrequencyDeviation(0.01)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(8)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
     ..setCodeOnSpawn(func)
 
+    //Spawner 3
     func = (UnitSpawner spawner) -> begin
+        print("Summon skeleton")    
         new SummonSkeletons(spawner.getLastSpawnedUnit(), spawner)
     end
 
-    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(527,1025), 10))
-    ..setStartDelay(30)
+    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(527,1025), 18))
+    ..setStartDelay(60)
+    ..setFrequencyDeviation(0.01)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(5)
+    ..setSpawnCount(3)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
     ..setCodeOnSpawn(func)
 
     
+enum SkeletonType
+    WARRIOR
+    ARCHER
+
+class SummonSkeletons
+    private static real SUMMON_FREQ = 14
+    private static real SUMMON_STARTDELAY = 3
+    private static real SUMMON_FREQDEVIATION = 1
+    private static int SUMMONAMOUNT_ARCHER = 1
+    private static int SUMMONAMOUNT_WARRIOR = 1
+
+    private unit caster
+    private timer timer_Summon
+    private UnitSpawner spawner 
+
+    construct(unit caster, UnitSpawner spawner)
+        this.caster = caster
+        this.spawner = spawner
+        timer_Summon = getTimer()
+        ..setData(this castTo int)
+        
+        startTimer(true)
+
+    ondestroy
+        timer_Summon
+        ..pause()
+        ..release()
+
+    /** Starts the instance's timer with deviation*/
+    private function startTimer(boolean firstStart)
+        real spawnTime = (firstStart) ? GetRandomReal(SUMMON_STARTDELAY-SUMMON_FREQDEVIATION, SUMMON_STARTDELAY+SUMMON_FREQDEVIATION) : GetRandomReal(SUMMON_FREQ-SUMMON_FREQDEVIATION, SUMMON_FREQ+SUMMON_FREQDEVIATION)
+        timer_Summon.start(spawnTime, function timerExpires)
+    
+    private static function timerExpires()
+        GetExpiredTimer().getData() castTo thistype.summon()
+    
+    private function summon()
+
+        if caster != null and caster.isAliveTrick()
+            caster.setAnimation("attack")
+
+            unit skeleton
+            vec2 spawnPos = caster.getPos().polarOffset(angle(GetRandomReal(0, 2*PI)), 100)
+
+            for int i = 0 to SUMMONAMOUNT_ARCHER-1
+                skeleton = Skeleton.spawn(SkeletonType.ARCHER, spawnPos)
+                spawner.addSummonedUnit(skeleton)
+
+            for int i = 0 to SUMMONAMOUNT_WARRIOR-1
+                skeleton = Skeleton.spawn(SkeletonType.WARRIOR, spawnPos)
+                spawner.addSummonedUnit(skeleton) 
+
+            startTimer(false)
+
+        else
+            destroy this
 
 
 class Skeleton
@@ -76,7 +150,8 @@ class Skeleton
 
 
     protected static function spawn( SkeletonType whichType, vec2 pos) returns unit
-        return new Skeleton(whichType, pos).skeleton
+        thistype instance = new Skeleton(whichType, pos)
+        return instance.skeleton
 
     private static function unpause()
         thistype instance = GetExpiredTimer().getData() castTo thistype
@@ -88,61 +163,7 @@ class Skeleton
         
         
 
-enum SkeletonType
-    WARRIOR
-    ARCHER
 
-class SummonSkeletons
-    private static real SUMMON_FREQ = 15
-    private static real SUMMON_STARTDELAY = 3
-    private static real SUMMON_FREQDEVIATION = 1
-    private static int SUMMONAMOUNT_ARCHER = 1
-    private static int SUMMONAMOUNT_WARRIOR
-
-    private unit caster
-    private timer timer_Summon
-    private UnitSpawner spawner 
-
-    construct(unit caster, UnitSpawner spawner)
-        this.caster = caster
-        this.spawner = spawner
-        timer_Summon = getTimer()
-        ..setData(this castTo int)
-        
-        startTimer(true)
-
-    ondestroy
-        timer_Summon
-        ..pause()
-        ..release()
-
-    /** Starts the instance's timer with deviation*/
-    private function startTimer(boolean firstStart)
-        real spawnTime = (firstStart) ? GetRandomReal(SUMMON_STARTDELAY-SUMMON_FREQDEVIATION, SUMMON_STARTDELAY+SUMMON_FREQDEVIATION) : GetRandomReal(SUMMON_FREQ-SUMMON_FREQDEVIATION, SUMMON_FREQ+SUMMON_FREQDEVIATION)
-        timer_Summon.start(spawnTime, function timerExpires)
-    
-    private static function timerExpires()
-        GetExpiredTimer().getData() castTo thistype.summon()
-    
-    private function summon()
-        caster.setAnimation("attack")
-        
-        if caster != null and caster.isAliveTrick()
-
-            unit skeleton
-            vec2 spawnPos = caster.getPos().polarOffset(angle(GetRandomReal(0, 2*PI)), 100)
-            for int i = 0 to SUMMONAMOUNT_ARCHER
-                skeleton = Skeleton.spawn(SkeletonType.ARCHER, spawnPos)
-                spawner.addSummonedUnit(skeleton)
-
-            for int i = 0 to SUMMONAMOUNT_WARRIOR
-                skeleton = Skeleton.spawn(SkeletonType.WARRIOR, spawnPos)
-                spawner.addSummonedUnit(skeleton) 
-
-            startTimer(false)
-
-        else
-            destroy this
     
 
     

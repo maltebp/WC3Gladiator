@@ -60,3 +60,4 @@ TO DO
     [ ] Add Life to Rounds
     [ ] Update Arena
     [ ] Add spell cast functionality to UnitSpawner
+    [ ] Fix bug with moving the cam on spawn

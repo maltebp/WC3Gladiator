@@ -45,7 +45,7 @@ init
 //  Gnolls (Round 1)
 
     round = new Round
-    ..setReward(50, 5)
+    ..setReward(50, 3)
     ..setTitle("Gnolls")
     ..setDescription("Gnolls shouldn't be a problem, but watch out for their Champions - they rally the others.")
     ..setHealthOrbSpawn(90, 60, 0.1, 10, 0.02)

@@ -106,12 +106,16 @@ public class UnitSpawner
     
     /** Stops the spawner, and removes all the units that it has made */
     function clear()
+
+        // BUG HERE: If units has been removed from game, it doesn't go through the for loops
+        // I.e. if the unit has no decay
+
         for spawnedUnit from spawnedUnits
             spawnedUnit.remove()
 
         for summonedUnit from summonedUnits
             summonedUnit.remove()
-
+            
         lastSpawnedUnit = null
         stop()
      
