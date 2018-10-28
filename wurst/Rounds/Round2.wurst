@@ -1,6 +1,6 @@
 package Round2
 
-import initlater Round1
+import public initlater Round1
 import TimerUtils
 import MyLibrary
 import TimedSpecialEffects
@@ -13,7 +13,7 @@ init
     
 
     round = new Round
-    ..setReward(100, 3)
+    ..setReward(60, 3)
     ..setTitle("Necromancers")
     ..setDescription("If you think they stand alone, it will cost you dearly")
     ..setHealthOrbSpawn(90, 60, 0.1, 10, 0.02)
@@ -25,12 +25,12 @@ init
         new SummonSkeletons(spawner.getLastSpawnedUnit(), spawner)
     end
 
-    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(-639,1025), 8))
+    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(-639,1025), 10))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(20)
+    ..setSpawnCount(12)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
     ..setCodeOnSpawn(func)
 
@@ -39,23 +39,22 @@ init
         new SummonSkeletons(spawner.getLastSpawnedUnit(), spawner)
     end
 
-    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(527,1025), 12))
+    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(527,1025), 24))
     ..setStartDelay(30)
     ..setFrequencyDeviation(0.01)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(8)
+    ..setSpawnCount(4)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
     ..setCodeOnSpawn(func)
 
     //Spawner 3
-    func = (UnitSpawner spawner) -> begin
-        print("Summon skeleton")    
+    func = (UnitSpawner spawner) -> begin  
         new SummonSkeletons(spawner.getLastSpawnedUnit(), spawner)
     end
 
-    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(527,1025), 18))
-    ..setStartDelay(60)
+    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(527,1025), 15))
+    ..setStartDelay(70)
     ..setFrequencyDeviation(0.01)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
@@ -69,7 +68,7 @@ enum SkeletonType
     ARCHER
 
 class SummonSkeletons
-    private static real SUMMON_FREQ = 14
+    private static real SUMMON_FREQ = 16
     private static real SUMMON_STARTDELAY = 3
     private static real SUMMON_FREQDEVIATION = 1
     private static int SUMMONAMOUNT_ARCHER = 1

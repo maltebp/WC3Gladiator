@@ -2,6 +2,8 @@ package Round1
 
 import public Game
 
+import public Round
+
 public Round round
 
 init

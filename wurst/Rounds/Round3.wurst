@@ -1,0 +1,129 @@
+package Round3
+
+import public initlater Round2
+import TimerUtils
+import MyLibrary
+import TimedSpecialEffects
+
+init
+    //=========================================================================================================================================================
+    //  Arcane Elementals (Round 2)
+
+
+    round = new Round
+    ..setReward(60, 3)
+    ..setTitle("Arcane Beings")
+    ..setDescription("These beings can grow big - but even though that sounds fascinating, you probably shouldn't let them.")
+    ..setHealthOrbSpawn(90, 60, 0.1, 15, 0.02)
+
+    RemoteFunction<UnitSpawner> func
+
+    // Spawner 1
+    func = (UnitSpawner spawner) -> begin
+        new Grow(spawner.getLastSpawnedUnit(),1.1)
+    end
+
+    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(-639,1025), 20))
+    ..setStartDelay(3)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(6)
+    ..setSpawnEffect("Abilities\\Spells\\Undead\\DeathPact\\DeathPactTarget.mdl")
+    ..setCodeOnSpawn(func)
+    ..setSoundOnSpawn(Sounds.obsidianAvengerWhat2)
+
+    //Spawner 2
+    func = (UnitSpawner spawner) -> begin
+        new Grow(spawner.getLastSpawnedUnit(),1.1)
+    end
+
+    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 20))
+    ..setStartDelay(50)
+    ..setFrequencyDeviation(0.05)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(3)
+    ..setSpawnEffect("Abilities\\Spells\\Undead\\DeathPact\\DeathPactTarget.mdl")
+    ..setCodeOnSpawn(func)
+    ..setSoundOnSpawn(Sounds.obsidianAvengerWhat2)
+
+    //Spawner 3
+    func = (UnitSpawner spawner) -> begin   
+        new Grow(spawner.getLastSpawnedUnit(),1.1)
+    end
+
+    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 20))
+    ..setStartDelay(80)
+    ..setFrequencyDeviation(0.05)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(2)
+    ..setSpawnEffect("Abilities\\Spells\\Undead\\DeathPact\\DeathPactTarget.mdl")
+    ..setCodeOnSpawn(func)
+    ..setSoundOnSpawn(Sounds.obsidianAvengerWhat2)
+
+    
+
+class Grow
+    
+    private static constant real    GROWTH_DURATION = 30
+    private static constant real    GROWTH_SCALE = 0.5                  // Final scale increase in %
+    private static constant real    GROWTH_DMG = 3                    // Final DMG increase in %
+
+    private static constant real    GROWTH_FREQ = 0.5
+
+    private static constant integer GROWTH_MAXCOUNT = R2I(GROWTH_DURATION/GROWTH_FREQ)
+
+    private int startDamage
+    private real startScale
+
+    private int damagePerGrowth
+    private real scalePerGrowth
+
+    private integer growthCounter = 1 
+    private unit    mob = null
+    private timer   timer_Grow
+
+    construct(unit whichUnit, real startScale)
+        mob = whichUnit
+
+        this.startScale = startScale
+        this.startDamage = mob.getBaseDamage(1)
+        
+        scalePerGrowth = (startScale * GROWTH_SCALE) / I2R(GROWTH_MAXCOUNT)
+        damagePerGrowth = R2I((I2R(startDamage)*GROWTH_DMG) / I2R(GROWTH_MAXCOUNT))
+        
+        timer_Grow = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic( GROWTH_FREQ, function callGrowth )
+
+    ondestroy
+        timer_Grow.release()
+
+    private static function callGrowth()
+        GetExpiredTimer().getData() castTo thistype.grow()
+
+    private function grow()
+    
+        if( mob != null and mob.isAliveTrick() )
+    
+            if( growthCounter <= GROWTH_MAXCOUNT )
+                growthCounter = growthCounter + 1
+
+                mob.setBaseDamage(startDamage+damagePerGrowth*growthCounter, 1)
+                mob.setScale(startScale+scalePerGrowth*growthCounter)
+                
+
+        else
+            destroy this
+
+
+    
+        
+        
+
+
+    
+
+    
