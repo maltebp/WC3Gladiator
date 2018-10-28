@@ -14,7 +14,7 @@ public class Round
 
 //  Settings 
 
-    private static constant real HEALTHORB_SPAWNFREQ = 15 
+    private static constant real HEALTHORB_SPAWNFREQ = 20 
     private static constant real HEALTHORB_SPAWNDURATION = 200
 
     private static constant string TEXTCOLOR_GOLD = "|cffffcc00"

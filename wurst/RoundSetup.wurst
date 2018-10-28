@@ -5,9 +5,7 @@ import  Game
 init
     Round round
 
-    round = new Round
-    ..setReward(200, 5)
-    ..setTitle("Gnolls")
+    
     
     /*
 
@@ -43,20 +41,57 @@ init
 
 */
 
-    ..setDescription("Gnolls shouldn't be a problem for an aspiring champion.")
 
-    round.addSpawner(new UnitSpawner('nanc', ENEMYPLAYER, vec2(-639,1025), 1))
+//=========================================================================================================================================================
+//  Gnolls (Round 1)
+
+    round = new Round
+    ..setReward(50, 5)
+    ..setTitle("Gnolls")
+    ..setDescription("Gnolls shouldn't be a problem, but watch out for their Champions - they rally the others.")
+    ..setHealthOrbSpawn(90, 60, 0.1, 10, 0.04)
+
+    // Fighter
+    round.addSpawner(new UnitSpawner('n004', ENEMYPLAYER, vec2(-639,1025), 5))
+    ..setStartDelay(4)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(10)
-    
-    round.setHealthOrbSpawn(60, 100, 0.2, 20, 0.1)
+    ..setSpawnCount(18)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
 
-    round.addSpawner(new UnitSpawner('nanm', ENEMYPLAYER, vec2(527,1025), 3))
-    ..setStartDelay(5)
+    round.addSpawner(new UnitSpawner('n004', ENEMYPLAYER, vec2(-639,1025), 4))
+    ..setStartDelay(30)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(4)
+    ..setSpawnCount(18)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    
+    // Archer
+    round.addSpawner(new UnitSpawner('n006', ENEMYPLAYER, vec2(527,1025), 6))
+    ..setStartDelay(9)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(17)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+
+    round.addSpawner(new UnitSpawner('n006', ENEMYPLAYER, vec2(527,1025), 4))
+    ..setStartDelay(30)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(17)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+
+    // Champion
+    round.addSpawner(new UnitSpawner('n005', ENEMYPLAYER, vec2(527,1025), 20))
+    ..setStartDelay(20)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(6)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
 
     
+//=========================================================================================================================================================
+//  Gnolls (Round 1)
 
     round = new Round
     ..setReward(300, 5)

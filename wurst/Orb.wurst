@@ -138,7 +138,7 @@ public class HealthOrb extends Orb
     override function consume(unit whichUnit)
         whichUnit.addEffect("Abilities\\Spells\\NightElf\\ManaBurn\\ManaBurnTarget.mdl", "chest")
         ..setDuration(3)
-        whichUnit.addEffect("Abilities\\Spells\\Human\\Heal\\HealTarget.mdl","chest")
+        whichUnit.addEffect("Abilities\\Spells\\Human\\Heal\\HealTarget.mdl","origin")
         ..setDuration(3)
 
         // Heal instant

@@ -4,6 +4,7 @@ import RegisterEvents
 import SoundUtils
 import TimedSpecialEffects
 import AttackDamage
+import Damage
 
 
 class WhirlingStrike
@@ -13,8 +14,8 @@ class WhirlingStrike
 
     private static constant real RANGE = 250
 
-    private static constant real BASEDAMAGE = 0
-    private static constant real ATTACKDAMAGESCALE = 7
+    private static constant real BASEDAMAGE = 10 
+    private static constant real ATTACKDAMAGESCALE = 1
 
     protected static constant int ABILITYID = 'A000'
     protected static constant SoundDefinition snd_OnHit = new SoundDefinition(Sounds.impaleHit, false, true)
@@ -39,7 +40,7 @@ class WhirlingStrike
             snd_OnHit.playOnPoint(caster.getPos3Fly())
 
         for target from targets
-            caster.damageTarget(target, I2R(caster.getTotalAttackDamage()*7))
+            caster.damageTargetMelee(target, I2R(caster.getTotalAttackDamage())*ATTACKDAMAGESCALE)
             target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl", "chest")
             ..setDuration(3)
 

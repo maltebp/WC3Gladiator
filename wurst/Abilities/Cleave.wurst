@@ -4,19 +4,26 @@ import RegisterEvents
 import SoundUtils
 import AttackDamage
 import TimedSpecialEffects
+import Damage
 
+//=========================================================================================================================================================
 
-// Settings
+//  Settings
 
 constant real RANGE = 175
-constant real BASEDAMAGE = 50
-constant real DAMAGEFACTOR = 2
+constant real BASEDAMAGE = 15
+constant real DAMAGEFACTOR = 1.5
 
 constant int ABILITYID  = 'A007'
-constant string array snd_OnAttack_File = [Sounds.metalHeavySliceFlesh3, Sounds.metalHeavySliceFlesh1, Sounds.metalHeavySliceFlesh2]
 
+//=========================================================================================================================================================
+
+constant string array snd_OnAttack_File = [Sounds.metalHeavySliceFlesh3, Sounds.metalHeavySliceFlesh1, Sounds.metalHeavySliceFlesh2]
 SoundDefinition array snd_OnAttack 
 
+
+//---------------------------------------------------------------------------------------------------------------------------------------
+//  Creation and management functions
 
 function onCast()
 
@@ -33,12 +40,13 @@ function onCast()
             targets.removeUnit(target)
 
     for target from targets
-        caster.damageTarget(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)
+        caster.damageTargetMelee(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)
         target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl","chest")
         ..setDuration(3)
         target.addEffect("Abilities\\Weapons\\SentinelMissile\\SentinelMissile.mdl", "origin")
         ..destr()
         snd_OnAttack[GetRandomInt(0, 2)].playOnPoint(target.getPos3Fly())
+
 
 init 
     registerSpellEffectEvent( ABILITYID, function onCast)
