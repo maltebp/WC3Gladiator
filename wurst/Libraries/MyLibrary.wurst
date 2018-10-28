@@ -1,0 +1,24 @@
+package MyLibrary
+
+/** Gets the unit nearest the spawnedUnit from the spawner's targetRect.*/
+public function unit.getNearestEnemyTargetInRect(rect whichRect) returns unit 
+    group targets = ENUM_GROUP
+    targets.enumUnitsInRect(whichRect)
+    player owner = this.getOwner()
+
+    // Removing the units not to be hit
+    for u in targets
+        if( not u.isAlive() or u.getOwner().isAllyOf(owner) )
+            targets.removeUnit(u)
+
+    // Finding nearest target
+    real shortestDist = 999999
+    unit target = null
+    vec2 originPos = this.getPos()
+    for u from targets
+        real distance = u.getPos().distanceTo(originPos)
+        if distance < shortestDist
+            shortestDist = distance
+            target = u
+        
+    return target
