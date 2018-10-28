@@ -49,6 +49,7 @@ public class UnitSpawner
     private real spawnFacing = -1
     private rect spawnRect
     protected group spawnedUnits
+    protected group summonedUnits
     private unit lastSpawnedUnit
     private timer timer_Spawn
     private boolean isActivated = ACTIVATEONCONSTRUCT
@@ -107,6 +108,10 @@ public class UnitSpawner
     function clear()
         for spawnedUnit from spawnedUnits
             spawnedUnit.remove()
+
+        for summonedUnit from summonedUnits
+            summonedUnit.remove()
+
         lastSpawnedUnit = null
         stop()
      
@@ -115,6 +120,7 @@ public class UnitSpawner
         isActivated = true
         timer_Spawn = getTimer()..setData(this castTo int)
         spawnedUnits = CreateGroup()
+        summonedUnits = CreateGroup()
     
     /** Releases timers and destroys triggers. Calls clear function. */
     function deactivate()
@@ -122,6 +128,7 @@ public class UnitSpawner
         clear()
         timer_Spawn.release()
         spawnedUnits.destr()
+        summonedUnits.destr()
         
 
 //---------------------------------------------------------------------------------------------------------------------------------------
@@ -195,7 +202,6 @@ public class UnitSpawner
     function setSoundOnSpawn( string soundPath )
         this.soundOnspawn = new SoundDefinition(soundPath, false, true)
 
-
     /** Sets a piece of code to run whenever a unit spawns. The code will contain the spawner
          instance so that you can get the units and everything.
         @param codeOnSpawn: A lambda expression, which has to use the RemoteFunction
@@ -204,6 +210,9 @@ public class UnitSpawner
         create seperate objects that call a regular function.*/
     function setCodeOnSpawn( RemoteFunction<UnitSpawner> codeOnSpawn)
         this.codeOnSpawn = codeOnSpawn
+
+    function addSummonedUnit( unit whichUnit )
+        summonedUnits.addUnit(whichUnit)
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Getters
@@ -223,10 +232,13 @@ public class UnitSpawner
     function getLastSpawnedUnit() returns unit
         return lastSpawnedUnit
 
-    /** Checks if all units spawned by this UnitSpawner are dead. */
-    function allSpawnedUnitsAreDead() returns boolean
+    /** Checks if all spawned units and summoned units connected to this UnitSpawner are dead. */
+    function allUnitsAreDead() returns boolean
         for spawnedUnit in spawnedUnits
             if spawnedUnit.isAliveTrick()
+                return false
+        for summonedUnits in summonedUnits
+            if summonedUnits.isAliveTrick()
                 return false
         return true
 
@@ -345,12 +357,15 @@ public function unit.isFromAnySpawner() returns boolean
     for spawner in UnitSpawner.allSpawners
         if spawner.spawnedUnits.contains(this)
             return true
-    return false
+         if spawner.summonedUnits.contains(this)
+            return true
 
+    return false
 
 /** Checks if unit is spawned by a specific spawner */
 public function unit.isFromSpawner(UnitSpawner whichSpawner) returns boolean
-    return whichSpawner.spawnedUnits.contains(this)
+    return whichSpawner.spawnedUnits.contains(this) or whichSpawner.summonedUnits.contains(this)
+
 
 public interface RemoteFunction<UnitSpawner>
     function run(UnitSpawner unitSpawner)

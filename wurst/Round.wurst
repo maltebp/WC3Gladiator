@@ -187,7 +187,7 @@ public class Round
         if hero.isAliveTrick()
             Round round = rounds.get(currentRoundNumber-1)
             for spawner in round.spawners
-                if not spawner.isFinished() or not spawner.allSpawnedUnitsAreDead()
+                if not spawner.isFinished() or not spawner.allUnitsAreDead()
                     return false
             return true
         return false
