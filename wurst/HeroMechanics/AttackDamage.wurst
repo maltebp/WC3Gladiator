@@ -63,7 +63,7 @@ function manipulatesItem()
     if GetManipulatingUnit().isType(UNIT_TYPE_HERO)
         unitToUpdate = GetManipulatingUnit()
         /*  A small delay, that makes sure the item is actually removed from the inventory
-            before the damage is recalculated*/
+            before the damage is recalculated.*/
         getTimer().start(0.01, function updateAttackDamage )
 
 
