@@ -12,7 +12,7 @@ TO DO
     [x] Game Initializer
     [x] Between Rounds (Round starter)
 
-[ ] 3) Hero_______________________
+[x] 3) Hero_______________________
     [x] AttackDamage System
     [x] Life Orbs
     [x] Hero Unit
@@ -53,6 +53,7 @@ TO DO
 [x] 9) Music
 
 [ ] 10) Bonus Stuff
+    [ ] Fix Bug with attack damage items
     [ ] Make food into round numbers
     [ ] Change attackDamage to Power
     [ ] Change minimap to all black
