@@ -1,8 +1,10 @@
 package AttackDamage
 import HashMap
 import RegisterEvents
+import TimerUtils
 
 HashMap<unit, int> unitDamage = new HashMap<unit, int>
+unit unitToUpdate = null
 
 /** Gets the total attack damage of the unit (base + bonus)
     damage.*/
@@ -33,26 +35,34 @@ function unit.setBonusAttackDamage(int damage)
     int dmg1 = remainingDamage div 1
 
     this.setAbilityLevel('A003', dmg100+1)
-    this.setAbilityLevel('A001', dmg10+1)
+    this.setAbilityLevel('A001', dmg10+1)   
     this.setAbilityLevel('A002', dmg1+1)
 
 
+
 function updateAttackDamage()
-    unit unitToUpdate = GetManipulatingUnit()
+    GetExpiredTimer().release()
     int totalDamage = 0
 
-    if unitToUpdate.isType(UNIT_TYPE_HERO)
+    print("update AD: "+unitToUpdate.getName()+" manipulated item!")
         
-        for itemSlot=0 to 5
-            int itemInSlot = UnitItemInSlot(unitToUpdate, itemSlot).getTypeId()
-            if AttackDamageItem.items.has(itemInSlot)
-                totalDamage += AttackDamageItem.items.get(itemInSlot)            
+    for itemSlot=0 to 5
+        int itemInSlot = UnitItemInSlot(unitToUpdate, itemSlot).getTypeId()
+        if AttackDamageItem.items.has(itemInSlot)
+            totalDamage += AttackDamageItem.items.get(itemInSlot)            
 
-        if unitDamage.has(unitToUpdate)
-            unitDamage.getAndRemove(unitToUpdate)
-            
-        unitDamage.put(unitToUpdate, totalDamage)
-        unitToUpdate.setBonusAttackDamage(totalDamage)
+    if unitDamage.has(unitToUpdate)
+        unitDamage.getAndRemove(unitToUpdate)
+        
+    unitDamage.put(unitToUpdate, totalDamage)
+    unitToUpdate.setBonusAttackDamage(totalDamage)
+
+
+function manipulatesItem()
+    
+    if GetManipulatingUnit().isType(UNIT_TYPE_HERO)
+        unitToUpdate = GetManipulatingUnit()
+        getTimer().start(0.01, function updateAttackDamage )
 
 
 class AttackDamageItem
@@ -70,8 +80,8 @@ init
     new AttackDamageItem( 'I00L', 10 )
     new AttackDamageItem( 'I00F', 10 )
 
-    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_PAWN_ITEM, function updateAttackDamage)
-    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function updateAttackDamage)
-    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM, function updateAttackDamage)
-    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SELL_ITEM, function updateAttackDamage)
-    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_USE_ITEM, function updateAttackDamage)
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_PAWN_ITEM, function manipulatesItem)
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function manipulatesItem)
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM, function manipulatesItem)
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SELL_ITEM, function manipulatesItem)
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_USE_ITEM, function manipulatesItem)

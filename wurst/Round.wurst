@@ -238,7 +238,6 @@ public class Round
             error("No more rounds")
 
 
-
     static function setRoundReady()
         aRoundIsRunning = false
 
