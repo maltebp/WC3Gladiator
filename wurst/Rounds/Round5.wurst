@@ -22,7 +22,7 @@ init
         new StoneForm(spawner.getLastSpawnedUnit())
     end
 
-    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(-639,1025), 15))
+    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(-639,1025), 8))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -37,7 +37,7 @@ init
     end
 
     round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(527,1025), 32))
-    ..setStartDelay(50)
+    ..setStartDelay(999)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
@@ -53,6 +53,7 @@ class StoneForm
     
     private unit gargoyle
     private timer timer_checkHP
+    private boolean stoneform = false
 
     construct(unit whichUnit)
 
@@ -61,32 +62,32 @@ class StoneForm
         timer_checkHP = getTimer()
         ..setData(this castTo int)
         ..startPeriodic(0.1, function callback_checkHP)
+
+    ondestroy
+        timer_checkHP.release()
+
         
-        getTimer()
-        ..setData(this castTo int)
-        ..start(10, function callback_Cast )
-
-
-    private static function callback_checkHP()
-
-    private function disable()
-        print(gargoyle.getName())
-        gargoyle.issueImmediateOrderById(Orders.unstoneform)
-
-    private static function callback_Disable()
-        GetExpiredTimer().getData() castTo thistype.disable()
 
     private function cast()
         gargoyle.issueImmediateOrderById(Orders.stoneform)
-        getTimer()
-        ..setData(this castTo int)
-        ..start(10, function callback_Disable )
+        stoneform = true
 
-    private static function callback_Cast()
-        GetExpiredTimer().getData() castTo thistype.cast()
+    private function checkHp()
+        real currentHp = gargoyle.getHP()
+        if not stoneform and currentHp <= gargoyle.getMaxHP()*0.3 
+            cast()
+        else if stoneform and currentHp >= gargoyle.getMaxHP()*0.95 
+            disable()
+        else if not gargoyle.isAliveTrick()
+            destroy this
 
-        GetExpiredTimer().release()
-    
+    private static function callback_checkHP()
+        GetExpiredTimer().getData() castTo thistype.checkHp()
+
+    private function disable()
+        gargoyle.issueImmediateOrderById(Orders.unstoneform)
+        
+
 
         
 
