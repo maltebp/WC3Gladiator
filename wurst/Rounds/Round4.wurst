@@ -11,47 +11,60 @@ init
     round = new Round
     ..setReward(70, 4)
     ..setTitle("Human Battalion")
-    ..setDescription("Trained soldiers, specialized in fighting together. It's about focusing on some, and forget others. ")
+    ..setDescription("Trained soldiers, specialized in fighting together. Don't let them overrun you.")
     ..setHealthOrbSpawn(90, 60, 0.1, 15, 0.02)
 
-    RemoteFunction<UnitSpawner> func
 
-    // Spawner 1
-    func = (UnitSpawner spawner) -> begin
-    end
+    // Footman 1
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(-639,1025), 16))
+    round.addSpawner(new UnitSpawner('h000', ENEMYPLAYER, vec2(-639,1025), 15))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(8)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
-    ..setCodeOnSpawn(func)
 
-    //Spawner 2
-    func = (UnitSpawner spawner) -> begin
-    end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 32))
-    ..setStartDelay(19)
+    // Footman 2
+
+    round.addSpawner(new UnitSpawner('h000', ENEMYPLAYER, vec2(-639,1025), 15))
+    ..setStartDelay(3)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(8)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+
+
+    // Medic 1
+
+    round.addSpawner(new UnitSpawner('n00A', ENEMYPLAYER, vec2(527,1025), 24))
+    ..setStartDelay(4)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(4)
+    ..setSpawnCount(5)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
-    ..setCodeOnSpawn(func)
 
-    //Spawner 3
-    func = (UnitSpawner spawner) -> begin
-    end
+    //Wizard 1
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 16))
-    ..setStartDelay(80)
+    round.addSpawner(new UnitSpawner('n009', ENEMYPLAYER, vec2(527,1025), 20))
+    ..setStartDelay(20)
+    ..setFrequencyDeviation(0.03)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setSpawnCount(5)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    ..setSoundOnSpawn(Sounds.knightNoRiderWhat1)
+
+
+    // Wizard 2
+    round.addSpawner(new UnitSpawner('n009', ENEMYPLAYER, vec2(527,1025), 20))
+    ..setStartDelay(60)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(2)
+    ..setSpawnCount(3)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
-    ..setCodeOnSpawn(func)
+    ..setSoundOnSpawn(Sounds.knightNoRiderWhat1)
 

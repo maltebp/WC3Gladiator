@@ -43,8 +43,6 @@ function unit.setBonusAttackDamage(int damage)
 function updateAttackDamage()
     GetExpiredTimer().release()
     int totalDamage = 0
-
-    print("update AD: "+unitToUpdate.getName()+" manipulated item!")
         
     for itemSlot=0 to 5
         int itemInSlot = UnitItemInSlot(unitToUpdate, itemSlot).getTypeId()

@@ -329,12 +329,13 @@ public class UnitSpawner
                     spawnedUnit.issueTargetOrder("attack", randomTarget)        
 
         // Creating effects
-        if instance.soundOnspawn != null
-            instance.soundOnspawn.playOnPoint(spawnPos.toVec3()).snd.setVolume(90)
-
+        
         if instance.spawnEffect != null
             addEffect(instance.spawnEffect, spawnPos )
             ..destr()
+
+        if instance.soundOnspawn != null
+            instance.soundOnspawn.playOnPoint(spawnPos.toVec3()).snd.setVolume(90)
 
         // Running Remote Functions
         if instance.codeOnSpawn != null

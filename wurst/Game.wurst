@@ -33,7 +33,7 @@ vec2 spawnPosOnInit
 effect teleportEffect
 
 boolean EDITORSSTART = true
-int STARTINGROUND = 3
+int STARTINGROUND = 4
 
 
 // Game Init --------------------------------------------------------------------------------------------------------------------
