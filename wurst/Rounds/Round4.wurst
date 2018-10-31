@@ -1,0 +1,57 @@
+package Round4
+
+import public initlater Round3
+import TimerUtils
+
+init
+    //=========================================================================================================================================================
+    //  Arcane Elementals (Round 2)
+
+
+    round = new Round
+    ..setReward(70, 4)
+    ..setTitle("Human Battalion")
+    ..setDescription("Trained soldiers, specialized in fighting together. It's about focusing on some, and forget others. ")
+    ..setHealthOrbSpawn(90, 60, 0.1, 15, 0.02)
+
+    RemoteFunction<UnitSpawner> func
+
+    // Spawner 1
+    func = (UnitSpawner spawner) -> begin
+    end
+
+    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(-639,1025), 16))
+    ..setStartDelay(3)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(8)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    ..setCodeOnSpawn(func)
+
+    //Spawner 2
+    func = (UnitSpawner spawner) -> begin
+    end
+
+    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 32))
+    ..setStartDelay(19)
+    ..setFrequencyDeviation(0.03)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(4)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    ..setCodeOnSpawn(func)
+
+    //Spawner 3
+    func = (UnitSpawner spawner) -> begin
+    end
+
+    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 16))
+    ..setStartDelay(80)
+    ..setFrequencyDeviation(0.03)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(2)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    ..setCodeOnSpawn(func)
+
