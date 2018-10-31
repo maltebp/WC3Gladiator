@@ -66,7 +66,7 @@ init
 class Grow
     
     private static constant real    GROWTH_DURATION = 30
-    private static constant real    GROWTH_SCALE = 0.5                  // Final scale increase in %
+    private static constant real    GROWTH_SCALE = 0.75                  // Final scale increase in %
     private static constant real    GROWTH_DMG = 3                    // Final DMG increase in %
 
     private static constant real    GROWTH_FREQ = 0.5
