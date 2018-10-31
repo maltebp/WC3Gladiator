@@ -8,21 +8,25 @@ import InstantDummyCaster
 import Orders
 import HashMap
 import TimedSpecialEffects
+import Damage
 
+//=========================================================================================================================================================
 
-constant real BASEDAMAGE = 100
-constant real DAMAGEFACTOR = 2
-constant real DOT_BASEDAMAGE = 30
+constant real BASEDAMAGE = 30
+constant real DAMAGEFACTOR = 2.0
+constant real DOT_BASEDAMAGE = 5
 constant real DOT_DAMAGEFACTOR = 0.5
 constant int  DURATION = 5
+
 // For Slow Factor: see ability in Editor
 
 constant int ABILITYID = 'A005'
 
+//=========================================================================================================================================================
+
+
 constant string array snd_OnAttack_File = [Sounds.metalHeavySliceFlesh3, Sounds.metalHeavySliceFlesh1, Sounds.metalHeavySliceFlesh2]
 SoundDefinition array snd_OnAttack
-
-
 
 
 
@@ -41,7 +45,7 @@ function onCast()
     target.addEffect("Abilities\\Weapons\\GlaiveMissile\\GlaiveMissile.mdl", "origin")
     ..destr()
 
-    caster.damageTarget(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)
+    caster.damageTargetMelee(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)
     
     real dotDamage = DOT_BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DOT_DAMAGEFACTOR
     WoundingStrikeBuff.add(target, caster, dotDamage)

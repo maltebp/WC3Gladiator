@@ -1,0 +1,26 @@
+package Music
+
+import public Sounds
+import TimerUtils
+
+string currentMusic
+real musicLength
+timer loopTimer = getTimer()
+
+function replayMusic()
+    StopMusic(false)
+    PlayMusic(currentMusic)
+    loopTimer.start(musicLength, function replayMusic)
+    
+public function playMusic(string music)
+    currentMusic = music
+    musicLength = GetSoundFileDurationBJ(music)
+    loopTimer.pause()
+    replayMusic()
+
+public function stopMusic()
+    loopTimer.pause()
+    PlayMusic(Sounds.war2IntroMusic)
+    StopMusic(false)
+  
+

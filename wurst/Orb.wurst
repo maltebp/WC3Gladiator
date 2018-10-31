@@ -1,0 +1,235 @@
+package Orb
+
+import TimerUtils
+import SoundUtils
+import LinkedList
+import TimedSpecialEffects
+import HashMap
+
+class Orb
+
+    protected static constant LinkedList<Orb> orbs = new LinkedList<Orb>
+    protected static constant real ACTIVATION_RANGE = 125
+    protected static constant real UPDATE_FREQ = 0.2
+
+    private static timer updateTimer    
+
+    protected vec2 pos
+    protected LinkedList<unit> activationUnits = new LinkedList<unit>
+    // If not empty, this is a list of the ONLY units that may activate the orb
+
+    protected effect orb
+    protected effect additionalSfx1
+
+    construct( playercolor orbColor, vec2 pos)
+        this.pos = pos
+        orb = addEffect("units\\nightelf\\Wisp\\Wisp.mdl", pos)
+        ..setColorByPlayer(orbColor.getPlayer())
+        ..setTimeScale(0.5)
+        orbs.add(this)
+        startUpdate()
+
+    ondestroy
+        orbs.remove(this)
+        orb.destr()
+        if additionalSfx1 != null
+            additionalSfx1.destr()
+
+        if orbs.size() == 0
+            updateTimer
+            ..pause()
+            ..release()
+
+        destroy activationUnits
+
+    /** For testing purposes */
+    protected static function printOrbs()
+        if orbs.size() > 0
+            for orb in orbs
+                print(orb castTo int)
+        
+        
+    private static function startUpdate()
+        if orbs.size() == 1
+            updateTimer = getTimer()
+            ..startPeriodic( UPDATE_FREQ, function update )      
+
+    private static function update()
+        
+        for orb in orbs
+            group unitsInRange = ENUM_GROUP
+            unitsInRange.enumUnitsInRange(orb.pos, ACTIVATION_RANGE)
+            
+            // Checking if any units are in range
+            if unitsInRange.size() > 0
+
+                // Sorting dead units
+                for unitInRange in unitsInRange
+                    if not unitInRange.isAliveTrick()
+                        unitsInRange.removeUnit(unitInRange)
+
+                // Sorting activationUnits
+                if orb.activationUnits != null
+                    for unitInRange in unitsInRange
+                        if not orb.activationUnits.contains(unitInRange)
+                            unitsInRange.removeUnit(unitInRange)
+                
+                // Finding the nearest Unit
+                if unitsInRange.size() > 1
+                    unit nearestUnit = null
+                    real distanceToNearestUnit = 99999
+                    for unitInRange from unitsInRange
+                        real distanceToUnitInRange = unitInRange.getPos().distanceTo(orb.pos)
+                        if distanceToUnitInRange < distanceToNearestUnit
+                            nearestUnit = unitInRange
+                            distanceToNearestUnit = distanceToUnitInRange
+
+                    orb.consume(nearestUnit)
+                    
+                else if unitsInRange.size() > 0
+                    orb.consume(unitsInRange.next())
+                    
+                unitsInRange.clear()
+            
+    function addActivationUnit( unit whichUnit )
+
+        activationUnits.add(whichUnit)
+
+    static function destroyAll()
+        
+        for orb in orbs
+            destroy orb
+    
+    function consume(unit whichUnit)
+        
+
+
+public class HealthOrb extends Orb
+
+    private static SoundDefinition snd_OnConsume = new SoundDefinition(Sounds.healTarget1, false, true)
+    
+    private real healOverTimePerc
+    private real healOverTimeFlat
+    private real healOverTimerDuration
+    private real healInstantFlat
+    private real healInstantPerc
+
+
+    construct(vec2 pos)
+        super(PLAYER_COLOR_GREEN, pos)
+        orb.setColor(150, 255, 150)
+        additionalSfx1 = addEffect("Abilities\\Weapons\\FaerieDragonMissile\\FaerieDragonMissile.mdl", pos)
+        ..setPos(pos.withTerrainZ(65))
+        ..setScale(1.75)
+        
+    function addAdditionalEffect( string sfxPath ) returns effect
+        additionalSfx1 = addEffect(sfxPath, pos)
+        return additionalSfx1
+
+    function setHealOverTime(real healFlat, real healPerc, real duration)
+        healOverTimerDuration = duration
+        healOverTimePerc = healPerc
+        healOverTimeFlat = healFlat
+
+    function setHealInstant(real healFlat, real healPerc)
+        healInstantPerc = healPerc
+        healInstantFlat = healFlat
+    
+    override function consume(unit whichUnit)
+        whichUnit.addEffect("Abilities\\Spells\\NightElf\\ManaBurn\\ManaBurnTarget.mdl", "chest")
+        ..setDuration(3)
+        whichUnit.addEffect("Abilities\\Spells\\Human\\Heal\\HealTarget.mdl","origin")
+        ..setDuration(3)
+
+        // Heal instant
+        if whichUnit.getHP() != whichUnit.getMaxHP() and healInstantPerc>0 
+            whichUnit.setHP(whichUnit.getHP()+whichUnit.getMaxHP()*healInstantPerc)
+        if whichUnit.getHP() != whichUnit.getMaxHP() and healInstantFlat>0 
+            whichUnit.setHP(whichUnit.getHP()+healInstantFlat)
+
+        // Heal over time
+        if healOverTimeFlat > 0 or healOverTimePerc > 0
+            RegenerateOverTime.forUnit(whichUnit)
+            ..setHealthToRegen(healOverTimeFlat, healInstantPerc)
+            ..start(healOverTimerDuration)
+
+        destroy this
+        
+
+
+
+class RegenerateOverTime
+
+    private static HashMap<unit, thistype> units = new HashMap<unit,thistype>
+
+    private static real REGENFREQ = 1
+
+    private unit unitToRegen
+    private real healthRegenFlat
+    private real healthRegenPerc
+    private real manaRegenFlat
+    private real manaRegenPerc
+    private timer timer_Duration
+    private timer timer_Regen
+
+    private construct(unit unitToRegen)
+        this.unitToRegen = unitToRegen
+
+    ondestroy
+        units.remove(unitToRegen)
+        timer_Duration
+        ..pause()
+        ..release()
+        timer_Regen
+        ..pause()
+        ..release()
+
+
+    private static function stop()
+        thistype instance = GetExpiredTimer().getData() castTo thistype
+        destroy instance
+
+    private static function callRegen()
+        thistype instance = GetExpiredTimer().getData() castTo thistype
+        instance.regen()
+
+        
+    private function regen()
+        if (healthRegenFlat>0 or healthRegenPerc>0 )
+            if unitToRegen.getHP() != unitToRegen.getMaxHP() and healthRegenPerc>0 
+                unitToRegen.setHP(unitToRegen.getHP()+unitToRegen.getMaxHP()*healthRegenPerc)
+            if unitToRegen.getHP() != unitToRegen.getMaxHP() and healthRegenFlat>0 
+                unitToRegen.setHP(unitToRegen.getHP()+healthRegenFlat)
+
+            unitToRegen.addEffect("Abilities\\Spells\\Human\\Heal\\HealTarget.mdl","origin")
+            ..setDuration(3)
+
+        if (manaRegenFlat>0 or manaRegenPerc>0)
+            
+            if unitToRegen.getMana() != unitToRegen.getMaxMana() and manaRegenPerc>0 
+                unitToRegen.setMana(unitToRegen.getMana()+unitToRegen.getMaxMana()*manaRegenPerc)
+            if unitToRegen.getMana() != unitToRegen.getMaxMana() and manaRegenFlat>0 
+                unitToRegen.setMana(unitToRegen.getMana()+manaRegenFlat)
+            
+            unitToRegen.addEffect("Abilities\\Spells\\Human\\Heal\\HealTarget.mdl","origin")
+            ..setDuration(3)
+
+
+    protected static function forUnit(unit unitToRegen) returns thistype
+        if units.has(unitToRegen)
+            destroy units.get(unitToRegen)
+
+        return new RegenerateOverTime(unitToRegen)
+
+    protected function setHealthToRegen( real healthRegenFlat, real healthRegenPerc)
+        this.healthRegenFlat = healthRegenFlat
+        this.healthRegenPerc = healthRegenPerc
+
+    protected function setManaToRegen( real manaRegenFlat, real manaRegenPerc)
+        this.manaRegenFlat = manaRegenFlat
+        this.manaRegenPerc = manaRegenPerc
+        
+    protected function start(real duration)
+        timer_Duration = getTimer()..setData(this castTo int)..start(duration+0.1, function stop)
+        timer_Regen = getTimer()..setData(this castTo int)..startPeriodic(REGENFREQ, function callRegen)
+

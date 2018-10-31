@@ -7,23 +7,23 @@ import TimerUtils
 import InstantDummyCaster
 import Orders
 import HashMap
+import Damage
 
+//=========================================================================================================================================================
 
-constant real BASEDAMAGE = 100
-constant real DAMAGEFACTOR = 2
-constant real RANGE = 400
-constant int  DURATION = 8
-// For Slow Factor: see ability in Editor
+constant real BASEDAMAGE    = 5
+constant real DAMAGEFACTOR  = 1
+constant real RANGE         = 400
+constant int  DURATION      = 7
 
 constant int ABILITYID = 'A008'
 
+// For Slow Factor: see ability in Editor
+
+//=========================================================================================================================================================
+
+
 constant SoundDefinition snd_OnCast= new SoundDefinition(Sounds.howlOfTerror, false, true)
-
-
-
-
-
-
 
 
 
@@ -39,7 +39,7 @@ function onCast()
             targets.removeUnit(target)
 
     for target from targets
-        caster.damageTarget(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage() ))
+        caster.damageTargetMelee(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage() ))
         target.addEffect("Abilities\\Spells\\Human\\SpellSteal\\SpellStealMissile.mdl","chest")
         ..destr()
         InstantDummyCaster.castTarget(caster.getOwner(), 'A009', 1, Orders.slow, target)
