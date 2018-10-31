@@ -51,18 +51,14 @@ class HeroTrainingPoints
     /** Can be negative */
     protected function adjustHealth(int adjustAmount)
         hero.setMaxHP(R2I(hero.getMaxHP())+adjustAmount, true)
-        health += adjustAmount
-        pointsTrained++
 
     protected function adjustArmor(real adjustAmount)
         hero.setArmor(hero.getArmor()+adjustAmount)
         armor += adjustAmount
-        pointsTrained++
+        
 
     protected function adjustPower(int adjustAmount)
         hero.setBaseDamage(hero.getBaseDamage(1)+adjustAmount, 1)
-        power += adjustAmount
-        pointsTrained++
         
 
     protected function adjustAttackSpeed(real adjustAmount)
@@ -70,7 +66,6 @@ class HeroTrainingPoints
         hero.setAttackCooldown(hero.getAttackCooldown(1)/(1/(1+attackSpeed)), 1)
         attackSpeed += adjustAmount
         hero.setAttackCooldown(hero.getAttackCooldown(1)*(1/(1+attackSpeed)), 1)
-        pointsTrained++
         
     /** Gets the instances containing information about training points for
         a speficic unit. If that doesn't exists, it will create one, and
@@ -90,15 +85,19 @@ class HeroTrainingPoints
         integer whatToTrain = GetSoldItem().getTypeId()
 
         if whatToTrain == TRAINID_HEALTH
+            instance.pointsTrained++
             instance.adjustHealth(HEALTH_PER_POINT)
 
         else if whatToTrain == TRAINID_ARMOR
+            instance.pointsTrained++
             instance.adjustArmor(ARMOR_PER_POINT)
 
         else if whatToTrain == TRAINID_ATTACKSPEED
+            instance.pointsTrained++
             instance.adjustAttackSpeed(ATTACKSPEED_PER_POINT)
 
         else if whatToTrain == TRAINID_POWER
+            instance.pointsTrained++
             instance.adjustPower(POWER_PER_POINT) 
 
         else if whatToTrain == TRAINID_RESET
