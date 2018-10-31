@@ -2,8 +2,6 @@ package Round3
 
 import public initlater Round2
 import TimerUtils
-import MyLibrary
-import TimedSpecialEffects
 
 init
     //=========================================================================================================================================================
@@ -38,12 +36,12 @@ init
         new Grow(spawner.getLastSpawnedUnit(),1.1)
     end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 30))
-    ..setStartDelay(30)
-    ..setFrequencyDeviation(0.05)
+    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 32))
+    ..setStartDelay(19)
+    ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(3)
+    ..setSpawnCount(4)
     ..setSpawnEffect("Abilities\\Spells\\Undead\\DeathPact\\DeathPactTarget.mdl")
     ..setCodeOnSpawn(func)
     ..setSoundOnSpawn(Sounds.obsidianAvengerWhat2)
@@ -53,9 +51,9 @@ init
         new Grow(spawner.getLastSpawnedUnit(),1.1)
     end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 30))
-    ..setStartDelay(70)
-    ..setFrequencyDeviation(0.05)
+    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 16))
+    ..setStartDelay(80)
+    ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(2)

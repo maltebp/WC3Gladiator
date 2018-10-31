@@ -32,7 +32,7 @@ vec2 spawnPosOnInit
 
 effect teleportEffect
 
-boolean EDITORSSTART = false
+boolean EDITORSSTART = true
 int STARTINGROUND = 3
 
 
