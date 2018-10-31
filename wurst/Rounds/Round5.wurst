@@ -2,6 +2,7 @@ package Round5
 
 import public initlater Round4
 import TimerUtils
+import Orders
 
 init
     //=========================================================================================================================================================
@@ -18,10 +19,10 @@ init
 
     // Spawner 1
     func = (UnitSpawner spawner) -> begin
-        new Grow(spawner.getLastSpawnedUnit(),1.1)
+        new StoneForm(spawner.getLastSpawnedUnit())
     end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(-639,1025), 16))
+    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(-639,1025), 15))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -29,98 +30,64 @@ init
     ..setSpawnCount(8)
     ..setSpawnEffect("Abilities\\Spells\\Undead\\DeathPact\\DeathPactTarget.mdl")
     ..setCodeOnSpawn(func)
-    ..setSoundOnSpawn(Sounds.obsidianAvengerWhat2)
 
     //Spawner 2
     func = (UnitSpawner spawner) -> begin
-        new Grow(spawner.getLastSpawnedUnit(),1.1)
+        new StoneForm(spawner.getLastSpawnedUnit())
     end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 32))
-    ..setStartDelay(19)
+    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(527,1025), 32))
+    ..setStartDelay(50)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(4)
+    ..setSpawnCount(10)
     ..setSpawnEffect("Abilities\\Spells\\Undead\\DeathPact\\DeathPactTarget.mdl")
     ..setCodeOnSpawn(func)
-    ..setSoundOnSpawn(Sounds.obsidianAvengerWhat2)
 
-    //Spawner 3
-    func = (UnitSpawner spawner) -> begin   
-        new Grow(spawner.getLastSpawnedUnit(),1.1)
-    end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 16))
-    ..setStartDelay(80)
-    ..setFrequencyDeviation(0.03)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(2)
-    ..setSpawnEffect("Abilities\\Spells\\Undead\\DeathPact\\DeathPactTarget.mdl")
-    ..setCodeOnSpawn(func)
-    ..setSoundOnSpawn(Sounds.obsidianAvengerWhat2)
 
     
 
-class Grow
+class StoneForm
     
-    private static constant real    GROWTH_DURATION = 30
-    private static constant real    GROWTH_SCALE = 0.75                  // Final scale increase in %
-    private static constant real    GROWTH_DMG = 3                    // Final DMG increase in %
+    private unit gargoyle
+    private timer timer_checkHP
 
-    private static constant real    GROWTH_FREQ = 0.5
+    construct(unit whichUnit)
 
-    private static constant integer GROWTH_MAXCOUNT = R2I(GROWTH_DURATION/GROWTH_FREQ)
+        gargoyle = whichUnit
 
-    private int startDamage
-    private real startScale
-
-    private real damagePerGrowth
-    private real scalePerGrowth
-
-    private integer growthCounter = 1 
-    private unit    mob
-    private timer   timer_Grow
-
-    construct(unit whichUnit, real startScale)
-        mob = whichUnit
-
-        this.startScale = startScale
-        this.startDamage = mob.getBaseDamage(1)
-        
-        scalePerGrowth = (startScale * GROWTH_SCALE) / I2R(GROWTH_MAXCOUNT)
-        damagePerGrowth = (I2R(startDamage)*GROWTH_DMG) / I2R(GROWTH_MAXCOUNT)
-        
-        timer_Grow = getTimer()
+        timer_checkHP = getTimer()
         ..setData(this castTo int)
-        ..startPeriodic( GROWTH_FREQ, function callGrowth )
-
-    ondestroy
-        timer_Grow.release()
-
-    private static function callGrowth()
-        GetExpiredTimer().getData() castTo thistype.grow()
-
-    private function grow()
-    
-        if( mob != null and mob.isAliveTrick() )
-    
-            if( growthCounter <= GROWTH_MAXCOUNT )
-                growthCounter = growthCounter + 1
-
-                mob.setBaseDamage(startDamage+R2I(damagePerGrowth*growthCounter), 1)
-                mob.setScale(startScale+scalePerGrowth*growthCounter)
-                
-
-            else
-                destroy this
-        else
-            destroy this
-
-
-    
+        ..startPeriodic(0.1, function callback_checkHP)
         
+        getTimer()
+        ..setData(this castTo int)
+        ..start(10, function callback_Cast )
+
+
+    private static function callback_checkHP()
+
+    private function disable()
+        print(gargoyle.getName())
+        gargoyle.issueImmediateOrderById(Orders.unstoneform)
+
+    private static function callback_Disable()
+        GetExpiredTimer().getData() castTo thistype.disable()
+
+    private function cast()
+        gargoyle.issueImmediateOrderById(Orders.stoneform)
+        getTimer()
+        ..setData(this castTo int)
+        ..start(10, function callback_Disable )
+
+    private static function callback_Cast()
+        GetExpiredTimer().getData() castTo thistype.cast()
+
+        GetExpiredTimer().release()
+    
+
         
 
 
