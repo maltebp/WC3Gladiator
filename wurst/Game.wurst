@@ -12,8 +12,8 @@ constant boolean    SPAWNHEROINARENA        = false
 constant boolean    PREPAREHERO             = false
 constant boolean    LOCKCAMBOUNDS           = true
 constant boolean    MAKEMAPVISIBLE          = false
-constant boolean    STARTATSPECIFICROUND    = true 
-constant int        STARTINGROUND           = 6
+constant boolean    STARTATSPECIFICROUND    = false 
+constant int        STARTINGROUND           = 1
 
 constant int START_TRAININGPOINTS           = 10
 constant int START_GOLD                     = 75
