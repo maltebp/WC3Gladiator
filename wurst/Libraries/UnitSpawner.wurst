@@ -221,7 +221,7 @@ public class UnitSpawner
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Getters
 
-    /** Checks if the spawner is finished; it has been stopped (either by stop() MAP_RESOURCE_TRADING_ALLIES_ONLY
+    /** Checks if the spawner is finished; it has been stopped (either by stop()
         or becuase it has spawned spawnCount units)*/
     function isFinished() returns boolean
         return not isRunning
@@ -238,12 +238,16 @@ public class UnitSpawner
 
     /** Checks if all spawned units and summoned units connected to this UnitSpawner are dead. */
     function allUnitsAreDead() returns boolean
-        for spawnedUnit in spawnedUnits
-            if spawnedUnit.isAliveTrick()
-                return false
-        for summonedUnits in summonedUnits
-            if summonedUnits.isAliveTrick()
-                return false
+        
+        if spawnedUnits.size() > 0
+            for spawnedUnit in spawnedUnits
+                if spawnedUnit.isAlive()
+                    return false
+
+        if summonedUnits.size() > 0
+            for summonedUnits in summonedUnits
+                if summonedUnits.isAlive()
+                    return false
         return true
 
 //---------------------------------------------------------------------------------------------------------------------------------------
