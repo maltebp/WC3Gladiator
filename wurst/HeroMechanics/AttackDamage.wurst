@@ -80,6 +80,10 @@ init
     new AttackDamageItem( 'I00L', 10 )
     new AttackDamageItem( 'I00F', 10 )
 
+    // Editor's Items
+    new AttackDamageItem( 'I00S', 30)
+    new AttackDamageItem( 'I00P', 80)
+
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_PAWN_ITEM, function manipulatesItem)
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function manipulatesItem)
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM, function manipulatesItem)
