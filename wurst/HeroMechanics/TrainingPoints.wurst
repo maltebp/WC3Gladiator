@@ -51,6 +51,7 @@ class HeroTrainingPoints
     /** Can be negative */
     protected function adjustHealth(int adjustAmount)
         hero.setMaxHP(R2I(hero.getMaxHP())+adjustAmount, true)
+        health += adjustAmount
 
     protected function adjustArmor(real adjustAmount)
         hero.setArmor(hero.getArmor()+adjustAmount)
@@ -59,6 +60,7 @@ class HeroTrainingPoints
 
     protected function adjustPower(int adjustAmount)
         hero.setBaseDamage(hero.getBaseDamage(1)+adjustAmount, 1)
+        power += adjustAmount
         
 
     protected function adjustAttackSpeed(real adjustAmount)
@@ -102,6 +104,8 @@ class HeroTrainingPoints
 
         else if whatToTrain == TRAINID_RESET
             instance.resetPoints()
+
+
 
 
 function itemBoughtFilter() returns boolean

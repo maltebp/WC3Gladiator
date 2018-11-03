@@ -22,13 +22,13 @@ init
         new StoneForm(spawner.getLastSpawnedUnit())
     end
 
-    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(-639,1025), 8))
+    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(-639,1025), 10))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(8)
-    ..setSpawnEffect("Abilities\\Spells\\Undead\\DeathPact\\DeathPactTarget.mdl")
+    ..setSpawnCount(12)
+    ..setSpawnEffect("Abilities\\Spells\\Undead\\CarrionSwarm\\CarrionSwarmDamage.mdl")
     ..setCodeOnSpawn(func)
 
     //Spawner 2
@@ -36,20 +36,32 @@ init
         new StoneForm(spawner.getLastSpawnedUnit())
     end
 
-    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(527,1025), 32))
-    ..setStartDelay(999)
+    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(527,1025), 12))
+    ..setStartDelay(30)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(10)
-    ..setSpawnEffect("Abilities\\Spells\\Undead\\DeathPact\\DeathPactTarget.mdl")
+    ..setSpawnCount(6)
+    ..setSpawnEffect("Abilities\\Spells\\Undead\\CarrionSwarm\\CarrionSwarmDamage.mdl")
+    ..setCodeOnSpawn(func)
+    
+    //Spawner 2
+    func = (UnitSpawner spawner) -> begin
+        new StoneForm(spawner.getLastSpawnedUnit())
+    end
+
+    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(527,1025), 10))
+    ..setStartDelay(60)
+    ..setFrequencyDeviation(0.03)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(3)
+    ..setSpawnEffect("Abilities\\Spells\\Undead\\CarrionSwarm\\CarrionSwarmDamage.mdl")
     ..setCodeOnSpawn(func)
 
 
 
-    
-
-class StoneForm
+public class StoneForm
     
     private unit gargoyle
     private timer timer_checkHP
@@ -66,8 +78,7 @@ class StoneForm
     ondestroy
         timer_checkHP.release()
 
-        
-
+    
     private function cast()
         gargoyle.issueImmediateOrderById(Orders.stoneform)
         stoneform = true
@@ -86,6 +97,7 @@ class StoneForm
 
     private function disable()
         gargoyle.issueImmediateOrderById(Orders.unstoneform)
+        timer_checkHP.startPeriodic(0.1, function callback_checkHP)
         
 
 

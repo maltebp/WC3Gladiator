@@ -253,12 +253,13 @@ public class Round
             
     
     protected static function anyUnitDies()
-        unit dying = GetDyingUnit()
-        
-        if dying == hero
-            roundLost()
-        else if wasLastUnit()
-            roundWon()
+        if aRoundIsRunning
+            unit dying = GetDyingUnit()
+            
+            if dying == hero
+                roundLost()
+            else if wasLastUnit()
+                roundWon()
             
 
      static function startNextRound()
