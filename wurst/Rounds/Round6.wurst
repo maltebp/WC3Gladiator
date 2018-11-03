@@ -11,7 +11,7 @@ init
 
     round = new Round
     ..setReward(70, 4)
-    ..setTitle("Flame Elementals")
+    ..setTitle("Through the Fire and Flames")
     ..setDescription("Should you stand in the fire?")
     ..setHealthOrbSpawn(90, 60, 0.1, 15, 0.02)
 
