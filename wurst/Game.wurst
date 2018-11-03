@@ -9,7 +9,7 @@ import TimedSpecialEffects
 
 
 constant boolean    SPAWNHEROINARENA        = false
-constant boolean    PREPAREHERO             = true
+constant boolean    PREPAREHERO             = false
 constant boolean    LOCKCAMBOUNDS           = true
 constant boolean    MAKEMAPVISIBLE          = false
 constant boolean    STARTATSPECIFICROUND    = true 

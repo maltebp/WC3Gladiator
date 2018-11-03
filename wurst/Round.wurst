@@ -32,6 +32,8 @@ public class Round
     private static boolean roundWon = false
     private static Round currentRound
 
+    
+
     private static boolean aRoundIsRunning = false
 
     private LinkedList<UnitSpawner> spawners = new LinkedList<UnitSpawner>
@@ -47,6 +49,7 @@ public class Round
     private timer timer_HealthOrbSpawn
     private string title
     private string description
+    private Round_RemoteFunction<Round> codeOnClear 
 
 
     private static SoundDefinition snd_GoldReward = new SoundDefinition(Sounds.receiveGold, false)
@@ -81,6 +84,9 @@ public class Round
     function setReward( int goldReward, int trainingPointsReward)
         this.goldReward = goldReward
         this.trainingPointsReward = trainingPointsReward
+
+    function setCodeOnClear( Round_RemoteFunction<Round> whichCode )
+        this.codeOnClear = whichCode
 
     function addSpawner(UnitSpawner spawner) returns UnitSpawner
         spawners.add(spawner)
@@ -157,6 +163,8 @@ public class Round
         timer_HealthOrbSpawn.pause()
         for spawner in spawners
             spawner.clear()
+        if codeOnClear != null
+            codeOnClear.run(this)
 
     static function clearCurrentRound()
         currentRound.clear()
@@ -286,7 +294,8 @@ public class Round
 
         
                
-
+public interface Round_RemoteFunction<Round>
+    function run(Round round)
  
                 
 init

@@ -110,11 +110,15 @@ public class UnitSpawner
         // BUG HERE: If units has been removed from game, it doesn't go through the for loops
         // I.e. if the unit has no decay
 
-        for spawnedUnit from spawnedUnits
-            spawnedUnit.remove()
+        if spawnedUnits.size() > 0
+            for spawnedUnit from spawnedUnits
+                if spawnedUnit != null
+                    spawnedUnit.remove()
 
-        for summonedUnit from summonedUnits
-            summonedUnit.remove()
+        if summonedUnits.size() > 0
+            for summonedUnit from summonedUnits
+                if summonedUnit != null
+                    summonedUnit.remove()
             
         lastSpawnedUnit = null
         stop()
@@ -241,7 +245,7 @@ public class UnitSpawner
         
         if spawnedUnits.size() > 0
             for spawnedUnit in spawnedUnits
-                if spawnedUnit.isAlive()
+                if spawnedUnit != null and spawnedUnit.isAlive()
                     return false
 
         if summonedUnits.size() > 0
