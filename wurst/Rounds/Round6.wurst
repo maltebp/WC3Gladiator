@@ -6,8 +6,9 @@ import TimerUtils
 import Orders
 import RegisterEvents
 import GroundEffect
-import TimedGroup
+import GroupUtils
 import TimedSpecialEffects
+import AutoCastAbility
 
 import LinkedList
 
@@ -84,11 +85,11 @@ class Flame extends GroundEffect
         baseSfxScale = 2
 
         if caster.getTypeId() == 'n00B'
-            range = 150
+            range = 200
             addLayer(0, 1)
             addLayer(40, 3)
-            addLayer(130, 7)
-            addLayer(80, 5)
+            addLayer(130, 4)
+            addLayer(180, 6)
 
         else
             range = 135
@@ -107,12 +108,6 @@ class Flame extends GroundEffect
                 target.addEffect("Abilities\\Spells\\Items\\AIfb\\AIfbSpecialArt.mdl", "chest")
                 caster.damageTarget(target, 10)
                 targetsHit.addUnitTimed(target, 0.99)
-                
-
-
-    static function onCast()
-        new Flame(vec2(GetSpellTargetX(),GetSpellTargetY()), GetSpellAbilityUnit())
-
 
 
 function lavaSpawnDies()
@@ -126,8 +121,12 @@ function lavaSpawnDies()
         new Flame(GetDyingUnit().getPos(), GetDyingUnit())
         
 
+function flameStrikeCast()
+    new Flame(vec2(GetSpellTargetX(), GetSpellTargetY()), GetSpellAbilityUnit())
+
 init
-    registerSpellEffectEvent('AHfs', function Flame.onCast)
+    registerSpellEffectEvent('A010', function flameStrikeCast )
+    addAutoCastAbilityToUnitType('n00B', 'A010', 10, 15, 600, Orders.flamestrike, TargetType.ENEMY_POINT)
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function lavaSpawnDies )
     
     

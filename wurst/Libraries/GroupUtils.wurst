@@ -1,6 +1,23 @@
-package TimedGroup
+package GroupUtils
 
 import TimerUtils
+
+/** Gets the unit from the group, which is nearest to the originPoint */
+public function group.getNearestUnit( vec2 origin ) returns unit
+    
+    unit nearestUnit = null
+
+    if this.size() > 0
+        real shortestDist = 999999
+        for u in this
+            real distance = u.getPos().distanceTo(origin)
+            if distance < shortestDist
+                shortestDist = distance
+                nearestUnit = u
+
+    return nearestUnit
+
+
 
 /** Adds a unit to the group for certain amount of time */
 public function group.addUnitTimed(unit whichUnit, real duration)
@@ -26,4 +43,3 @@ class TimedGroup
             getTimer()
             ..setData(this castTo int)
             ..start(duration, function removeUnit )
-
