@@ -21,49 +21,42 @@ init
     round = new Round
     ..setReward(70, 4)
     ..setTitle("Through the Fire and Flames")
-    ..setDescription("Should you stand in the fire?")
+    ..setDescription("It's gettin' hot in here - should you stand in the fire?")
     ..setHealthOrbSpawn(90, 60, 0.1, 15, 0.02)
 
-    RemoteFunction<UnitSpawner> func
 
     // Spawner 1
-    func = (UnitSpawner spawner) -> begin
-    end
 
-    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(-639,1025), 10))
-    ..setStartDelay(3)
+    round.addSpawner(new UnitSpawner('n00B', ENEMYPLAYER, vec2(-639,1025), 15))
+    ..setStartDelay(4)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(12)
-    ..setSpawnEffect("Abilities\\Spells\\Undead\\CarrionSwarm\\CarrionSwarmDamage.mdl")
-    ..setCodeOnSpawn(func)
+    ..setSpawnCount(4)
+    ..setSpawnEffect("Abilities\\Spells\\Demon\\DarkPortal\\DarkPortalTarget.mdl")
 
     //Spawner 2
-    func = (UnitSpawner spawner) -> begin
-    end
 
-    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(527,1025), 12))
-    ..setStartDelay(30)
+    round.addSpawner(new UnitSpawner('n00C', ENEMYPLAYER, vec2(527,1025), 12))
+    ..setStartDelay(5)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(6)
-    ..setSpawnEffect("Abilities\\Spells\\Undead\\CarrionSwarm\\CarrionSwarmDamage.mdl")
-    ..setCodeOnSpawn(func)
+    ..setSpawnEffect("Abilities\\Spells\\Demon\\DarkPortal\\DarkPortalTarget.mdl")
     
-    //Spawner 2
-    func = (UnitSpawner spawner) -> begin
-    end
+    // //Spawner 2
+    // func = (UnitSpawner spawner) -> begin
+    // end
 
-    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(527,1025), 10))
-    ..setStartDelay(60)
-    ..setFrequencyDeviation(0.03)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(3)
-    ..setSpawnEffect("Abilities\\Spells\\Undead\\CarrionSwarm\\CarrionSwarmDamage.mdl")
-    ..setCodeOnSpawn(func)
+    // round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(527,1025), 10))
+    // ..setStartDelay(60)
+    // ..setFrequencyDeviation(0.03)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSpawnCount(3)
+    // ..setSpawnEffect("Abilities\\Spells\\Undead\\CarrionSwarm\\CarrionSwarmDamage.mdl")
+    // ..setCodeOnSpawn(func)
 
 
 
@@ -87,9 +80,9 @@ class Flame extends GroundEffect
         if caster.getTypeId() == 'n00B'
             range = 200
             addLayer(0, 1)
-            addLayer(40, 3)
-            addLayer(130, 4)
-            addLayer(180, 6)
+            addLayer(110, 5)
+            addLayer(140, 5)
+            addLayer(180, 7)
 
         else
             range = 135
@@ -106,7 +99,7 @@ class Flame extends GroundEffect
         for target from ENUM_GROUP
             if target.isAlive() and target.getOwner().isEnemyOf(ENEMYPLAYER) and not targetsHit.contains(target)
                 target.addEffect("Abilities\\Spells\\Items\\AIfb\\AIfbSpecialArt.mdl", "chest")
-                caster.damageTarget(target, 10)
+                caster.damageTarget(target, 75)
                 targetsHit.addUnitTimed(target, 0.99)
 
 
@@ -121,8 +114,38 @@ function lavaSpawnDies()
         new Flame(GetDyingUnit().getPos(), GetDyingUnit())
         
 
+class FlameStrike
+    unit caster
+    vec2 pos
+
+    construct(unit caster, vec2 pos)
+
+        this.caster = caster
+        this.pos = pos
+
+        
+
+        getTimer()
+        ..setData(this castTo int)
+        ..start(2, function createFlames )
+
+    private static function createFlames()
+        timer expiredTimer = GetExpiredTimer()
+        thistype instance = expiredTimer.getData() castTo thistype
+        expiredTimer
+        ..pause()
+        ..release()
+
+        if instance.caster != null and instance.caster.isAlive()
+            addEffect("Abilities\\Spells\\Human\\FlameStrike\\FlameStrike1.mdl", instance.pos)
+            ..setDuration(10)
+            ..setScale(2)
+
+            new Flame(vec2(GetSpellTargetX(), GetSpellTargetY()), GetSpellAbilityUnit())
+
+
 function flameStrikeCast()
-    new Flame(vec2(GetSpellTargetX(), GetSpellTargetY()), GetSpellAbilityUnit())
+    new FlameStrike(GetSpellTargetUnit(), vec2(GetSpellTargetX(), GetSpellTargetY()))
 
 init
     registerSpellEffectEvent('A010', function flameStrikeCast )
