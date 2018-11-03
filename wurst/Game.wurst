@@ -8,8 +8,8 @@ import Music
 import TimedSpecialEffects
 
 
-constant boolean    SPAWNHEROINARENA        = false
-constant boolean    PREPAREHERO             = false
+constant boolean    SPAWNHEROINARENA        = true
+constant boolean    PREPAREHERO             = true
 constant boolean    LOCKCAMBOUNDS           = false
 constant boolean    MAKEMAPVISIBLE          = false
 constant boolean    STARTATSPECIFICROUND    = true 

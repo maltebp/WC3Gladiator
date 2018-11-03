@@ -4,6 +4,14 @@ import public initlater Round5
 
 import TimerUtils
 import Orders
+import RegisterEvents
+import GroundEffect
+import TimedGroup
+import TimedSpecialEffects
+
+import LinkedList
+
+LinkedList<Flame> flames = new LinkedList<Flame>
 
 init
 //=========================================================================================================================================================
@@ -58,7 +66,69 @@ init
 
 
 
-public class StoneForm
+
+
+
+
+class Flame extends GroundEffect
+
+    private static group targetsHit = CreateGroup()
+
+    private unit caster
+    private real range
+
+    construct(vec2 pos, unit caster)
+        super(pos, "Abilities\\Spells\\Human\\FlameStrike\\FlameStrikeEmbers.mdl")
+
+        this.caster = caster
+        baseSfxScale = 2
+
+        if caster.getTypeId() == 'n00B'
+            range = 150
+            addLayer(0, 1)
+            addLayer(40, 3)
+            addLayer(130, 7)
+            addLayer(80, 5)
+
+        else
+            range = 135
+            addLayer(0, 1)
+            addLayer(90, 6)
+
+        flames.add(this)
+
+
+    override function doEffect()
+        
+        ENUM_GROUP.enumUnitsInRange(pos, range)
+        
+        for target from ENUM_GROUP
+            if target.isAlive() and target.getOwner().isEnemyOf(ENEMYPLAYER) and not targetsHit.contains(target)
+                target.addEffect("Abilities\\Spells\\Items\\AIfb\\AIfbSpecialArt.mdl", "chest")
+                caster.damageTarget(target, 10)
+                targetsHit.addUnitTimed(target, 0.99)
+                
+
+
+    static function onCast()
+        new Flame(vec2(GetSpellTargetX(),GetSpellTargetY()), GetSpellAbilityUnit())
+
+
+
+function lavaSpawnDies()
+
+    if GetDyingUnit().getTypeId() == 'n00C'
+        addEffect("Objects\\Spawnmodels\\Human\\SmallFlameSpawn\\SmallFlameSpawn.mdl", GetDyingUnit().getPos() )
+        ..setTimeScale(1.5)
+        ..setScale(0.5)
+        ..setDuration(5)
+    
+        new Flame(GetDyingUnit().getPos(), GetDyingUnit())
+        
+
+init
+    registerSpellEffectEvent('AHfs', function Flame.onCast)
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function lavaSpawnDies )
     
     
         

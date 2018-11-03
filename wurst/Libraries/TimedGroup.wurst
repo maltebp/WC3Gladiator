@@ -1,0 +1,29 @@
+package TimedGroup
+
+import TimerUtils
+
+/** Adds a unit to the group for certain amount of time */
+public function group.addUnitTimed(unit whichUnit, real duration)
+    new TimedGroup( this, whichUnit, duration)
+    
+class TimedGroup
+    private group theGroup
+    private unit theUnit
+
+    ondestroy
+        GetExpiredTimer().release()
+        if theGroup != null and theGroup.size() > 0 and theGroup.contains(theUnit)
+            theGroup.removeUnit(theUnit)          
+
+    private static function removeUnit()
+        destroy GetExpiredTimer().getData() castTo thistype
+
+    construct(group whichGroup, unit whichUnit, real duration)
+        theGroup = whichGroup
+        theUnit = whichUnit
+        if whichGroup != null and whichUnit != null and duration > 0
+            whichGroup.addUnit(whichUnit)
+            getTimer()
+            ..setData(this castTo int)
+            ..start(duration, function removeUnit )
+
