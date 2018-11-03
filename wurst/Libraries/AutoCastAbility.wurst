@@ -232,6 +232,8 @@ class AutoCastUnit
             timer_CheckTargets
             ..pause()
             ..release()
+        
+            timer_CheckTargets = null
 
     /** Checks if the ability being cast is connected to any instances of AutoCastUnit */
     private static function checkIfAutoAbility()

@@ -34,24 +34,22 @@ init
     
 
     // Fire Spawn - 1
-
     round.addSpawner(new UnitSpawner('n00C', ENEMYPLAYER, vec2(-639,1025), 12))
     ..setStartDelay(4)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(10)
-    ..setSpawnEffect("Abilities\\Spells\\Demon\\DarkPortal\\DarkPortalTarget.mdl")
+    ..setSpawnEffect("Objects\\Spawnmodels\\Human\\SmallFlameSpawn\\SmallFlameSpawn.mdl")
 
     // Fire Spawn - 2
-
-    round.addSpawner(new UnitSpawner('n00C', ENEMYPLAYER, vec2(527,1025), 15))
-    ..setStartDelay(40)
+    round.addSpawner(new UnitSpawner('n00C', ENEMYPLAYER, vec2(527,1025), 16))
+    ..setStartDelay(30)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(4)
-    ..setSpawnEffect("Abilities\\Spells\\Demon\\DarkPortal\\DarkPortalTarget.mdl")
+    ..setSpawnCount(5)
+    ..setSpawnEffect("Abilities\\Spells\\Other\\Incinerate\\FireLordDeathExplode.mdl")
     
     // Flame Lord - 1
     round.addSpawner(new UnitSpawner('n00B', ENEMYPLAYER, vec2(527,1025), 20))
@@ -60,16 +58,16 @@ init
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(5)
-    ..setSpawnEffect("Abilities\\Spells\\Demon\\DarkPortal\\DarkPortalTarget.mdl")
+    ..setSpawnEffect("Abilities\\Spells\\Other\\Incinerate\\FireLordDeathExplode.mdl")
 
     // Flame Lord - 2
-    round.addSpawner(new UnitSpawner('n00B', ENEMYPLAYER, vec2(527,1025), 20))
-    ..setStartDelay(50)
+    round.addSpawner(new UnitSpawner('n00B', ENEMYPLAYER, vec2(527,1025), 50))
+    ..setStartDelay(70)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(3)
-    ..setSpawnEffect("Abilities\\Spells\\Demon\\DarkPortal\\DarkPortalTarget.mdl")
+    ..setSpawnCount(2)
+    ..setSpawnEffect("Abilities\\Spells\\Other\\Incinerate\\FireLordDeathExplode.mdl")
 
 
 
@@ -100,7 +98,7 @@ class Flame extends GroundEffect
             addLayer(160, 9)
 
         else
-            range = 135
+            range = 150
             addLayer(0, 1)
             addLayer(90, 6)
 
@@ -116,7 +114,7 @@ class Flame extends GroundEffect
         for target from ENUM_GROUP
             if target.isAlive() and target.getOwner().isEnemyOf(ENEMYPLAYER) and not targetsHit.contains(target)
                 target.addEffect("Abilities\\Spells\\Items\\AIfb\\AIfbSpecialArt.mdl", "chest")
-                dummy.damageTarget(target, 75)
+                dummy.damageTarget(target, 60)
                 targetsHit.addUnitTimed(target, 0.99)
 
 
@@ -169,7 +167,7 @@ function flameStrikeCast()
 
 init
     registerSpellEffectEvent('A010', function flameStrikeCast )
-    addAutoCastAbilityToUnitType('n00B', 'A010', 10, 15, 600, Orders.flamestrike, TargetType.ENEMY_POINT)
+    addAutoCastAbilityToUnitType('n00B', 'A010', 4, 15, 600, Orders.flamestrike, TargetType.ENEMY_POINT)
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function lavaSpawnDies )
     
     
