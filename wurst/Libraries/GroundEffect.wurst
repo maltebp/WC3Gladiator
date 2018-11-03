@@ -1,0 +1,87 @@
+package GroundEffect
+
+import TimerUtils
+import LinkedList
+
+/** A class to create a ground effect for abilities. 
+    The effects have to be added with addLayer() which adds a circle of special effects around the pos. Add as many as you deem necessary.size()
+    Override the doEffect() to add the effect of the object. */
+public abstract class GroundEffect
+
+    protected vec2                      pos
+    protected string                    sfxModel
+    protected LinkedList<effect>        sfx
+    protected real              baseSfxScale = 1
+    protected timer             timer_Duration
+    protected timer             timer_Effect
+    protected real              sfxSizeDeviation = 0.1 // Decimal percent
+    protected real              sfxAngleDeviation = 0.1 // Decimal percent
+
+
+    construct(vec2 pos, string sfxModel)
+
+        this.pos = pos
+        this.sfxModel = sfxModel
+
+        sfx = new LinkedList<effect>
+
+        timer_Effect = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic(1, function callback_doEffect )
+
+
+    ondestroy
+        timer_Effect.release()
+        
+        if timer_Duration != null
+            timer_Duration.release()
+
+        for sfx in sfx
+            sfx.destr()
+        
+        destroy sfx
+            
+    /** Changes the frequency of the effect (effect called by doEffect() )
+    protected function setFrequency(real frequency)
+        if frequency > 0
+            timer_Effect.startPeriodic(frequency, function callback_doEffect )
+
+    /** Adds a duration the effect */
+    protected function addDuration(real duration)
+        if duration > 0
+            timer_Duration = getTimer()
+            ..setData(this castTo int)
+            ..start(duration, function endDuration)
+
+
+    
+    private static function endDuration()
+        destroy GetExpiredTimer().getData() castTo thistype
+
+    /** Adds a layer (circle of SFX with the sfxModel string as model), around the position of the effect.
+    Add as many layers as you want to make it look good. */
+    protected function addLayer(real distanceFromCenter, int numberOfSfx, real sfxBaseSize )
+        
+        if numberOfSfx > 0
+            real angleOffset = PI2 / numberOfSfx
+            for i=0 to numberOfSfx
+                angle sfxAngle = angle(angleOffset*i * GetRandomReal((1-sfxAngleDeviation), (1+sfxAngleDeviation)))
+                vec2 sfxPos = this.pos.polarOffset(sfxAngle, distanceFromCenter)
+                effect sfx = addEffect(sfxModel, sfxPos)
+                ..setScale(sfxBaseSize*GetRandomReal((1-sfxSizeDeviation), (1+sfxSizeDeviation)))
+
+                this.sfx.add(sfx)
+                
+    /** Adds a layer (circle of SFX with the sfxModel string as model), around the position of the effect.
+        Add as many layers as you want to make it look good. */
+    protected function addLayer(real distanceFromCenter, int numberOfSfx )
+        addLayer(distanceFromCenter, numberOfSfx, baseSfxScale)
+        
+
+    private static function callback_doEffect()
+        GetExpiredTimer().getData() castTo thistype.doEffect()
+            
+
+    /** Automatically called periodically (using 'frequency'-variabel as the frequecy).
+        Overrid this with your own functionality to be called periodically. */
+    protected abstract function doEffect()
