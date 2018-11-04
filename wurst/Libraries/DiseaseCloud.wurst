@@ -260,7 +260,7 @@ public class DiseaseCloud
         this.range = range
 
         sfx = addEffect(SFX, pos.withTerrainZ(100) ) 
-        dummy = createUnit(owner, 'h004', this.pos, angle(0) )
+        dummy = createUnit(owner, 'h002', this.pos, angle(0) )
 
         
         timer_Duration = getTimer()
@@ -312,14 +312,15 @@ function damage( unit source, real damage, real range )
         u.addToHitTargets()
 
 
-/*  ===============================================================================================
-    STACK PREVENTION
-    
-    Damage stacking is prevented, by added a hit unit to list.
-    While in this list, the unit may not be hit again for
-    DAMAGEFREQ seconds.
-    It prevents damage stacking from both Disease and Disease
-    Clouds */
+/*  
+===============================================================================================
+STACK PREVENTION
+
+Damage stacking is prevented, by added a hit unit to list.
+While in this list, the unit may not be hit again for
+DAMAGEFREQ seconds.
+It prevents damage stacking from both Disease and Disease
+Clouds */
 
 unit    array hitTargets
 int     hitTargets_HighestIndex = 0

@@ -19,48 +19,48 @@ init
     ..setReward(70, 4)
     ..setTitle("Ghosts 'n' Stuff")
     ..setDescription("It seems like somebody's watching you. And what is that smell?")
-    ..setHealthOrbSpawn(90, 60, 0.1, 15, 0.02)
+    ..setHealthOrbSpawn(90, 100, 0.1, 25, 0.02)
     ..setCodeOnClear(roundFunc)
 
 
 
     // Ghoul - 1
-    round.addSpawner(new UnitSpawner('u004', ENEMYPLAYER, vec2(-639,1025), 10))
+    round.addSpawner(new UnitSpawner('u004', ENEMYPLAYER, vec2(-639,1025), 8))
     ..setStartDelay(4)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(12)
+    ..setSpawnCount(15)
     ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
     
 
     // Ghoul - 2
-    round.addSpawner(new UnitSpawner('u004', ENEMYPLAYER, vec2(527,1025), 20))
+    round.addSpawner(new UnitSpawner('u004', ENEMYPLAYER, vec2(527,1025), 12))
     ..setStartDelay(40)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(4)
+    ..setSpawnCount(6)
     ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
     
     RemoteFunction<UnitSpawner> func
 
     func = (UnitSpawner spawner) -> begin
-        Disease.addUnit(spawner.getLastSpawnedUnit(), 30, 0, 250)
+        Disease.addUnit(spawner.getLastSpawnedUnit(), 25, 0, 250)
     end
 
     // Zombie - 1
-    round.addSpawner(new UnitSpawner('n00D', ENEMYPLAYER, vec2(527,1025), 20))
+    round.addSpawner(new UnitSpawner('n00D', ENEMYPLAYER, vec2(527,1025), 15))
     ..setStartDelay(10)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(5)
+    ..setSpawnCount(8)
     ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
     ..setCodeOnSpawn(func)
 
     func = (UnitSpawner spawner) -> begin
-        Disease.addUnit(spawner.getLastSpawnedUnit(), 30, 0, 250)
+        Disease.addUnit(spawner.getLastSpawnedUnit(), 25, 0, 250)
     end
 
     // Zombie - 2
@@ -74,14 +74,24 @@ init
     ..setCodeOnSpawn(func)
 
     // Ghost - 1
-    round.addSpawner(new UnitSpawner('u005', ENEMYPLAYER, vec2(527,1025), 20))
+    round.addSpawner(new UnitSpawner('u005', ENEMYPLAYER, vec2(527,1025), 18))
     ..setStartDelay(20)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(5)
+    ..setSpawnCount(6)
     ..setSpawnEffect("Abilities\\Spells\\NightElf\\Blink\\BlinkCaster.mdl")
 
+    // Ghost - 1
+    round.addSpawner(new UnitSpawner('u005', ENEMYPLAYER, vec2(527,1025), 20))
+    ..setStartDelay(80)
+    ..setFrequencyDeviation(0.03)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(3)
+    ..setSpawnEffect("Abilities\\Spells\\NightElf\\Blink\\BlinkCaster.mdl")
+
+    
     
 
 function removeClouds()

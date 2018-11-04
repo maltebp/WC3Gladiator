@@ -28,7 +28,7 @@ init
     ..setReward(70, 4)
     ..setTitle("Through the Fire and Flames")
     ..setDescription("It's gettin' hot in here - should you stand in the fire?")
-    ..setHealthOrbSpawn(90, 60, 0.1, 15, 0.02)
+    ..setHealthOrbSpawn(90, 80, 0.1, 20, 0.02)
     ..setCodeOnClear(func)
 
     
