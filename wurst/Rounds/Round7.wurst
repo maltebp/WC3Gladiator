@@ -1,18 +1,13 @@
-package Round6
+package Round7
 
-import public initlater Round5
+import public initlater Round6
 
 import TimerUtils
-import Orders
 import RegisterEvents
 import GroundEffect
 import GroupUtils
 import TimedSpecialEffects
-import AutoCastAbility
 
-import LinkedList
-
-LinkedList<Flame> flames = new LinkedList<Flame>
 
 
 
@@ -20,16 +15,11 @@ init
 //=========================================================================================================================================================
 //  Flame Elementals
 
-    Round_RemoteFunction<Round> func = (Round round) -> begin
-        removeFlames()
-    end
-
     round = new Round
     ..setReward(70, 4)
     ..setTitle("Through the Fire and Flames")
     ..setDescription("It's gettin' hot in here - should you stand in the fire?")
     ..setHealthOrbSpawn(90, 60, 0.1, 15, 0.02)
-    ..setCodeOnClear(func)
 
     
 
@@ -70,107 +60,6 @@ init
     ..setSpawnEffect("Abilities\\Spells\\Other\\Incinerate\\FireLordDeathExplode.mdl")
 
 
-
-
-
-
-
-class Flame extends GroundEffect
-
-    private static group targetsHit = CreateGroup()
-
-    private real range
-    private unit dummy
-
-    construct(vec2 pos, unit caster)
-        super(pos, "Abilities\\Spells\\Human\\FlameStrike\\FlameStrikeEmbers.mdl")
-
-        baseSfxScale = 2
-
-        dummy = createUnit(caster.getOwner(), 'h001',pos, angle(0))
-
-
-        if caster.getTypeId() == 'n00B'
-            range = 200
-            addLayer(0, 1)
-            addLayer(110, 5)
-            addLayer(140, 5)
-            addLayer(160, 9)
-
-        else
-            range = 150
-            addLayer(0, 1)
-            addLayer(90, 6)
-
-        flames.add(this)
-
-    ondestroy
-        dummy.remove()
-
-    override function doEffect()
-        
-        ENUM_GROUP.enumUnitsInRange(pos, range)
-        
-        for target from ENUM_GROUP
-            if target.isAlive() and target.getOwner().isEnemyOf(ENEMYPLAYER) and not targetsHit.contains(target)
-                target.addEffect("Abilities\\Spells\\Items\\AIfb\\AIfbSpecialArt.mdl", "chest")
-                dummy.damageTarget(target, 60)
-                targetsHit.addUnitTimed(target, 0.99)
-
-
-function lavaSpawnDies()
-
-    if GetDyingUnit().getTypeId() == 'n00C'
-        addEffect("Objects\\Spawnmodels\\Human\\SmallFlameSpawn\\SmallFlameSpawn.mdl", GetDyingUnit().getPos() )
-        ..setTimeScale(1.5)
-        ..setScale(1)
-        ..setDuration(5)
-    
-        new Flame(GetDyingUnit().getPos(), GetDyingUnit())
-        
-function removeFlames()
-    for flame in flames
-        destroy flame
-    
-    flames.clear()
-
-class FlameStrike
-    unit caster
-    vec2 pos
-
-    construct(unit caster, vec2 pos)
-
-        this.caster = caster
-        this.pos = pos
-
-        getTimer()
-        ..setData(this castTo int)
-        ..start(2, function createFlames )
-
-    private static function createFlames()
-        timer expiredTimer = GetExpiredTimer()
-        thistype instance = expiredTimer.getData() castTo thistype
-        expiredTimer
-        ..pause()
-        ..release()
-
-        if instance.caster != null and instance.caster.isAlive()
-            addEffect("Abilities\\Spells\\Human\\FlameStrike\\FlameStrike1.mdl", instance.pos)
-            ..setDuration(10)
-            ..setScale(2)
-
-            new Flame(instance.pos, instance.caster)
-
-
-function flameStrikeCast()
-    new FlameStrike(GetSpellAbilityUnit(), vec2(GetSpellTargetX(), GetSpellTargetY()))
-
-init
-    registerSpellEffectEvent('A010', function flameStrikeCast )
-    addAutoCastAbilityToUnitType('n00B', 'A010', 4, 15, 600, Orders.flamestrike, TargetType.ENEMY_POINT)
-    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function lavaSpawnDies )
-    
-    
         
 
 
