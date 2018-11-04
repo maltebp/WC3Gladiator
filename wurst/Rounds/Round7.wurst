@@ -1,65 +1,91 @@
 package Round7
 
 import public initlater Round6
-
-import TimerUtils
-import RegisterEvents
-import GroundEffect
-import GroupUtils
-import TimedSpecialEffects
+import DiseaseCloud
 
 
 
 
 init
 //=========================================================================================================================================================
-//  Flame Elementals
+//  Ghosts 'n' Stuff
+
+    Round_RemoteFunction<Round> roundFunc = (Round round) -> begin
+        removeClouds()
+    end
+
 
     round = new Round
     ..setReward(70, 4)
-    ..setTitle("Through the Fire and Flames")
-    ..setDescription("It's gettin' hot in here - should you stand in the fire?")
+    ..setTitle("Ghosts 'n' Stuff")
+    ..setDescription("It seems like somebody's watching you. And what is that smell?")
     ..setHealthOrbSpawn(90, 60, 0.1, 15, 0.02)
+    ..setCodeOnClear(roundFunc)
 
-    
 
-    // Fire Spawn - 1
-    round.addSpawner(new UnitSpawner('n00C', ENEMYPLAYER, vec2(-639,1025), 12))
+
+    // Ghoul - 1
+    round.addSpawner(new UnitSpawner('u004', ENEMYPLAYER, vec2(-639,1025), 10))
     ..setStartDelay(4)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(10)
-    ..setSpawnEffect("Objects\\Spawnmodels\\Human\\SmallFlameSpawn\\SmallFlameSpawn.mdl")
-
-    // Fire Spawn - 2
-    round.addSpawner(new UnitSpawner('n00C', ENEMYPLAYER, vec2(527,1025), 16))
-    ..setStartDelay(30)
-    ..setFrequencyDeviation(0.03)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(5)
-    ..setSpawnEffect("Abilities\\Spells\\Other\\Incinerate\\FireLordDeathExplode.mdl")
+    ..setSpawnCount(12)
+    ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
     
-    // Flame Lord - 1
-    round.addSpawner(new UnitSpawner('n00B', ENEMYPLAYER, vec2(527,1025), 20))
-    ..setStartDelay(15)
+
+    // Ghoul - 2
+    round.addSpawner(new UnitSpawner('u004', ENEMYPLAYER, vec2(527,1025), 20))
+    ..setStartDelay(40)
+    ..setFrequencyDeviation(0.03)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(4)
+    ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
+    
+    RemoteFunction<UnitSpawner> func
+
+    func = (UnitSpawner spawner) -> begin
+        Disease.addUnit(spawner.getLastSpawnedUnit(), 30, 0, 250)
+    end
+
+    // Zombie - 1
+    round.addSpawner(new UnitSpawner('n00D', ENEMYPLAYER, vec2(527,1025), 20))
+    ..setStartDelay(10)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(5)
-    ..setSpawnEffect("Abilities\\Spells\\Other\\Incinerate\\FireLordDeathExplode.mdl")
+    ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
+    ..setCodeOnSpawn(func)
 
-    // Flame Lord - 2
-    round.addSpawner(new UnitSpawner('n00B', ENEMYPLAYER, vec2(527,1025), 50))
-    ..setStartDelay(70)
+    func = (UnitSpawner spawner) -> begin
+        Disease.addUnit(spawner.getLastSpawnedUnit(), 30, 0, 250)
+    end
+
+    // Zombie - 2
+    round.addSpawner(new UnitSpawner('n00D', ENEMYPLAYER, vec2(527,1025), 20))
+    ..setStartDelay(40)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(2)
-    ..setSpawnEffect("Abilities\\Spells\\Other\\Incinerate\\FireLordDeathExplode.mdl")
+    ..setSpawnCount(4)
+    ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
+    ..setCodeOnSpawn(func)
 
+    // Ghost - 1
+    round.addSpawner(new UnitSpawner('u005', ENEMYPLAYER, vec2(527,1025), 20))
+    ..setStartDelay(20)
+    ..setFrequencyDeviation(0.03)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(5)
+    ..setSpawnEffect("Abilities\\Spells\\NightElf\\Blink\\BlinkCaster.mdl")
 
+    
+
+function removeClouds()
+    DiseaseCloud.destroyAll()
         
 
 

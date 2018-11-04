@@ -1,0 +1,363 @@
+//----------------------------------------------------------------------------------------------
+package DiseaseCloud
+//----------------------------------------------------------------------------------------------
+
+import HashMap
+import TimerUtils
+import LinkedList
+
+// ===============================================================================================
+/*
+    Description:
+    Functionality for regular Disease Ability (the one that Abominations has), with
+    Wurst adjustable stats (damage, duration etc.).
+    It has to functions: 1) the ability to deal damage to units surrounding a unit
+    carrying the disease, and 2) the ability to leave a cloud of disease behind
+    when the unit dies.
+    The two functions may be used seperately (you can create clouds with a unit 
+    to carry the disease, and you can carry disease without leaving a cloud).
+
+    How to use:
+    You add disease to a unit with one of the addUnit...() methods from the Disease class.
+    This creates clouds automatically when the unit dies, but you may toggle it off with
+    the toggleCloud() method.
+    
+    Clouds may be created seperately by creating using the DiseaseCloud constructor.
+
+    -----------------------------------------------------------------------------------------------
+
+    Settings
+    You can change these according to the use in your map */
+
+constant real       DAMAGEFREQ  = 1         
+/*  The frequency of the damage. The damage
+    is not auto adjusted, but is the damage
+    per tick.*/
+
+constant boolean    STACKDAMAGE = false 
+/*  Toggles whether multiple diseases
+    should be able to damage the same target
+    on their individual frequency*/  
+
+constant string     SFX         = "Abilities\\Spells\\Undead\\PlagueCloud\\PlagueCloudCaster.mdl"
+/*  The unit disease and cloud SFX.
+    Can be changed, so that the package
+    may be used for different spells
+    with same functionality (i.e. a
+    flame ability).*/
+
+// ===============================================================================================
+
+
+//  Debugger_____________________________________________________________________________________
+
+constant boolean    DEBUG       = false
+
+/** Print a debugMsg, that is toggleable
+    with the DEBUG variable*/
+function debugMsg(string stringToPrint)
+         if DEBUG
+             print(stringToPrint)
+
+
+
+// ===============================================================================================
+//  DISEASE CLASS
+
+/** Class to bring functionality to the Disease "ability"*/
+public class Disease
+    
+    private static IterableMap<unit, thistype> instances
+    private static int  instanceCount = 0
+
+    private static trigger trg_UnitDies
+    private static trigger trg_UnitIsRemoved
+    private static boolean hasBeenInitialized = false
+
+    private boolean leaveCloud = true
+    private real    diseaseDamage
+    private real    diseaseRange
+    private real    cloudDamage
+    private real    cloudDuration
+    private real    cloudRange
+    private unit    unitWithAbility
+    private effect  sfx
+    private timer   timer_Damage
+
+
+    private construct(unit whichUnit, real diseaseDamage, real cloudDamage, real diseaseRange, real cloudRange, real cloudDuration)
+        if not hasBeenInitialized
+            initialize()
+
+        if instanceCount==0
+            activateTriggers()
+        instanceCount++
+    
+        debugMsg("Adding Disease to "+whichUnit.getName()+"...") 
+        instances.put(whichUnit, this)
+        this.unitWithAbility = whichUnit
+        this.diseaseDamage = diseaseDamage
+        this.cloudDamage = cloudDamage
+        this.cloudRange = cloudRange
+        this.diseaseRange = diseaseRange
+        this.cloudDuration = cloudDuration
+
+        sfx = unitWithAbility.addEffect(SFX, "origin")
+        timer_Damage = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic(DAMAGEFREQ, function orderDamage)
+            
+
+    ondestroy
+        /*  Destroying the instance will remove
+            the ability from the unit. */
+        instanceCount--
+        if instanceCount == 0
+            deactivateTriggers()
+        instances.remove(unitWithAbility)
+        sfx.destr()
+        timer_Damage.release()
+
+
+    /** A simple addUnit. The parameters are for both the disease and the cloud.
+        Damage Frequency is a constant in the package */
+    static function addUnit(unit whichUnit, real damage, real cloudDuration, real range)
+        debugMsg("Disease: addUnit() called")
+        new Disease(whichUnit, damage, damage, range, range, cloudDuration)
+
+
+    /** A custom addUnit. Full control over the disease and the cloud. 
+        Damage Frequency is a constant in the package*/
+    static function addUnit(unit whichUnit, real diseaseDamage, real cloudDamage, real diseaseRange, real cloudRange, real cloudDuration)
+        debugMsg("Disease: addUnit() called")
+        new Disease(whichUnit, diseaseDamage, cloudDamage, diseaseRange, cloudRange, cloudDuration)
+
+
+    /** Removes the unit from the Disease stack
+     (basically removing the Disease ) from the unit*/
+    static function removeUnit(unit unitToRemove)
+        if instances.has(unitToRemove)
+            destroy instances.get(unitToRemove)
+    
+
+    /** Toggles whether a cloud should be left
+        on the the ground when the unit dies*/
+    function toggleCloud(boolean toggle)
+        leaveCloud = toggle
+
+    
+    private static function orderDamage()
+        thistype instance = GetExpiredTimer().getData() castTo thistype
+        damage(instance.unitWithAbility, instance.diseaseDamage, instance.diseaseRange)
+        
+
+    /** Activates Unit death and removal detection (the triggers)  */
+    private static function activateTriggers()
+        debugMsg("Disease: Activating triggers!")
+        trg_UnitDies.enable()
+        trg_UnitIsRemoved.enable()
+
+
+    /** Deactivates Unit death and removal detection (the triggers)  */
+    private static function deactivateTriggers()
+        trg_UnitDies.disable()
+        trg_UnitIsRemoved.disable()
+
+        
+    /** Initializes some static variables for the class.
+        This is automatically done when the first unit
+        is given the ability.*/
+    private static function initialize()
+
+        if not hasBeenInitialized
+            debugMsg("Disease: Initializing Class")
+            hasBeenInitialized = true
+
+            instances = new IterableMap<unit, thistype>
+
+            trg_UnitDies = CreateTrigger()
+            ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_DEATH)
+            ..addCondition(Condition(function unitDies))
+            ..disable()
+
+            region map = CreateRegion()..addRect(GetPlayableMapRect())
+            trg_UnitIsRemoved = CreateTrigger()
+            ..registerLeaveRegion(map, Filter(function unitIsRemoved))
+            ..disable()
+
+
+    /** Destroys the instance if the unit is removed */
+    private static function unitIsRemoved() returns boolean
+        unit removedUnit = GetLeavingUnit()
+        if instances.has(removedUnit)
+            destroy instances.get(removedUnit)
+        return false
+
+
+    /** Destroys the instance and creates a cloud if the unit dies*/
+    private static function unitDies() returns boolean
+        unit dyingUnit = GetDyingUnit()
+
+        if instances.has(dyingUnit)
+            debugMsg("Disease: Unit in instance died!")
+            thistype instance = instances.get(dyingUnit)       
+            if instance.leaveCloud
+                new DiseaseCloud(instance.unitWithAbility.getOwner(), instance.unitWithAbility.getPos(), instance.cloudDamage, instance.cloudDuration, instance.cloudRange)
+            destroy instance
+            
+        return false
+
+
+// ===============================================================================================
+//  DISEASE CLOUD CLASS
+
+public class DiseaseCloud
+    // The class that maintains the disease clouds after unit death
+
+    private static LinkedList<thistype> instances
+
+    private static boolean hasBeenInitialized
+
+    timer timer_Damage
+    timer timer_Duration
+    real damage
+    vec2 pos
+    player owner
+    unit dummy
+    real range
+    effect sfx
+
+    
+
+    ondestroy
+        debugMsg("Destroying Cloud!")
+        instances.remove(this)
+        dummy.remove()
+        sfx.destr()
+        timer_Damage.release()
+        timer_Duration.release()
+
+    static function orderDamage()
+        thistype instance = GetExpiredTimer().getData() castTo thistype
+        damage(instance.dummy, instance.damage, instance.range)
+
+
+    construct(player owner, vec2 pos, real damage, real duration, real range)
+        debugMsg("Creating new cloud! Stats: "+
+                    "Player"+owner.getId().toString()+
+                    ", Position:"+pos.toString()+
+                    ", Damage: "+damage.toString()+
+                    ", Duration: "+duration.toString()+
+                    ", Range: "+range.toString() )
+        if not hasBeenInitialized
+            initialize()
+
+        instances.add(this)
+            
+        this.owner = owner
+        this.pos = pos
+        this.damage = damage
+        this.range = range
+
+        sfx = addEffect(SFX, pos.withTerrainZ(100) ) 
+        dummy = createUnit(owner, 'h004', this.pos, angle(0) )
+
+        
+        timer_Duration = getTimer()
+        if duration>0
+            timer_Duration
+            ..setData(this castTo int)
+            ..start( duration+0.1, () -> destroy GetExpiredTimer().getData() castTo thistype )
+
+        timer_Damage = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic( DAMAGEFREQ, function orderDamage )
+
+        
+    static function destroyAll()
+        for instance in instances
+            destroy instance
+
+
+    /** 
+    Initialize the class: creating instance list.
+    It's automatically initialized when creating
+    a new instance */
+
+    private static function initialize()
+        debugMsg("Initializing DiseaseCloud class")
+        if not hasBeenInitialized
+            hasBeenInitialized = true
+            instances = new LinkedList<thistype>
+
+
+
+//  ===============================================================================================
+//  DAMAGE FUNCTION
+
+/** Deals damage to all units from the source
+    within a certain range.*/
+function damage( unit source, real damage, real range )
+    
+    group targets = ENUM_GROUP
+    targets.enumUnitsInRange(source.getPos(), range)
+
+    // Removing the units not to be hit
+    for u in targets
+        if( u == source or not u.isAlive() or u.getOwner().isAllyOf(source.getOwner()) or u.isHit())
+            targets.removeUnit(u)
+
+    for u from targets
+        source.damageTarget(u, damage)
+        u.addToHitTargets()
+
+
+/*  ===============================================================================================
+    STACK PREVENTION
+    
+    Damage stacking is prevented, by added a hit unit to list.
+    While in this list, the unit may not be hit again for
+    DAMAGEFREQ seconds.
+    It prevents damage stacking from both Disease and Disease
+    Clouds */
+
+unit    array hitTargets
+int     hitTargets_HighestIndex = 0
+
+/** Adds the unit to the list of hit targets*/
+function unit.addToHitTargets()
+    if not STACKDAMAGE
+        int index = 0
+
+        while hitTargets[index] != null
+            index++
+        hitTargets[index] = this
+
+        getTimer()
+        ..setData(index)
+        ..start(DAMAGEFREQ-0.01, function removeFromHitTargets )
+
+        hitTargets_HighestIndex = (index > hitTargets_HighestIndex) ? index : hitTargets_HighestIndex
+
+/** Checks if the unit has been hit by a Disease
+    less than DAMAGEFREQ seconds ago*/
+function unit.isHit() returns boolean
+    if STACKDAMAGE
+        return false
+    for index=0 to hitTargets_HighestIndex
+        if hitTargets[index] == this
+            return true
+    return false
+
+/** Removes the unit from targets hit. May only
+    be called with a Timer with the data set to
+    units index in the list of hit targets.*/
+function removeFromHitTargets()
+    timer t = GetExpiredTimer()
+    hitTargets[GetExpiredTimer().getData()] = null
+    t.release()
+    
+
+    
+
+    

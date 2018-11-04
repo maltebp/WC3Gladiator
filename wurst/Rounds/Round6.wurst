@@ -40,7 +40,7 @@ init
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(10)
-    ..setSpawnEffect("Objects\\Spawnmodels\\Human\\SmallFlameSpawn\\SmallFlameSpawn.mdl")
+    ..setSpawnEffect("Abilities\\Spells\\Other\\Incinerate\\FireLordDeathExplode.mdl")
 
     // Fire Spawn - 2
     round.addSpawner(new UnitSpawner('n00C', ENEMYPLAYER, vec2(527,1025), 16))
