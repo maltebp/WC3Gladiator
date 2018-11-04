@@ -35,18 +35,18 @@ init
     
 
     // Ghoul - 2
-    round.addSpawner(new UnitSpawner('u004', ENEMYPLAYER, vec2(527,1025), 12))
+    round.addSpawner(new UnitSpawner('u004', ENEMYPLAYER, vec2(527,1025), 15))
     ..setStartDelay(40)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(6)
+    ..setSpawnCount(5)
     ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
     
     RemoteFunction<UnitSpawner> func
 
     func = (UnitSpawner spawner) -> begin
-        Disease.addUnit(spawner.getLastSpawnedUnit(), 25, 0, 250)
+        Disease.addUnit(spawner.getLastSpawnedUnit(), 25, 0, 150)
     end
 
     // Zombie - 1
@@ -60,7 +60,7 @@ init
     ..setCodeOnSpawn(func)
 
     func = (UnitSpawner spawner) -> begin
-        Disease.addUnit(spawner.getLastSpawnedUnit(), 25, 0, 250)
+        Disease.addUnit(spawner.getLastSpawnedUnit(), 25, 0, 150)
     end
 
     // Zombie - 2
@@ -83,12 +83,12 @@ init
     ..setSpawnEffect("Abilities\\Spells\\NightElf\\Blink\\BlinkCaster.mdl")
 
     // Ghost - 1
-    round.addSpawner(new UnitSpawner('u005', ENEMYPLAYER, vec2(527,1025), 20))
+    round.addSpawner(new UnitSpawner('u005', ENEMYPLAYER, vec2(527,1025), 30))
     ..setStartDelay(80)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(3)
+    ..setSpawnCount(2)
     ..setSpawnEffect("Abilities\\Spells\\NightElf\\Blink\\BlinkCaster.mdl")
 
     

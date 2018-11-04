@@ -259,7 +259,8 @@ public class DiseaseCloud
         this.damage = damage
         this.range = range
 
-        sfx = addEffect(SFX, pos.withTerrainZ(100) ) 
+        sfx = addEffect(SFX, pos.withTerrainZ(70) )
+        ..setScale(1) 
         dummy = createUnit(owner, 'h002', this.pos, angle(0) )
 
         
