@@ -7,8 +7,8 @@ import TimerUtils
 
 import EnergySystem
 
-constant real REGENINCREASE = 1 // Percent
-constant real  DURATION = 8
+constant real REGENINCREASE = 0.5 // Percent
+constant real  DURATION = 10
 
 constant int ABILITYID = 'A006'
 

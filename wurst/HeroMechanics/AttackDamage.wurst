@@ -78,7 +78,8 @@ init
 
     new AttackDamageItem( 'I000', 5 )
     new AttackDamageItem( 'I00L', 10 )
-    new AttackDamageItem( 'I00F', 10 )
+    new AttackDamageItem( 'I00F', 10 ) 
+    new AttackDamageItem( 'I00U', 8 ) // Way of the Cheetah
 
     // Editor's Items
     new AttackDamageItem( 'I00S', 30)

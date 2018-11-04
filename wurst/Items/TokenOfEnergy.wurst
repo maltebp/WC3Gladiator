@@ -1,0 +1,22 @@
+package TokenOfEnergy
+
+import EnergySystem
+
+// Settings
+
+constant real ENERGYRESTORED = 5
+
+function onCast()
+    unit caster = GetSpellAbilityUnit()
+
+    if caster.getTypeId() == 'O000'
+        if caster.hasItemById('I00T')
+            caster.restoreEnergy(ENERGYRESTORED)
+
+function condition() returns boolean
+    return true
+
+init
+    CreateTrigger()
+    ..registerPlayerUnitEvent(Player(0), EVENT_PLAYER_UNIT_SPELL_EFFECT, Condition(function condition))
+    ..addAction(function onCast)

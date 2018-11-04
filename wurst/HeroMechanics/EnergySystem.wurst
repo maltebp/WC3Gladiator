@@ -2,7 +2,6 @@ package EnergySystem
 
 import TimerUtils
 import HashMap
-import ErrorHandling
 
 constant real  DEFAULTENERGY = 100
 constant real DEFAULTREGEN = 15 // Per second
@@ -19,6 +18,13 @@ public function unit.increaseEnergyRegen( real percentIncrease)
     per second */
 public function unit.increaseEnergyRegen( int flatIncrease )
 
+/** Restores a flat amount of energy for the unit once */
+public function unit.restoreEnergy(real energyToRestore)
+    if EnergySystem.containsUnit(this)
+        EnergySystem.getUnitInstance(this).addEnergyToRestore(energyToRestore)
+        
+        
+
     
 public class EnergySystem
 
@@ -28,9 +34,9 @@ public class EnergySystem
 
     private static HashMap<unit, EnergySystem> units = new HashMap<unit, EnergySystem>
 
-    private real energyMax = DEFAULTENERGY
     private real energyRegenFlatInc = 0
     private real energyRegenPercInc = 0
+    private real extraEnergyToRestore = 0
     private unit theUnit
     private real regenFreq
     private timer timer_Regen 
@@ -39,7 +45,6 @@ public class EnergySystem
     private construct(unit whichUnit)
         
         theUnit = whichUnit
-        energyMax = DEFAULTENERGY  
         timer_Regen = getTimer()..setData(this castTo int)
         
 
@@ -52,8 +57,6 @@ public class EnergySystem
             addUnit(whichUnit)
         
         thistype instance = units.get(whichUnit)  
-        
-        instance.theUnit.setMaxMana(R2I(instance.energyMax), true)
 
         real energyToRegen = (DEFAULTREGEN+instance.energyRegenFlatInc)*(1+instance.energyRegenPercInc)
         instance.regenFreq = (1/energyToRegen)*2
@@ -63,7 +66,6 @@ public class EnergySystem
 
     /** Adds a unit to the energy system */
     static function addUnit(unit whichUnit)
-        
 
         if whichUnit.getMaxMana()>0
             
@@ -71,12 +73,21 @@ public class EnergySystem
             updateUnit(whichUnit)
     
         else
+
+    protected function addEnergyToRestore(real energyToRestore)
+        extraEnergyToRestore += energyToRestore
             
 
+    /** Gets the instance of a certain unit*/
+    protected static function getUnitInstance(unit whichUnit) returns thistype
+        if containsUnit(whichUnit)
+            return units.get(whichUnit)
+        return null
+        
         
         
     /** Checks if a unit is in the system already*/
-    private static function containsUnit( unit whichUnit ) returns boolean
+    protected static function containsUnit( unit whichUnit ) returns boolean
         return units.has(whichUnit)
 
     protected static function adjustRegen(unit whichUnit, real percentAdjust, real flatAdjust)
@@ -91,6 +102,7 @@ public class EnergySystem
     private static function regen()
         thistype instance = GetExpiredTimer().getData() castTo thistype
         if instance.theUnit.isAlive() and instance.theUnit.getMana()<instance.theUnit.getMaxMana()
-            instance.theUnit.setMana(instance.theUnit.getMana()+2)
+            instance.theUnit.setMana(instance.theUnit.getMana()+2+instance.extraEnergyToRestore)
+            instance.extraEnergyToRestore = 0
         
         
