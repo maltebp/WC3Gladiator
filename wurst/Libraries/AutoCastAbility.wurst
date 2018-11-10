@@ -134,7 +134,7 @@ class AutoCastUnit
         if startCooldown > 0
             startCooldown(startCooldown)
 
-        if whichUnit.getAbilityLevel(abilityId) == 0
+        if whichUnit.getAbilityLevel(abilityId) <= 0
             whichUnit.addAbility(abilityId)
 
         if not abilities.contains(abilityId)
@@ -158,6 +158,7 @@ class AutoCastUnit
 
     /** The function which checks any targets are available for the instance.*/
     private function checkTargets()
+
 
         // Checks if caster is already casting
         if not caster.getCurrentOrder() == orderId
@@ -241,6 +242,7 @@ class AutoCastUnit
 
         for instance in instances
             if instance.caster == caster
+                print("ability has been cast")
                 instance.startCooldown(instance.cooldown) 
         
 

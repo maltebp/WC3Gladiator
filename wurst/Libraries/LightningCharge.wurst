@@ -11,7 +11,7 @@ import TimedSpecialEffects
 import RegisterEvents
 import HashMap
 
-/* =================================================================================================================================
+/* ======================== =========================================================================================================
 
 
     ABILITY DESCRIPTION:
@@ -66,7 +66,7 @@ constant real CHARGE_UPDATEFREQ     = 0.5 // The speed at which the class checks
     Settings only for the standard ability */
 
 constant int ABILITYID  = 'A001'
-constant int BUFFID     = 'B001'
+constant int BUFFID     = 'B004'
 constant int DAMAGE     = 300
 constant int RANGE      = 400
 constant int DURATION   = 12
@@ -74,7 +74,7 @@ constant int DURATION   = 12
 
 //===========================================================================================================================================================
 
-constant boolean DEBUG = true
+constant boolean DEBUG = false
 
 /** Print a debugMsg, that is toggleable
     with the DEBUG variable*/
@@ -285,7 +285,7 @@ public class LightningExplosion
     /** Creates the effect when the unit is hit */
     protected function onHitSfx(unit target)
         target.addEffect("Abilities\\Weapons\\Bolt\\BoltImpact.mdl", "chest")
-        ..setDuration(4)
+        ..setDuration(4) 
     
 
     /** Create a circle of explosions around the point from a certain distance. The
@@ -332,8 +332,8 @@ public class LightningExplosion
 
 // Setup for the ability cast / registration
 
-function onCast()
-    new LightningCharge(GetSpellAbilityUnit(), 50, 400, 12)
+// function onCast()
+//     new LightningCharge(GetSpellAbilityUnit(), 50, 400, 12)
 
-init
-    registerSpellEffectEvent(ABILITYID, function onCast )
+// init
+//     registerSpellEffectEvent(ABILITYID, function onCast )

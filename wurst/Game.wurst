@@ -13,7 +13,7 @@ constant boolean    PREPAREHERO             = false
 constant boolean    LOCKCAMBOUNDS           = true
 constant boolean    MAKEMAPVISIBLE          = false
 constant boolean    STARTATSPECIFICROUND    = true
-constant int        STARTINGROUND           = 7
+constant int        STARTINGROUND           = 8
 
 constant int START_TRAININGPOINTS           = 10
 constant int START_GOLD                     = 75

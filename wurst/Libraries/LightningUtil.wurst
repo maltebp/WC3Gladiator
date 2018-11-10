@@ -1,0 +1,168 @@
+// ------------------------------------------------------------------------------------------------------------------------
+
+package LightningUtil
+
+/* =========================================================================================================================
+    
+    Description:
+    A util system to create lightning effects and bind them to units and points.
+
+    How to use:
+        1. Create a new object with an effect and a duration
+        2. Set a source and target (either unit or pos)
+
+    Changing color:
+        Use the getLightning() to get the lightning, and model it directly.
+
+========================================================================================================================= */
+
+import LinkedList
+import TimerUtils
+import ErrorHandling
+
+public class Lightning
+
+    private static constant real UPDATE_FREQ = 0.05
+
+    private static LinkedList<thistype> instances
+    
+    private static timer timer_Update
+
+    private lightning lightningSfx
+    private boolean removeOnUnitDeath = true
+    private timer timer_Duration
+    private unit sourceUnit = null
+    private unit targetUnit = null
+    private boolean connectedToTargetUnit = false
+    private boolean connectedToSourceUnit = false
+    private real targetZOffset
+    private real sourceZOffset
+    private vec3 sourcePos = vec3(0,0,0)
+    private vec3 targetPos = vec3(0,0,0)
+
+    /** Creates a new Lightning object. Set duration to 0 if you want it to last forever */
+    construct(string lightningType, real duration)        
+        lightningSfx = addLightning(lightningType, true, sourcePos, targetPos)
+
+        if duration > 0
+            timer_Duration = getTimer()
+            ..setData(this castTo int)
+            ..start(duration, function endDuration )
+
+        addToInstanceList()
+    
+   
+    ondestroy
+        if timer_Duration != null
+            timer_Duration.release()
+        if lightningSfx != null
+            lightningSfx.destr()
+        if instances != null
+            removeFromInstanceList()
+
+
+    private static function endDuration()
+        destroy GetExpiredTimer().getData() castTo thistype
+
+    /** Removes the instance from the instance list, and stops the update timer if list is empty */
+    private function removeFromInstanceList()
+        if instances != null
+        
+            instances.remove(this)
+
+            if instances.size() == 0
+                if timer_Update != null
+                    timer_Update.pause()
+                    timer_Update.release()
+                    timer_Update = null
+                else
+                    error("update_Timer is null")
+        else
+            error("Trying to remove instance from non-existing instancelist!")
+
+
+    /** Adds the instance to the instance list, and starts the update timer if necessary */
+    private function addToInstanceList()
+        if instances == null
+            instances = new LinkedList<thistype>
+        
+        instances.add(this)
+
+        if instances.size() == 1
+            if timer_Update != null
+                error("Update timer is already there!")
+            else
+                timer_Update = getTimer()
+                timer_Update.startPeriodic(UPDATE_FREQ, function updateAll )
+
+
+    /** Updates all instances that are connected to units */
+    static function updateAll()
+        if instances != null
+            for instance in instances
+                if instance.connectedToTargetUnit or instance.connectedToSourceUnit
+                    instance.update()
+        else
+            error("Trying to update Lightning instances, but instance-list hasn't been created")
+        
+
+    /** Updates the lightning to potentially new unit positions */
+    function update()
+        
+        if connectedToSourceUnit and connectedToTargetUnit
+
+            if targetUnit != null and targetUnit.isAlive() and sourceUnit != null and sourceUnit.isAlive()
+                lightningSfx.move(true, sourceUnit.getPos3with(sourceZOffset), targetUnit.getPos3with(targetZOffset))
+
+            else if removeOnUnitDeath
+                destroy this
+        
+        else if connectedToSourceUnit
+            if sourceUnit != null and sourceUnit.isAlive()
+                lightningSfx.move(true, sourceUnit.getPos3with(sourceZOffset), targetPos)
+
+            else if removeOnUnitDeath
+                destroy this
+
+        else if connectedToTargetUnit
+            if targetUnit != null and targetUnit.isAlive()
+                lightningSfx.move(true, sourcePos, targetUnit.getPos3with(targetZOffset))
+
+            else if removeOnUnitDeath
+                destroy this
+
+        // It should only get to here, when setting a new sourcePoint
+        else
+            lightningSfx.move(true, sourcePos, targetPos)
+    
+            
+    /** Sets the target to a vec3 position. Also updates the lightning to it's new position */
+    function setTarget(vec3 targetPos)
+        this.targetPos = targetPos
+        update()
+
+     /** Sets the target to a unit with a real zOffset (terrain height is already included). Also updates the lightning to it's new position */
+    function setTarget(unit targetUnit, real zOffset)
+        this.targetUnit = targetUnit
+        targetZOffset = zOffset
+        connectedToTargetUnit = true
+
+    /** Sets the source to a unit with a real zOffset (terrain height is already included). Also updates the lightning to it's new position */
+    function setSource(unit sourceUnit, real zOffset)
+        this.sourceUnit = sourceUnit
+        sourceZOffset = zOffset
+        connectedToSourceUnit = true
+
+    /** Sets the source to a vec3 position. Also updates the lightning to it's new position */
+    function setSource(vec3 sourcePos)
+        this.sourcePos = sourcePos
+        update()
+    
+    
+    /** Gets the lightning, so that you may change color and such on it */
+    function getLightningSfx() returns lightning
+        return lightningSfx
+
+    /** Enables so that the lightning will be removed if the targetUnit or sourceUnit are dead or null */
+    function setRemoveOnUnitDeath( boolean toggle)
+        removeOnUnitDeath = toggle

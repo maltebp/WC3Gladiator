@@ -1,0 +1,61 @@
+package Round8
+
+import public initlater Round7
+import TimerUtils
+import Orders
+import RegisterEvents
+import AutoCastAbility
+import LightningCharge
+
+init
+    //=========================================================================================================================================================
+    //  Lightning Lords
+
+    round = new Round()
+    ..setReward(80, 4)
+    ..setTitle("Lightning Lords")
+    ..setDescription("Don't go get thunder struck now.")
+    ..setHealthOrbSpawn(90, 80, 0.1, 25, 0.02)
+
+    // Spawner 1
+
+    round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 20))
+    ..setStartDelay(3)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(6)
+
+    //Spawner 2
+    round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 30))
+    ..setStartDelay(50)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(3)
+    
+    //Spawner 2
+    round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 20))
+    ..setStartDelay(100)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(1)
+
+
+function lightningChargeCast()
+    new LightningCharge(GetSpellAbilityUnit(), 80, 400, 12)
+
+init
+    registerSpellEffectEvent('A016', function lightningChargeCast )
+    addAutoCastAbilityToUnitType('n00E', 'A016', 10, 30, 600, Orders.roar, TargetType.ENEMY_IMMEDIATE)
+
+        
+public class LightningWard
+
+        
+
+
+    
+
+    
