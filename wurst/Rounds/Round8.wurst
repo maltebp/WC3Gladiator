@@ -6,6 +6,9 @@ import Orders
 import RegisterEvents
 import AutoCastAbility
 import LightningCharge
+import LightningUtil
+import GroupUtils
+import TimedSpecialEffects
 
 init
     //=========================================================================================================================================================
@@ -17,21 +20,21 @@ init
     ..setDescription("Don't go get thunder struck now.")
     ..setHealthOrbSpawn(90, 80, 0.1, 25, 0.02)
 
-    // Spawner 1
+    // // Spawner 1
 
-    round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 20))
-    ..setStartDelay(3)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(6)
+    // round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 20))
+    // ..setStartDelay(3)
+    // ..setFrequencyDeviation(0.1)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSpawnCount(6)
 
     //Spawner 2
-    round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 30))
-    ..setStartDelay(50)
+    round.addSpawner(new UnitSpawner('h003', ENEMYPLAYER, vec2(-639,1025), 15))
+    ..setStartDelay(5)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    //..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(3)
     
     //Spawner 2
@@ -46,14 +49,122 @@ init
 function lightningChargeCast()
     new LightningCharge(GetSpellAbilityUnit(), 80, 400, 12)
 
+function entersMap() returns boolean
+    unit enteringUnit = GetFilterUnit()
+
+    print(enteringUnit.getName()+" entered map")
+    
+    if enteringUnit.getTypeId() == 'h003'
+        print("its a lightning ward")
+        new LightningWard(enteringUnit, 75, 2, 1500, 75)
+       
+
+    return false
+
 init
     registerSpellEffectEvent('A016', function lightningChargeCast )
     addAutoCastAbilityToUnitType('n00E', 'A016', 10, 30, 600, Orders.roar, TargetType.ENEMY_IMMEDIATE)
+    
+    region map = CreateRegion()..addRect(GetPlayableMapRect())
+
+    CreateTrigger()
+    ..registerEnterRegion(map, Condition(function entersMap))
 
         
+
 public class LightningWard
 
+    private unit    ward
+    private timer   timer_Effect
+    private real    zOffset
+    private real    range
+    private real    damage
         
+
+    /** Creates a new instance, using an existing ward unit */
+    construct(unit ward, real zOffset, real effectFrequency, real range, real damage)
+        this.ward = ward
+        this.zOffset = zOffset 
+        this.range = range
+        this.damage = damage
+
+        timer_Effect = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic(effectFrequency, function callback_StartEffect )
+        
+        print("Created new lightning ward!")
+
+    ondestroy
+        if timer_Effect != null
+            timer_Effect.release()    
+
+
+    /** Gets the ward unit */
+    protected function getWard() returns unit 
+        if ward != null
+            return ward
+        else
+            destroy this
+            return null
+
+
+    /** Makes the ward damage the unit */
+    protected function damage(unit target)
+
+        target.addEffect("Abilities\\Weapons\\Bolt\\BoltImpact.mdl", "chest")
+        ..setDuration(4)
+
+        ward.addEffect("Abilities\\Spells\\Orc\\Purge\\PurgeBuffTarget.mdl", "origin" )
+        ..setDuration(2)
+
+        addEffect("Abilities\\Weapons\\Bolt\\BoltImpact.mdl", ward.getPos().withTerrainZ(75) )
+        ..setDuration(4)
+
+        new Lightning(LIGHTNING_FORKED_LIGHTNING, 1)
+        ..setSource(ward, zOffset)
+        ..setTarget(target, 75)
+        ..setRemoveOnUnitDeath(true)
+
+        ward.damageTarget(target, damage)
+
+
+    /** Finds the the target for the effect */
+    protected function findTarget() returns unit
+
+        group targets = ENUM_GROUP..enumUnitsInRange(ward.getPos(), range)
+        
+        for target in targets
+            if not target.getOwner().isEnemyOf(ward.getOwner()) or not target.isAlive()
+                targets.removeUnit(target)
+    
+        if targets.isEmpty()
+            return null
+        else
+            return targets.getNearestUnit(ward.getPos())
+
+    
+
+    /** Checks if the ward is still active */
+    protected function isAlive() returns boolean
+        return ward != null and ward.isAlive()
+
+
+    /** Starts whatever effect has been set to this ward */
+    protected function startEffect()
+
+        if isAlive()
+            unit target = findTarget()
+
+            if target != null
+                damage(target)
+        
+        else
+            destroy this
+        
+        
+    /** Fires the startEffect() for the instance */
+    private static function callback_StartEffect()
+        GetExpiredTimer().getData() castTo thistype.startEffect()
 
 
     
