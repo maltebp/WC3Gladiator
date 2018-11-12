@@ -2,7 +2,6 @@ package Round8
 
 import public initlater Round7
 import TimerUtils
-import Orders
 import RegisterEvents
 import AutoCastAbility
 import LightningCharge
@@ -20,30 +19,30 @@ init
     ..setDescription("Don't go get thunder struck now.")
     ..setHealthOrbSpawn(90, 80, 0.1, 25, 0.02)
 
-    // // Spawner 1
+    // Spawner 1
 
-    // round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 20))
-    // ..setStartDelay(3)
-    // ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSpawnCount(6)
-
-    //Spawner 2
-    round.addSpawner(new UnitSpawner('h003', ENEMYPLAYER, vec2(-639,1025), 15))
-    ..setStartDelay(5)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    //..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(3)
-    
-    //Spawner 2
     round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 20))
-    ..setStartDelay(100)
+    ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(1)
+    ..setSpawnCount(6)
+
+    // //Spawner 2
+    // round.addSpawner(new UnitSpawner('h003', ENEMYPLAYER, vec2(-639,1025), 15))
+    // ..setStartDelay(5)
+    // ..setFrequencyDeviation(0.1)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // //..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSpawnCount(3)
+    
+    // //Spawner 2
+    // round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 20))
+    // ..setStartDelay(100)
+    // ..setFrequencyDeviation(0.1)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSpawnCount(1)
 
 
 function lightningChargeCast()
@@ -65,12 +64,64 @@ function entersMap() returns boolean
 init
     registerSpellEffectEvent('A016', function lightningChargeCast )
     registerSpellEffectEvent('A019', function SummonLightningWard.onCast )
-    addAutoCastAbilityToUnitType('n00E', new AutoCastAbilityType( 'A016', Orders.roar, TargetType.ENEMY_IMMEDIATE, 600, 10, 30 ))
-    
+
+    //addAutoCastAbilityToUnitType('n00E', new AutoCastAbilityType( 'A016', Orders.roar, TargetType.ENEMY_IMMEDIATE, 600, 10, 30 ))
+    addAutoCastAbilityToUnitType('n00E', new AutoCastBoundWard( 1000, 10, 15, gg_rct_Arena_Spawn1 ))
+
+
     region map = CreateRegion()..addRect(GetPlayableMapRect())
 
     CreateTrigger()
     ..registerEnterRegion(map, Condition(function entersMap))
+
+
+
+public class AutoCastBoundWard extends AutoCastAbilityType
+    /* --------------------------------------------------------------------------------
+    Bound Ward
+    A ward which is bound to be created within an area.
+    */
+
+    rect rectBound
+        
+    construct( real triggerRange, real startCooldown, real cooldown, rect whichRect )
+        super( 'A019', Orders.carrionswarm, TargetType.ENEMY_POINT, triggerRange, startCooldown, cooldown )
+
+        rectBound = whichRect
+            
+    override function findTarget(unit caster) returns boolean
+
+        group targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
+                
+        if targets.size() > 0
+            
+            // Removing unfit targets
+            for target in targets
+
+                if not target.isAlive() or target == caster or not target.getOwner().isEnemyOf(caster.getOwner())
+                    targets.removeUnit(target)
+    
+
+        if targets.size() > 0
+
+            vec2 casterPos = caster.getPos()
+
+            angle casterFacing = caster.getFacingAngle()
+
+            angle direction = casterFacing.op_plus(angle(GetRandomReal(PIHALF, -PIHALF)))
+            
+            vec2 targetPos = casterPos.polarOffset(direction, 600)
+            
+            while not rectBound.contains(targetPos)
+                targetPos.moveTowards(rectBound.getCenter(), 50)
+
+            caster.issuePointOrderById(orderId, targetPos)
+            targets.clear()
+        
+            return true
+
+        return false
+
 
     
 
@@ -85,11 +136,8 @@ public class SummonLightningWard
 
         new LightningWard(ward, 75, 2, 1500, 75)
 
-        
-        
+        caster.getSpawner().addSummonedUnit(ward)
 
-    
-    
     
 
 public class LightningWard
