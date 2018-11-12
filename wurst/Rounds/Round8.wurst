@@ -8,6 +8,7 @@ import LightningCharge
 import LightningUtil
 import GroupUtils
 import TimedSpecialEffects
+import UnitVisualsUtils
 
 init
     //=========================================================================================================================================================
@@ -46,7 +47,7 @@ init
 
 
 function lightningChargeCast()
-    new LightningCharge(GetSpellAbilityUnit(), 80, 400, 12)
+    new LightningCharge(GetSpellAbilityUnit(), 10, 400, 12)
 
 
 function entersMap() returns boolean
@@ -66,13 +67,16 @@ init
     registerSpellEffectEvent('A019', function SummonLightningWard.onCast )
 
     //addAutoCastAbilityToUnitType('n00E', new AutoCastAbilityType( 'A016', Orders.roar, TargetType.ENEMY_IMMEDIATE, 600, 10, 30 ))
-    addAutoCastAbilityToUnitType('n00E', new AutoCastBoundWard( 1000, 10, 15, gg_rct_Arena_Spawn1 ))
+    addAutoCastAbilityToUnitType('n00E', new AutoCastBoundWard( 1000, 10, 40, gg_rct_Arena_Spawn1 ))
 
 
     region map = CreateRegion()..addRect(GetPlayableMapRect())
 
     CreateTrigger()
     ..registerEnterRegion(map, Condition(function entersMap))
+
+    UnitVisuals.addUnitType('n00E')
+    ..setPlayerColor(PLAYER_COLOR_NAVY)
 
 
 
@@ -106,11 +110,14 @@ public class AutoCastBoundWard extends AutoCastAbilityType
 
             vec2 casterPos = caster.getPos()
 
+
             angle casterFacing = caster.getFacingAngle()
 
-            angle direction = casterFacing.op_plus(angle(GetRandomReal(PIHALF, -PIHALF)))
+            real angleDirection = (GetRandomInt(0,2) == 1) ? -1 : 1
+
+            angle direction = casterFacing.op_plus(angle(GetRandomReal(PIHALF*0.75, PIHALF*1.25)*angleDirection))
             
-            vec2 targetPos = casterPos.polarOffset(direction, 600)
+            vec2 targetPos = casterPos.polarOffset(direction, 400)
             
             while not rectBound.contains(targetPos)
                 targetPos.moveTowards(rectBound.getCenter(), 50)
