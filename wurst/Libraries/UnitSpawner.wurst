@@ -370,8 +370,6 @@ public function unit.isFromAnySpawner() returns boolean
     for spawner in UnitSpawner.allSpawners
         if spawner.spawnedUnits.contains(this)
             return true
-         if spawner.summonedUnits.contains(this)
-            return true
 
     return false
 
@@ -379,6 +377,17 @@ public function unit.isFromAnySpawner() returns boolean
 public function unit.isFromSpawner(UnitSpawner whichSpawner) returns boolean
     return whichSpawner.spawnedUnits.contains(this) or whichSpawner.summonedUnits.contains(this)
 
+
+/** Gets the unit spawner which the unit comes from. Returns null if it doesn't come from any spawner */
+public function unit.getSpawner() returns UnitSpawner
+    if UnitSpawner.allSpawners.size() > 0
+
+        for spawner in UnitSpawner.allSpawners
+
+            if spawner.spawnedUnits.contains(this)
+                return spawner
+        
+    return null
 
 public interface RemoteFunction<UnitSpawner>
     function run(UnitSpawner unitSpawner)
