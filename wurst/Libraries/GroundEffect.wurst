@@ -41,7 +41,7 @@ public abstract class GroundEffect
         
         destroy sfx
             
-    /** Changes the frequency of the effect (effect called by doEffect() )
+    /** Changes the frequency of the effect (effect called by doEffect() )*/
     protected function setFrequency(real frequency)
         if frequency > 0
             timer_Effect.startPeriodic(frequency, function callback_doEffect )

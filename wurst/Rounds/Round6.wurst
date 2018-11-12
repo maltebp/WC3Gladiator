@@ -167,7 +167,7 @@ function flameStrikeCast()
 
 init
     registerSpellEffectEvent('A010', function flameStrikeCast )
-    addAutoCastAbilityToUnitType('n00B', 'A010', 4, 15, 600, Orders.flamestrike, TargetType.ENEMY_POINT)
+    addAutoCastAbilityToUnitType('n00B', new AutoCastAbilityType('A010', Orders.flamestrike, TargetType.ENEMY_POINT, 600, 4, 15 ))
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function lavaSpawnDies )
     
     

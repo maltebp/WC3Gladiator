@@ -63,7 +63,7 @@ function entersMap() returns boolean
 
 init
     registerSpellEffectEvent('A016', function lightningChargeCast )
-    addAutoCastAbilityToUnitType('n00E', 'A016', 10, 30, 600, Orders.roar, TargetType.ENEMY_IMMEDIATE)
+    addAutoCastAbilityToUnitType('n00E', new AutoCastAbilityType( 'A016', Orders.roar, TargetType.ENEMY_IMMEDIATE, 600, 10, 30 ))
     
     region map = CreateRegion()..addRect(GetPlayableMapRect())
 

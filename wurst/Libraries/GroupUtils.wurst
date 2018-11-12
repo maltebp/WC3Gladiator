@@ -18,6 +18,24 @@ public function group.getNearestUnit( vec2 origin ) returns unit
     return nearestUnit
 
 
+/** Gets the unit in the group with the lowest HP. Doesn't not alter the group */
+public function group.getLowestHpUnit() returns unit
+    
+    if this.size() > 0 
+        unit lowestHpUnit = null
+        real lowestHp = 1 // Percent
+        
+        for u in this
+            real hp = u.getHP()/u.getMaxHP()
+            if hp < lowestHp
+                lowestHpUnit = u
+                lowestHp = hp
+                
+
+        return lowestHpUnit
+
+    return null
+
 
 /** Adds a unit to the group for certain amount of time */
 public function group.addUnitTimed(unit whichUnit, real duration)
