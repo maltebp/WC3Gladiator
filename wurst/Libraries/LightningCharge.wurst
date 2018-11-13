@@ -66,7 +66,7 @@ constant real CHARGE_UPDATEFREQ     = 0.5 // The speed at which the class checks
     Settings only for the standard ability */
 
 constant int ABILITYID  = 'A001'
-constant int BUFFID     = 'B004'
+constant int BUFFID     = 'B005'
 constant int DAMAGE     = 300
 constant int RANGE      = 400
 constant int DURATION   = 12
@@ -188,7 +188,7 @@ public class LightningCharge
             int counter = 0
             for instance in instances
                 counter++
-                print(counter.toString()+": '"+(instances.get(instance) castTo int).toString()+"'")
+                debugMsg(counter.toString()+": '"+(instances.get(instance) castTo int).toString()+"'")
         else
             debugMsg("List is empty")
             

@@ -9,6 +9,7 @@ import LightningUtil
 import GroupUtils
 import TimedSpecialEffects
 import UnitVisualsUtils
+import InstantDummyCaster
 
 init
     //=========================================================================================================================================================
@@ -22,42 +23,63 @@ init
 
     // Spawner 1
 
-    round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 20))
+    round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 30))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(6)
+    ..setSpawnCount(5)
 
-    // //Spawner 2
-    // round.addSpawner(new UnitSpawner('h003', ENEMYPLAYER, vec2(-639,1025), 15))
-    // ..setStartDelay(5)
-    // ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // //..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSpawnCount(3)
+    //Spawner 2
+    round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(0,0), 20))
+    ..setStartDelay(70)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(2)
     
-    // //Spawner 2
-    // round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 20))
-    // ..setStartDelay(100)
-    // ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSpawnCount(1)
+    //Spawner 2
+    round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 1))
+    ..setStartDelay(120)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(1)
 
+
+public class DelayedBloodlustCast
+
+    private unit target
+
+    construct(unit target, real delay)
+        this.target = target
+        getTimer()
+        ..setData(this castTo int)
+        ..start(delay, function castBloodLust)
+
+
+    private static function castBloodLust()
+        timer t = GetExpiredTimer()
+        thistype instance = t.getData() castTo thistype
+
+        InstantDummyCaster.castTarget(instance.target.getOwner(), 'A015', 1, Orders.bloodlust, instance.target)
+
+        t.release()
+        destroy instance
 
 function lightningChargeCast()
-    new LightningCharge(GetSpellAbilityUnit(), 10, 400, 12)
+
+    
+    unit caster = GetSpellAbilityUnit()
+    
+    new DelayedBloodlustCast(caster, 0.25)
+    
+
+    new LightningCharge(caster, 100, 250, 10)
 
 
 function entersMap() returns boolean
-    unit enteringUnit = GetFilterUnit()
-
-    print(enteringUnit.getName()+" entered map")
-    
-    if enteringUnit.getTypeId() == 'h003'
-        print("its a lightning ward")
-        
+    unit enteringUnit = GetFilterUnit()       
        
     return false
 
@@ -66,8 +88,8 @@ init
     registerSpellEffectEvent('A016', function lightningChargeCast )
     registerSpellEffectEvent('A019', function SummonLightningWard.onCast )
 
-    //addAutoCastAbilityToUnitType('n00E', new AutoCastAbilityType( 'A016', Orders.roar, TargetType.ENEMY_IMMEDIATE, 600, 10, 30 ))
-    addAutoCastAbilityToUnitType('n00E', new AutoCastBoundWard( 1000, 10, 40, gg_rct_Arena_Spawn1 ))
+    addAutoCastAbilityToUnitType('n00E', new AutoCastAbilityType( 'A016', Orders.roar, TargetType.ENEMY_IMMEDIATE, 200, 10, 30 ))
+    addAutoCastAbilityToUnitType('n00E', new AutoCastBoundWard( 1000, 10, 25, gg_rct_Arena_Spawn1 ))
 
 
     region map = CreateRegion()..addRect(GetPlayableMapRect())
@@ -141,7 +163,7 @@ public class SummonLightningWard
         
         unit ward = createUnit( caster.getOwner(), 'h003', vec2(GetSpellTargetX(), GetSpellTargetY()), angle(GetRandomReal(0, PI2)) )
 
-        new LightningWard(ward, 75, 2, 1500, 75)
+        new LightningWard(ward, 75, 2, 4000, 40)
 
         caster.getSpawner().addSummonedUnit(ward)
 
@@ -167,7 +189,6 @@ public class LightningWard
         ..setData(this castTo int)
         ..startPeriodic(effectFrequency, function callback_StartEffect )
         
-        print("Created new lightning ward!")
 
     ondestroy
         if timer_Effect != null
