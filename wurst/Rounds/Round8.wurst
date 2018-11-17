@@ -23,7 +23,7 @@ init
 
     // Spawner 1
 
-    round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 30))
+    round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 23))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -31,20 +31,13 @@ init
     ..setSpawnCount(5)
 
     //Spawner 2
-    round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(0,0), 20))
+    round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(0,0), 50))
     ..setStartDelay(70)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(2)
     
-    //Spawner 2
-    round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 1))
-    ..setStartDelay(120)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(1)
 
 
 public class DelayedBloodlustCast
@@ -76,7 +69,7 @@ function lightningChargeCast()
     new DelayedBloodlustCast(caster, 0.25)
     
 
-    new LightningCharge(caster, 100, 250, 10)
+    new LightningCharge(caster, 100, 350, 8)
 
 
 function entersMap() returns boolean
@@ -89,8 +82,8 @@ init
     registerSpellEffectEvent('A016', function lightningChargeCast )
     registerSpellEffectEvent('A019', function SummonLightningWard.onCast )
 
-    addAutoCastAbilityToUnitType('n00E', new AutoCastAbilityType( 'A016', Orders.roar, TargetType.ENEMY_IMMEDIATE, 200, 10, 30 ))
-    addAutoCastAbilityToUnitType('n00E', new AutoCastBoundWard( 1000, 10, 25, gg_rct_Arena_Spawn1 ))
+    addAutoCastAbilityToUnitType('n00E', new AutoCastAbilityType( 'A016', Orders.roar, TargetType.ENEMY_IMMEDIATE, 200, 14, 30 ))
+    addAutoCastAbilityToUnitType('n00E', new AutoCastBoundWard( 1000, 6, 18, gg_rct_Arena_Spawn1 ))
 
 
     region map = CreateRegion()..addRect(GetPlayableMapRect())
@@ -164,7 +157,7 @@ public class SummonLightningWard
         
         unit ward = createUnit( caster.getOwner(), 'h003', vec2(GetSpellTargetX(), GetSpellTargetY()), angle(GetRandomReal(0, PI2)) )
 
-        new LightningWard(ward, 75, 2, 4000, 40)
+        new LightningWard(ward, 75, 2, 4000, 35)
 
         caster.getSpawner().addSummonedUnit(ward)
 

@@ -366,11 +366,12 @@ class AutoCastUnit
                     destroy instance
 
         else
-            timer_CheckTargets
-            ..pause()
-            ..release()
-        
-            timer_CheckTargets = null
+            if timer_CheckTargets != null
+                timer_CheckTargets
+                ..pause()
+                ..release()
+            
+                timer_CheckTargets = null
 
 
 

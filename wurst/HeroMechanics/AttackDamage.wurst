@@ -23,17 +23,25 @@ function unit.setBonusAttackDamage(int damage)
     
     if this.getAbilityLevel('A004') < 1
         this.addAbility('A004')
+
+    this.setAbilityLevel('A003', 1)
+    this.setAbilityLevel('A001', 1)   
+    this.setAbilityLevel('A002', 1)    
     
     int remainingDamage = damage
 
-    int dmg100 = remainingDamage div 100
+    int dmg100 = 0
+
+    dmg100 += remainingDamage div 100
     remainingDamage -= dmg100*100
 
-    int dmg10 = remainingDamage div 10
+    int dmg10 = 0
+    dmg10 += remainingDamage div 10
 
     remainingDamage -= dmg10*10
 
-    int dmg1 = remainingDamage div 1
+    int dmg1 = 0
+    dmg1 += remainingDamage div 1
 
 
 
