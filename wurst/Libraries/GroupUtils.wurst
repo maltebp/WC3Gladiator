@@ -18,7 +18,7 @@ public function group.getNearestUnit( vec2 origin ) returns unit
     return nearestUnit
 
 
-/** Gets the unit in the group with the lowest HP. Doesn't not alter the group */
+/** Gets the unit in the group with the lowest % HP. Doesn't not alter the group */
 public function group.getLowestHpUnit() returns unit
     
     if this.size() > 0 
@@ -33,6 +33,23 @@ public function group.getLowestHpUnit() returns unit
                 
 
         return lowestHpUnit
+
+    return null
+
+/** Gets the unit in the group with the Highest % HP. Doesn't not alter the group */
+public function group.getHighestHpUnit() returns unit
+    
+    if this.size() > 0 
+        unit highestHpUnit = null
+        real highestHp = 0 // Percent
+        
+        for u in this
+            real hp = u.getHP()/u.getMaxHP()
+            if hp > highestHp
+                highestHpUnit = u
+                highestHp = hp
+
+        return highestHpUnit
 
     return null
 
