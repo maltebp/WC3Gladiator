@@ -25,6 +25,8 @@ import UnitVisualsUtils
 import InstantDummyCaster
 import ChannelOnUnit
 import Orders
+import HashMap
+import ErrorHandling
 
 
 // ================================================================================================================================
@@ -34,6 +36,7 @@ constant real LIFEDRAIN_AMOUNT      = 20
 constant real LIFEDRAIN_FACTOR      = 2
 constant real LIFEDRAIN_TRIGGERHP   = 0.5
 constant real LIFEDRAIN_FREQ        = 0.5
+constant real LIFEDRAIN_COOLDOWN    = 15
 
 constant real FELFIREBOLT_COOLDOWN = 10
 constant real FELFIREBOLT_STARTCOOLDOWN = 5
@@ -218,20 +221,69 @@ public class AutoCast_CheckDrainLife extends AutoCastAbilityType
 
         return false
 
+// ** This is custom in order to make sure the warlock doesn't try to cast any spells while channeling drain life.1
+public class AutoCastSummonDemon extends AutoCastAbilityType
+        
+
+    construct()
+        super( 'A01D', Orders.roar, targetType.ENEMY_IMMEDIATE, 3000, 5, 5 )
+            
+
+    override function findTarget(unit caster) returns boolean
+        
+        if caster.getCurrentOrder() != Orders.drain and not caster.getCurrentOrder() == orderId
+
+            if not caster.hasDemon()
+                caster.issueImmediateOrderById(orderId)
+
+                return true
+
+        return false
 
 
-function unit.summonDemon()
 
-    vec2 spawnPos = this.getPos().polarOffset(angle(GetRandomReal(0, 2*PI)), 100)
+// ** Auto Casting for Drain life
+public class AutoCastDrainLife extends AutoCastAbilityType
+        
 
-    rect rectBound = gg_rct_Arena_Spawn1
+    construct( )
+        super( 'A01B', Orders.drain, targetType.FRIENDLY_UNIT, 3000, 0, LIFEDRAIN_COOLDOWN )
+            
 
-    while not rectBound.contains(spawnPos)
-        spawnPos.moveTowards(rectBound.getCenter(), 50)
+    override function findTarget(unit caster) returns boolean
+        
+        real casterCurrentHp = caster.getHP()/caster.getMaxHP() 
 
-    unit demon = createUnit(ENEMYPLAYER, 'n00G', spawnPos, angle(GetRandomReal(0, 2*PI)))
-    this.getSpawner().addSummonedUnit(demon)
-    addEffect("Abilities\\Spells\\Demon\\DarkPortal\\DarkPortalTarget.mdl", spawnPos)
+        if casterCurrentHp <= LIFEDRAIN_TRIGGERHP
+            if caster.getCurrentOrder() != Orders.drain
+
+                ENUM_GROUP.enumUnitsInRange(caster.getPos(), triggerRange)
+                    
+                if ENUM_GROUP.size() > 0
+                    
+                    // Removing unfit targets
+                    for target in ENUM_GROUP
+
+                        if not target.isAlive() or target == caster or target.getTypeId() != 'n00G'
+                            ENUM_GROUP.removeUnit(target)
+                    
+                    if ENUM_GROUP.size() > 0
+
+                        
+                        unit target = ENUM_GROUP.getHighestHpUnit()
+                        
+                        if target.getHP() == target.getMaxHP()
+                            target.setHP(target.getHP()-1)
+
+                        caster.issueTargetOrderById(Orders.drain, target)
+
+                        ENUM_GROUP.clear()
+
+                        return true
+
+        return false
+
+
 
 
 function castDrainLife()
@@ -240,7 +292,63 @@ function castDrainLife()
 function castSummonDemon()
     GetSpellAbilityUnit().summonDemon()
 
+
+IterableMap<unit, unit> instances = new IterableMap<unit, unit>
+
+function unit.summonDemon()
+
+    if not instances.has(this)
+        
+        vec2 spawnPos = this.getPos().polarOffset(angle(GetRandomReal(0, 2*PI)), 100)
+
+        rect rectBound = gg_rct_Arena_Spawn1
+
+        while not rectBound.contains(spawnPos)
+            spawnPos.moveTowards(rectBound.getCenter(), 50)
+
+        unit demon = createUnit(ENEMYPLAYER, 'n00G', spawnPos, angle(GetRandomReal(0, 2*PI)))
+        this.getSpawner().addSummonedUnit(demon)
+        addEffect("Abilities\\Spells\\Demon\\DarkPortal\\DarkPortalTarget.mdl", spawnPos)
+
+        instances.put(this,demon)
+
+    else
+        error("Summoner already is already in instances")
+
+
+function unit.removeInstance()
     
+    if this.getTypeId() == 'n00F'
+        // is a summoner
+        instances.remove(this)
+
+    else if this.getTypeId() == 'n00G'
+        for summoner in instances
+            if instances.get(summoner) == this
+                instances.remove(summoner)
+
+    else
+        error("Unit is not among instances!")
+        
+
+function unit.isDemonFromSummoner() returns boolean
+    for summoner in instances
+        if instances.get(summoner) == this
+            return true    
+    
+    return false
+     
+    
+function unit.hasDemon() returns boolean
+    return instances.hasKey(this)
+        
+
+function unitDies()
+    unit dyingUnit = GetDyingUnit()
+
+    if dyingUnit.getTypeId() == 'n00F' or dyingUnit.getTypeId() == 'n00G'
+        if dyingUnit.hasDemon() or dyingUnit.isDemonFromSummoner()
+            dyingUnit.removeInstance()
 
 init 
     registerSpellEffectEvent('A01B', function castDrainLife)
@@ -251,8 +359,10 @@ init
     UnitVisuals.addUnitType('n00G')
     ..setPlayerColor(PLAYER_COLOR_MAROON)
 
-    addAutoCastAbilityToUnitType('n00F', new AutoCast_CheckDrainLife( 'A01A', Orders.deathcoil, TargetType.ENEMY_UNIT, 600, FELFIREBOLT_STARTCOOLDOWN, FELFIREBOLT_COOLDOWN ))
-    addAutoCastAbilityToUnitType('n00F', new AutoCast_CheckDrainLife( 'A01D', Orders.roar, TargetType.SELF_IMMEDIATE, 600, 5, 30 ))
+    registerPlayerUnitEventForPlayer(EVENT_PLAYER_UNIT_DEATH, function unitDies, ENEMYPLAYER)
 
+    addAutoCastAbilityToUnitType('n00F', new AutoCast_CheckDrainLife( 'A01A', Orders.deathcoil, TargetType.ENEMY_UNIT, 600, FELFIREBOLT_STARTCOOLDOWN, FELFIREBOLT_COOLDOWN ))
+    addAutoCastAbilityToUnitType('n00F', new AutoCastSummonDemon())
+    addAutoCastAbilityToUnitType('n00F', new AutoCastDrainLife())
 
     
