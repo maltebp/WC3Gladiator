@@ -1,0 +1,139 @@
+package ChannelOnUnit
+
+import HashMap
+import ErrorHandling
+import TimerUtils
+
+public class ChannelOnUnit
+
+    private static constant real UPDATE_FREQUENCY = 0.1
+    protected static constant real PERIODICEFFECT_FREQUENCY = 1
+    private static IterableMap<unit, thistype> instances
+
+    private static timer timer_Update
+
+    protected unit caster
+    protected unit target
+    private timer timer_Duration
+    private timer timer_PeriodicEffect
+
+    private construct(unit caster, unit target, real duration, real periodicEffectFrequency )
+        
+        this.caster = caster
+        this.target = target
+
+        addToInstances()
+
+        if duration > 0
+            timer_Duration = getTimer()
+            ..setData(this castTo int)
+            ..start(duration, function callback_EndEffect )
+
+        else if duration < 0
+            error("Negative duration")
+
+        timer_PeriodicEffect = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic(periodicEffectFrequency, function callback_PeriodicEffect)
+
+        onCast()
+
+
+    ondestroy
+        if timer_Duration != null
+            timer_Duration.pause()
+            timer_Duration.release()
+
+        if timer_PeriodicEffect != null
+            timer_PeriodicEffect.pause()
+            timer_PeriodicEffect.release()
+
+        removeFromInstances()
+
+            
+    private function addToInstances()
+        
+        if instances == null
+            instances = new IterableMap<unit, thistype>
+        
+        if instances.has(caster)
+            destroy instances.get(caster)
+            instances.remove(caster)
+
+        instances.put(caster, this)
+
+        if instances.size() == 1
+            timer_Update = getTimer()
+            ..startPeriodic(UPDATE_FREQUENCY, function updateAll )
+
+        
+    private function removeFromInstances()
+        if instances != null
+            if instances.has(caster)
+                instances.remove(caster)
+            else
+                error("Caster is not in instances")
+
+            if instances.size() == 0
+                timer_Update
+                ..pause()
+                ..release()
+                timer_Update = null
+
+        else
+            error("Instances has not been initialized")
+
+
+    protected function stopPeriodicEffect()
+        timer_PeriodicEffect.pause()
+
+
+    protected function update()
+        if caster == null or not caster.isAlive() or target == null or not target.isAlive()
+            endEffect()
+        else
+            updateExtension()
+
+    
+    protected function updateExtension()
+
+
+    protected function onCast()
+
+
+    protected function periodicEffect()
+
+
+    protected function onEndEffect()
+        skip
+
+    private function endEffect()
+        onEndEffect()
+        destroy this
+
+
+    private static function updateAll()
+        
+        if instances == null or instances.size()==0
+            error("No instances to update")
+
+        for caster in instances
+            instances.get(caster).update()
+
+
+    private static function callback_EndEffect()
+        GetExpiredTimer().getData() castTo thistype.endEffect()
+
+    private static function callback_PeriodicEffect()
+        GetExpiredTimer().getData() castTo thistype.periodicEffect()
+
+
+        
+        
+
+
+
+
+
+
+    

@@ -19,12 +19,12 @@ import public initlater Round8
 import TimerUtils
 import RegisterEvents
 import AutoCastAbility
-import LightningCharge
-import LightningUtil
 import GroupUtils
 import TimedSpecialEffects
 import UnitVisualsUtils
 import InstantDummyCaster
+import ChannelOnUnit
+import Orders
 
 //=========================================================================================================================================================
 //  Setup
@@ -66,3 +66,75 @@ init
 //=========================================================================================================================================================
 // 
 
+
+public class DrainLife extends ChannelOnUnit
+
+    private static constant real DRAIN_RATIO = 1
+    private static constant real DRAIN_FREQ = 1
+
+    private real lifeToDrain = 0
+    private real drainRatio = 1
+    private real duration = 0
+
+    construct(unit caster, unit target, real duration, real lifeToDrain, real drainRatio, real periodicEffectFrequency)
+        super(caster,target,duration,periodicEffectFrequency)
+
+        this.lifeToDrain = (lifeToDrain >= 0) ? lifeToDrain : 0
+        this.drainRatio = (lifeToDrain >= 0 ) ? drainRatio : 0
+
+        this.duration = duration
+        
+
+
+    static function cast(unit caster, unit target, real duration, real lifeToDrain) returns thistype
+        return cast(caster, target, duration, lifeToDrain, DRAIN_RATIO, DRAIN_FREQ )
+
+
+    static function cast(unit caster, unit target, real duration, real lifeToDrain, real drainRatio, real periodicEffectFrequency) returns thistype
+        return new DrainLife(caster, target, duration, lifeToDrain, drainRatio, periodicEffectFrequency)
+
+
+    override function periodicEffect()
+        
+        real drainedLife = 0
+
+        real targetCurrentHP = target.getHP()
+
+
+        if targetCurrentHP > lifeToDrain
+            drainedLife = lifeToDrain
+            target.setHP(targetCurrentHP-lifeToDrain)
+
+        else
+            drainedLife = targetCurrentHP
+            target.kill()
+
+        real casterCurrentHP = caster.getHP()
+        real casterMaxHP = caster.getMaxHP()
+
+        if drainedLife > 0 and casterMaxHP != casterCurrentHP
+            
+            drainedLife *= drainRatio
+
+            real casterNewHP = casterCurrentHP + drainedLife
+            
+            if casterNewHP < casterMaxHP
+                caster.setHP(casterNewHP)
+
+            else
+                caster.setHP(casterMaxHP)
+            
+        
+        // Drain life
+
+    override function updateExtension()
+        if caster.getCurrentOrder() != Orders.drain
+            destroy this
+
+
+function castDrainLife()
+    DrainLife.cast(GetSpellAbilityUnit(), GetSpellTargetUnit(), 10, 10)
+
+init 
+    registerSpellEffectEvent('A00O', function castDrainLife)
+    
