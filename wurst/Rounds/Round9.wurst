@@ -32,8 +32,8 @@ import ErrorHandling
 // ================================================================================================================================
 // Settings
 
-constant real LIFEDRAIN_AMOUNT      = 20
-constant real LIFEDRAIN_FACTOR      = 2
+constant real LIFEDRAIN_AMOUNT      = 15
+constant real LIFEDRAIN_FACTOR      = 2.5
 constant real LIFEDRAIN_TRIGGERHP   = 0.5
 constant real LIFEDRAIN_FREQ        = 0.5
 constant real LIFEDRAIN_COOLDOWN    = 15
@@ -62,23 +62,23 @@ init
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(2)
+    ..setSpawnCount(6)
 
-    // //Spawner 2
-    // round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(0,0), 20))
-    // ..setStartDelay(70)
-    // ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSpawnCount(2)
+    //Spawner 2
+    round.addSpawner(new UnitSpawner('n00F', ENEMYPLAYER, vec2(0,0), 30))
+    ..setStartDelay(30)
+    ..setFrequencyDeviation(0.05)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(3)
     
-    // //Spawner 2
-    // round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 1))
-    // ..setStartDelay(120)
-    // ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSpawnCount(1)
+    //Spawner 2
+    round.addSpawner(new UnitSpawner('n00F', ENEMYPLAYER, vec2(-639,1025), 1))
+    ..setStartDelay(100)
+    ..setFrequencyDeviation(0)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(1)
 
 
 //=========================================================================================================================================================
@@ -226,7 +226,7 @@ public class AutoCastSummonDemon extends AutoCastAbilityType
         
 
     construct()
-        super( 'A01D', Orders.roar, targetType.ENEMY_IMMEDIATE, 3000, 5, 5 )
+        super( 'A01D', Orders.roar, targetType.ENEMY_IMMEDIATE, 3000, 1, 5 )
             
 
     override function findTarget(unit caster) returns boolean
@@ -361,8 +361,11 @@ init
 
     registerPlayerUnitEventForPlayer(EVENT_PLAYER_UNIT_DEATH, function unitDies, ENEMYPLAYER)
 
-    addAutoCastAbilityToUnitType('n00F', new AutoCast_CheckDrainLife( 'A01A', Orders.deathcoil, TargetType.ENEMY_UNIT, 600, FELFIREBOLT_STARTCOOLDOWN, FELFIREBOLT_COOLDOWN ))
+
     addAutoCastAbilityToUnitType('n00F', new AutoCastSummonDemon())
     addAutoCastAbilityToUnitType('n00F', new AutoCastDrainLife())
+    addAutoCastAbilityToUnitType('n00F', new AutoCast_CheckDrainLife( 'A01A', Orders.deathcoil, TargetType.ENEMY_UNIT, 600, FELFIREBOLT_STARTCOOLDOWN, FELFIREBOLT_COOLDOWN ))
+    
+    
 
     
