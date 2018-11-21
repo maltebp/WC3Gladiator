@@ -9,11 +9,11 @@ import TimedSpecialEffects
 
 
 constant boolean    SPAWNHEROINARENA        = false
-constant boolean    PREPAREHERO             = false
-constant boolean    LOCKCAMBOUNDS           = true
-constant boolean    MAKEMAPVISIBLE          = false
+constant boolean    PREPAREHERO             = true
+constant boolean    LOCKCAMBOUNDS           = false
+constant boolean    MAKEMAPVISIBLE          = true
 constant boolean    STARTATSPECIFICROUND    = true
-constant int        STARTINGROUND           = 8
+constant int        STARTINGROUND           = 9
 
 constant int START_TRAININGPOINTS           = 10
 constant int START_GOLD                     = 75
@@ -27,6 +27,8 @@ public SoundDefinition snd_Text = new SoundDefinition(Sounds.questActivateWhat1,
 
 public unit hero
 
+
+public region MAPREGION
 boolean escapeIsEnabled = false
 boolean canSkipGameInfo
 
@@ -43,6 +45,9 @@ vec2 spawnPosOnInit
 
 
 init
+
+    MAPREGION = CreateRegion()..addRect(GetPlayableMapRect())
+
 
     playMusic(Sounds.orcX1)
 
