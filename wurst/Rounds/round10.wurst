@@ -10,12 +10,13 @@ package round10
         [x] Repairman
 
     [ ] Mechanics
-        [ ] Chasing Rockets
+        [x] Chasing Rockets
         [ ] Robot explosion
-        [ ] Repairmain, repair
+        [x] Repairmain, repair
 
     [ ] Systems
         [ ] Make sure you only have to kill the boss
+        [ ] Add sounds
 
 
     Boss: Engineer in tank version, slowly chasing you. He takes very little damage - kill him by destroying robots near him.
@@ -48,9 +49,18 @@ import ChannelOnUnit
 import Orders
 import HashMap
 import ErrorHandling
+import HomingRockets
 
 int BOSSID = 'n00H'
 int BOSSID_TANK = 'n00I'
+
+int HOMINGROCKETS_DAMAGE = 50
+real HOMINGROCKETS_FREQ     = 0.5
+real HOMINGROCKETS_DURATION = 8
+
+
+SoundDefinition snd_BossSpawn = new SoundDefinition(Sounds.heroTinkerWhat4, false)
+SoundDefinition snd_RocketBarrage = new SoundDefinition(Sounds.heroTinkerPissed7, false)
 
 
 // ================================================================================================================================
@@ -72,6 +82,7 @@ init
 
     remoteFunc = (UnitSpawner spawner) -> begin
         spawner.getLastSpawnedUnit().issueImmediateOrderById(Orders.robogoblin)
+        snd_BossSpawn.play()
     end
 
     // Tinker
@@ -84,7 +95,7 @@ init
 
     
     // Mechanic
-    round.addSpawner(new UnitSpawner('o001', ENEMYPLAYER, vec2(-639,1025), 10))
+    round.addSpawner(new UnitSpawner('o001', ENEMYPLAYER, vec2(-639,1025), 30))
     ..setStartDelay(5)
     ..setFrequencyDeviation(0)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -94,6 +105,7 @@ init
 
     // Auto Cast Abilities
     addAutoCastAbilityToUnitType('o001', new AutoRepair() )
+    addAutoCastAbilityToUnitType('n00H', new AutoCastAbilityType('A01F', Orders.tranquility, TargetType.ENEMY_IMMEDIATE, 6000, 10, 30) )
 
 
     // Unit Colors
@@ -103,8 +115,6 @@ init
 
 
 //=========================================================================================================================================================
-// 
-//
 
 
 class AutoRepair extends AutoCastAbilityType
@@ -139,3 +149,82 @@ class AutoRepair extends AutoCastAbilityType
 
         else
             return false
+
+
+// =============================================================================================================================
+
+class RocketBarrage
+
+    private static constant int ORDERID = Orders.tranquility
+    
+    protected unit caster
+    protected int damage
+    protected real range
+
+    private timer timer_Duration
+    private timer timer_FireFreq
+
+    construct(unit caster, int damage, real range, real fireFreq, real duration)
+        this.caster = caster
+        this.damage = damage
+        this.range = range
+
+        timer_Duration = getTimer()
+        ..setData(this castTo int)
+        ..start(duration, function callback_EndDuration )
+
+        timer_FireFreq = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic(fireFreq, function callback_FireOnAll )
+
+    ondestroy
+        timer_Duration.release()
+        timer_FireFreq.release()
+
+    /** Filters targets from the group. Does not create a new group, but returns the same one */
+    protected function getTargets() returns group
+
+        group targets = ENUM_GROUP
+
+        targets.enumUnitsInRange(caster.getPos(), range)
+
+        for target in targets
+            if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAlive()
+                targets.removeUnit(target)
+
+        return targets
+        
+
+    protected function fireOnAll()
+        
+        if not shouldDestroy()
+            group targets = getTargets()
+
+            if targets.size() > 0 
+                for target from targets 
+                    fire(target)
+        
+        else
+            destroy this
+    
+        
+    protected function shouldDestroy() returns boolean
+        return caster == null or not caster.isAlive() or caster.getCurrentOrder() != ORDERID
+
+    private  static function callback_FireOnAll()
+        GetExpiredTimer().getData() castTo thistype.fireOnAll()
+
+    private static function callback_EndDuration()
+        destroy GetExpiredTimer().getData() castTo thistype 
+
+    protected function fire(unit target)
+        new HomingRocketGenerator(caster.getPos(), caster.getOwner(), target, damage)
+
+    
+function rocketBarrage()
+    snd_RocketBarrage.play()
+    new RocketBarrage(GetSpellAbilityUnit(), HOMINGROCKETS_DAMAGE, 5000, HOMINGROCKETS_FREQ, HOMINGROCKETS_DURATION)
+   
+
+init
+    registerSpellEffectEvent('A01F', function rocketBarrage )

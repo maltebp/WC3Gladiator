@@ -1,0 +1,103 @@
+package HomingRockets
+
+import ErrorHandling
+import Orders
+import TimerUtils
+
+// This could be optimized with missiles. Right now it uses unit attacks.
+
+/** This creates the unit, which fires rockets. It can be stationairy to one place,
+    or moved with another unit.*/
+public class HomingRocketGenerator
+
+    private static constant int GENERATORID = 'h005'
+    private static constant real STANDARDATTACKSPEED = 1
+
+    private unit rocketGenerator
+    private unit target
+    private unit sourceUnit
+    private boolean hasSourceUnit = false
+    private timer timer_Duration
+    private timer timer_Update
+    
+
+    construct(vec2 sourcePos, player owner, unit target, int damage, real duration)
+        generalSetup(sourcePos, owner, target, damage, duration)
+
+    /**Fires only 1 rocket**/
+    construct(vec2 sourcePos, player owner, unit target, int damage)
+        generalSetup(sourcePos, owner, target, damage, 1)
+
+    construct(unit sourceUnit, player owner, unit target, int damage, real duration)
+        if sourceUnit != null
+            this.sourceUnit = sourceUnit
+            hasSourceUnit = true
+            generalSetup(sourceUnit.getPos(), owner, target, damage, duration)
+        else
+            error("source is null")
+
+    
+
+    ondestroy
+        if timer_Duration != null
+            timer_Duration.release()
+
+        timer_Update.release()
+        rocketGenerator.remove()
+
+    private function generalSetup(vec2 spawnPos, player owner, unit target, int damage, real duration) 
+        this.target = target
+        
+        rocketGenerator = createUnit(owner, GENERATORID, spawnPos, spawnPos.angleTo(target.getPos()))
+        ..setBaseDamage(damage-1, 1)
+        ..issueTargetOrderById(Orders.attack, target )
+
+        if duration > 0
+            timer_Duration = getTimer()
+            ..setData(this castTo int)
+            ..start(duration, function callback_EndDuration)
+
+        timer_Update = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic(STANDARDATTACKSPEED, function callback_Update )
+
+    /** Sets the speed at which to fire rockets */
+    function setSpeed(real speed)
+        if rocketGenerator != null
+            rocketGenerator.setAttackCooldown(speed, 1)
+            timer_Update.startPeriodic(speed, function callback_Update )
+        else
+            error("Source unit is null")
+
+    /** Offsets the generator's height (z). It takes terrain into consideration */
+    function setHeightOffset(real heightOffset)
+        if sourceUnit != null
+            sourceUnit.setFlyHeight(heightOffset, 999999)
+        else
+            error("Source unit is null")
+
+    /** Updates the generator, checking if it's target is still alive, and moves the generator if needed */
+    private function update() returns boolean
+            // It returns something in order to stop the function
+
+        if rocketGenerator != null and target != null and target.isAliveTrick()
+            
+            if hasSourceUnit 
+                if sourceUnit != null and sourceUnit.isAliveTrick()
+                    skip
+                    // rocketGenerator.setPos(sourceUnit.getPos())
+                else
+                    destroy this
+                    return false         
+                
+        else
+            destroy this
+
+        return false
+
+    private static function callback_Update()
+        GetExpiredTimer().getData() castTo thistype.update()
+    
+    private static function callback_EndDuration()
+        destroy GetExpiredTimer().getData() castTo thistype
+
