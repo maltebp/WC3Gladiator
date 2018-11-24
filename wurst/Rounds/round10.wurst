@@ -49,6 +49,9 @@ import Orders
 import HashMap
 import ErrorHandling
 
+int BOSSID = 'n00H'
+int BOSSID_TANK = 'n00I'
+
 
 // ================================================================================================================================
 // Settings
@@ -61,11 +64,78 @@ init
 
     round = new Round()
     ..setReward(80, 4)
-    ..setTitle("Warlocks")
-    ..setDescription("They are ready to kill their own minions for their own benefit.")
+    ..setTitle("Tinker (Boss)")
+    ..setDescription("Explosions will be both your friend and enemy")
     ..setHealthOrbSpawn(90, 80, 0.1, 25, 0.02)
+
+    RemoteFunction<UnitSpawner> remoteFunc
+
+    remoteFunc = (UnitSpawner spawner) -> begin
+        spawner.getLastSpawnedUnit().issueImmediateOrderById(Orders.robogoblin)
+    end
+
+    // Tinker
+    round.addSpawner(new UnitSpawner('n00H', ENEMYPLAYER, vec2(-639,1025), 1))
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(1)
+    ..setCodeOnSpawn(remoteFunc)
+
+
+    
+    // Mechanic
+    round.addSpawner(new UnitSpawner('o001', ENEMYPLAYER, vec2(-639,1025), 10))
+    ..setStartDelay(5)
+    ..setFrequencyDeviation(0)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(5)
+
+
+    // Auto Cast Abilities
+    addAutoCastAbilityToUnitType('o001', new AutoRepair() )
+
+
+    // Unit Colors
+    UnitVisuals.addUnitType('o001')..setPlayerColor(PLAYER_COLOR_COAL)
+    UnitVisuals.addUnitType('n00H')..setPlayerColor(PLAYER_COLOR_AQUA)
+    UnitVisuals.addUnitType('n00I')..setPlayerColor(PLAYER_COLOR_AQUA)
 
 
 //=========================================================================================================================================================
 // 
 //
+
+
+class AutoRepair extends AutoCastAbilityType
+    
+    construct()
+        super( 'A00R', Orders.chainlightning, TargetType.FRIENDLY_UNIT, 3000, 0, 0.6 )
+
+    override function findTarget(unit caster) returns boolean
+
+        // Checks if caster is already casting
+        if not caster.getCurrentOrder() == orderId
+
+            group targets = ENUM_GROUP
+            
+            targets.enumUnitsInRange(caster.getPos(), triggerRange)
+
+            for target in targets
+                if target.getOwner().isEnemyOf(caster.getOwner()) or target.getTypeId() != BOSSID_TANK or not target.isAliveTrick()
+                    targets.removeUnit(target)
+
+            if targets.size() > 0
+                if targets.size() == 1
+                    caster.issueTargetOrderById(orderId, targets.getRandomUnit())
+                    return true
+                else
+                    error("More than 1 engineer!")
+                    return false
+                    
+
+            else
+                return false
+
+        else
+            return false
