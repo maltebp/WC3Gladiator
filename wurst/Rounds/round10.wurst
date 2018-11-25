@@ -54,10 +54,14 @@ import HomingRockets
 int BOSSID = 'n00H'
 int BOSSID_TANK = 'n00I'
 
+int EXPLODINGGOBLIN = 'n00J'
+
 int HOMINGROCKETS_DAMAGE = 50
 real HOMINGROCKETS_FREQ     = 0.5
 real HOMINGROCKETS_DURATION = 8
-
+real EXPLODINGGOBLIN_DAMAGE = 100
+real EXPLODINGGOBLIN_RANGE  = 400
+real EXPLODINGGOBLIN_BOSSDAMAGE = 500
 
 SoundDefinition snd_BossSpawn = new SoundDefinition(Sounds.heroTinkerWhat4, false)
 SoundDefinition snd_RocketBarrage = new SoundDefinition(Sounds.heroTinkerPissed7, false)
@@ -101,6 +105,16 @@ init
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(5)
+
+
+    // Exploding Golin
+    round.addSpawner(new UnitSpawner(EXPLODINGGOBLIN, ENEMYPLAYER, vec2(0,0), 30))
+    ..setStartDelay(10)
+    ..setFrequencyDeviation(0)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(5)
+    ..setSoundOnSpawn(Sounds.clockwerkGoblinYesAttack1)
 
 
     // Auto Cast Abilities
@@ -228,3 +242,36 @@ function rocketBarrage()
 
 init
     registerSpellEffectEvent('A01F', function rocketBarrage )
+
+
+//=========================================================================================================================================================
+
+function explode(unit explodingUnit)
+
+    group targets = ENUM_GROUP..enumUnitsInRange(explodingUnit.getPos(), EXPLODINGGOBLIN_RANGE)
+
+    print(targets.size())
+    for target in targets
+        if not target.isAlive() or target == explodingUnit or (target.getOwner().isAllyOf(explodingUnit.getOwner()) and target.getTypeId() != BOSSID_TANK)
+            targets.removeUnit(target)
+
+    print(targets.size())
+    if targets.size() > 0
+        for target from targets
+            if target.getTypeId() == BOSSID_TANK
+                explodingUnit.damageTarget(target, EXPLODINGGOBLIN_BOSSDAMAGE)
+            else
+                explodingUnit.damageTarget(target, EXPLODINGGOBLIN_BOSSDAMAGE)
+
+    addEffect("Abilities\\Weapons\\Mortar\\MortarMissile.mdl", explodingUnit.getPos())
+    ..destr()
+
+
+function goblinExplodes()
+    unit dyingUnit = GetTriggerUnit()
+    
+    if dyingUnit.getTypeId() == EXPLODINGGOBLIN
+        explode(dyingUnit)
+
+init
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function goblinExplodes )
