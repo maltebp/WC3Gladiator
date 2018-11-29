@@ -50,21 +50,25 @@ import Orders
 import HashMap
 import ErrorHandling
 import HomingRockets
+import TimerUnitData
 
 int BOSSID = 'n00H'
 int BOSSID_TANK = 'n00I'
 
 int EXPLODINGGOBLIN = 'n00J'
+int MINITANK = 'h004'
 
 int HOMINGROCKETS_DAMAGE = 50
 real HOMINGROCKETS_FREQ     = 0.5
 real HOMINGROCKETS_DURATION = 8
-real EXPLODINGGOBLIN_DAMAGE = 100
-real EXPLODINGGOBLIN_RANGE  = 400
+real EXPLODINGGOBLIN_DAMAGE = 75
+real EXPLODINGGOBLIN_RANGE  = 350
 real EXPLODINGGOBLIN_BOSSDAMAGE = 500
+real EXPLODINGGOBLIN_DELAY = 2
 
 SoundDefinition snd_BossSpawn = new SoundDefinition(Sounds.heroTinkerWhat4, false)
 SoundDefinition snd_RocketBarrage = new SoundDefinition(Sounds.heroTinkerPissed7, false)
+SoundDefinition snd_RobotExplode = new SoundDefinition(Sounds.ironGolemYes1, false)
 
 
 // ================================================================================================================================
@@ -98,13 +102,13 @@ init
 
 
     
-    // Mechanic
-    round.addSpawner(new UnitSpawner('o001', ENEMYPLAYER, vec2(-639,1025), 30))
-    ..setStartDelay(5)
-    ..setFrequencyDeviation(0)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(5)
+    // // Mechanic
+    // round.addSpawner(new UnitSpawner('o001', ENEMYPLAYER, vec2(-639,1025), 30))
+    // ..setStartDelay(5)
+    // ..setFrequencyDeviation(0)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSpawnCount(5)
 
 
     // Exploding Golin
@@ -117,6 +121,16 @@ init
     ..setSoundOnSpawn(Sounds.clockwerkGoblinYesAttack1)
 
 
+    // // Mini Tank
+    // round.addSpawner(new UnitSpawner(MINITANK, ENEMYPLAYER, vec2(0,0), 15))
+    // ..setStartDelay(5)
+    // ..setFrequencyDeviation(0)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSpawnCount(5)
+    // ..setSoundOnSpawn(Sounds.steamTankWhat3)
+
+
     // Auto Cast Abilities
     addAutoCastAbilityToUnitType('o001', new AutoRepair() )
     addAutoCastAbilityToUnitType('n00H', new AutoCastAbilityType('A01F', Orders.tranquility, TargetType.ENEMY_IMMEDIATE, 6000, 10, 30) )
@@ -126,6 +140,8 @@ init
     UnitVisuals.addUnitType('o001')..setPlayerColor(PLAYER_COLOR_COAL)
     UnitVisuals.addUnitType('n00H')..setPlayerColor(PLAYER_COLOR_AQUA)
     UnitVisuals.addUnitType('n00I')..setPlayerColor(PLAYER_COLOR_AQUA)
+    UnitVisuals.addUnitType(EXPLODINGGOBLIN)..setPlayerColor(PLAYER_COLOR_MAROON)
+    UnitVisuals.addUnitType(MINITANK)..setPlayerColor(PLAYER_COLOR_WHEAT)
 
 
 //=========================================================================================================================================================
@@ -174,6 +190,8 @@ class RocketBarrage
     protected unit caster
     protected int damage
     protected real range
+    protected real duration
+    protected real fireFreq
 
     private timer timer_Duration
     private timer timer_FireFreq
@@ -182,18 +200,35 @@ class RocketBarrage
         this.caster = caster
         this.damage = damage
         this.range = range
+        this.fireFreq = fireFreq
+        this.duration = duration
 
         timer_Duration = getTimer()
         ..setData(this castTo int)
-        ..start(duration, function callback_EndDuration )
+        ..start(1.5, function callback_delayedStart )
 
-        timer_FireFreq = getTimer()
-        ..setData(this castTo int)
-        ..startPeriodic(fireFreq, function callback_FireOnAll )
-
+        
     ondestroy
-        timer_Duration.release()
-        timer_FireFreq.release()
+        caster.issueImmediateOrder("stop")
+
+        if timer_Duration != null
+            timer_Duration.release()
+
+        if timer_FireFreq != null
+            timer_FireFreq.release()
+
+    protected function delayedStart()
+        if shouldDestroy()
+            destroy this
+        else
+            timer_Duration.start(duration, function callback_EndDuration )
+
+            timer_FireFreq = getTimer()
+            ..setData(this castTo int)
+            ..startPeriodic(fireFreq, function callback_FireOnAll )
+
+    private static function callback_delayedStart()
+        GetExpiredTimer().getData() castTo thistype.delayedStart()
 
     /** Filters targets from the group. Does not create a new group, but returns the same one */
     protected function getTargets() returns group
@@ -261,17 +296,63 @@ function explode(unit explodingUnit)
             if target.getTypeId() == BOSSID_TANK
                 explodingUnit.damageTarget(target, EXPLODINGGOBLIN_BOSSDAMAGE)
             else
-                explodingUnit.damageTarget(target, EXPLODINGGOBLIN_BOSSDAMAGE)
+                explodingUnit.damageTarget(target, EXPLODINGGOBLIN_DAMAGE)
 
     addEffect("Abilities\\Weapons\\Mortar\\MortarMissile.mdl", explodingUnit.getPos())
+    ..setScale(2)
     ..destr()
+    ..setTimeScale(0.5)
 
+    addEffect("Abilities\\Spells\\Orc\\WarStomp\\WarStompCaster.mdl", explodingUnit.getPos())
+    ..setScale(0.5)
+    ..setDuration(3)
+
+class RobotExplosion
+    private unit robot
+    private timer timer_Delay
+    private timer timer_Animation
+
+    construct(unit robot)
+        snd_RobotExplode.play()
+
+        this.robot = robot
+        ..setVertexColor(color(255,120,120))
+        ..setAnimation(0)
+        ..setTimeScale(2)
+
+        timer_Delay = getTimer()
+        ..setData(this castTo int)
+        ..start(EXPLODINGGOBLIN_DELAY, function callback_Explode )
+
+        timer_Animation = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic(0.3, function callback_Animation )
+
+    ondestroy
+        explode(robot)
+
+        robot.setAnimation("death")
+
+        timer_Delay.release()
+        timer_Animation.release()
+
+
+    private function animation()
+        robot.setAnimation(0)
+
+    private static function callback_Animation()
+        GetExpiredTimer().getData() castTo thistype.animation()
+
+    private static function callback_Explode()
+        destroy GetExpiredTimer().getData() castTo thistype
 
 function goblinExplodes()
     unit dyingUnit = GetTriggerUnit()
     
     if dyingUnit.getTypeId() == EXPLODINGGOBLIN
-        explode(dyingUnit)
+
+        new RobotExplosion(dyingUnit)
+        
 
 init
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function goblinExplodes )

@@ -1,0 +1,26 @@
+package TimerUnitData
+
+import TimerUtils
+import ErrorHandling
+
+
+public function timer.setUnitData(unit whichUnit)
+    this.setData( new UnitData(whichUnit) castTo int )
+
+public function timer.getUnitData() returns unit
+    UnitData unitData = this.getData() castTo UnitData
+    if unitData.dataUnit != null
+        return unitData.dataUnit
+    else
+        error("No unit data available")
+        return null
+        
+
+
+
+
+class UnitData
+    unit dataUnit
+
+    construct(unit whichUnit)
+        this.dataUnit = whichUnit

@@ -97,7 +97,7 @@ class WoundingStrikeBuff
 
     static function dealDamage()
         thistype instance = GetExpiredTimer().getData() castTo thistype
-        instance.source.damageTarget(instance.target, instance.dotDamage)
+        instance.source.damageTargetMelee(instance.target, instance.dotDamage)
         instance.target.addEffect("Objects\\Spawnmodels\\Human\\HumanBlood\\HeroBloodElfBlood.mdl", "origin")
         ..setDuration(3)
 
