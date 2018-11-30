@@ -5,14 +5,14 @@ import TimerUtils
 
 init
     //=========================================================================================================================================================
-    //  Arcane Elementals (Round 2)
+    //  Human Battalion
 
 
     round = new Round
     ..setReward(70, 4)
     ..setTitle("Human Battalion")
     ..setDescription("Trained soldiers, specialized in fighting together. Don't let them overrun you.")
-    ..setHealthOrbSpawn(90, 60, 0.1, 15, 0.02)
+    ..setHealthOrbSpawn(90, 70, 0.1, 15, 0.02)
 
 
     // Footman 1

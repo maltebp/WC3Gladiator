@@ -1,0 +1,88 @@
+package UnitVisualsUtils
+
+
+import HashMap
+import ErrorHandling
+
+
+
+public class UnitVisuals
+
+    private static IterableMap<int, thistype> instances = new IterableMap<int, thistype>
+    private static region map
+
+    private int unitTypeId
+
+    private playercolor teamColor
+    private int alpha = -1
+    private int red = -1
+    private int blue = -1
+    private int green = -1
+
+
+    private construct(int unitTypeId)
+
+        this.unitTypeId = unitTypeId
+
+        instances.put(unitTypeId, this)
+
+        if map == null
+            map = CreateRegion()..addRect(GetPlayableMapRect())
+            CreateTrigger()..registerEnterRegion(map, Filter(function unitEntersMap))     
+            
+            
+    private function updateUnit(unit whichUnit)
+        
+        if whichUnit.getTypeId() == unitTypeId
+            if alpha >= 0 
+                whichUnit.setVertexColor(red, green, blue, alpha)
+
+            if teamColor != null
+                whichUnit.setColor(teamColor)
+
+
+        else
+            error("Trying to update unit that doesn't match the unitType")
+        
+    
+
+    function setColor(int red, int green, int blue, int alpha)
+
+
+        this.red = (red > 255) ? 255 : ((red < 0) ? 0 : red)
+        this.green = (green > 255) ? 255 : ((green < 0) ? 0 : green)
+        this.blue = (blue > 255) ? 255 : ((blue < 0) ? 0 : blue)
+        this.alpha = (alpha > 255) ? 255 : ((alpha < 0) ? 0 : alpha)
+        
+    function setPlayerColor(playercolor whichColor)
+        teamColor = whichColor
+
+    static function addUnitType(int unitTypeId) returns thistype
+        if not instances.has(unitTypeId)
+            return new UnitVisuals(unitTypeId)            
+        else
+            error("Unit type already has an instance!")
+            return instances.get(unitTypeId)
+
+
+    protected static function unitEntersMap() returns boolean
+        unit enteringUnit = GetFilterUnit()
+        
+        if instances.has(enteringUnit.getTypeId())
+            instances.get(enteringUnit.getTypeId()).updateUnit(enteringUnit)
+            
+        return false
+         
+
+init 
+
+    UnitVisuals.addUnitType('n002')
+    ..setColor(50, 150, 255, 175)
+    ..setPlayerColor(PLAYER_COLOR_LIGHT_BLUE)
+
+    UnitVisuals.addUnitType('n003')
+    ..setPlayerColor(PLAYER_COLOR_COAL)
+
+    UnitVisuals.addUnitType('n004')
+    ..setColor(50, 50, 50, 200)
+    ..setPlayerColor(PLAYER_COLOR_COAL)

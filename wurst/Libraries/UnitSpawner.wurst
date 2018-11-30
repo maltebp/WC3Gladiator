@@ -110,11 +110,15 @@ public class UnitSpawner
         // BUG HERE: If units has been removed from game, it doesn't go through the for loops
         // I.e. if the unit has no decay
 
-        for spawnedUnit from spawnedUnits
-            spawnedUnit.remove()
+        if spawnedUnits.size() > 0
+            for spawnedUnit from spawnedUnits
+                if spawnedUnit != null
+                    spawnedUnit.remove()
 
-        for summonedUnit from summonedUnits
-            summonedUnit.remove()
+        if summonedUnits.size() > 0
+            for summonedUnit from summonedUnits
+                if summonedUnit != null
+                    summonedUnit.remove()
             
         lastSpawnedUnit = null
         stop()
@@ -133,6 +137,12 @@ public class UnitSpawner
         timer_Spawn.release()
         spawnedUnits.destr()
         summonedUnits.destr()
+
+    function killAll()
+        if spawnedUnits.size() > 0
+            for spawnedUnit from spawnedUnits
+                if spawnedUnit != null
+                    spawnedUnit.kill()
         
 
 //---------------------------------------------------------------------------------------------------------------------------------------
@@ -221,7 +231,7 @@ public class UnitSpawner
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Getters
 
-    /** Checks if the spawner is finished; it has been stopped (either by stop() MAP_RESOURCE_TRADING_ALLIES_ONLY
+    /** Checks if the spawner is finished; it has been stopped (either by stop()
         or becuase it has spawned spawnCount units)*/
     function isFinished() returns boolean
         return not isRunning
@@ -238,12 +248,16 @@ public class UnitSpawner
 
     /** Checks if all spawned units and summoned units connected to this UnitSpawner are dead. */
     function allUnitsAreDead() returns boolean
-        for spawnedUnit in spawnedUnits
-            if spawnedUnit.isAliveTrick()
-                return false
-        for summonedUnits in summonedUnits
-            if summonedUnits.isAliveTrick()
-                return false
+        
+        if spawnedUnits.size() > 0
+            for spawnedUnit in spawnedUnits
+                if spawnedUnit != null and spawnedUnit.isAlive()
+                    return false
+
+        if summonedUnits.size() > 0
+            for summonedUnits in summonedUnits
+                if summonedUnits.isAlive()
+                    return false
         return true
 
 //---------------------------------------------------------------------------------------------------------------------------------------
@@ -362,8 +376,6 @@ public function unit.isFromAnySpawner() returns boolean
     for spawner in UnitSpawner.allSpawners
         if spawner.spawnedUnits.contains(this)
             return true
-         if spawner.summonedUnits.contains(this)
-            return true
 
     return false
 
@@ -371,6 +383,17 @@ public function unit.isFromAnySpawner() returns boolean
 public function unit.isFromSpawner(UnitSpawner whichSpawner) returns boolean
     return whichSpawner.spawnedUnits.contains(this) or whichSpawner.summonedUnits.contains(this)
 
+
+/** Gets the unit spawner which the unit comes from. Returns null if it doesn't come from any spawner */
+public function unit.getSpawner() returns UnitSpawner
+    if UnitSpawner.allSpawners.size() > 0
+
+        for spawner in UnitSpawner.allSpawners
+
+            if spawner.spawnedUnits.contains(this)
+                return spawner
+        
+    return null
 
 public interface RemoteFunction<UnitSpawner>
     function run(UnitSpawner unitSpawner)

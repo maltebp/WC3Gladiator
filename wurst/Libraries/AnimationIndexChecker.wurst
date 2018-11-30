@@ -11,7 +11,7 @@ package AnimationIndexChecker
 // ================================================================================================
 
 constant boolean    ENABLED             = false
-constant int        ANIMATIONINDEX_MAX  = 14
+constant int        ANIMATIONINDEX_MAX  = 20
 
 // ================================================================================================
 

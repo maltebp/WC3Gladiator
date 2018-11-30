@@ -1,0 +1,624 @@
+
+//=========================================================================================================================
+package AutoCastAbility
+
+/*  Description
+    A library which makes a certain unit (or unit type) automatically find a target for the abiltiy
+    and cast the ability on that specific target. The target can be a point, immediate or unit.
+
+
+    How To use:
+    You can add an ability to auto cast to a unit type or specific unit using either of these methods:
+
+        Type:       addAutoCastAbilityToUnitType()
+
+        Specific:   unit.addAutoCastAbility()  
+
+        
+    The casting of the abilities will be prioritized in the same order as they are added.
+    As an ability type to add, you can use either of the 3:
+    
+        1) An instance of the generic AutoCastAbilityType
+        
+        2) One of the other AutoCast-classes (which extends the generic one)
+
+        3) Create your own class which extends the generic, to create your own target prioritization
+            for the particular ability type. 
+
+    Notes:
+        - The system automatically makes sure that units are given the abilities they are meant to autocast.
+
+
+*/    
+//========================================================================================================================= 
+
+
+import public Orders
+import HashMap
+import LinkedList
+import TimerUtils
+import GroupUtils
+import RegisterEvents
+import ErrorHandling
+
+
+
+// -------------------------------------------------------------------------------------------------------------------------
+/*  Target Type
+    Enum which describes which type of order the abiltiy is..
+*/
+
+/** What kind of order the ability is */
+public enum TargetType
+    ENEMY_POINT
+    ENEMY_UNIT
+    ENEMY_IMMEDIATE
+    FRIENDLY_POINT
+    FRIENDLY_UNIT
+    FRIENDLY_IMMEDIATE
+    SELF_IMMEDIATE
+
+/** Checks if a TargetType is among the FRIENDLY ones*/
+public function TargetType.isFriendly() returns boolean
+    return (this == TargetType.FRIENDLY_POINT or this == TargetType.FRIENDLY_IMMEDIATE or this == TargetType.FRIENDLY_UNIT)
+
+/** Checks if a TargetType is among the ENEMY ones*/
+public function TargetType.isEnemy() returns boolean
+    return this == TargetType.ENEMY_POINT or this == TargetType.ENEMY_IMMEDIATE or this == TargetType.ENEMY_UNIT
+
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------
+//   AutoCastAbility for Unit Type
+
+HashMap<int,LinkedList<AutoCastAbilityType>> unitTypes = new HashMap<int,LinkedList<AutoCastAbilityType>>
+
+public function addAutoCastAbilityToUnitType( int unitType, AutoCastAbilityType whichAbilityType )
+    
+    if not unitTypes.has(unitType)
+        unitTypes.put(unitType, new LinkedList<AutoCastAbilityType>)
+
+    unitTypes.get(unitType).add(whichAbilityType)
+
+/** Function which checks if an unit entering the map, is one of the unit types with an autocast ability attached */
+function unitEntersMap() returns boolean
+
+    unit enteringUnit = GetFilterUnit()
+
+    if unitTypes.has(enteringUnit.getTypeId())
+        
+        LinkedList<AutoCastAbilityType> abilityTypes = unitTypes.get(enteringUnit.getTypeId())
+
+        for abilityType in abilityTypes
+            enteringUnit.addAutoCastAbility(abilityType)
+
+    return false
+
+init
+    region map = CreateRegion()..addRect(GetPlayableMapRect())
+    CreateTrigger()
+    ..registerEnterRegion(map, Condition(function unitEntersMap ))
+
+
+// ---------------------------------------------------------------------------------------------------------------
+// Auto Cast Unit
+
+/** Adds an autocast ability to the unit, using an AutoCastAbility object as parameter*/
+public function unit.addAutoCastAbility( AutoCastAbilityType whichAbilityType )
+    AutoCastUnit.addAbilityToUnit(this, whichAbilityType )
+
+
+/* =============================================================================================================================
+    
+    AutoCastAbilityType    
+    The class from which you create types of abilities to autocast.
+*/
+
+/** Class to contain information about an autocast ability*/
+public class AutoCastAbilityType
+
+    protected int         abilityId         //  The id of the ability to cast
+    protected real        triggerRange      //  The range at which the unit checks for targets
+    protected int         orderId           //  The orderId of the ability to cast
+    protected TargetType  targetType        //  The type of target (see the enum TargetType) of the ability
+    protected real        startCooldown     //  An initial cooldown on the ability when the unit is given the ability
+    protected real        cooldown          //  The cooldown of the autocast.
+
+    construct( int abilityId, int orderId, TargetType targetType, real triggerRange, real startCooldown, real cooldown )
+        this.abilityId = abilityId
+        this.orderId = orderId
+        this.triggerRange = triggerRange
+        this.targetType = targetType
+        this.startCooldown = startCooldown
+        this.cooldown = cooldown
+
+    
+    /** The function which checks any targets are available for the instance.*/
+    protected function findTarget(unit caster) returns boolean
+
+
+        // Checks if caster is already casting
+        if not caster.getCurrentOrder() == orderId
+
+            if targetType == TargetType.SELF_IMMEDIATE
+                caster.issueImmediateOrderById(orderId)
+                return true
+            
+            else
+
+                ENUM_GROUP.enumUnitsInRange(caster.getPos(), triggerRange)
+                
+                if ENUM_GROUP.size() > 0
+                    
+                    // Removing unfit targets
+                    for target in ENUM_GROUP
+
+                        if not target.isAlive() or target == caster
+                            ENUM_GROUP.removeUnit(target)
+                            
+                        
+                        else
+                            // TargetType == Friendly
+                            if targetType.isFriendly()
+                                if not target.getOwner().isAllyOf(caster.getOwner())
+                                    ENUM_GROUP.removeUnit(target)
+
+                            // TargetType == Enemy
+                            else if targetType.isEnemy()
+                                if target.getOwner().isAllyOf(caster.getOwner())
+                                    ENUM_GROUP.removeUnit(target)
+                    
+                    if ENUM_GROUP.size() > 0
+
+                        // Ordering ability on Target
+
+                        if targetType == TargetType.ENEMY_IMMEDIATE or targetType == TargetType.FRIENDLY_IMMEDIATE
+                            caster.issueImmediateOrderById(orderId)
+                            return true
+
+                        else
+
+                            unit finalTarget = ENUM_GROUP.getNearestUnit(caster.getPos())
+
+                            if targetType == TargetType.FRIENDLY_UNIT or targetType == TargetType.ENEMY_UNIT
+                                caster.issueTargetOrderById(orderId, finalTarget)
+                                return true
+
+                            if targetType == TargetType.FRIENDLY_POINT or targetType == TargetType.ENEMY_POINT
+                                caster.issuePointOrderById(orderId, finalTarget.getPos())
+                                return true
+                            
+                        ENUM_GROUP.clear()
+    
+        return false
+
+    protected function checkTargets(unit caster) returns boolean 
+        if not caster.getCurrentOrder() == orderId
+            return findTarget(caster)
+        else
+            return true                
+        
+
+/*-------------------------------------------------------------------------------------------------------------------------
+    AutoCastAbility 
+    The instance containing the actual ability of a specific unit, in
+    order to keep track of it's cooldown.
+*/
+class AutoCastAbility
+    protected   AutoCastAbilityType abilityType
+    private     boolean             onCooldown = false
+    private     timer               timer_Cooldown 
+
+    construct( AutoCastAbilityType whichType)
+
+        abilityType = whichType
+
+        timer_Cooldown = getTimer()..setData( this castTo int)
+
+        if abilityType.startCooldown > 0
+            startCooldown(abilityType.startCooldown)
+
+    ondestroy
+        timer_Cooldown.release()
+
+    /** Starts the cooldown of the ability */
+    protected function startCooldown(real duration)
+        onCooldown = true
+        timer_Cooldown.start(duration, function callback_EndCooldown )
+
+    protected function startCooldown()
+        startCooldown(abilityType.cooldown)
+
+    /** Ends the cooldown of the ability - can be ended prematurely*/
+    protected function endCooldown()
+        timer_Cooldown.pause()
+        onCooldown = false
+
+    function isOnCooldown() returns boolean
+        return onCooldown
+
+    private static function callback_EndCooldown()
+        GetExpiredTimer().getData() castTo thistype.endCooldown()
+
+
+/* =============================================================================================================================
+    
+    AutoCastUnit   
+    The class which keeps track of the different AutoCastAbilities a unit has.
+*/
+
+/** Instances of units with auto-castregisteredAbilityTypes*/
+class AutoCastUnit
+
+    private static constant real CHECKTARGETS_FREQ = 0.5
+
+    private static LinkedList<thistype> instances = new LinkedList<thistype>
+    private static LinkedList<int> registeredAbilityTypes = new LinkedList<int>
+    private static timer timer_CheckTargets
+
+    private LinkedList<AutoCastAbility> abilities
+    private unit caster
+
+
+    /** Creates the instance for a specific unit, adding it to the list of instances, and preparing it to
+        take in new abilities */
+    private construct( unit whichUnit )
+
+        caster = whichUnit
+
+        instances.add(this)
+        
+        if instances.size() == 1
+            timer_CheckTargets = getTimer()
+            ..startPeriodic(CHECKTARGETS_FREQ, function callback_CheckTarget )
+
+        abilities = new LinkedList<AutoCastAbility>
+    
+    
+
+    /** Adds an ability to the unit instance */
+    private function addAbility(AutoCastAbilityType whichAbilityType)
+        
+        boolean alreadyHasAbility = false
+
+        // Check if unit already has ability
+        if abilities.size() > 0
+            
+            for abil in abilities
+                if abil.abilityType == whichAbilityType
+                    alreadyHasAbility = true
+                    break
+            
+        if not alreadyHasAbility
+            abilities.add(new AutoCastAbility(whichAbilityType))
+
+            // Making sure the caster has the ability to cast
+            if caster.getAbilityLevel(whichAbilityType.abilityId) <= 0
+                caster.addAbility(whichAbilityType.abilityId)
+
+            // Adding to registered autocast abilities
+            if not registeredAbilityTypes.contains(whichAbilityType.abilityId)
+                registeredAbilityTypes.add(whichAbilityType.abilityId)
+                registerSpellEffectEvent(whichAbilityType.abilityId, function checkIfAutoAbility)
+
+        else
+            error("Tried to add ability to unit which already has it")
+
+    
+    /** Checks if the unit already has an instance */
+    private static function getInstance(unit whichUnit) returns thistype
+
+        if instances.size() > 0
+            for instance in instances
+                if instance.caster == whichUnit
+                    return instance
+            return null
+
+        else
+            return null
+
+        
+    /** Adds an ability to a certain unit. Also creates an instance of this class for the unit, if none exists*/
+    static function addAbilityToUnit(unit whichUnit, AutoCastAbilityType whichAbilityType)
+        
+        thistype instance = getInstance(whichUnit)
+
+        if instance == null
+            instance = new AutoCastUnit(whichUnit)
+
+        instance.addAbility(whichAbilityType)
+
+        
+    ondestroy
+        destroy abilities
+        instances.remove(this)
+            
+            
+
+    /** Sees if any abilities can be cast for the unit */
+    private function checkAbilities() 
+    
+        if abilities.size() > 0
+
+            for autoCastAbility in abilities
+                if not autoCastAbility.isOnCooldown()
+                    if autoCastAbility.abilityType.checkTargets(caster)
+                        break // Break if an ability should be cast (priority)
+
+        else
+            error(caster.getName()+" has an instance in AutoCastAbility, but has been given no abilities to cast ")
+    
+
+    /** Checks if any instances should check for possible targets. Stops the timer, if no instances exists*/
+    private static function callback_CheckTarget()
+
+        if instances.size() > 0
+
+            // Running through all instances
+            for instance in instances
+        
+                if instance.caster != null and instance.caster.isAlive()
+
+                    instance.checkAbilities()
+
+                else
+                    destroy instance
+
+        else
+            if timer_CheckTargets != null
+                timer_CheckTargets
+                ..pause()
+                ..release()
+            
+                timer_CheckTargets = null
+
+
+
+    /** Checks if the ability being cast is connected to any instances of AutoCastUnit */
+    private static function checkIfAutoAbility()
+        unit caster = GetSpellAbilityUnit()
+
+        // Find the AutoCastUnit
+        for instance in instances
+            if instance.caster == caster
+                
+                int abilityId = GetSpellAbilityId()
+
+                // Finds the ability, and starts the cooldown
+                for autoAbility in instance.abilities
+                    if autoAbility.abilityType.abilityId == abilityId
+                        autoAbility.startCooldown()
+                        break
+                break
+
+
+
+
+
+
+/* =============================================================================================================================
+================================================================================================================================
+
+    Other types of customized AutoCast abilities
+*/
+
+
+/* --------------------------------------------------------------------------------
+    Unit Type
+    Only casts the ability on a specific type of unit - otherwise it's the same as the generic one.
+*/
+public class AutoCastOnUnitType extends AutoCastAbilityType
+
+    int unitTypeTarget
+
+    construct(int abilityId, int orderId, TargetType targetType, int unitType, real triggerRange, real startCooldown, real cooldown )
+        super( abilityId, orderId, targetType, triggerRange, startCooldown, cooldown )
+
+        unitTypeTarget = unitType
+
+
+    override function findTarget(unit caster) returns boolean
+
+        group targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
+                
+        if targets.size() > 0
+            
+            // Removing unfit targets
+            for target in targets
+
+                if not target.isAlive() or target == caster
+                    targets.removeUnit(target)
+        
+                if not target.getTypeId() == unitTypeTarget
+                    targets.removeUnit(target)
+
+
+        if targets.size() > 0
+
+            if TargetType.ENEMY_IMMEDIATE == targetType
+                caster.issueImmediateOrderById(orderId)
+            
+            else if TargetType.ENEMY_UNIT == targetType
+                caster.issueTargetOrderById(orderId, targets.getNearestUnit(caster.getPos()))
+
+            else if TargetType.ENEMY_POINT == targetType
+                caster.issuePointOrderById(orderId, targets.getNearestUnit(caster.getPos()).getPos())
+
+        return false
+
+
+
+/* --------------------------------------------------------------------------------
+    Unit Heal
+    Casts on units with least % HP, and who at least has less than a certain
+    percentage of hp.
+*/
+public class AutoCastHeal extends AutoCastAbilityType
+
+    private real hpPercentTrigger = 1
+    private boolean canTargetSelf = false
+
+    construct(int abilityId, int orderId, real triggerRange, real startCooldown, real cooldown, real hpPercentTrigger, boolean canTargetSelf)
+        super( abilityId, orderId, TargetType.FRIENDLY_UNIT, triggerRange, startCooldown, cooldown )
+
+        this.hpPercentTrigger = hpPercentTrigger
+        this.canTargetSelf = canTargetSelf
+            
+    override function findTarget(unit caster) returns boolean
+
+        group targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
+                
+        if targets.size() > 0
+            
+            // Removing unfit targets
+            for target in targets
+
+                if not target.isAlive() or (not canTargetSelf and target == caster) or target.getOwner().isEnemyOf(caster.getOwner()) or (target.getHP()/target.getMaxHP()) > hpPercentTrigger
+                    targets.removeUnit(target)
+        
+        if targets.size() > 0
+
+            caster.issueTargetOrderById(orderId, targets.getLowestHpUnit())
+            targets.clear()
+            return true
+
+        return false
+
+
+
+/* --------------------------------------------------------------------------------
+    Unit Buff
+    Makes sure you don't casts buff on units who already have the buff.
+*/
+public class AutoCastBuff extends AutoCastAbilityType
+        
+    private boolean canTargetSelf = true
+    private int     buffId
+
+    construct(int abilityId, int orderId, TargetType targetType, real triggerRange, real startCooldown, real cooldown, int buffId, boolean canTargetSelf)
+        super( abilityId, orderId, targetType, triggerRange, startCooldown, cooldown )
+
+        this.canTargetSelf = canTargetSelf
+
+        this.buffId = buffId 
+            
+
+    override function findTarget(unit caster) returns boolean
+
+        group targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
+                
+        if targets.size() > 0
+            
+            // Removing unfit targets
+            for target in targets
+
+                if not target.isAlive() or (not canTargetSelf and target == caster) or target.hasAbility(buffId)
+                    targets.removeUnit(target)
+        
+                if targetType == TargetType.ENEMY_UNIT and not target.getOwner().isEnemyOf(caster.getOwner())
+                    targets.removeUnit(target)
+
+                if targetType == TargetType.FRIENDLY_UNIT and target.getOwner().isEnemyOf(caster.getOwner())
+                    targets.removeUnit(target)
+
+        if targets.size() > 0
+
+            caster.issueTargetOrderById(orderId, targets.getRandomUnit())
+            targets.clear()
+            return true
+
+        return false
+
+
+/* --------------------------------------------------------------------------------
+    Aoe Point
+    Make an evaluation on which unit has most nearby targets to it, in order to
+    optimize the AoE effect.
+*/
+public class AutoCastAoePoint extends AutoCastAbilityType
+
+    construct(int abilityId, int orderId, TargetType targetType, real triggerRange, real startCooldown, real cooldown )
+        super( abilityId, orderId, targetType, triggerRange, startCooldown, cooldown )
+
+
+    override function findTarget(unit caster) returns boolean
+
+        group targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
+                
+        if targets.size() > 0
+            
+            // Removing unfit targets
+            for target in targets
+
+                if not target.isAlive() or target == caster
+                    targets.removeUnit(target)
+        
+                if targetType.isEnemy() and not target.getOwner().isEnemyOf(caster.getOwner())
+                    targets.removeUnit(target)
+
+                if targetType.isFriendly() and target.getOwner().isEnemyOf(caster.getOwner())
+                    targets.removeUnit(target)
+
+
+        if targets.size() > 0
+
+            unit bestTarget = null
+            int bestTargetScore = -1
+
+            for target in targets
+                int score = 0
+                for target2 in targets
+                    if target2 != target and target2.getPos().distanceTo(target.getPos())<=300
+                        score++
+
+                if score > bestTargetScore
+                    bestTargetScore = score
+                    bestTarget = target
+            
+            caster.issueTargetOrderById(orderId, bestTarget)
+            targets.clear()
+
+        return false
+
+
+/* --------------------------------------------------------------------------------
+    Wards
+    Makes an evaluation on where to make wards - not very optimized.
+*/
+public class AutoCastWard extends AutoCastAbilityType
+        
+
+    construct(int abilityId, int orderId, TargetType targetType, real triggerRange, real startCooldown, real cooldown )
+        super( abilityId, orderId, targetType, triggerRange, startCooldown, cooldown )
+            
+
+    override function findTarget(unit caster) returns boolean
+
+        group targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
+                
+        if targets.size() > 0
+            
+            // Removing unfit targets
+            for target in targets
+
+                if not target.isAlive() or target == caster
+                    targets.removeUnit(target)
+        
+                if targetType.isEnemy() and not target.getOwner().isEnemyOf(caster.getOwner())
+                    targets.removeUnit(target)
+
+                if targetType.isFriendly() and target.getOwner().isEnemyOf(caster.getOwner())
+                    targets.removeUnit(target)
+
+
+        if targets.size() > 0
+            vec2 pos = caster.getPos().moveTowards(targets.getNearestUnit(caster.getPos()).getPos(), 300)
+            
+            caster.issuePointOrderById(orderId, pos)
+            targets.clear()
+        
+            return true
+
+        return false
+          

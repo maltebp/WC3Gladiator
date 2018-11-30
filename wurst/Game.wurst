@@ -1,39 +1,45 @@
 package Game
 
-import public Round 
-import Transitions
+import public Round
 import FadeAndFilters
 import Camera
 import EnergySystem
 import Music
 import TimedSpecialEffects
-import WeatherEffects
+import Preloader
+import initlater AttackDamage
+
+
+constant boolean    SPAWNHEROINARENA        = false
+constant boolean    PREPAREHERO             = false
+constant boolean    LOCKCAMBOUNDS           = true
+constant boolean    MAKEMAPVISIBLE          = false
+constant boolean    STARTATSPECIFICROUND    = false
+constant int        STARTINGROUND           = 10
+
+constant int START_TRAININGPOINTS           = 10
+constant int START_GOLD                     = 75
+
+
+public constant player ENEMYPLAYER = Player(11)
+public constant vec2 HEROSPAWN_SHOP = vec2(-8129,-8198)
+public constant vec2 HEROSPAWN_ARENA = vec2(173,501)
+public SoundDefinition snd_HeroInit = new SoundDefinition(Sounds.gromWhat3, false)
+public SoundDefinition snd_Text = new SoundDefinition(Sounds.questActivateWhat1, false)
 
 public unit hero
-public constant player ENEMYPLAYER = Player(11)
 
-constant int START_TRAININGPOINTS   = 10
-constant int START_GOLD             = 75
 
-boolean MAPTESTING = false
-
+public region MAPREGION
 boolean escapeIsEnabled = false
 boolean canSkipGameInfo
 
 public timer timer_GameIntro = getTimer()
 
-public constant vec2 HEROSPAWN_SHOP = vec2(-8129,-8198)
-public constant vec2 HEROSPAWN_ARENA = vec2(173,501)
-
-public SoundDefinition snd_HeroInit = new SoundDefinition(Sounds.gromWhat3, false)
-public SoundDefinition snd_Text = new SoundDefinition(Sounds.questActivateWhat1, false)
-
 vec2 spawnPosOnInit
 
-effect teleportEffect
 
-boolean EDITORSSTART = false
-int STARTINGROUND = 4
+
 
 
 // Game Init --------------------------------------------------------------------------------------------------------------------
@@ -42,9 +48,12 @@ int STARTINGROUND = 4
 
 init
 
+    MAPREGION = CreateRegion()..addRect(GetPlayableMapRect())
+
+
     playMusic(Sounds.orcX1)
 
-    spawnPosOnInit = (MAPTESTING) ? HEROSPAWN_ARENA : HEROSPAWN_SHOP
+    spawnPosOnInit = (SPAWNHEROINARENA) ? HEROSPAWN_ARENA : HEROSPAWN_SHOP
 
     Player(0)
     ..setLumber(START_TRAININGPOINTS)
@@ -56,7 +65,8 @@ init
     EnableSelect(false, false)
     EnablePreSelect(false, false)
     EnableDragSelect(false, false)
-    if not MAPTESTING
+
+    if LOCKCAMBOUNDS
         Player(0).setCameraBoundsToRect(gg_rct_Shop_CamBounds)
 
     CreateTrigger()
@@ -68,7 +78,7 @@ init
     ..setFadeOutDuration(0)
     ..start(FADEOUT)
 
-    getTimer().start(2, function delayedInit)
+    getTimer().start(1, function delayedInit)
 
     timer_GameIntro.start(3.0, function gameIntro )
 
@@ -104,10 +114,23 @@ function createHero()
     ..suspendXp(true)
     ..setColor(PLAYER_COLOR_WHEAT)
     EnergySystem.addUnit(hero)
+    
+    
     addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
     ..setDuration(3)
 
+    if PREPAREHERO
+        hero.addItemById('I00Q')
+        hero.addItemById('I00O')
+        hero.addItemById('I00N')
+        hero.addItemById('I00P')
+        hero.addItemById('I00S')
+        hero.addItemById('I00R')
+        
+
     getTimer().start(1.25, function playHeroSound)
+
+
 
 function playHeroSound()
     snd_HeroInit.play()
@@ -157,7 +180,7 @@ function delayedInit()
 
 function setRound()
 
-    if EDITORSSTART
+    if STARTATSPECIFICROUND
 
         LinkedList<Round> rounds = Round.getRounds()
         for round in rounds
@@ -181,5 +204,12 @@ function startRound()
     else if canSkipGameInfo
         fadeIn()
         
+init
+    preloadAbility('A004')
+    preloadAbility('A002')
+    preloadAbility('A001')
+    preloadAbility('A003')
+    
+    finishPreload()
 
 

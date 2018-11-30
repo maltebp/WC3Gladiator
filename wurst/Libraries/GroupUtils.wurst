@@ -1,0 +1,80 @@
+package GroupUtils
+
+import TimerUtils
+
+/** Gets the unit from the group, which is nearest to the originPoint */
+public function group.getNearestUnit( vec2 origin ) returns unit
+    
+    unit nearestUnit = null
+
+    if this.size() > 0
+        real shortestDist = 999999
+        for u in this
+            real distance = u.getPos().distanceTo(origin)
+            if distance < shortestDist
+                shortestDist = distance
+                nearestUnit = u
+
+    return nearestUnit
+
+
+/** Gets the unit in the group with the lowest % HP. Doesn't not alter the group */
+public function group.getLowestHpUnit() returns unit
+    
+    if this.size() > 0 
+        unit lowestHpUnit = null
+        real lowestHp = 1 // Percent
+        
+        for u in this
+            real hp = u.getHP()/u.getMaxHP()
+            if hp < lowestHp
+                lowestHpUnit = u
+                lowestHp = hp
+                
+
+        return lowestHpUnit
+
+    return null
+
+/** Gets the unit in the group with the Highest % HP. Doesn't not alter the group */
+public function group.getHighestHpUnit() returns unit
+    
+    if this.size() > 0 
+        unit highestHpUnit = null
+        real highestHp = 0 // Percent
+        
+        for u in this
+            real hp = u.getHP()/u.getMaxHP()
+            if hp > highestHp
+                highestHpUnit = u
+                highestHp = hp
+
+        return highestHpUnit
+
+    return null
+
+
+/** Adds a unit to the group for certain amount of time */
+public function group.addUnitTimed(unit whichUnit, real duration)
+    new TimedGroup( this, whichUnit, duration)
+    
+class TimedGroup
+    private group theGroup
+    private unit theUnit
+
+    ondestroy
+        GetExpiredTimer().release()
+        if theGroup != null and theGroup.size() > 0 and theGroup.contains(theUnit)
+            theGroup.removeUnit(theUnit)          
+
+    private static function removeUnit()
+        destroy GetExpiredTimer().getData() castTo thistype
+
+    construct(group whichGroup, unit whichUnit, real duration)
+        theGroup = whichGroup
+        theUnit = whichUnit
+        if whichGroup != null and whichUnit != null and duration > 0
+            whichGroup.addUnit(whichUnit)
+            getTimer()
+            ..setData(this castTo int)
+            ..start(duration, function removeUnit )

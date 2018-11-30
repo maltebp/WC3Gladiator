@@ -1,0 +1,339 @@
+package LightningCharge
+
+/* To do:
+    - Test inheritance
+    - Move specialeffect creation in seperate functions 
+
+*/
+
+import TimerUtils
+import TimedSpecialEffects
+import RegisterEvents
+import HashMap
+
+/* ======================== =========================================================================================================
+
+
+    ABILITY DESCRIPTION:
+    An 'immediate' cast spell, which gives the caster a buff (Lightning Charged) for a duration.
+    While the unit has this buff, lightning explosions will be created around it every X seconds.
+    
+
+    PACKAGE DESCRIPTION:
+    This package contains 2 functionalities: 1) create Lightning Explosions and 2) create a Lightning
+    Charge buff, which uses the Lightning Explosions. The Lightning Explosions can be used seperately
+    from the Lightning Charge Ability.
+
+    
+    -   Lightning Charge
+        Gives the unit the "hidden" buff, which creates Lightning Explosions every so seconds.
+        To start the effect for a new unit, use: 
+
+            LightningCharge.cast()
+
+        Explosion
+        Creates an explosion of lightning at a certain point, which moves outwards. This is
+        created with the class' constructor.
+
+            new LightningExplosion()
+
+        WARNING: Consider how large and how many explosions you make at a time - the graphics
+        can be a bit heavy on the computer.
+
+    STANDARD ABILITY
+    There is a standard setting for a default ability, startint the Lightning Charge (see settings
+    to change damage, duration etc. for that). It uses a Berserk ability with a negative move 
+    speed to make the unit move slowing while the ability is activatied.
+    This ability can be used, if have no interest in changing the damage, range etc. during the
+    game.
+
+    OVERRIDING
+    You can inherit the classes and override certain function to make a custom version of the spell
+     (i.e. change effects, and how damage is dealt.) 
+
+     NOTES:
+        - Inherited abilities WON'T stack with eacother atm 
+    
+-------------------------------------------------------------------------------------------------------------------------------------
+
+    GLOBAL SETTINGS
+    Settings for ALL instances of LightningCharge and LightningExplosions */
+
+constant real CHARGE_EXPLOSION_FREQ = 2 // Seconds
+constant real CHARGE_UPDATEFREQ     = 0.5 // The speed at which the class checks if the unit is still alive / existing
+
+/*  STANDARD ABILITY SETTINGS
+    Settings only for the standard ability */
+
+constant int ABILITYID  = 'A001'
+constant int BUFFID     = 'B005'
+constant int DAMAGE     = 300
+constant int RANGE      = 400
+constant int DURATION   = 12
+
+
+//===========================================================================================================================================================
+
+constant boolean DEBUG = false
+
+/** Print a debugMsg, that is toggleable
+    with the DEBUG variable*/
+function debugMsg(string stringToPrint)
+         if DEBUG
+             print(stringToPrint)
+
+// ----------------------------------------------------------------------------------------------------------------------------------
+
+
+/** The Ability class */
+public class LightningCharge
+
+    private static constant IterableMap<unit,thistype> instances = new IterableMap<unit,thistype>
+
+    protected unit caster
+    protected real range
+    protected real damage
+    private timer timer_Explosion
+    private timer timer_Duration
+    private timer timer_Update
+    protected effect casterBuffSfx
+
+    construct(unit caster, real damage, real range, real duration)
+
+        if not instances.has(caster)
+
+            this.caster = caster
+            this.range = range
+            this.damage = damage
+
+            instances.put(caster, this)
+
+            timer_Explosion = getTimer()
+            ..setData(this castTo int)
+
+            timer_Duration = getTimer()
+            ..setData(this castTo int)
+
+            timer_Update = getTimer()
+            ..setData(this castTo int)
+            ..start( CHARGE_UPDATEFREQ, function callback_Update )
+
+            printInstanceList()
+
+            startEffect(duration)
+        
+        else
+            instances.get(caster).restart(damage, range, duration)
+            destroy this
+            
+
+    /** Starts the actual spell sfx */
+    private function startEffect(real duration)
+    
+        if casterBuffSfx != null
+            casterBuffSfx.destr()
+
+        onCastSfx()
+
+        timer_Explosion.startPeriodic(CHARGE_EXPLOSION_FREQ, function callback_Explosion )
+
+        real adjustedDuration = (duration < 2) ? 2 : duration
+        timer_Duration.start(adjustedDuration+0.1, function callback_durationEnds )
+
+
+    /** Creates the special effects on cast. Designed to be overridden. */
+    protected function onCastSfx()
+        addEffect("Abilities\\Spells\\Human\\Thunderclap\\ThunderClapCaster.mdl", caster.getPos() )
+        ..setDuration(4)
+
+        casterBuffSfx = caster.addEffect("Abilities\\Spells\\Orc\\Purge\\PurgeBuffTarget.mdl", "origin" )
+        ..setScale(1)
+        
+
+    /** Restarts the effect on a particular unit. This skips the construction of the instance */
+    private function restart(real newDamage, real newRange, real newDuration)
+        this.damage = newDamage
+        this.range = newRange
+        startEffect(newDuration)
+
+
+
+    ondestroy
+        if casterBuffSfx != null
+            casterBuffSfx.destr()
+
+        if timer_Explosion != null
+            timer_Explosion.release()
+
+        if timer_Duration != null
+            timer_Duration.release()
+        
+        if timer_Duration != null
+            timer_Update.release()
+
+        if caster.isAlive() and caster != null
+            caster.removeAbility(BUFFID)
+
+        if caster != null
+            instances.remove(caster)
+        else
+            instances.removeValue(this, false)
+
+        printInstanceList()
+
+    /** FOR TESTING PURPOSES */ 
+    private static function printInstanceList()
+        debugMsg("Printing instance list: ")
+        if instances.size() > 0
+            int counter = 0
+            for instance in instances
+                counter++
+                debugMsg(counter.toString()+": '"+(instances.get(instance) castTo int).toString()+"'")
+        else
+            debugMsg("List is empty")
+            
+    /** Creates the new explosion instance. Override this if you want to add you own explosion class */
+    protected function createExplosion()
+        new LightningExplosion(caster, caster.getPos(), damage, range)
+        
+
+    /** Creates a new explosion */
+    private function startExplosion()
+        if caster != null and caster.isAlive()
+            createExplosion()
+        else
+            destroy this
+    
+    /** Checks if the caster still exists */
+    private function update()
+        if caster == null or not caster.isAlive()
+            destroy this
+
+    /** Sets the frequency of the explosions to a custom value. This restarts the explosion timer. */
+    private function setFrequency(real frequency)
+        timer_Explosion.startPeriodic(frequency, function callback_Explosion )
+
+    
+    private static function callback_Explosion()
+        GetExpiredTimer().getData() castTo thistype.startExplosion()
+        
+    protected static function callback_Update()
+        GetExpiredTimer().getData() castTo thistype.update()
+
+    protected static function callback_durationEnds()
+        destroy GetExpiredTimer().getData() castTo thistype
+       
+
+
+
+/** Class to create an explosion of lightning around a certain point. The explosion works like a wave, moving outwards fast */
+public class LightningExplosion
+    
+    private vec2    pos
+    private group   hitTargets
+    private unit    damageSource
+    private real    damage
+    private int     rippleCount  = 0
+    private int     rippleMaxCount
+    private timer   timer_RippleSpawn
+    private real    range
+    private real    rangeBetweenExplosions = 50
+
+    construct(unit damageSource, vec2 pos, real damage, real range)
+
+        this.damageSource = damageSource
+        this.pos = pos
+        this.damage = damage
+        this.range = range
+        
+        hitTargets = CreateGroup()
+
+        onCastSfx()
+
+        // Adjusting range and count
+        rippleMaxCount = R2I(range) div R2I(rangeBetweenExplosions)
+        rangeBetweenExplosions = range / rippleMaxCount
+        
+        timer_RippleSpawn = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic(0.10, function callback_Explosion )
+
+    ondestroy
+        hitTargets.destr()
+        timer_RippleSpawn.release()
+
+    protected static function callback_Explosion()
+        GetExpiredTimer().getData() castTo thistype.ripple()
+
+    /** Creates the special effects on cast. Designed to be overridden. */
+    protected function onCastSfx()
+        addEffect("Abilities\\Weapons\\Bolt\\BoltImpact.mdl", pos.withTerrainZ(100))
+        ..setScale(1.5)
+        ..setDuration(4)
+
+        addEffect("Abilities\\Spells\\Orc\\Purge\\PurgeBuffTarget.mdl", pos)
+        ..setScale(1.5)
+        ..setTimeScale(1.5)
+        ..setDuration(1.5)
+
+    
+    /** Creates the explosion sfx at a 3d position. Can be overridden */
+    protected function explosionSfx(vec3 pos)
+        addEffect("Abilities\\Weapons\\FarseerMissile\\FarseerMissile.mdl", pos )
+        ..destr()
+
+    /** Creates the effect when the unit is hit */
+    protected function onHitSfx(unit target)
+        target.addEffect("Abilities\\Weapons\\Bolt\\BoltImpact.mdl", "chest")
+        ..setDuration(4) 
+    
+
+    /** Create a circle of explosions around the point from a certain distance. The
+        calling of this several times at different distances, creates the ripple effect. */
+    protected function ripple() 
+
+        rippleCount++
+
+        if(rippleCount>1)
+            int numberOfOrbs = (rippleCount div 3) +3
+            real angleOffsetPerOrb = PI2 / numberOfOrbs + rippleCount
+            
+            // Creating explosion sfx
+            for i=0 to numberOfOrbs
+                real angleDeviation = GetRandomReal(0, 0.5)
+                real distanceDeviation = GetRandomReal(0,1)
+                vec2 pos = this.pos.polarOffset(angle(angleOffsetPerOrb*i+angleDeviation), (rippleCount*rangeBetweenExplosions-rangeBetweenExplosions)+distanceDeviation)
+                explosionSfx(pos.withTerrainZ(50))
+            
+        debugMsg("explosion!")
+
+        damage(rippleCount*rangeBetweenExplosions)
+
+        if rippleCount >= rippleMaxCount
+            destroy this
+
+    
+    /** Filters units and orders damage the units, from the set damage source. */
+    protected function damage(real range)
+        debugMsg("damage!")
+
+        ENUM_GROUP.enumUnitsInRange(pos, range)
+        
+        for unit target from ENUM_GROUP
+            if not hitTargets.contains(target) and target.isAlive() and target.getOwner().isEnemyOf(damageSource.getOwner())
+                debugMsg("damaging target!")
+                damageSource.damageTarget(target, damage)
+                onHitSfx(target)
+                hitTargets.addUnit(target)
+    
+
+
+// --------------------------------------------------------------------
+
+// Setup for the ability cast / registration
+
+// function onCast()
+//     new LightningCharge(GetSpellAbilityUnit(), 50, 400, 12)
+
+// init
+//     registerSpellEffectEvent(ABILITYID, function onCast )

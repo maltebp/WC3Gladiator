@@ -1,9 +1,9 @@
 ---
-projectName: "SimpleHeroSurvival"
+projectName: "WC3Gladiator"
 dependencies:
 - "https://github.com/wurstscript/wurstStdlib2"
 buildMapData:
-  name: "Simple Hero Survival"
-  fileName: "SimpleHeroSurvival"
+  name: "Gladiator"
+  fileName: "Gladiator"
   author: "Lake"
   playerCount: 1

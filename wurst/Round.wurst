@@ -31,8 +31,12 @@ public class Round
     private static int currentRoundNumber = 0
     private static boolean roundWon = false
     private static Round currentRound
+    private static boolean isBossRound = false
+
+    
 
     private static boolean aRoundIsRunning = false
+    static unit bossUnit = null
 
     private LinkedList<UnitSpawner> spawners = new LinkedList<UnitSpawner>
     private int number
@@ -47,6 +51,15 @@ public class Round
     private timer timer_HealthOrbSpawn
     private string title
     private string description
+    private boolean bossRound = false
+    private unit boss = null
+    private string music = Sounds.orcVictory
+    Round_RemoteFunction<Round> codeOnClear
+    Round_RemoteFunction<Round> codeOnPrepare
+    Round_RemoteFunction<Round> codeOnFadeIn
+    Round_RemoteFunction<Round> codeOnStart 
+    Round_RemoteFunction<Round> codeOnHeroDeath
+    Round_RemoteFunction<Round> codeOnLastUnitDeath
 
 
     private static SoundDefinition snd_GoldReward = new SoundDefinition(Sounds.receiveGold, false)
@@ -82,9 +95,16 @@ public class Round
         this.goldReward = goldReward
         this.trainingPointsReward = trainingPointsReward
 
+    function setCodeOnClear( Round_RemoteFunction<Round> whichCode )
+        this.codeOnClear = whichCode
+
     function addSpawner(UnitSpawner spawner) returns UnitSpawner
         spawners.add(spawner)
         return spawner
+
+
+    function setBossRound()
+        isBossRound = true
 
     /** Manually changes the current round to a certain round. If no round
         of that number exists, it will not do change anything */
@@ -106,7 +126,9 @@ public class Round
         this.healthOrb_FlatToHealOverTime = healthFlatToHealOverTime
         this.healthOrb_PercToHealOverTime = healthPercToHealOverTime
 
-
+    function setMusic(string music)
+        this.music = music
+        
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Getters
@@ -132,18 +154,30 @@ public class Round
     static function getRounds() returns LinkedList<Round>
         return rounds.copy()
 
+    
+
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 //  Running
     
     /** Starts the currentRound */
     static function startRound()
-        
+
+    static function setBossUnit(unit boss)
+        bossUnit = boss
+        isBossRound = true
             
     function initialize()
         activateSpawners()
         activateHealthOrbSpawn()
+        playMusic(music)
+
+        if codeOnStart != null
+            codeOnStart.run(this)
             
+    function stopSpawners()
+        for spawner in spawners
+            spawner.stop()
         
     private function activateSpawners()
 
@@ -155,15 +189,22 @@ public class Round
         Orb.destroyAll()
         timer_HealthOrbDuration.pause()
         timer_HealthOrbSpawn.pause()
+        if bossUnit != null
+            bossUnit.remove()
         for spawner in spawners
             spawner.clear()
+        if codeOnClear != null
+            codeOnClear.run(this)
+
+    function killSpawnedUnits()
+        for spawner in spawners
+            spawner.killAll()
 
     static function clearCurrentRound()
         currentRound.clear()
         
         
 
-        
     private function activateHealthOrbSpawn()
         timer_HealthOrbDuration.start(healthOrb_SpawnDuration+0.1, function stopHealthOrbSpawn )
         timer_HealthOrbSpawn.startPeriodic(HEALTHORB_SPAWNFREQ, function spawnHealthOrb)
@@ -243,22 +284,37 @@ public class Round
 
     private static function roundLost()
         roundWon = false
+        if bossUnit != null
+            bossUnit.setInvulnerable(true)
+        currentRound.stopSpawners()
+        if currentRound.codeOnHeroDeath != null
+            currentRound.codeOnHeroDeath.run(currentRound)
         stopMusic()
         transitionToShop(false)
 
     private static function roundWon()
         roundWon =true
+        currentRound.stopSpawners()
+        if currentRound.codeOnLastUnitDeath != null
+            currentRound.codeOnLastUnitDeath.run(currentRound)
         stopMusic()
         transitionToShop(true)
-            
-    
+
+
     protected static function anyUnitDies()
-        unit dying = GetDyingUnit()
-        
-        if dying == hero
-            roundLost()
-        else if wasLastUnit()
-            roundWon()
+        if aRoundIsRunning and not roundWon
+            unit dying = GetDyingUnit()
+            
+            if dying == hero
+                roundLost()
+            
+            else if isBossRound and dying == bossUnit
+                roundWon = true
+                currentRound.killSpawnedUnits()
+                roundWon()           
+                    
+            else if wasLastUnit()
+                roundWon()
             
 
      static function startNextRound()
@@ -280,12 +336,19 @@ public class Round
 
         else
             error("No rounds added")
-
+            
+    
         
-
+    function prepare()
+        isBossRound = false
+        if codeOnPrepare != null
+            codeOnPrepare.run(this)
+    
+        
         
                
-
+public interface Round_RemoteFunction<Round>
+    function run(Round round)
  
                 
 init
