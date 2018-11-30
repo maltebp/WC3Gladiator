@@ -7,13 +7,14 @@ import EnergySystem
 import Music
 import TimedSpecialEffects
 import Preloader
+import initlater AttackDamage
 
 
 constant boolean    SPAWNHEROINARENA        = false
 constant boolean    PREPAREHERO             = false
 constant boolean    LOCKCAMBOUNDS           = true
 constant boolean    MAKEMAPVISIBLE          = false
-constant boolean    STARTATSPECIFICROUND    = true
+constant boolean    STARTATSPECIFICROUND    = false
 constant int        STARTINGROUND           = 10
 
 constant int START_TRAININGPOINTS           = 10
@@ -113,6 +114,8 @@ function createHero()
     ..suspendXp(true)
     ..setColor(PLAYER_COLOR_WHEAT)
     EnergySystem.addUnit(hero)
+    
+    
     addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
     ..setDuration(3)
 
@@ -126,6 +129,8 @@ function createHero()
         
 
     getTimer().start(1.25, function playHeroSound)
+
+
 
 function playHeroSound()
     snd_HeroInit.play()
