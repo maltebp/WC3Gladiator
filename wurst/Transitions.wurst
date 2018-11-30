@@ -158,6 +158,8 @@ function toArena_OnFadeOut()
     ClearTextMessages()
     Player(0).setCameraBoundsToRect(gg_rct_Arena_CamBounds)
     Player(0).setCameraPosition(HEROSPAWN_ARENA)
+    Round.getCurrentRound().prepare()
+
 
 function toArena_OnFadeIn()
     hero.setPos(HEROSPAWN_ARENA)

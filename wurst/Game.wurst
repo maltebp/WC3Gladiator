@@ -6,6 +6,7 @@ import Camera
 import EnergySystem
 import Music
 import TimedSpecialEffects
+import Preloader
 
 
 constant boolean    SPAWNHEROINARENA        = false
@@ -198,5 +199,12 @@ function startRound()
     else if canSkipGameInfo
         fadeIn()
         
+init
+    preloadAbility('A004')
+    preloadAbility('A002')
+    preloadAbility('A001')
+    preloadAbility('A003')
+    
+    finishPreload()
 
 

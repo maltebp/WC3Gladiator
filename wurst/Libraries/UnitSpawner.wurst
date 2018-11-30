@@ -137,6 +137,12 @@ public class UnitSpawner
         timer_Spawn.release()
         spawnedUnits.destr()
         summonedUnits.destr()
+
+    function killAll()
+        if spawnedUnits.size() > 0
+            for spawnedUnit from spawnedUnits
+                if spawnedUnit != null
+                    spawnedUnit.kill()
         
 
 //---------------------------------------------------------------------------------------------------------------------------------------

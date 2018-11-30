@@ -9,14 +9,15 @@ package round10
         [x] Mini tank
         [x] Repairman
 
-    [ ] Mechanics
+    [x] Mechanics
         [x] Chasing Rockets
-        [ ] Robot explosion
+        [x] Robot explosion
         [x] Repairmain, repair
 
     [ ] Systems
         [ ] Make sure you only have to kill the boss
-        [ ] Add sounds
+        [ ] Add sounds (On Death sound)
+        [ ] Setup Special Music
 
 
     Boss: Engineer in tank version, slowly chasing you. He takes very little damage - kill him by destroying robots near him.
@@ -41,27 +42,25 @@ import public initlater Round9
 import TimerUtils
 import RegisterEvents
 import AutoCastAbility
-import GroupUtils
 import TimedSpecialEffects
 import UnitVisualsUtils
-import InstantDummyCaster
-import ChannelOnUnit
-import Orders
-import HashMap
 import ErrorHandling
 import HomingRockets
-import TimerUnitData
+
 
 int BOSSID = 'n00H'
 int BOSSID_TANK = 'n00I'
 
 int EXPLODINGGOBLIN = 'n00J'
 int MINITANK = 'h004'
+int MECHANIC = 'o001'
 
 int HOMINGROCKETS_DAMAGE = 50
 real HOMINGROCKETS_FREQ     = 0.5
 real HOMINGROCKETS_DURATION = 8
-real EXPLODINGGOBLIN_DAMAGE = 75
+
+
+real EXPLODINGGOBLIN_DAMAGE = 50
 real EXPLODINGGOBLIN_RANGE  = 350
 real EXPLODINGGOBLIN_BOSSDAMAGE = 500
 real EXPLODINGGOBLIN_DELAY = 2
@@ -86,6 +85,7 @@ init
     ..setDescription("Explosions will be both your friend and enemy")
     ..setHealthOrbSpawn(90, 80, 0.1, 25, 0.02)
 
+
     RemoteFunction<UnitSpawner> remoteFunc
 
     remoteFunc = (UnitSpawner spawner) -> begin
@@ -94,50 +94,65 @@ init
     end
 
     // Tinker
-    round.addSpawner(new UnitSpawner('n00H', ENEMYPLAYER, vec2(-639,1025), 1))
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    round.addSpawner(new UnitSpawner('n00H', ENEMYPLAYER, vec2(140,1000), 1))
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(1)
     ..setCodeOnSpawn(remoteFunc)
 
+    // Mechanic
+    round.addSpawner(new UnitSpawner(MECHANIC, ENEMYPLAYER, vec2(-639,1025), 20))
+    ..setStartDelay(20)
+    ..setFrequencyDeviation(0)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
 
-    
-    // // Mechanic
-    // round.addSpawner(new UnitSpawner('o001', ENEMYPLAYER, vec2(-639,1025), 30))
-    // ..setStartDelay(5)
-    // ..setFrequencyDeviation(0)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSpawnCount(5)
+    // Mechanic
+    round.addSpawner(new UnitSpawner(MECHANIC, ENEMYPLAYER, vec2(-639,1025), 20))
+    ..setStartDelay(20)
+    ..setFrequencyDeviation(0)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
 
-
-    // Exploding Golin
-    round.addSpawner(new UnitSpawner(EXPLODINGGOBLIN, ENEMYPLAYER, vec2(0,0), 30))
+    // Exploding Robot
+    round.addSpawner(new UnitSpawner(EXPLODINGGOBLIN, ENEMYPLAYER, vec2(0,0), 12))
     ..setStartDelay(10)
     ..setFrequencyDeviation(0)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(5)
     ..setSoundOnSpawn(Sounds.clockwerkGoblinYesAttack1)
 
+    // Exploding Robot
+    round.addSpawner(new UnitSpawner(EXPLODINGGOBLIN, ENEMYPLAYER, vec2(0,0), 20))
+    ..setStartDelay(100)
+    ..setFrequencyDeviation(0)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.clockwerkGoblinYesAttack1)
 
-    // // Mini Tank
-    // round.addSpawner(new UnitSpawner(MINITANK, ENEMYPLAYER, vec2(0,0), 15))
-    // ..setStartDelay(5)
-    // ..setFrequencyDeviation(0)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSpawnCount(5)
-    // ..setSoundOnSpawn(Sounds.steamTankWhat3)
+    // Mini Tank
+    round.addSpawner(new UnitSpawner(MINITANK, ENEMYPLAYER, vec2(0,0), 12))
+    ..setStartDelay(5)
+    ..setFrequencyDeviation(0)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.steamTankWhat3)
+
+    // Mini Tank
+    round.addSpawner(new UnitSpawner(MINITANK, ENEMYPLAYER, vec2(0,0), 20))
+    ..setStartDelay(120)
+    ..setFrequencyDeviation(0)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.steamTankWhat3)
 
 
     // Auto Cast Abilities
-    addAutoCastAbilityToUnitType('o001', new AutoRepair() )
+    addAutoCastAbilityToUnitType(MECHANIC, new AutoRepair() )
     addAutoCastAbilityToUnitType('n00H', new AutoCastAbilityType('A01F', Orders.tranquility, TargetType.ENEMY_IMMEDIATE, 6000, 10, 30) )
 
 
     // Unit Colors
-    UnitVisuals.addUnitType('o001')..setPlayerColor(PLAYER_COLOR_COAL)
+    UnitVisuals.addUnitType(MECHANIC)..setPlayerColor(PLAYER_COLOR_COAL)
     UnitVisuals.addUnitType('n00H')..setPlayerColor(PLAYER_COLOR_AQUA)
     UnitVisuals.addUnitType('n00I')..setPlayerColor(PLAYER_COLOR_AQUA)
     UnitVisuals.addUnitType(EXPLODINGGOBLIN)..setPlayerColor(PLAYER_COLOR_MAROON)
