@@ -53,7 +53,7 @@ init
     ..setReward(80, 4)
     ..setTitle("Warlocks")
     ..setDescription("They are ready to kill their own minions for their own benefit.")
-    ..setHealthOrbSpawn(90, 80, 0.1, 25, 0.02)
+    ..setHealthOrbSpawn(90, 80, 0.1, 30, 0.02)
 
     // Spawner 1
 

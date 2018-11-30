@@ -2,9 +2,10 @@ package AttackDamage
 import HashMap
 import RegisterEvents
 import TimerUtils
+import TimerUnitData
+import Game
 
 HashMap<unit, int> unitDamage = new HashMap<unit, int>
-unit unitToUpdate = null
 
 /** Gets the total attack damage of the unit (base + bonus)
     damage.*/
@@ -54,7 +55,10 @@ function unit.setBonusAttackDamage(int damage)
 
 
 function updateAttackDamage()
-    GetExpiredTimer().release()
+    timer expiredTimer = GetExpiredTimer()
+    unit unitToUpdate = expiredTimer.getUnitData()
+    expiredTimer.release()
+
     int totalDamage = 0
         
     for itemSlot=0 to 5
@@ -72,12 +76,16 @@ function updateAttackDamage()
 
 
 function manipulatesItem()
+    unit manipulatingUnit = GetManipulatingUnit()
     
-    if GetManipulatingUnit().isType(UNIT_TYPE_HERO)
-        unitToUpdate = GetManipulatingUnit()
+    if manipulatingUnit.isType(UNIT_TYPE_HERO)
+
         /*  A small delay, that makes sure the item is actually removed from the inventory
             before the damage is recalculated.*/
-        getTimer().start(0.01, function updateAttackDamage )
+
+        getTimer()
+        ..setUnitData(GetManipulatingUnit())
+        ..start(0.01, function updateAttackDamage )
 
 
 class AttackDamageItem
@@ -87,7 +95,12 @@ class AttackDamageItem
     construct( int itemId, int attackDamage )
         items.put(itemId, attackDamage)
 
- 
+
+function displayDamage()
+    print("100: "+hero.getAbilityLevel('A003').toString())
+    print("10: "+hero.getAbilityLevel('A001').toString())
+    print("1: "+hero.getAbilityLevel('A002').toString())
+
 init
     Player(0).setAbilityAvailable('A004', false)
 
@@ -99,6 +112,10 @@ init
     // Editor's Items
     new AttackDamageItem( 'I00S', 30)
     new AttackDamageItem( 'I00P', 80)
+
+    CreateTrigger()
+    ..registerPlayerChatEvent(Player(0), "dmg", true)
+    ..addAction(function displayDamage) 
 
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_PAWN_ITEM, function manipulatesItem)
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function manipulatesItem)

@@ -1,0 +1,91 @@
+// package CameraShake
+
+// import HashMap
+// import TimerUtils
+
+// IterableMap<player,CameraShake> instances
+
+
+
+// public function player.shakeCamera(real duration, real intensity, boolean degrade)
+//     CameraShake cameraShakeInstance
+
+//     if instances == null or not instances.has(this)
+//         cameraShakeInstance = new CameraShake(this)
+
+//     else
+//         cameraShakeInstance = instances.get(this)
+    
+//     cameraShakeInstance.start(duration, intensity, degrade)
+
+
+
+// class CameraShake
+    
+//     private static constant real DEGRADE_FREQ = 0.1
+
+//     player thePlayer
+//     timer timer_Duration
+//     timer timer_Degrade
+
+//     real startIntensity
+//     real intensityDegration
+//     real currentIntensity
+
+//     construct(player whichPlayer)
+//         thePlayer = whichPlayer
+//         timer_Duration = getTimer()
+//         ..setData( this castTo int)
+        
+//         if instances == null
+//             instances = new IterableMap<player, thistype>
+        
+//         instances.put(thePlayer, this)
+
+
+//     ondestroy
+//         if timer_Duration != null
+//             timer_Duration.release()
+
+//         if timer_Degrade != null
+//             timer_Degrade.release()
+
+//         CameraClearNoiseForPlayer(thePlayer)
+    
+
+//     function degrade()
+//         currentIntensity =- intensityDegration
+//         if currentIntensity > 0
+//             CameraSetEQNoiseForPlayer(thePlayer, currentIntensity)
+//         else
+//             destroy this
+
+//     static function callback_Degrade()
+//         GetExpiredTimer().getData() castTo thistype.degrade()
+
+
+//     static function callback_Destroy()
+//         destroy GetExpiredTimer().getData() castTo thistype
+
+//     function start(real duration, real intensity, boolean degrade)
+        
+//         currentIntensity = intensity
+
+//         if degrade
+//             currentIntensity = intensity
+//             intensityDegration = intensity/DEGRADE_FREQ
+
+//             if timer_Degrade == null
+//                 timer_Degrade = getTimer()
+//                 ..setData(this castTo int)
+
+//             ..startPeriodic(DEGRADE_FREQ, function callback_Degrade)
+
+//         else if timer_Degrade != null 
+//             timer_Degrade.pause()
+
+//         CameraSetEQNoiseForPlayer(thePlayer, currentIntensity) 
+
+//         if duration > 0 
+//             timer_Duration.start(duration, function callback_Destroy)
+                

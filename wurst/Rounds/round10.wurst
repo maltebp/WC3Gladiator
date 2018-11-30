@@ -14,10 +14,10 @@ package round10
         [x] Robot explosion
         [x] Repairmain, repair
 
-    [ ] Systems
-        [ ] Make sure you only have to kill the boss
-        [ ] Add sounds (On Death sound)
-        [ ] Setup Special Music
+    [x] Systems
+        [x] Make sure you only have to kill the boss
+        [x] Add sounds (On Death sound)
+        [x] Setup Special Music
 
 
     Boss: Engineer in tank version, slowly chasing you. He takes very little damage - kill him by destroying robots near him.
@@ -68,7 +68,8 @@ real EXPLODINGGOBLIN_DELAY = 2
 SoundDefinition snd_BossSpawn = new SoundDefinition(Sounds.heroTinkerWhat4, false)
 SoundDefinition snd_RocketBarrage = new SoundDefinition(Sounds.heroTinkerPissed7, false)
 SoundDefinition snd_RobotExplode = new SoundDefinition(Sounds.ironGolemYes1, false)
-
+SoundDefinition snd_HeroDeath = new SoundDefinition(Sounds.heroTinkerYesAttack2, false)
+SoundDefinition snd_BossDeath = new SoundDefinition(Sounds.tinkerDeathAlt1, false)
 
 // ================================================================================================================================
 // Settings
@@ -79,25 +80,53 @@ SoundDefinition snd_RobotExplode = new SoundDefinition(Sounds.ironGolemYes1, fal
 
 init
 
+    
+
+
+
     round = new Round()
     ..setReward(80, 4)
+    ..setMusic(Sounds.pursuitTheme)
     ..setTitle("Tinker (Boss)")
     ..setDescription("Explosions will be both your friend and enemy")
-    ..setHealthOrbSpawn(90, 80, 0.1, 25, 0.02)
+    ..setHealthOrbSpawn(100, 80, 0.1, 30, 0.02)
 
+        // Note: Boss Round spawn 1 more orb
 
-    RemoteFunction<UnitSpawner> remoteFunc
-
-    remoteFunc = (UnitSpawner spawner) -> begin
-        spawner.getLastSpawnedUnit().issueImmediateOrderById(Orders.robogoblin)
-        snd_BossSpawn.play()
+    // Setting up Round-remote functions
+    Round_RemoteFunction<Round> roundFunction
+    
+    // Prepare
+    roundFunction = (Round round) -> begin
+        Round.setBossUnit(createUnit(ENEMYPLAYER, BOSSID, vec2(14,1000), angle(PIHALF+PI)))
+        Round.bossUnit.pause()
     end
 
-    // Tinker
-    round.addSpawner(new UnitSpawner('n00H', ENEMYPLAYER, vec2(140,1000), 1))
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(1)
-    ..setCodeOnSpawn(remoteFunc)
+    round.codeOnPrepare = roundFunction
+
+    // On Start
+    AutoCastAbilityType rocketBarrage = new AutoCastAbilityType('A01F', Orders.tranquility, TargetType.ENEMY_IMMEDIATE, 6000, 10, 30)
+    roundFunction = (Round round) -> begin
+        Round.bossUnit.unpause()
+        Round.bossUnit.issueImmediateOrderById(Orders.robogoblin)
+        snd_BossSpawn.play()
+        Round.bossUnit.addAutoCastAbility(rocketBarrage)
+    end
+    round.codeOnStart = roundFunction
+
+    // On Boss Death
+    roundFunction = (Round round) -> begin
+        snd_BossDeath.play()
+    end
+    round.codeOnLastUnitDeath = roundFunction
+    
+
+    // On Hero Death
+    roundFunction = (Round round) -> begin
+        snd_HeroDeath.play()
+    end
+    round.codeOnHeroDeath = roundFunction
+
 
     // Mechanic
     round.addSpawner(new UnitSpawner(MECHANIC, ENEMYPLAYER, vec2(-639,1025), 20))
@@ -130,7 +159,7 @@ init
     ..setSoundOnSpawn(Sounds.clockwerkGoblinYesAttack1)
 
     // Mini Tank
-    round.addSpawner(new UnitSpawner(MINITANK, ENEMYPLAYER, vec2(0,0), 12))
+    round.addSpawner(new UnitSpawner(MINITANK, ENEMYPLAYER, vec2(0,0), 8))
     ..setStartDelay(5)
     ..setFrequencyDeviation(0)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -138,7 +167,7 @@ init
     ..setSoundOnSpawn(Sounds.steamTankWhat3)
 
     // Mini Tank
-    round.addSpawner(new UnitSpawner(MINITANK, ENEMYPLAYER, vec2(0,0), 20))
+    round.addSpawner(new UnitSpawner(MINITANK, ENEMYPLAYER, vec2(0,0), 18))
     ..setStartDelay(120)
     ..setFrequencyDeviation(0)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -148,8 +177,6 @@ init
 
     // Auto Cast Abilities
     addAutoCastAbilityToUnitType(MECHANIC, new AutoRepair() )
-    addAutoCastAbilityToUnitType('n00H', new AutoCastAbilityType('A01F', Orders.tranquility, TargetType.ENEMY_IMMEDIATE, 6000, 10, 30) )
-
 
     // Unit Colors
     UnitVisuals.addUnitType(MECHANIC)..setPlayerColor(PLAYER_COLOR_COAL)
@@ -300,12 +327,10 @@ function explode(unit explodingUnit)
 
     group targets = ENUM_GROUP..enumUnitsInRange(explodingUnit.getPos(), EXPLODINGGOBLIN_RANGE)
 
-    print(targets.size())
     for target in targets
         if not target.isAlive() or target == explodingUnit or (target.getOwner().isAllyOf(explodingUnit.getOwner()) and target.getTypeId() != BOSSID_TANK)
             targets.removeUnit(target)
 
-    print(targets.size())
     if targets.size() > 0
         for target from targets
             if target.getTypeId() == BOSSID_TANK
