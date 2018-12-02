@@ -1,0 +1,58 @@
+package Charge
+
+import TimerUtils
+import LinkedList
+
+public function unit.enableCharge()
+
+public function unit.stopChargeDegeneration()
+    this.stopChargeDegeneration(0)
+
+public function unit.stopChargeDegeneration(real duration)
+
+public function unit.startChargeDegeneration()
+
+public function unit.reduceChargeDegeneration(real percentReduction, real duration )
+
+public function unit.increaseChargeDegeneration(real percentIncrease, real duration )
+
+public function unit.increaseChargeDegeneration(int flatIncrease, real duration)
+
+public function unit.reduceChargeDegeneration(int flatReduction, real duration)
+
+public function unit.addCharge( real amount )
+
+public function unit.reduceCharge(real amount )
+
+public function unit.setCharge( real amount )
+
+
+/** Resets the charge, set charge to 0 and clearing all increases/decreases in degeneration*/
+public function unit.resetCharge()
+
+
+
+class UnitCharge
+    
+    private LinkedList<ChargeAdjustment> adjustments
+
+    private real baseDegeneration
+
+    private unit chargeUnit
+
+    private real degenerationFlatAdjust
+    private real degenerationPercAdjust
+
+    construct()
+    
+    ondestroy
+
+
+class ChargeAdjustment
+    
+    private real degenerationFladAdjust
+    private real degenerationPercAdjust
+    
+    private boolean temporary // to clear on death or not
+
+    construct(real degenerationFladAdjust, real degenerationPercAdjust, boolean temporary)
