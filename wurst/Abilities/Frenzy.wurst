@@ -6,9 +6,12 @@ import RegisterEvents
 import TimerUtils
 
 import EnergySystem
+import ChargeSystem
 
 constant real REGENINCREASE = 0.5 // Percent
 constant real  DURATION = 10
+
+constant int CHARGE = 20
 
 constant int ABILITYID = 'A006'
 
@@ -31,6 +34,8 @@ function onCast()
 
     caster.increaseEnergyRegen(REGENINCREASE)
     
+    caster.addCharge(CHARGE)
+
     getTimer()
     ..setData( new Caster(caster) castTo int)
     ..start(DURATION, function endEffect )

@@ -5,6 +5,7 @@ import SoundUtils
 import TimedSpecialEffects
 import AttackDamage
 import Damage
+import ChargeSystem
 
 
 class WhirlingStrike
@@ -13,6 +14,7 @@ class WhirlingStrike
 //  Settings
 
     private static constant real RANGE = 250
+    private static constant int  CHARGE = 20
 
     private static constant real BASEDAMAGE = 10 
     private static constant real ATTACKDAMAGESCALE = 1
@@ -27,6 +29,7 @@ class WhirlingStrike
 
         targets.enumUnitsInRange(caster.getPos(), 250)
 
+        caster.addCharge(CHARGE)
 
         for target in targets
             if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAliveTrick() 

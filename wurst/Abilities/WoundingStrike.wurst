@@ -9,6 +9,7 @@ import Orders
 import HashMap
 import TimedSpecialEffects
 import Damage
+import ChargeSystem
 
 //=========================================================================================================================================================
 
@@ -17,6 +18,7 @@ constant real DAMAGEFACTOR = 2.0
 constant real DOT_BASEDAMAGE = 5
 constant real DOT_DAMAGEFACTOR = 0.5
 constant int  DURATION = 5
+constant int  CHARGE = 20
 
 // For Slow Factor: see ability in Editor
 
@@ -39,6 +41,8 @@ function onCast()
         for i=0 to 2
             snd_OnAttack[i] = new SoundDefinition(snd_OnAttack_File[i], false, true)
     snd_OnAttack[GetRandomInt(0, 2)].playOnPoint(target.getPos3Fly())
+
+    caster.addCharge(CHARGE)
 
     target.addEffect("Abilities\\Spells\\Other\\Stampede\\StampedeMissileDeath.mdl","origin")
     ..setDuration(3)

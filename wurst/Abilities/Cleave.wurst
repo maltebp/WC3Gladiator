@@ -5,6 +5,7 @@ import SoundUtils
 import AttackDamage
 import TimedSpecialEffects
 import Damage
+import ChargeSystem
 
 //=========================================================================================================================================================
 
@@ -13,6 +14,7 @@ import Damage
 constant real RANGE = 175
 constant real BASEDAMAGE = 15
 constant real DAMAGEFACTOR = 1.5
+constant int    CHARGE    = 20
 
 constant int ABILITYID  = 'A007'
 
@@ -34,6 +36,8 @@ function onCast()
     unit mainTarget = GetSpellTargetUnit()
     unit caster = GetSpellAbilityUnit()
     group targets = ENUM_GROUP..enumUnitsInRange(mainTarget.getPos(), RANGE)
+
+    caster.addCharge(CHARGE)
 
     for target in targets
         if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAliveTrick() 

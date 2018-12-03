@@ -194,16 +194,12 @@ class UnitCharge
 
         else
 
-            print( toString() )
-
             real percentAdjust = (degenerationPercAdjust < -1) ? 0 : 1+degenerationPercAdjust
             real chargeAdjust = (baseDegeneration + degenerationFlatAdjust)*percentAdjust
 
             chargeToAdjust += chargeAdjust / DEGENERATION_TIMESPERSEC
 
             int chargeToAdjustInt = R2I(chargeToAdjust)
-
-            print("Adjusting with "+chargeToAdjustInt.toString())
 
             if chargeToAdjustInt > 0
                 adjustCharge(-chargeToAdjustInt)
@@ -349,7 +345,6 @@ function addCharge()
 
     else
         print("wrong input")
-
 
 
 
