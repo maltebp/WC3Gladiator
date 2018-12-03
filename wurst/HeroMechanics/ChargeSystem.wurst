@@ -3,8 +3,29 @@
 
 package ChargeSystem
 
-// =======================================================================================================================
+/*  DESCRIPTION
 
+    Charge:
+    The resource all Heroes has, which is displayed as the exp bar. The resource is gained differently
+    from Hero to Hero, but they all have some things in common:
+        - They degenerate charge equally fast
+        - They may have up to a maximum of 100 charge
+
+    The system:
+    Controls the different unit's charge data, including degeneration rates, and it makes sure to update
+    the unit's. The system is equipped with a set of functions (unit extension functions) to adjust
+    a unit's charge with.
+
+    Setting up:
+    Use
+
+        unit.enableCharge()
+
+    to enable the system for a unit, or simple call on of the adjustments method (this will automatically
+    setup the unit for the charge system.)
+
+*/
+// =======================================================================================================================
 
 import TimerUtils
 import LinkedList
@@ -14,8 +35,9 @@ import ErrorHandling
 // ------------------------------------------------------------------------------------------------------------------------
 // Settings
 
-constant real   DEGENERATION_BASE = 5 // Per second
+constant real   DEGENERATION_BASE = 3 // Per second
 constant real   DEGENERATION_FREQ = 0.25
+
 constant int    MAXCHARGE  = 100 // Should be adjusted with game constants
 
 // Other constants
@@ -23,11 +45,6 @@ constant int    DEGENERATION_TIMESPERSEC = R2I(1 / DEGENERATION_FREQ)
 
 // =========================================================================================================================
 // Access functions
-
-/* THINGS MISSING IN WURST LIB
-    1) GetHeroXp
-    2) Strip of hero level
-*/
 
 /** Setup a UnitCharge instance, if the unit doesn't already have one*/
 public function unit.enableCharge()
@@ -192,6 +209,7 @@ class UnitCharge
                 adjustCharge(-chargeToAdjustInt)
                 chargeToAdjust -= chargeToAdjustInt
 
+
     /** Clears all adjustements for the unit */
     function clearAdjustments()
         for adjustment in adjustments
@@ -308,75 +326,75 @@ class ChargeAdjustment
 
 
 
-// // ================================================================================================
-// // TESTING
+// ================================================================================================
+// TESTING
 
-// unit testUnit
+unit testUnit
 
-// public function setTestUnit(unit whichUnit)
-//     testUnit = whichUnit
+public function setTestUnit(unit whichUnit)
+    testUnit = whichUnit
     
 
-// function addCharge()
+function addCharge()
 
-//     string input = GetEventPlayerChatString()
+    string input = GetEventPlayerChatString()
     
-//     if input.length() > 10
+    if input.length() > 10
         
-//         int numberInput = input.ltrim("addcharge ").toInt()
+        int numberInput = input.ltrim("addcharge ").toInt()
     
-//         testUnit.addCharge(numberInput)
+        testUnit.addCharge(numberInput)
 
-//         print("Current charge: "+testUnit.getCharge().toString())
+        print("Current charge: "+testUnit.getCharge().toString())
 
-//     else
-//         print("wrong input")
-
-
+    else
+        print("wrong input")
 
 
-// function adjustChargePerc()
 
-//     string input = GetEventPlayerChatString()
+
+function adjustChargePerc()
+
+    string input = GetEventPlayerChatString()
     
-//     if input.length() > 10
+    if input.length() > 10
         
-//         real numberInput = input.ltrim("adjustCharge perc ").toReal()
+        real numberInput = input.ltrim("adjustCharge perc ").toReal()
     
-//         print("Input: "+numberInput.toString())
+        print("Input: "+numberInput.toString())
 
-//         testUnit.increaseChargeDegeneration(numberInput, 10)        
+        testUnit.increaseChargeDegeneration(numberInput, 10)        
 
-//     else
-//         print("wrong input")
+    else
+        print("wrong input")
 
 
 
-// function adjustChargeFlat()
+function adjustChargeFlat()
 
-//     string input = GetEventPlayerChatString()
+    string input = GetEventPlayerChatString()
     
-//     if input.length() > 10
+    if input.length() > 10
         
-//         int numberInput = input.ltrim("adjustCharge flat ").toInt()
+        int numberInput = input.ltrim("adjustCharge flat ").toInt()
     
-//         testUnit.increaseChargeDegeneration(numberInput, 10)
+        testUnit.increaseChargeDegeneration(numberInput, 10)
 
-//     else
-//         print("wrong input")
+    else
+        print("wrong input")
     
 
 
 
-// init
-//     CreateTrigger()
-//     ..registerPlayerChatEvent(Player(0), "addcharge ", false)
-//     ..addAction(function addCharge)
+init
+    CreateTrigger()
+    ..registerPlayerChatEvent(Player(0), "addcharge ", false)
+    ..addAction(function addCharge)
 
-//     CreateTrigger()
-//     ..registerPlayerChatEvent(Player(0), "adjustCharge perc ", false)
-//     ..addAction(function adjustChargePerc)
+    CreateTrigger()
+    ..registerPlayerChatEvent(Player(0), "adjustCharge perc ", false)
+    ..addAction(function adjustChargePerc)
 
-//     CreateTrigger()
-//     ..registerPlayerChatEvent(Player(0), "adjustCharge flat ", false)
-//     ..addAction(function adjustChargeFlat)
+    CreateTrigger()
+    ..registerPlayerChatEvent(Player(0), "adjustCharge flat ", false)
+    ..addAction(function adjustChargeFlat)
