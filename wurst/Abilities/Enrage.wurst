@@ -1,2 +1,37 @@
 package Enrage
 
+import TimerUtils
+import ChargeSystem
+import RegisterEvents
+import SoundUtils
+
+constant int ABILITYID = 'A01I'
+constant int CONSUMEAMOUNT = 40
+
+
+constant SoundDefinition snd_Error = new SoundDefinition(Sounds.error, false)
+
+
+function onCastBegin()
+
+    
+
+function onCast()
+    
+    if GetSpellAbilityId() == ABILITYID
+
+        unit caster = GetSpellAbilityUnit()
+
+        if caster.getCharge() < CONSUMEAMOUNT
+            caster.issueImmediateOrder("stop")
+            snd_Error.playForPlayer(caster.getOwner())
+
+        else
+            caster.setAnimation(4)
+            caster.queueAnimation("stand")
+            GetSpellAbilityUnit().reduceCharge(CONSUMEAMOUNT)
+    
+
+init
+
+    registerSpellEffectEvent(ABILITYID, function onCast)
