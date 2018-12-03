@@ -8,7 +8,6 @@ import Music
 import TimedSpecialEffects
 import Preloader
 import initlater AttackDamage
-import ChargeSystem
 
 
 constant boolean    SPAWNHEROINARENA        = false
@@ -114,10 +113,6 @@ function createHero()
     hero = createUnit(Player(PLAYER_NEUTRAL_PASSIVE), 'O000', spawnPosOnInit, angle(3*PIHALF))
     ..suspendXp(true)
     ..setColor(PLAYER_COLOR_WHEAT)
-    
-
-    setTestUnit(hero)
-
     EnergySystem.addUnit(hero)
     
     
