@@ -10,6 +10,7 @@ import HashMap
 import TimedSpecialEffects
 import Damage
 import ChargeSystem
+import Enrage
 
 //=========================================================================================================================================================
 
@@ -18,7 +19,8 @@ constant real DAMAGEFACTOR = 2.0
 constant real DOT_BASEDAMAGE = 5
 constant real DOT_DAMAGEFACTOR = 0.5
 constant int  DURATION = 5
-constant int  CHARGE = 20
+constant int  CHARGE = 30
+constant real ENRAGE_DAMAGEINC = 0.005 // Decimal percent pr. enrage charge
 
 // For Slow Factor: see ability in Editor
 
@@ -49,9 +51,12 @@ function onCast()
     target.addEffect("Abilities\\Weapons\\GlaiveMissile\\GlaiveMissile.mdl", "origin")
     ..destr()
 
-    caster.damageTargetMelee(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)
+    real enrageFactor = 1+caster.consumeEnrage()*ENRAGE_DAMAGEINC
+
+
+    caster.damageTargetMelee(target, (BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)*enrageFactor)
     
-    real dotDamage = DOT_BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DOT_DAMAGEFACTOR
+    real dotDamage = (DOT_BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DOT_DAMAGEFACTOR)*enrageFactor
     WoundingStrikeBuff.add(target, caster, dotDamage)
 
 

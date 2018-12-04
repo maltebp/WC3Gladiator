@@ -9,6 +9,7 @@ import Orders
 import HashMap
 import Damage
 import ChargeSystem
+import Enrage
 
 //=========================================================================================================================================================
 
@@ -17,6 +18,7 @@ constant real DAMAGEFACTOR  = 1
 constant real RANGE         = 400
 constant int  DURATION      = 7
 constant int  CHARGE        = 30
+constant real ENRAGE_RANGEINC = 0.01 // Pr charge consumed
 
 constant int ABILITYID = 'A008'
 
@@ -34,7 +36,8 @@ function onCast()
 
     snd_OnCast.playOnPoint(caster.getPos3Fly())
 
-    group targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), RANGE)
+    real enrageFactor = 1+ENRAGE_RANGEINC*caster.consumeEnrage()
+    group targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), RANGE*enrageFactor)
 
     caster.addCharge(CHARGE)
 

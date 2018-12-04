@@ -6,6 +6,7 @@ import TimedSpecialEffects
 import AttackDamage
 import Damage
 import ChargeSystem
+import Enrage
 
 
 class WhirlingStrike
@@ -19,6 +20,9 @@ class WhirlingStrike
     private static constant real BASEDAMAGE = 10 
     private static constant real ATTACKDAMAGESCALE = 1
 
+    private static constant real ENRAGE_DAMAGEINC = 0.005 // Pr charge
+    private static constant real ENRAGE_RANGEINC = 0.005
+
     protected static constant int ABILITYID = 'A000'
     protected static constant SoundDefinition snd_OnHit = new SoundDefinition(Sounds.impaleHit, false, true)
 
@@ -27,7 +31,9 @@ class WhirlingStrike
         unit caster = GetSpellAbilityUnit()
         group targets = ENUM_GROUP
 
-        targets.enumUnitsInRange(caster.getPos(), 250)
+        real enrageRangeFactor = 1+caster.consumeEnrage()*ENRAGE_RANGEINC
+
+        targets.enumUnitsInRange(caster.getPos(), RANGE*enrageRangeFactor)
 
         caster.addCharge(CHARGE)
 
@@ -42,8 +48,12 @@ class WhirlingStrike
         if targets.size() > 0
             snd_OnHit.playOnPoint(caster.getPos3Fly())
 
+        real enrageDmgFactor = 1+caster.consumeEnrage()*ENRAGE_DAMAGEINC
+        real damage = (BASEDAMAGE + I2R(caster.getTotalAttackDamage()) * ATTACKDAMAGESCALE ) * enrageDmgFactor
+
         for target from targets
-            caster.damageTargetMelee(target, I2R(caster.getTotalAttackDamage())*ATTACKDAMAGESCALE)
+            
+            caster.damageTargetMelee(target, damage)
             target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl", "chest")
             ..setDuration(3)
 
