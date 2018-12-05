@@ -28,10 +28,13 @@ class WhirlingStrike
 
 //
     protected static function onCast()
+        print("WHIRLING STRIKE")
         unit caster = GetSpellAbilityUnit()
         group targets = ENUM_GROUP
 
-        real enrageRangeFactor = 1+caster.consumeEnrage()*ENRAGE_RANGEINC
+        real enrageFactor = caster.consumeEnrage()
+
+        real enrageRangeFactor = 1+enrageFactor*ENRAGE_RANGEINC
 
         targets.enumUnitsInRange(caster.getPos(), RANGE*enrageRangeFactor)
 
@@ -48,7 +51,7 @@ class WhirlingStrike
         if targets.size() > 0
             snd_OnHit.playOnPoint(caster.getPos3Fly())
 
-        real enrageDmgFactor = 1+caster.consumeEnrage()*ENRAGE_DAMAGEINC
+        real enrageDmgFactor = 1+enrageFactor*ENRAGE_DAMAGEINC
         real damage = (BASEDAMAGE + I2R(caster.getTotalAttackDamage()) * ATTACKDAMAGESCALE ) * enrageDmgFactor
 
         for target from targets

@@ -32,6 +32,7 @@ function endEffect()
     
 
 function onCast()
+    print("FRENZY")
     unit caster = GetSpellAbilityUnit()
 
     snd_OnCast.playOnPoint(caster.getPos3Fly())

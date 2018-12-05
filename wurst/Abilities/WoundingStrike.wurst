@@ -35,6 +35,7 @@ SoundDefinition array snd_OnAttack
 
 
 function onCast()
+    print("WOUNDING STRIKE")
     unit caster = GetSpellAbilityUnit()
     unit target = GetSpellTargetUnit()
 

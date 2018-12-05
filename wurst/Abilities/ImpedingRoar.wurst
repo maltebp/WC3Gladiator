@@ -32,6 +32,7 @@ constant SoundDefinition snd_OnCast= new SoundDefinition(Sounds.howlOfTerror, fa
 
 
 function onCast()
+    print("IMPEDING ROAR")
     unit caster = GetSpellAbilityUnit()
 
     snd_OnCast.playOnPoint(caster.getPos3Fly())
