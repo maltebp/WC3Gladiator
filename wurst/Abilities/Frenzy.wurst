@@ -7,11 +7,13 @@ import TimerUtils
 
 import EnergySystem
 import ChargeSystem
+import Enrage
 
 constant real REGENINCREASE = 0.5 // Percent
 constant real  DURATION = 10
+constant real ENRAGE_DURATIONINC = 0.01 // Per charge consumed
 
-constant int CHARGE = 20
+constant int CHARGE = 30
 
 constant int ABILITYID = 'A006'
 
@@ -25,6 +27,8 @@ function endEffect()
     data.caster.reduceEnergyRegen(REGENINCREASE)
     
     expiredTimer.release()
+
+    // remove buff
     
 
 function onCast()
@@ -36,10 +40,11 @@ function onCast()
     
     caster.addCharge(CHARGE)
 
+    real enrageFactor = 1+ENRAGE_DURATIONINC*caster.consumeEnrage()
+
     getTimer()
     ..setData( new Caster(caster) castTo int)
-    ..start(DURATION, function endEffect )
-
+    ..start(DURATION*enrageFactor, function endEffect )
 
 class Caster
     unit caster

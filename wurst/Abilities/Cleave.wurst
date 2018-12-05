@@ -6,6 +6,7 @@ import AttackDamage
 import TimedSpecialEffects
 import Damage
 import ChargeSystem
+import Enrage
 
 //=========================================================================================================================================================
 
@@ -14,7 +15,8 @@ import ChargeSystem
 constant real RANGE = 175
 constant real BASEDAMAGE = 15
 constant real DAMAGEFACTOR = 1.5
-constant int    CHARGE    = 20
+constant int    CHARGE    = 15
+constant real ENRAGE_DAMAGEINC = 0.005 // Pr enrage charge consumed
 
 constant int ABILITYID  = 'A007'
 
@@ -43,8 +45,10 @@ function onCast()
         if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAliveTrick() 
             targets.removeUnit(target)
 
+    real enrageFactor = 1 + caster.consumeEnrage()*ENRAGE_DAMAGEINC
     for target from targets
-        caster.damageTargetMelee(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)
+        
+        caster.damageTargetMelee(target, (BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)*enrageFactor )
         target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl","chest")
         ..setDuration(3)
         target.addEffect("Abilities\\Weapons\\SentinelMissile\\SentinelMissile.mdl", "origin")
