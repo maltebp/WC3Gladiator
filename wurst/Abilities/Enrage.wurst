@@ -15,7 +15,7 @@ constant int DUMMYABILITYID = 'A01L'
 constant int BUFFID = 'B007'
 constant int MAXCONSUMEAMOUNT = 40
 constant real DURATION = 6
-constant real MANACOST = 10
+constant real MANACOST = 15
 
 
 constant SoundDefinition snd_Error = new SoundDefinition(Sounds.error, false)
@@ -23,9 +23,7 @@ constant SoundDefinition snd_Error = new SoundDefinition(Sounds.error, false)
 
 /** Removes the unit's enrage ability and returns the Enrage Charge value */
 public function unit.consumeEnrage() returns real
-    print("consuming charge")
     if not this.hasEnrage()
-        print("no charge")
         return 0
     UnitEnrage enrageInstance = UnitEnrage.getUnitInstance(this)
     real charge = enrageInstance.getCharge()
@@ -63,19 +61,12 @@ class UnitEnrage
     private boolean isDestroyed = false
 
     construct(unit whichUnit)
-        print("creating new instance")
         enrageUnit = whichUnit
         InstantDummyCaster.castTarget(enrageUnit.getOwner(), DUMMYABILITYID, 1, Orders.unholyfrenzy, enrageUnit)
         instances.put(enrageUnit, this)
 
 
     ondestroy
-        print("destroying instance")
-        if isDestroyed
-            print("is destroyed!")
-        else
-            print("is not destroyed")
-        isDestroyed = true
 
         instances.remove(enrageUnit)
         instances.removeValue(this, true)
@@ -87,7 +78,6 @@ class UnitEnrage
 
         enrageUnit.removeAbility(BUFFID)
 
-        print("destroyed instance")
 
 
     protected function setDuration(real duration)
@@ -128,7 +118,7 @@ class UnitEnrage
         if instances.has(whichUnit)
             return true
         return false
-
+ 
     static function callback_CheckInstance()
         if instances == null
             print("Instances: null")
@@ -146,7 +136,6 @@ function onCast()
     if GetSpellAbilityId() == ABILITYID
 
         unit caster = GetSpellAbilityUnit()
-        print("ENRAGE")
      
         int charge = caster.getCharge()
 
@@ -172,8 +161,7 @@ function resetCooldown()
     u.resetAbilityCooldown(ABILITYID)
 
 
-init    
-    getTimer().startPeriodic(0.99, function UnitEnrage.callback_CheckInstance)
+init 
     
     registerSpellEffectEvent(ABILITYID, function onCast)
 

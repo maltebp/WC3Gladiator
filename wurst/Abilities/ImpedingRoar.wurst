@@ -17,7 +17,7 @@ constant real BASEDAMAGE    = 5
 constant real DAMAGEFACTOR  = 1
 constant real RANGE         = 400
 constant int  DURATION      = 7
-constant int  CHARGE        = 30
+constant int  CHARGE        = 20
 constant real ENRAGE_RANGEINC = 0.01 // Pr charge consumed
 
 constant int ABILITYID = 'A008'
@@ -32,7 +32,6 @@ constant SoundDefinition snd_OnCast= new SoundDefinition(Sounds.howlOfTerror, fa
 
 
 function onCast()
-    print("IMPEDING ROAR")
     unit caster = GetSpellAbilityUnit()
 
     snd_OnCast.playOnPoint(caster.getPos3Fly())

@@ -28,7 +28,6 @@ class WhirlingStrike
 
 //
     protected static function onCast()
-        print("WHIRLING STRIKE")
         unit caster = GetSpellAbilityUnit()
         group targets = ENUM_GROUP
 

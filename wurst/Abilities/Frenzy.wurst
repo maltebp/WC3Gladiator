@@ -13,7 +13,7 @@ constant real REGENINCREASE = 0.5 // Percent
 constant real  DURATION = 10
 constant real ENRAGE_DURATIONINC = 0.01 // Per charge consumed
 
-constant int CHARGE = 20
+constant int CHARGE = 30
 
 constant int ABILITYID = 'A006'
 
@@ -32,7 +32,6 @@ function endEffect()
     
 
 function onCast()
-    print("FRENZY")
     unit caster = GetSpellAbilityUnit()
 
     snd_OnCast.playOnPoint(caster.getPos3Fly())

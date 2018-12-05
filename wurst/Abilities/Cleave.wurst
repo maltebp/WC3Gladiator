@@ -15,7 +15,7 @@ import Enrage
 constant real RANGE = 175
 constant real BASEDAMAGE = 15
 constant real DAMAGEFACTOR = 1.5
-constant int    CHARGE    = 20
+constant int    CHARGE    = 15
 constant real ENRAGE_DAMAGEINC = 0.005 // Pr enrage charge consumed
 
 constant int ABILITYID  = 'A007'

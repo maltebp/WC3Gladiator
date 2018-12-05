@@ -19,7 +19,7 @@ constant real DAMAGEFACTOR = 2.0
 constant real DOT_BASEDAMAGE = 5
 constant real DOT_DAMAGEFACTOR = 0.5
 constant int  DURATION = 5
-constant int  CHARGE = 30
+constant int  CHARGE = 20
 constant real ENRAGE_DAMAGEINC = 0.005 // Decimal percent pr. enrage charge
 
 // For Slow Factor: see ability in Editor
@@ -35,7 +35,6 @@ SoundDefinition array snd_OnAttack
 
 
 function onCast()
-    print("WOUNDING STRIKE")
     unit caster = GetSpellAbilityUnit()
     unit target = GetSpellTargetUnit()
 
