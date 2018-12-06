@@ -7,25 +7,72 @@ package Artifact
 
 import HashMap
 import ErrorHandling
+import SoundUtils
 
 
-public function unit.removeArtifact(int artifactNumber)
+// ----------------------------------------------------------------------------------------
 
-public function unit.removeAllArtifacts()
-
-public function unit.addArtifact()
-
-
-// ==========================================================================================
+constant int EMPTYSLOT = '0000'
 
 public constant int RACETYPE_ORC = '0000'
 public constant int RACETYPE_HIGHELF =  '0000'
 public constant int RACETYPE_NIGHTELF = '0000'
 
+constant SoundDefinition snd_Error = new SoundDefinition(Sounds.error, false)
+
 public unit array SHOP_ORC
 
 public constant int MAXITEMSINSHOP = 12
 
+// ==========================================================================================
+
+/** Removes the artifact with number 1 or 2 (item slot 0 or 1) */
+public function unit.removeArtifact(int artifactNumber)
+    this.removeItemFromSlot(artifactNumber-1)
+    this.addItemToSlot(EMPTYSLOT, artifactNumber-1)
+
+
+/** Removes all artifacts for the unit */
+public function unit.removeAllArtifacts()
+    this.removeArtifact(1)
+    this.removeArtifact(2)
+    
+    
+/** Adds to 'empty artifact slot'-items to a specific unit */
+public function unit.addArtifactSlots()
+    if this.itemInSlot(0) != null
+        error("Item slot 0 is not empty for "+this.getName())
+    
+    if this.itemInSlot(1) != null
+        error("Item slot 1 is not empty for "+this.getName())
+
+    this.addItemById(EMPTYSLOT)
+    this.addItemById(EMPTYSLOT)
+
+
+/** Adds an artifact to a unit, removing the empty item artifact slot */
+public function unit.addArtifact(Artifact whichArtifact)
+    
+    int emptySlot = -1
+
+    // Finding empty slot
+    if this.itemInSlot(0).getTypeId() == EMPTYSLOT
+        emptySlot = 0
+    
+    else if this.itemInSlot(1).getTypeId() == EMPTYSLOT
+        emptySlot = 1
+
+    // Adding item
+    if emptySlot > -1
+        this.removeItemFromSlot(0)
+        this.addItemById(whichArtifact.getItemId())
+
+    else
+        snd_Error.playForPlayer(this.getOwner())        
+
+        
+
+// ==========================================================================================
 
 
 /** The artifact's data */
@@ -60,7 +107,10 @@ public class Artifact
             return 0
 
         else
-            return artifact.itemId          
+            return artifact.itemId        
+            
+    function getItemId() returns int
+        return itemId
     
     
 /** Mark a shop as an artifact shop for a race */
