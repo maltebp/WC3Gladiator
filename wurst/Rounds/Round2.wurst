@@ -17,6 +17,7 @@ init
     ..setTitle("Necromancers")
     ..setDescription("If you think they stand alone, it will cost you dearly")
     ..setHealthOrbSpawn(90, 60, 0.1, 10, 0.02)
+    ..addArtifactRewards(ARTIFACT_WARDRUM)
 
     RemoteFunction<UnitSpawner> func
 

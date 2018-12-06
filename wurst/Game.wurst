@@ -9,6 +9,7 @@ import TimedSpecialEffects
 import Preloader
 import initlater AttackDamage
 import ChargeSystem
+import Artifact
 
 
 constant boolean    SPAWNHEROINARENA        = false
@@ -62,6 +63,7 @@ init
     ..setCameraPosition(gg_rct_Shop_CamBounds.getCenter())
 
     
+    
 
     EnableSelect(false, false)
     EnablePreSelect(false, false)
@@ -82,6 +84,9 @@ init
     getTimer().start(1, function delayedInit)
 
     timer_GameIntro.start(3.0, function gameIntro )
+
+
+
 
 
 function gameIntro()
@@ -117,6 +122,7 @@ function createHero()
     ..enableCharge()
     EnergySystem.addUnit(hero)
     
+    hero.addArtifactSlots()
     
     
     addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
@@ -127,8 +133,6 @@ function createHero()
         hero.addItemById('I00O')
         hero.addItemById('I00N')
         hero.addItemById('I00P')
-        hero.addItemById('I00S')
-        hero.addItemById('I00R')
         
 
     getTimer().start(1.25, function playHeroSound)
@@ -178,6 +182,9 @@ function delayedInit()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Arena_Visibility, false, false).start()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_MASKED, GetPlayableMapRect(), false, false).start()
 
+    // Setting Artifact Shop
+    new ArtifactShop(gg_unit_n00K_0002, 'O000')
+
     setRound()
 
 
@@ -214,5 +221,6 @@ init
     preloadAbility('A003')
     
     finishPreload()
+    
 
 
