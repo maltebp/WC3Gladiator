@@ -13,12 +13,8 @@ import LinkedList
 
 // ----------------------------------------------------------------------------------------
 
-constant int EMPTYSLOT = '0000'
-constant int REMOVEARTIFACTSMASK = '0000'
-
-public constant int RACETYPE_ORC = '0000'
-public constant int RACETYPE_HIGHELF =  '0000'
-public constant int RACETYPE_NIGHTELF = '0000'
+constant int EMPTYSLOT = 'I00Y'
+constant int REMOVEARTIFACTSMASK = 'I00X'
 
 constant SoundDefinition snd_Error = new SoundDefinition(Sounds.error, false)
 
@@ -30,7 +26,7 @@ public constant int MAXITEMSINSHOP = 11
 
 /** Removes the artifact with number 1 or 2 (item slot 0 or 1) */
 public function unit.removeArtifact(int artifactNumber)
-    this.removeItemFromSlot(artifactNumber-1)
+    this.itemInSlot(artifactNumber-1).remove()
     this.addItemToSlot(EMPTYSLOT, artifactNumber-1)
 
 
@@ -55,22 +51,28 @@ public function unit.addArtifactSlots()
 /** Adds an artifact to a unit, removing the empty item artifact slot */
 public function unit.addArtifact(int artifactItemId)
     
-    int emptySlot = -1
-
-    // Finding empty slot
-    if this.itemInSlot(0).getTypeId() == EMPTYSLOT
-        emptySlot = 0
-    
-    else if this.itemInSlot(1).getTypeId() == EMPTYSLOT
-        emptySlot = 1
-
-    // Adding item
-    if emptySlot > -1
-        this.removeItemFromSlot(0)
-        this.addItemById(artifactItemId)
-
+    if this.hasArtifactItem(artifactItemId)
+        snd_Error.playForPlayer(this.getOwner())   
     else
-        snd_Error.playForPlayer(this.getOwner())        
+        int emptySlot = -1
+
+        // Finding empty slot
+        if this.itemInSlot(0).getTypeId() == EMPTYSLOT
+            emptySlot = 0
+        
+        else if this.itemInSlot(1).getTypeId() == EMPTYSLOT
+            emptySlot = 1
+
+        // Adding item
+        if emptySlot > -1
+            this.itemInSlot(emptySlot).remove()
+            this.addItemById(artifactItemId)
+
+        else
+            snd_Error.playForPlayer(this.getOwner())  
+        
+public function unit.hasArtifactItem(int artifactItemId) returns boolean
+    return this.hasItemById(artifactItemId)
 
         
 
@@ -79,6 +81,9 @@ public function unit.addArtifact(int artifactItemId)
 /** Class which contains data about Artifact Shops */
 public class ArtifactShop
     private static LinkedList<ArtifactShop> shops = new LinkedList<ArtifactShop>
+
+
+    private LinkedList<int> items = new LinkedList<int>
 
     private int raceType
     private unit shop
@@ -96,8 +101,12 @@ public class ArtifactShop
             ..addAction(function itemSold)
         
         trg_SellsItem.registerUnitEvent(shop, EVENT_UNIT_SELL_ITEM)
-        
+    
         AddItemToStock(shop, REMOVEARTIFACTSMASK, 1, 1)
+        items.add(REMOVEARTIFACTSMASK)
+        
+
+        shops.add(this)
 
 
     /** Checks if the shop is full */
@@ -106,8 +115,10 @@ public class ArtifactShop
 
     /** Adds an item to the shop */
     function addItem(int itemId)
+        
         if not isFull()
             AddItemToStock(shop, itemId, 1, 1)
+            items.add(itemId)
             numberOfItems++
 
         else
@@ -128,6 +139,7 @@ public class ArtifactShop
         return null
                 
 
+    /** Gets the ArtifactShop object for the particular shop */ 
     static function getShop(unit shopUnit) returns ArtifactShop
         
         for shop in shops
@@ -136,23 +148,43 @@ public class ArtifactShop
 
         return null
 
+
+    /** Removes all items from the shop and readds them */
+    private function refreshItems()
+        /*  This function is necessary, since the way I add items to the shops
+            they will disappear from the shop, once they're bought */
+        
+        for itemType in items
+            RemoveItemFromStock(shop, itemType)
+            
+        for itemType in items
+            AddItemToStock(shop, itemType, 1, 1)
+            
+
     /** Action function which runs when an Artifact shop sells an item */
     private static function itemSold()
         ArtifactShop shop = getShop(GetSellingUnit())
         unit hero = GetBuyingUnit()
-        item mask = GetManipulatedItem()
+        item mask = GetSoldItem()
 
-        if shop.raceType == hero.getTypeId()
+        
+        if mask.getTypeId() == REMOVEARTIFACTSMASK
+            hero.removeAllArtifacts()
+            shop.refreshItems()
+
+        else if shop.raceType == hero.getTypeId()
             hero.addArtifact(Artifact.getItem(mask.getTypeId()))
+            shop.refreshItems()
+
         else
             snd_Error.playForPlayer(hero.getOwner())
         
 
-            
+// ==============================================================================================================================
 
 /** The artifact's data */
 public class Artifact
-    private static IterableMap<int, thistype> artifacts = new IterableMap<int, thistype>
+    private static IterableMap<int, thistype> artifacts = new IterableMap<int, thistype> // Mask ID, artifact
 
     private int raceType // Defined by a unit's id
     private int itemId
@@ -163,6 +195,8 @@ public class Artifact
         this.itemId = itemId
         this.maskId = maskId
         this.raceType = raceType
+
+        artifacts.put(maskId, this)
     
     
     /** Makes the artifact available to buy */
@@ -170,6 +204,8 @@ public class Artifact
         ArtifactShop readyShop = ArtifactShop.getReadyShop(raceType)
         if readyShop != null
             readyShop.addItem(maskId)
+        else
+            print("null shop")
 
         
     /** Find the id of the artifact item matching the maskId */
@@ -187,13 +223,9 @@ public class Artifact
         return itemId
 
 
-// ==========================================================================================
 
+//==============================================================================================================================
+// ARTIFACTS
 
-
-
-
-init
-
-
-    
+public constant Artifact ARTIFACT_WARDRUM           = new Artifact('I011','I012', 'O000')
+public constant Artifact ARTIFACT_ORCISHCLEAVER     = new Artifact('I00Z', 'I010', 'O000')
