@@ -113,8 +113,15 @@ function toShop_RoundReview()
 
 function toShop_Reward()
     Round.giveReward()
-    GetExpiredTimer().start(7, function toShop_NextRound )
+    GetExpiredTimer().start(6, function toShop_RewardItems )
     
+
+function toShop_RewardItems()
+    boolean anyItemsToReward = Round.giveItemReward()
+    if anyItemsToReward
+        GetExpiredTimer().start(6, function toShop_NextRound )
+    else
+        GetExpiredTimer().start(0, function toShop_NextRound )
 
 function toShop_NextRound()
     Round.setNextRound()

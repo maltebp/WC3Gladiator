@@ -185,9 +185,6 @@ function delayedInit()
     // Setting Artifact Shop
     new ArtifactShop(gg_unit_n00K_0002, 'O000')
 
-    ARTIFACT_ORCISHCLEAVER.release()
-    ARTIFACT_WARDRUM.release()
-
     setRound()
 
 

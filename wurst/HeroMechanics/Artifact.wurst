@@ -189,12 +189,17 @@ public class Artifact
     private int raceType // Defined by a unit's id
     private int itemId
     private int maskId
+    private string name
 
 
     construct(int itemId, int maskId, int raceType)
         this.itemId = itemId
         this.maskId = maskId
         this.raceType = raceType
+
+        item tempItem = createItem(itemId, vec2(7200,9000))
+        name = tempItem.getName()
+        tempItem.remove() 
 
         artifacts.put(maskId, this)
     
@@ -222,6 +227,9 @@ public class Artifact
     function getItemId() returns int
         return itemId
 
+    /** Gets the name of the artifact */
+    function getName() returns string
+        return name
 
 
 //==============================================================================================================================
