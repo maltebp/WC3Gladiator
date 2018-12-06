@@ -8,11 +8,13 @@ package Artifact
 import HashMap
 import ErrorHandling
 import SoundUtils
+import LinkedList
 
 
 // ----------------------------------------------------------------------------------------
 
 constant int EMPTYSLOT = '0000'
+constant int REMOVEARTIFACTSMASK = '0000'
 
 public constant int RACETYPE_ORC = '0000'
 public constant int RACETYPE_HIGHELF =  '0000'
@@ -22,7 +24,7 @@ constant SoundDefinition snd_Error = new SoundDefinition(Sounds.error, false)
 
 public unit array SHOP_ORC
 
-public constant int MAXITEMSINSHOP = 12
+public constant int MAXITEMSINSHOP = 11
 
 // ==========================================================================================
 
@@ -36,7 +38,7 @@ public function unit.removeArtifact(int artifactNumber)
 public function unit.removeAllArtifacts()
     this.removeArtifact(1)
     this.removeArtifact(2)
-    
+
     
 /** Adds to 'empty artifact slot'-items to a specific unit */
 public function unit.addArtifactSlots()
@@ -51,7 +53,7 @@ public function unit.addArtifactSlots()
 
 
 /** Adds an artifact to a unit, removing the empty item artifact slot */
-public function unit.addArtifact(Artifact whichArtifact)
+public function unit.addArtifact(int artifactItemId)
     
     int emptySlot = -1
 
@@ -65,7 +67,7 @@ public function unit.addArtifact(Artifact whichArtifact)
     // Adding item
     if emptySlot > -1
         this.removeItemFromSlot(0)
-        this.addItemById(whichArtifact.getItemId())
+        this.addItemById(artifactItemId)
 
     else
         snd_Error.playForPlayer(this.getOwner())        
@@ -74,11 +76,82 @@ public function unit.addArtifact(Artifact whichArtifact)
 
 // ==========================================================================================
 
+/** Class which contains data about Artifact Shops */
+public class ArtifactShop
+    private static LinkedList<ArtifactShop> shops = new LinkedList<ArtifactShop>
+
+    private int raceType
+    private unit shop
+    private int numberOfItems = 0
+
+    private static trigger trg_SellsItem
+    
+    
+    construct(unit shop, int raceType)
+        this.shop = shop
+        this.raceType = raceType
+
+        if trg_SellsItem == null
+            trg_SellsItem = CreateTrigger()
+            ..addAction(function itemSold)
+        
+        trg_SellsItem.registerUnitEvent(shop, EVENT_UNIT_SELL_ITEM)
+        
+        AddItemToStock(shop, REMOVEARTIFACTSMASK, 1, 1)
+
+
+    /** Checks if the shop is full */
+    function isFull() returns boolean
+        return numberOfItems >= MAXITEMSINSHOP 
+
+    /** Adds an item to the shop */
+    function addItem(int itemId)
+        if not isFull()
+            AddItemToStock(shop, itemId, 1, 1)
+            numberOfItems++
+
+        else
+            error("Shop is full")
+
+    function getShopUnit() returns unit
+        return shop
+        
+        
+    /** Finds a shop with a racetype, which is not full */
+    static function getReadyShop(int raceType) returns ArtifactShop
+    
+        for shop in shops
+            if shop.raceType == raceType and not shop.isFull()
+                return shop
+
+        error("No more shops available for id '"+raceType.toString()+"'.")
+        return null
+                
+
+    static function getShop(unit shopUnit) returns ArtifactShop
+        
+        for shop in shops
+            if shop.shop == shopUnit
+                return shop
+
+        return null
+
+    /** Action function which runs when an Artifact shop sells an item */
+    private static function itemSold()
+        ArtifactShop shop = getShop(GetSellingUnit())
+        unit hero = GetBuyingUnit()
+        item mask = GetManipulatedItem()
+
+        if shop.raceType == hero.getTypeId()
+            hero.addArtifact(Artifact.getItem(mask.getTypeId()))
+        else
+            snd_Error.playForPlayer(hero.getOwner())
+        
+
+            
 
 /** The artifact's data */
 public class Artifact
-    
-
     private static IterableMap<int, thistype> artifacts = new IterableMap<int, thistype>
 
     private int raceType // Defined by a unit's id
@@ -94,10 +167,11 @@ public class Artifact
     
     /** Makes the artifact available to buy */
     function release()
-        if raceType == RACETYPE_ORC
+        ArtifactShop readyShop = ArtifactShop.getReadyShop(raceType)
+        if readyShop != null
+            readyShop.addItem(maskId)
+
         
-
-
     /** Find the id of the artifact item matching the maskId */
     static function getItem(int maskId) returns int
         Artifact artifact = artifacts.get(maskId)
@@ -107,24 +181,19 @@ public class Artifact
             return 0
 
         else
-            return artifact.itemId        
-            
+            return artifact.itemId
+
     function getItemId() returns int
         return itemId
-    
-    
-/** Mark a shop as an artifact shop for a race */
-function setShop(unit shop, int raceType)    
-    
-    if raceType == RACETYPE_ORC
-        
-        int shopId = 0
-        while SHOP_ORC[shopId] != null
-            shopId++
-        SHOP_ORC[shopId] = shop
 
 
 // ==========================================================================================
+
+
+
+
+
 init
+
+
     
-    // Setup Items
