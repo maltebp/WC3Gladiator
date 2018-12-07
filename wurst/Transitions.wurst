@@ -78,6 +78,7 @@ function toShop_OnFadeIn()
         
     else
         hero.revive(HEROSPAWN_SHOP, true)
+        gladiator.getSoundOnRespawn().play()
         hero.pause()
 
     playMusic(Sounds.orcX1)

@@ -36,7 +36,7 @@ public class Gladiator
     private GladiatorType   gladiatorType
     private player          owner
 
-    
+
     construct(GladiatorType whichType, player owner, vec2 spawnPos, angle facing )
         this.owner = owner
         gladiatorType = whichType
@@ -103,7 +103,7 @@ public class GladiatorType
     private SoundDefinition snd_NewAbility = null
 
         
-    function setUniType(int unitType)
+    function setUnitType(int unitType)
         this.unitType = unitType
 
         unit tempUnit = createUnit(Player(PLAYER_NEUTRAL_PASSIVE), unitType, vec2(0,0),angle(0))
@@ -171,6 +171,7 @@ public class GladiatorType
         hasBeenInitialized = true
 
         ORC
+        ..setUnitType('O000')
         ..setSoundOnSpawn(Sounds.gromWhat3)
         ..setSoundOnRespawn(Sounds.gromYes3)
         ..setSoundOnNewAbility(Sounds.strongholdWhat1)
