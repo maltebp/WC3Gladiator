@@ -11,6 +11,7 @@ import initlater AttackDamage
 import ChargeSystem
 import Artifact
 import ItemReward
+import Gladiator
 
 
 constant boolean    SPAWNHEROINARENA        = false
@@ -32,6 +33,7 @@ public SoundDefinition snd_HeroInit = new SoundDefinition(Sounds.gromWhat3, fals
 public SoundDefinition snd_Text = new SoundDefinition(Sounds.questActivateWhat1, false)
 
 public unit hero
+public Gladiator gladiator
 
 
 public region MAPREGION
@@ -118,13 +120,24 @@ function fadeIn()
 
 function createHero()
 
-    hero = createUnit(Player(PLAYER_NEUTRAL_PASSIVE), 'O000', spawnPosOnInit, angle(3*PIHALF))
+
+    gladiator = new Gladiator(GladiatorType.ORC, Player(0), spawnPosOnInit, angle(3*PIHALF))
+
+    gladiator.releaseAbility(0)
+    gladiator.releaseAbility(1)
+
+    // Move all this stuff into Gladiator class
+
+    hero = gladiator.getUnit()
     ..suspendXp(true)
     ..setColor(PLAYER_COLOR_WHEAT)
     ..enableCharge()
+
     EnergySystem.addUnit(hero)
     
     hero.addArtifactSlots()
+
+    // ---
     
     
     addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
@@ -142,7 +155,7 @@ function createHero()
 
 
 function playHeroSound()
-    snd_HeroInit.play()
+    gladiator.getSoundOnSpawn().play()
     GetExpiredTimer().start(2, function disableCinematicMode )
 
 function disableCinematicMode()
@@ -158,7 +171,6 @@ function enableControls()
     EnablePreSelect(true, true)
     EnableDragSelect(true, true)
 
-    hero.setOwner(Player(0), false)
     Player(0)
     ..selectSingle(hero)
 
