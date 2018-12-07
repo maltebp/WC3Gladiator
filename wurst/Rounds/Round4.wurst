@@ -10,6 +10,7 @@ init
 
     round = new Round
     ..setReward(70, 4)
+    ..addArtifactRewards(ARTIFACT_TOOTHOFTHEWARCHIEF)
     ..setTitle("Human Battalion")
     ..setDescription("Trained soldiers, specialized in fighting together. Don't let them overrun you.")
     ..setHealthOrbSpawn(90, 70, 0.1, 15, 0.02)

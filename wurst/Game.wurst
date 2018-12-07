@@ -18,12 +18,12 @@ constant boolean    SPAWNHEROINARENA        = false
 constant boolean    PREPAREHERO             = false
 constant boolean    LOCKCAMBOUNDS           = true
 constant boolean    MAKEMAPVISIBLE          = false
-constant boolean    STARTATSPECIFICROUND    = false
+constant boolean    STARTATSPECIFICROUND    = true
 constant int        STARTINGROUND           = 10
 constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
 
-constant int START_TRAININGPOINTS           = 10
-constant int START_GOLD                     = 75
+constant int START_TRAININGPOINTS           = 8
+constant int START_GOLD                     = 50
 
 
 public constant player ENEMYPLAYER = Player(11)
@@ -124,10 +124,6 @@ function createHero()
     gladiator = new Gladiator(GladiatorType.ORC, Player(0), spawnPosOnInit, angle(3*PIHALF))
 
     gladiator.releaseAbility(0)
-    gladiator.releaseAbility(1)
-    gladiator.releaseAbility(2)
-    gladiator.releaseAbility(3)
-    gladiator.releaseAbility(4)
 
     // Move all this stuff into Gladiator class
 
@@ -139,13 +135,14 @@ function createHero()
     EnergySystem.addUnit(hero)
     
     hero.addArtifactSlots()
-    ARTIFACT_ORCISHCLEAVER.release()
     ARTIFACT_WARDRUM.release()
-    ARTIFACT_KILMAIM.release()
-    ARTIFACT_TOOTHOFTHEWARCHIEF.release()
-    ARTIFACT_TOKENOFSAMURO.release()
-    ARTIFACT_GIFTOFTHETAUREN.release()
-    ARTIFACT_BLOODOFMANNOROTH.release()
+    
+    ITEM_DULLBLADE.release()
+    ITEM_LEATHERARMOR.release()
+    ITEM_COMMONGEM.release()
+
+    setRound()
+
     
     
     addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
@@ -208,7 +205,7 @@ function delayedInit()
     // ITEM_LEATHERARMOR.release()
     
 
-    setRound()
+    
 
 
 function setRound()

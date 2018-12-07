@@ -17,6 +17,7 @@ init
 
     round = new Round
     ..setReward(70, 4)
+    ..addArtifactRewards(ARTIFACT_TOKENOFSAMURO)
     ..setTitle("Ghosts 'n' Stuff")
     ..setDescription("It seems like somebody's watching you. And what is that smell?")
     ..setHealthOrbSpawn(90, 100, 0.1, 25, 0.02)

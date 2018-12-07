@@ -130,7 +130,7 @@ public class Round
     function setDescription(string description)
         this.description = description
 
-
+    /** Heal over time is heal per tick. It lasts for 6 seconds, so 6 ticks. */
     function setHealthOrbSpawn( real duration, real healthFlatToHealInstant, real healthPercToHealInstant, real healthFlatToHealOverTime, real healthPercToHealOverTime )
         this.healthOrb_SpawnDuration = duration
         this.healthOrb_FlatToHealInstant = healthFlatToHealInstant
@@ -354,6 +354,12 @@ public class Round
         Player(0).addLumber(trainingPointsReward)
         for artifact in artifactReward
             artifact.release()
+
+        for itemReward in itemRewards
+            itemReward.release()
+
+        if abilityReward > -1
+            gladiator.releaseAbility(abilityReward)
 
     static function wonRound()
         

@@ -14,7 +14,7 @@ constant real REGENINCREASE = 0.5 // Percent
 constant real  DURATION = 10
 constant real ENRAGE_DURATIONINC = 0.01 // Per charge consumed
 
-constant int CHARGE = 30
+constant int CHARGE = 15
 
 constant int ABILITYID = 'A006'
 constant int BUFFID = 'B000'
@@ -47,6 +47,7 @@ function onCast()
         caster.resetAbilityCooldown('A01M')
         caster.resetAbilityCooldown('A000')
         caster.resetAbilityCooldown('A007')
+        caster.setMana(caster.getMaxMana())
 
     snd_OnCast.playOnPoint(caster.getPos3Fly())
 

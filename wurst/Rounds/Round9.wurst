@@ -51,6 +51,8 @@ init
 
     round = new Round()
     ..setReward(80, 4)
+    ..addArtifactRewards(ARTIFACT_GIFTOFTHETAUREN)
+    ..addAbilityReward(3)
     ..setTitle("Warlocks")
     ..setDescription("They are ready to kill their own minions for their own benefit.")
     ..setHealthOrbSpawn(90, 80, 0.1, 30, 0.02)

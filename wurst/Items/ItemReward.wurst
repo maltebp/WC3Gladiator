@@ -144,7 +144,9 @@ public constant ItemShop    SHOP_NOVICEGEAR         = new ItemShop(gg_unit_n003_
 
 // ITEM SETUP
 public constant ItemReward  ITEM_DULLBLADE          = new ItemReward( 'I000' )
+public constant ItemReward  ITEM_COMMONGEM          = new ItemReward( 'I00A' )
 public constant ItemReward  ITEM_LEATHERARMOR       = new ItemReward( 'I006' )
+public constant ItemReward  ITEM_GNOLLSOLDBOOTS     = new ItemReward( 'I007' )
 
 
 

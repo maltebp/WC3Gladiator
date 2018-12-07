@@ -19,7 +19,7 @@ init
     ..setReward(80, 4)
     ..setTitle("Lightning Lords")
     ..setDescription("Don't go get thunder struck now.")
-    ..setHealthOrbSpawn(90, 80, 0.1, 25, 0.02)
+    ..setHealthOrbSpawn(81, 60, 0.1, 25, 0.02)
 
     // Spawner 1
 

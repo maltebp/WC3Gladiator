@@ -11,6 +11,7 @@ init
 
     round = new Round
     ..setReward(70, 4)
+    ..addAbilityReward(2)
     ..setTitle("Gargoyles")
     ..setDescription("Sturdy, life sucking bastards - don't let their numbers make you lose focus.")
     ..setHealthOrbSpawn(90, 80, 0.1, 20, 0.02)

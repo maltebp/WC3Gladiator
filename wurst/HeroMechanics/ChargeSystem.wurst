@@ -35,7 +35,7 @@ import ErrorHandling
 // ------------------------------------------------------------------------------------------------------------------------
 // Settings
 
-constant real   DEGENERATION_BASE = 3 // Per second
+constant real   DEGENERATION_BASE = 2 // Per second
 constant real   DEGENERATION_FREQ = 0.25
 
 constant int    MAXCHARGE  = 100 // Should be adjusted with game constants

@@ -18,7 +18,8 @@ import Frenzy
 constant real   RANGE = 175
 constant real   BASEDAMAGE = 15
 constant real   DAMAGEFACTOR = 1.5
-constant int    CHARGE    = 15
+constant int    CHARGE    = 10
+constant int    WARDRUM_ENERGYBONUS    = 5
 constant real   ENRAGE_DAMAGEINC = 0.005 // Pr enrage charge consumed
 
 constant int ABILITYID  = 'A007'
@@ -50,6 +51,7 @@ function onCast()
     caster.addCharge(charge)
     
     if caster.hasArtifact(ARTIFACT_WARDRUM)
+        caster.addCharge(WARDRUM_ENERGYBONUS)
         caster.setAbilityCooldown(ABILITYID, 1, 2)
     else
         caster.setAbilityCooldown(ABILITYID,1,4)
