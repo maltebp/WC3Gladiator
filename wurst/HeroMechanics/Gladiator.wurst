@@ -7,27 +7,45 @@ package Gladiator
 import          LinkedList
 import public   SoundUtils
 import          ErrorHandling
+import          HashMap
 
 
 
 // ================================================================================================================================
 // Other functions
 
+/** Checks if the unit is a Gladiator - meaning that it has connected to a Gladiator instance */
+public function unit.isGladiator() returns boolean
+    return Gladiator.isUnitGladiator(this)
+
+/** Gets the Gladiator instance of a certain unit. Returns null, if the unit doesn't have an instance */
+public function unit.getGladiatorInstance() returns Gladiator
+    if not this.isGladiator()
+        return null
+    return Gladiator.getInstance(this)
+
+
 
 // ================================================================================================================================
 public class Gladiator
+
+
+    private static IterableMap<unit, Gladiator> instances = new IterableMap<unit, Gladiator>
 
     private unit            gladiatorUnit
     private GladiatorType   gladiatorType
     private player          owner
 
-
+    
     construct(GladiatorType whichType, player owner, vec2 spawnPos, angle facing )
         this.owner = owner
         gladiatorType = whichType
-        gladiatorUnit = createUnit(owner, gladiatorType.getUnitType(), spawnPos, facing)        
+        gladiatorUnit = createUnit(owner, gladiatorType.getUnitType(), spawnPos, facing)
+        
+        instances.put(gladiatorUnit, this)
 
 
+    /** Releases an ability, adding it to the gladiator unit. The abilityNumber is the number in the list */
     function releaseAbility(int abilityNumber) returns string
         int abilityId = gladiatorType.getAbility(abilityNumber)
         
@@ -43,19 +61,32 @@ public class Gladiator
     function getUnit() returns unit
         return gladiatorUnit
 
+
     function getSoundOnSpawn() returns SoundDefinition
         return gladiatorType.getSoundOnSpawn()
 
+
     function getSoundOnRespawn() returns SoundDefinition
         return gladiatorType.getSoundOnRespawn()
+
 
     function getSoundOnNewAbility() returns SoundDefinition
         return gladiatorType.getSoundOnNewAbility()
     
 
+    protected static function isUnitGladiator(unit whichUnit) returns boolean
+        return instances.has(whichUnit)
+
+
+    protected static function getInstance(unit  whichUnit) returns Gladiator
+        return instances.get(whichUnit)
+
+
+
 
 // ================================================================================================================================
 public class GladiatorType
+
 
     static GladiatorType ORC = new GladiatorType()
 
@@ -79,47 +110,59 @@ public class GladiatorType
         name = tempUnit.getName()
         tempUnit.remove()
 
+
     function setSoundOnSpawn(string soundPath)
         snd_Spawn = new SoundDefinition(soundPath, false)
+
 
     function setSoundOnRespawn(string soundPath)
         snd_Respawn = new SoundDefinition(soundPath, false)
 
+
     function setSoundOnNewAbility(string soundPath)
         snd_NewAbility = new SoundDefinition(soundPath, false)
     
+
     function addAbilities(vararg int abilities)
         for abil in abilities
             this.abilities.add(abil)
+
 
     function getSoundOnSpawn() returns SoundDefinition
         checkInit()
         return snd_Spawn 
 
+
     function getSoundOnRespawn() returns SoundDefinition
         checkInit()
         return snd_Respawn
+
 
     function getSoundOnNewAbility() returns SoundDefinition
         checkInit()     
         return snd_NewAbility
 
+
     function getAbility(int number) returns int
         checkInit()
         return abilities.get(number)         
     
+
     function getAllAbilities() returns LinkedList<int>
         checkInit() 
         return null
+
 
     function getUnitType() returns int
         checkInit() 
         return unitType
 
+
     private static function checkInit()
         if not hasBeenInitialized
             initialize()
         
+
         
 // ================================================================================================================================
 // GLADIATOR TYPE SETUP
