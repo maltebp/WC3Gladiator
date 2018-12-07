@@ -25,9 +25,9 @@ constant int  DURATION = 5
 constant int  CHARGE = 15
 constant real ENRAGE_DAMAGEINC = 0.005 // Decimal percent pr. enrage charge
 constant int KILMAIM_DURATIONINC = 4
-constant real KILMAIM_DAMAGEINC = 0.25
+constant real KILMAIM_DAMAGEINC = 0.5
 constant real TOOTHOFTHEWARCHIEF_RANGE = 250
-constant real TOOTHOFTHEWARCHIEF_DMG = 0.5 // Percent of original
+constant real TOOTHOFTHEWARCHIEF_DMG = 0.75 // Percent of original
 
 // For Slow Factor: see ability in Editor
 
@@ -72,7 +72,7 @@ function onCast()
         group targets = ENUM_GROUP..enumUnitsInRange(target.getPos(), TOOTHOFTHEWARCHIEF_RANGE)
 
         for aTarget in targets
-            if aTarget.getOwner().isAllyOf(caster.getOwner()) or not aTarget.isAliveTrick() or aTarget == target
+            if aTarget.getOwner().isAllyOf(caster.getOwner()) or not aTarget.isAlive() or aTarget == target
                 targets.removeUnit(aTarget)
 
         if targets.size() > 0

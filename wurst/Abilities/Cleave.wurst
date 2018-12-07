@@ -16,10 +16,11 @@ import Frenzy
 //  Settings
 
 constant real   RANGE = 175
-constant real   BASEDAMAGE = 15
+constant real   BASEDAMAGE = 5
 constant real   DAMAGEFACTOR = 1.5
 constant int    CHARGE    = 10
 constant int    WARDRUM_ENERGYBONUS    = 5
+constant real   ORCISHCLEAVER_RANGEINC = 0.4 // Percent
 constant real   ENRAGE_DAMAGEINC = 0.005 // Pr enrage charge consumed
 
 constant int ABILITYID  = 'A007'
@@ -43,7 +44,7 @@ function onCast()
 
     unit mainTarget = GetSpellTargetUnit()
     unit caster = GetSpellAbilityUnit()
-    real range = (caster.hasArtifact(ARTIFACT_ORCISHCLEAVER)) ? RANGE*1.5 : RANGE
+    real range = (caster.hasArtifact(ARTIFACT_ORCISHCLEAVER)) ? RANGE*(1+ORCISHCLEAVER_RANGEINC) : RANGE
     group targets = ENUM_GROUP..enumUnitsInRange(mainTarget.getPos(), range)
 
 

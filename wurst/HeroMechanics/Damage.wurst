@@ -3,3 +3,6 @@ package Damage
 public function unit.damageTargetMelee(unit target, real amount)
 
     UnitDamageTarget(this, target, amount, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_NORMAL, WEAPON_TYPE_WHOKNOWS)
+
+public function unit.damageTargetMagic(unit target, real amount)
+    UnitDamageTarget(this, target, amount, false, false, ATTACK_TYPE_MAGIC, DAMAGE_TYPE_NORMAL, WEAPON_TYPE_WHOKNOWS)

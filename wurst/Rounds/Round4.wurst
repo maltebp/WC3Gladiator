@@ -3,24 +3,41 @@ package Round4
 import public initlater Round3
 import TimerUtils
 
+import UnitVisualsUtils
+
+constant int FOOTMAN = 'h000'
+constant int MEDIC = 'n00A'
+constant int WIZARD ='n009'
+
 init
     //=========================================================================================================================================================
     //  Human Battalion
 
 
     round = new Round
-    ..setReward(70, 4)
+    ..setReward(35, 3)
     ..addArtifactRewards(ARTIFACT_TOOTHOFTHEWARCHIEF)
+    ..addItemRewards(ITEM_ENCHANTEDSWORD, ITEM_FOOTMANSHELM)
     ..setTitle("Human Battalion")
     ..setDescription("Trained soldiers, specialized in fighting together. Don't let them overrun you.")
-    ..setHealthOrbSpawn(90, 70, 0.1, 15, 0.02)
+    ..setHealthOrbSpawn(80, 40, 0.1, 10, 0.05)
 
 
     // Footman 1
 
-    round.addSpawner(new UnitSpawner('h000', ENEMYPLAYER, vec2(-639,1025), 15))
+    round.addSpawner(new UnitSpawner('h000', ENEMYPLAYER, vec2(-639,1025), 16))
     ..setStartDelay(3)
-    ..setFrequencyDeviation(0.1)
+    ..setFrequencyDeviation(0.05)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(8)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+
+    // Footman 1
+
+    round.addSpawner(new UnitSpawner('h000', ENEMYPLAYER, vec2(-639,1025), 16))
+    ..setStartDelay(3)
+    ..setFrequencyDeviation(0.05)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(8)
@@ -30,11 +47,11 @@ init
     // Footman 2
 
     round.addSpawner(new UnitSpawner('h000', ENEMYPLAYER, vec2(-639,1025), 15))
-    ..setStartDelay(3)
+    ..setStartDelay(60)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(8)
+    ..setSpawnCount(5)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
 
 
@@ -60,8 +77,8 @@ init
 
 
     // Wizard 2
-    round.addSpawner(new UnitSpawner('n009', ENEMYPLAYER, vec2(527,1025), 20))
-    ..setStartDelay(60)
+    round.addSpawner(new UnitSpawner('n009', ENEMYPLAYER, vec2(527,1025), 16))
+    ..setStartDelay(70)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
@@ -69,3 +86,23 @@ init
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
     ..setSoundOnSpawn(Sounds.knightNoRiderWhat1)
 
+
+
+
+
+
+// SETUP COLOR
+init
+    UnitVisuals.addUnitType(FOOTMAN)
+    ..setPlayerColor(PLAYER_COLOR_SNOW)
+
+    UnitVisuals.addUnitType(MEDIC)
+    ..setPlayerColor(PLAYER_COLOR_LIGHT_BLUE)
+
+    UnitVisuals.addUnitType(WIZARD)
+    ..setPlayerColor(PLAYER_COLOR_PEANUT)
+
+
+    
+
+    

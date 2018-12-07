@@ -17,7 +17,7 @@ init
     //  Necromancers 
 
     round = new Round
-    ..setReward(35, 3)
+    ..setReward(30, 3)
     ..addArtifactRewards(ARTIFACT_KILMAIM)
     ..addAbilityReward(1)
     ..addItemRewards(ITEM_BONEGLOVES)
@@ -25,7 +25,7 @@ init
     ..setTitle("Necromancers")
     ..setDescription("If you think they stand alone, it will cost you dearly")
 
-    ..setHealthOrbSpawn(80, 50, 0.1, 20, 0.02)
+    ..setHealthOrbSpawn(80, 40, 0.1, 10, 0.05)
 
     RemoteFunction<UnitSpawner> func
 

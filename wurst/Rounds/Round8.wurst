@@ -10,16 +10,20 @@ import GroupUtils
 import TimedSpecialEffects
 import UnitVisualsUtils
 import InstantDummyCaster
+import Damage
+
+
+constant real LIGHTNINGWARD_DAMAGE = 20
 
 init
     //=========================================================================================================================================================
     //  Lightning Lords
 
     round = new Round()
-    ..setReward(80, 4)
+    ..setReward(35, 4)
     ..setTitle("Lightning Lords")
     ..setDescription("Don't go get thunder struck now.")
-    ..setHealthOrbSpawn(81, 60, 0.1, 25, 0.02)
+    ..setHealthOrbSpawn(81, 50, 0.1, 20, 0.05)
 
     // Spawner 1
 
@@ -69,7 +73,7 @@ function lightningChargeCast()
     new DelayedBloodlustCast(caster, 0.25)
     
 
-    new LightningCharge(caster, 100, 350, 8)
+    new LightningCharge(caster, 80, 350, 8)
 
 
 function entersMap() returns boolean
@@ -157,7 +161,7 @@ public class SummonLightningWard
         
         unit ward = createUnit( caster.getOwner(), 'h003', vec2(GetSpellTargetX(), GetSpellTargetY()), angle(GetRandomReal(0, PI2)) )
 
-        new LightningWard(ward, 75, 2, 4000, 35)
+        new LightningWard(ward, 75, 2, 4000, LIGHTNINGWARD_DAMAGE)
 
         caster.getSpawner().addSummonedUnit(ward)
 
@@ -215,7 +219,7 @@ public class LightningWard
         ..setTarget(target, 75)
         ..setRemoveOnUnitDeath(true)
 
-        ward.damageTarget(target, damage)
+        ward.damageTargetMagic(target, damage)
 
 
     /** Finds the the target for the effect */

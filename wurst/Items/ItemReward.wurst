@@ -66,7 +66,7 @@ public class ItemShop
 
 // -----------------------------------------------------------------------------------------------------------------------------
 
-    private static constant int MAXITEMS = 12
+    private static constant int MAXITEMS = 11
 
     private static trigger trg_SellItem = null
     private static LinkedList<ItemShop> allShops = new LinkedList<ItemShop>
@@ -140,7 +140,8 @@ public class ItemShop
 // ================================================================================================================================
 
 // SHOP SETUP
-public constant ItemShop    SHOP_NOVICEGEAR         = new ItemShop(gg_unit_n003_0015)
+public constant ItemShop    SHOP_NOVICEGEAR             = new ItemShop(gg_unit_n003_0015)
+public constant ItemShop    SHOP_CHAMPIONGEAR           = new ItemShop(gg_unit_n002_0017)
 
 // ITEM SETUP
 public constant ItemReward  ITEM_DULLBLADE          = new ItemReward( 'I000' )
@@ -150,6 +151,12 @@ public constant ItemReward  ITEM_GNOLLSOLDBOOTS     = new ItemReward( 'I007' )
 public constant ItemReward  ITEM_BONEGLOVES         = new ItemReward( 'I01F' )
 public constant ItemReward  ITEM_MAGICTALISMAN      = new ItemReward( 'I00I' )
 public constant ItemReward  ITEM_MAGICGEM           = new ItemReward( 'I00J' )
+public constant ItemReward  ITEM_ENCHANTEDSWORD     = new ItemReward( 'I00L' )
+public constant ItemReward  ITEM_FOOTMANSHELM       = new ItemReward( 'I00M' )
+public constant ItemReward  ITEM_GARGOYLECLOAK      = new ItemReward( 'I00N' )
+public constant ItemReward  ITEM_LAVATEMPEREDBOOTS  = new ItemReward( 'I01G' )
+public constant ItemReward  ITEM_CLOAKOFFLAME       = new ItemReward( 'I00D' )
+public constant ItemReward  ITEM_SOULSTONE          = new ItemReward( 'I01H' )
 
 
 
