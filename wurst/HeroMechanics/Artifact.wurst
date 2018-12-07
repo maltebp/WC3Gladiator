@@ -237,3 +237,6 @@ public class Artifact
 
 public constant Artifact ARTIFACT_WARDRUM           = new Artifact('I011','I012', 'O000')
 public constant Artifact ARTIFACT_ORCISHCLEAVER     = new Artifact('I00Z', 'I010', 'O000')
+
+
+public constant ArtifactShop ARTIFACTSHOP = new ArtifactShop(gg_unit_n00K_0002, 'O000')

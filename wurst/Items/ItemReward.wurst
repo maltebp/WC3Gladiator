@@ -85,6 +85,9 @@ public class ItemShop
 
         trg_SellItem.registerUnitEvent(shop, EVENT_UNIT_SELL_ITEM)
         
+        allShops.add(this)
+        
+        
     /** Checks if an item shop is full */
     function isFull() returns boolean
         return items.size() >= MAXITEMS
@@ -135,4 +138,15 @@ public class ItemShop
     
     
 // ================================================================================================================================
-// ITEMSETUP
+
+// SHOP SETUP
+public constant ItemShop    SHOP_NOVICEGEAR         = new ItemShop(gg_unit_n003_0015)
+
+// ITEM SETUP
+public constant ItemReward  ITEM_DULLBLADE          = new ItemReward( 'I000' )
+public constant ItemReward  ITEM_LEATHERARMOR       = new ItemReward( 'I006' )
+
+
+
+        // Blueprint
+        // public constant ItemReward ITEM_[name] = new ItemReward( itemId )

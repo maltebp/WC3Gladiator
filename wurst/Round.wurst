@@ -8,6 +8,7 @@ import TimerUtils
 import Orb
 import Music
 import public Artifact
+import public ItemReward
 
 public class Round
 
@@ -21,6 +22,8 @@ public class Round
     private static constant string TEXTCOLOR_GOLD = "|cffffcc00"
     private static constant string TEXTCOLOR_TRAINPOINT = "|cff00FA9A"
     private static constant string TEXTCOLOR_ARTIFACT = "|cffb3b3ff"
+    private static constant string TEXTCOLOR_ITEM = "|cffd9b38c"
+    
 
 //=========================================================================================================================================================
 
@@ -34,6 +37,7 @@ public class Round
     private static boolean roundWon = false
     private static Round currentRound
     private static boolean isBossRound = false
+    private static boolean instantSpawn = false
 
     
 
@@ -45,6 +49,7 @@ public class Round
     private int goldReward
     private int trainingPointsReward
     private LinkedList<Artifact> artifactReward = new LinkedList<Artifact>
+    private LinkedList<ItemReward> itemRewards = new LinkedList<ItemReward>
     private real healthOrb_FlatToHealInstant
     private real healthOrb_PercToHealInstant
     private real healthOrb_FlatToHealOverTime
@@ -141,6 +146,15 @@ public class Round
         for artifact in artifacts
             artifactReward.add(artifact)
 
+    /** Adds one or more artifacts as a reward, when winning the round */
+    function addItemRewards(vararg ItemReward items)
+        for itemReward in items
+            itemRewards.add(itemReward)
+
+    /** Make all rounds instantly spawn all units - only for testing! */
+    static function toggleInstantSpawn(boolean toggle)
+        instantSpawn = true
+
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Getters
 
@@ -196,6 +210,9 @@ public class Round
         if not spawners.isEmpty()
             for spawner in spawners
                 spawner.start()
+
+                if instantSpawn
+                    spawner.spawnAll()
         
     function clear()
         Orb.destroyAll()
