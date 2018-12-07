@@ -13,49 +13,78 @@ init
 //  Gnolls (Round 1)
 
     round = new Round
-    ..setReward(40, 3)
+    ..setReward(30, 3)
     ..addArtifactRewards(ARTIFACT_ORCISHCLEAVER)
     ..addItemRewards(ITEM_GNOLLSOLDBOOTS)
+
     ..setTitle("Gnolls")
     ..setDescription("Gnolls shouldn't be a problem, but watch out for their Champions - they rally the others.")
-    ..setHealthOrbSpawn(90, 60, 0.1, 20, 0.02)
-
+    ..setHealthOrbSpawn(80, 50, 0.1, 20, 0.02)
+    
     // Fighter
-    round.addSpawner(new UnitSpawner('n004', ENEMYPLAYER, vec2(-639,1025), 6))
+    round.addSpawner(new UnitSpawner('n004', ENEMYPLAYER, vec2(-639,1025), 8))
     ..setStartDelay(4)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setFrequencyDeviation(0.05)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(16)
+    ..setSpawnCount(15)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
 
-    round.addSpawner(new UnitSpawner('n004', ENEMYPLAYER, vec2(-639,1025), 5))
+    round.addSpawner(new UnitSpawner('n004', ENEMYPLAYER, vec2(-639,1025), 30))
     ..setStartDelay(30)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setFrequencyDeviation(0.05)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(11)
+    ..setSpawnCount(3)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+
+    round.addSpawner(new UnitSpawner('n004', ENEMYPLAYER, vec2(-639,1025), 12))
+    ..setStartDelay(60)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setFrequencyDeviation(0.05)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(4)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
     
-    // Archer
-    round.addSpawner(new UnitSpawner('n006', ENEMYPLAYER, vec2(527,1025), 10))
-    ..setStartDelay(9)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(13)
-    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
-
-    round.addSpawner(new UnitSpawner('n006', ENEMYPLAYER, vec2(527,1025),10))
-    ..setStartDelay(30)
+    // Archer --------------------------------------------------------------------------------
+    round.addSpawner(new UnitSpawner('n006', ENEMYPLAYER, vec2(527,1025), 12))
+    ..setStartDelay(10)
+    ..setFrequencyDeviation(0.05)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(10)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
 
+    round.addSpawner(new UnitSpawner('n006', ENEMYPLAYER, vec2(527,1025), 25))
+    ..setStartDelay(40)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setFrequencyDeviation(0.05)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(3)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+
+    round.addSpawner(new UnitSpawner('n006', ENEMYPLAYER, vec2(527,1025), 10))
+    ..setStartDelay(70)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setFrequencyDeviation(0.05)
+    ..setSpawnCount(5)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+
     // Champion
-    round.addSpawner(new UnitSpawner('n005', ENEMYPLAYER, vec2(527,1025), 20))
+    round.addSpawner(new UnitSpawner('n005', ENEMYPLAYER, vec2(527,1025), 30))
     ..setStartDelay(20)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(6)
+    ..setFrequencyDeviation(0.05)
+    ..setSpawnCount(4)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+
+    round.addSpawner(new UnitSpawner('n005', ENEMYPLAYER, vec2(527,1025), 0))
+    ..setStartDelay(80)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(1)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
 
     

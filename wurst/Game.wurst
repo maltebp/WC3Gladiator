@@ -19,7 +19,7 @@ constant boolean    PREPAREHERO             = false
 constant boolean    LOCKCAMBOUNDS           = true
 constant boolean    MAKEMAPVISIBLE          = false
 constant boolean    STARTATSPECIFICROUND    = true
-constant int        STARTINGROUND           = 10
+constant int        STARTINGROUND           = 2
 constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
 
 constant int START_TRAININGPOINTS           = 8
@@ -96,11 +96,11 @@ init
 function gameIntro()
     snd_Text.play()
     canSkipGameInfo = true
-    printTimed("|cffffcc00"+"Welcome to the Simple Hero Survival!"+"|r",10)
+    printTimed("|cffffcc00"+"Welcome Gladiator!"+"|r",10)
     printTimed("You will have to face fierce opponents, whose only goal is make you regret the day you "+
-       "chose to step into the arena. To call yourself the true champion, you have to survive "+Round.getNumberOfRounds().toString()+ " merciless rounds of"+
+       "stepped into the arena. To call yourself the true champion, you have to survive "+Round.getNumberOfRounds().toString()+ " merciless rounds of"+
        " slaughter.",10)
-    printTimed("Good luck!", 10)
+    printTimed("At least you will die with honor.", 10)
 
 
     timer_GameIntro.start(13, function fadeIn)

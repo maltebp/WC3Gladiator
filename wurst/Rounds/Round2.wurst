@@ -4,22 +4,28 @@ import public initlater Round1
 import TimerUtils
 import MyLibrary
 import TimedSpecialEffects
+import UnitVisualsUtils
+
+
+
+constant int SKELETONWARRIOR = 'u001'
+constant int SKELETONARCHER = 'n007'
+constant int NECROMANCER = 'u000'
 
 init
     //=========================================================================================================================================================
     //  Necromancers 
 
-
-    
-
     round = new Round
-    ..setReward(60, 3)
-    ..setTitle("Necromancers")
+    ..setReward(35, 3)
     ..addArtifactRewards(ARTIFACT_KILMAIM)
     ..addAbilityReward(1)
+    ..addItemRewards(ITEM_BONEGLOVES)
+
+    ..setTitle("Necromancers")
     ..setDescription("If you think they stand alone, it will cost you dearly")
-    ..setHealthOrbSpawn(90, 60, 0.1, 10, 0.02)
-    ..addArtifactRewards(ARTIFACT_WARDRUM)
+
+    ..setHealthOrbSpawn(80, 50, 0.1, 20, 0.02)
 
     RemoteFunction<UnitSpawner> func
 
@@ -163,7 +169,16 @@ class Skeleton
             
         destroy instance
         
-        
+            
+init
+    UnitVisuals.addUnitType(NECROMANCER)
+    ..setPlayerColor(PLAYER_COLOR_MAROON)
+
+    UnitVisuals.addUnitType(SKELETONWARRIOR)
+    ..setPlayerColor(PLAYER_COLOR_COAL)
+
+    UnitVisuals.addUnitType(SKELETONARCHER)
+    ..setPlayerColor(PLAYER_COLOR_COAL)
 
 
     

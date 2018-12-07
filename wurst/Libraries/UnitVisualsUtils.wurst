@@ -73,16 +73,3 @@ public class UnitVisuals
             
         return false
          
-
-init 
-
-    UnitVisuals.addUnitType('n002')
-    ..setColor(50, 150, 255, 175)
-    ..setPlayerColor(PLAYER_COLOR_LIGHT_BLUE)
-
-    UnitVisuals.addUnitType('n003')
-    ..setPlayerColor(PLAYER_COLOR_COAL)
-
-    UnitVisuals.addUnitType('n004')
-    ..setColor(50, 50, 50, 200)
-    ..setPlayerColor(PLAYER_COLOR_COAL)
