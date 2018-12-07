@@ -19,7 +19,7 @@ constant boolean    PREPAREHERO             = false
 constant boolean    LOCKCAMBOUNDS           = true
 constant boolean    MAKEMAPVISIBLE          = false
 constant boolean    STARTATSPECIFICROUND    = true
-constant int        STARTINGROUND           = 2
+constant int        STARTINGROUND           = 3
 constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
 
 constant int START_TRAININGPOINTS           = 8

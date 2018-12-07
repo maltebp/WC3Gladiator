@@ -148,6 +148,8 @@ public constant ItemReward  ITEM_COMMONGEM          = new ItemReward( 'I00A' )
 public constant ItemReward  ITEM_LEATHERARMOR       = new ItemReward( 'I006' )
 public constant ItemReward  ITEM_GNOLLSOLDBOOTS     = new ItemReward( 'I007' )
 public constant ItemReward  ITEM_BONEGLOVES         = new ItemReward( 'I01F' )
+public constant ItemReward  ITEM_MAGICTALISMAN      = new ItemReward( 'I00I' )
+public constant ItemReward  ITEM_MAGICGEM           = new ItemReward( 'I00J' )
 
 
 

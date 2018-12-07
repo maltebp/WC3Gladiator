@@ -132,6 +132,7 @@ init
     'I00L'.setAttackDamage(10)
     'I00F'.setAttackDamage(10)
     'I00U'.setAttackDamage(8)
+    'I00J'.setAttackDamage(8) // Magic Gem
 
     // Editor's Items
     'I00S'.setAttackDamage(30)
