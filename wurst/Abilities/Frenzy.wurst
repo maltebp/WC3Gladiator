@@ -8,6 +8,7 @@ import TimerUtils
 import EnergySystem
 import ChargeSystem
 import Enrage
+import Artifact
 
 constant real REGENINCREASE = 0.5 // Percent
 constant real  DURATION = 10
@@ -16,8 +17,14 @@ constant real ENRAGE_DURATIONINC = 0.01 // Per charge consumed
 constant int CHARGE = 30
 
 constant int ABILITYID = 'A006'
+constant int BUFFID = 'B000'
 
 constant SoundDefinition snd_OnCast= new SoundDefinition(Sounds.bloodlustTarget, false, true)
+
+
+public function unit.hasFrenzy() returns boolean
+    return this.getAbilityLevel(BUFFID) > 0
+
 
 function endEffect()
     timer expiredTimer = GetExpiredTimer()
@@ -28,11 +35,18 @@ function endEffect()
     
     expiredTimer.release()
 
-    // remove buff
+    data.caster.removeAbility(BUFFID)
     
 
 function onCast()
     unit caster = GetSpellAbilityUnit()
+
+    if caster.hasArtifact(ARTIFACT_GIFTOFTHETAUREN)
+        caster.resetAbilityCooldown('A005')
+        caster.resetAbilityCooldown('A008')
+        caster.resetAbilityCooldown('A01M')
+        caster.resetAbilityCooldown('A000')
+        caster.resetAbilityCooldown('A007')
 
     snd_OnCast.playOnPoint(caster.getPos3Fly())
 

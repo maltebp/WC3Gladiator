@@ -8,6 +8,8 @@ import Damage
 import ChargeSystem
 import Enrage
 import Artifact
+import BloodOfMannoroth
+import Frenzy
 
 //=========================================================================================================================================================
 
@@ -43,7 +45,9 @@ function onCast()
     real range = (caster.hasArtifact(ARTIFACT_ORCISHCLEAVER)) ? RANGE*1.5 : RANGE
     group targets = ENUM_GROUP..enumUnitsInRange(mainTarget.getPos(), range)
 
-    caster.addCharge(CHARGE)
+
+    int charge = (caster.hasFrenzy() and caster.hasArtifact(ARTIFACT_BLOODOFMANNOROTH)) ? R2I(CHARGE * (1+BLOODOFMANNOROTH_CHARGEINC)) : CHARGE
+    caster.addCharge(charge)
     
     if caster.hasArtifact(ARTIFACT_WARDRUM)
         caster.setAbilityCooldown(ABILITYID, 1, 2)

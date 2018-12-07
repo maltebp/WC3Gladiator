@@ -13,6 +13,7 @@ import ChargeSystem
 import Enrage
 import Artifact
 import GroupUtils
+import BloodOfMannoroth
 
 //=========================================================================================================================================================
 
@@ -53,7 +54,8 @@ function onCast()
             snd_OnAttack[i] = new SoundDefinition(snd_OnAttack_File[i], false, true)
     snd_OnAttack[GetRandomInt(0, 2)].playOnPoint(target.getPos3Fly())
 
-    caster.addCharge(CHARGE)
+    int charge = (caster.hasArtifact(ARTIFACT_BLOODOFMANNOROTH)) ? R2I(CHARGE * (1+BLOODOFMANNOROTH_CHARGEINC)) : CHARGE
+    caster.addCharge(charge)
 
 
 

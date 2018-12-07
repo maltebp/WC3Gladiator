@@ -144,6 +144,8 @@ function createHero()
     ARTIFACT_KILMAIM.release()
     ARTIFACT_TOOTHOFTHEWARCHIEF.release()
     ARTIFACT_TOKENOFSAMURO.release()
+    ARTIFACT_GIFTOFTHETAUREN.release()
+    ARTIFACT_BLOODOFMANNOROTH.release()
     
     
     addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )

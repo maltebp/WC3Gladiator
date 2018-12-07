@@ -12,6 +12,8 @@ import HashMap
 import InstantDummyCaster
 import TimerUtils
 import Orders
+import BloodOfMannoroth
+import Frenzy
 
 
 class WhirlingStrike
@@ -49,7 +51,8 @@ class WhirlingStrike
 
         targets.enumUnitsInRange(caster.getPos(), RANGE*enrageRangeFactor)
 
-        caster.addCharge(CHARGE)
+        int charge = (caster.hasFrenzy() and caster.hasArtifact(ARTIFACT_BLOODOFMANNOROTH)) ? R2I(CHARGE * (1+BLOODOFMANNOROTH_CHARGEINC)) : CHARGE
+        caster.addCharge(charge)
 
         for target in targets
             if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAliveTrick() 
