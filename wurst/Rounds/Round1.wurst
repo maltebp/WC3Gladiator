@@ -49,6 +49,7 @@ init
 
     round = new Round
     ..setReward(50, 3)
+    ..addArtifactRewards(ARTIFACT_ORCISHCLEAVER)
     ..setTitle("Gnolls")
     ..setDescription("Gnolls shouldn't be a problem, but watch out for their Champions - they rally the others.")
     ..setHealthOrbSpawn(90, 60, 0.1, 10, 0.02)

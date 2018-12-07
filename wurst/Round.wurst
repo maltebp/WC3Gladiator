@@ -7,6 +7,7 @@ import Transitions
 import TimerUtils
 import Orb
 import Music
+import public Artifact
 
 public class Round
 
@@ -19,6 +20,7 @@ public class Round
 
     private static constant string TEXTCOLOR_GOLD = "|cffffcc00"
     private static constant string TEXTCOLOR_TRAINPOINT = "|cff00FA9A"
+    private static constant string TEXTCOLOR_ARTIFACT = "|cffb3b3ff"
 
 //=========================================================================================================================================================
 
@@ -42,6 +44,7 @@ public class Round
     private int number
     private int goldReward
     private int trainingPointsReward
+    private LinkedList<Artifact> artifactReward = new LinkedList<Artifact>
     private real healthOrb_FlatToHealInstant
     private real healthOrb_PercToHealInstant
     private real healthOrb_FlatToHealOverTime
@@ -54,6 +57,7 @@ public class Round
     private boolean bossRound = false
     private unit boss = null
     private string music = Sounds.orcVictory
+
     Round_RemoteFunction<Round> codeOnClear
     Round_RemoteFunction<Round> codeOnPrepare
     Round_RemoteFunction<Round> codeOnFadeIn
@@ -62,9 +66,11 @@ public class Round
     Round_RemoteFunction<Round> codeOnLastUnitDeath
 
 
+
     private static SoundDefinition snd_GoldReward = new SoundDefinition(Sounds.receiveGold, false)
     private static SoundDefinition snd_RoundInfo = new SoundDefinition(Sounds.questLog, false)
     private static SoundDefinition snd_StartRound = new SoundDefinition(Sounds.goodJob, false)
+    private static SoundDefinition snd_ItemReward = new SoundDefinition(Sounds.itemReceived, false)
 
 // ======================================================================================================================================
 
@@ -130,6 +136,11 @@ public class Round
         this.music = music
         
 
+    /** Adds one or more artifacts as a reward, when winning the round */
+    function addArtifactRewards(vararg Artifact artifacts)
+        for artifact in artifacts
+            artifactReward.add(artifact)
+
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Getters
 
@@ -159,6 +170,7 @@ public class Round
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 //  Running
+
     
     /** Starts the currentRound */
     static function startRound()
@@ -246,12 +258,44 @@ public class Round
         Player(0).addLumber(trainingPointsReward)
 
 
+    /** Rewards items, including artifacts */
+    private function rewardItems() returns boolean
+
+        if artifactReward.size() > 0 // or item.size() > 0
+            
+            snd_ItemReward.play()
+            printTimed(" ", 5)
+            string text = "New artifacts unlocked: "
+            
+            int i = 0
+            for artifact in artifactReward
+
+                text += TEXTCOLOR_ARTIFACT+artifact.getName()+"|r"
+                i++
+                if i < artifactReward.size()
+                    text += ", "
+                else
+                    text += "."
+
+                artifact.release()
+
+            printTimed(text, 5)
+            return true
+
+        return false
+        
+
     static function giveReward()
         currentRound.reward()
+
+    static function giveItemReward() returns boolean
+        return currentRound.rewardItems()
 
     function giveRewardNotFancy()
         Player(0).addGold(goldReward)
         Player(0).addLumber(trainingPointsReward)
+        for artifact in artifactReward
+            artifact.release()
 
     static function wonRound()
         
