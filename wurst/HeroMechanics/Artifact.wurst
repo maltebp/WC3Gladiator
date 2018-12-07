@@ -74,6 +74,9 @@ public function unit.addArtifact(int artifactItemId)
 public function unit.hasArtifactItem(int artifactItemId) returns boolean
     return this.hasItemById(artifactItemId)
 
+public function unit.hasArtifact(Artifact artifact) returns boolean
+    return this.hasItemById(artifact.getItemId())
+
         
 
 // ==========================================================================================
@@ -230,13 +233,19 @@ public class Artifact
     /** Gets the name of the artifact */
     function getName() returns string
         return name
+        
 
 
 //==============================================================================================================================
 // ARTIFACTS
 
-public constant Artifact ARTIFACT_WARDRUM           = new Artifact('I011','I012', 'O000')
-public constant Artifact ARTIFACT_ORCISHCLEAVER     = new Artifact('I00Z', 'I010', 'O000')
+public constant Artifact ARTIFACT_WARDRUM               = new Artifact('I011','I012', 'O000')
+public constant Artifact ARTIFACT_ORCISHCLEAVER         = new Artifact('I00Z', 'I010', 'O000')
+public constant Artifact ARTIFACT_KILMAIM               = new Artifact('I014', 'I019', 'O000')
+public constant Artifact ARTIFACT_TOOTHOFTHEWARCHIEF    = new Artifact('I015', 'I01B', 'O000')
+public constant Artifact ARTIFACT_TOKENOFSAMURO         = new Artifact('I017', 'I010', 'O000')
+public constant Artifact ARTIFACT_GIFTOFTHETAUREN       = new Artifact('I018', 'I010', 'O000')
+public constant Artifact ARTIFACT_BLOODOFMANNOROTH      = new Artifact('I013', 'I010', 'O000')
 
 
 public constant ArtifactShop ARTIFACTSHOP = new ArtifactShop(gg_unit_n00K_0002, 'O000')

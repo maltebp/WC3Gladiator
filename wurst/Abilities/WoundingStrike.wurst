@@ -11,6 +11,8 @@ import TimedSpecialEffects
 import Damage
 import ChargeSystem
 import Enrage
+import Artifact
+import GroupUtils
 
 //=========================================================================================================================================================
 
@@ -21,6 +23,10 @@ constant real DOT_DAMAGEFACTOR = 0.5
 constant int  DURATION = 5
 constant int  CHARGE = 20
 constant real ENRAGE_DAMAGEINC = 0.005 // Decimal percent pr. enrage charge
+constant int KILMAIM_DURATIONINC = 4
+constant real KILMAIM_DAMAGEINC = 0.25
+constant real TOOTHOFTHEWARCHIEF_RANGE = 250
+constant real TOOTHOFTHEWARCHIEF_DMG = 0.5 // Percent of original
 
 // For Slow Factor: see ability in Editor
 
@@ -49,20 +55,47 @@ function onCast()
 
     caster.addCharge(CHARGE)
 
+
+
+    int dotDuration = (caster.hasArtifact(ARTIFACT_KILMAIM)) ? DURATION+KILMAIM_DURATIONINC : DURATION
+    real totalAttackDamagae = I2R(caster.getTotalAttackDamage())
+    real primaryDamage = (BASEDAMAGE + totalAttackDamagae * DAMAGEFACTOR)  *enrageFactor
+    real dotDamage     = (DOT_BASEDAMAGE + totalAttackDamagae * DOT_DAMAGEFACTOR)  *enrageFactor
+
+    hitTarget(target, caster, primaryDamage, dotDamage, I2R(dotDuration), enrageFactor > 1)
+
+    // Secondary Target
+    if caster.hasArtifact(ARTIFACT_TOOTHOFTHEWARCHIEF)
+
+        group targets = ENUM_GROUP..enumUnitsInRange(target.getPos(), TOOTHOFTHEWARCHIEF_RANGE)
+
+        for aTarget in targets
+            if aTarget.getOwner().isAllyOf(caster.getOwner()) or not aTarget.isAliveTrick() or aTarget == target
+                targets.removeUnit(aTarget)
+
+        if targets.size() > 0
+            unit secondaryTarget = targets.getNearestUnit(target.getPos())
+            hitTarget(secondaryTarget, caster, primaryDamage*TOOTHOFTHEWARCHIEF_DMG, dotDamage*TOOTHOFTHEWARCHIEF_DMG, I2R(dotDuration), enrageFactor > 1)
+        
+
+
+function hitTarget(unit target, unit caster, real primaryDamage, real dotDamage, real dotDuration, boolean enraged)
+
     target.addEffect("Abilities\\Spells\\Other\\Stampede\\StampedeMissileDeath.mdl","origin")
     ..setDuration(3)
     target.addEffect("Abilities\\Weapons\\GlaiveMissile\\GlaiveMissile.mdl", "origin")
     ..destr()
 
-    if enrageFactor > 1
+    if enraged
         target.addEffect("Abilities\\Spells\\Orc\\Disenchant\\DisenchantSpecialArt.mdl", "chest")
         ..setDuration(3)
         snd_EnrageHit.playOnPoint(target.getPos3with(150))
 
-    caster.damageTargetMelee(target, (BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)*enrageFactor)
+    caster.damageTargetMelee(target, primaryDamage)
     
-    real dotDamage = (DOT_BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DOT_DAMAGEFACTOR)*enrageFactor
-    WoundingStrikeBuff.add(target, caster, dotDamage)
+    real finalDotDamage = (caster.hasArtifact(ARTIFACT_KILMAIM)) ? dotDamage*(1+KILMAIM_DAMAGEINC) : dotDamage
+
+    WoundingStrikeBuff.add(target, caster, finalDotDamage, dotDuration)
 
 
 
@@ -94,7 +127,7 @@ class WoundingStrikeBuff
         targets.remove(target)
 
 
-    static function add(unit whichTarget, unit source, real dotDamage)   
+    static function add(unit whichTarget, unit source, real dotDamage,  real duration)   
         
         if not targets.has(whichTarget)
             targets.put(whichTarget, new WoundingStrikeBuff(whichTarget, source, dotDamage) )
@@ -103,10 +136,10 @@ class WoundingStrikeBuff
             instance.dotDamage = dotDamage
             instance.source = source
 
-        targets.get(whichTarget).start()
+        targets.get(whichTarget).start(duration)
         
-    private function start()
-        timer_Duration.start(I2R(DURATION), function removeBuff)
+    private function start(real duration)
+        timer_Duration.start(duration, function removeBuff)
         timer_Dot.startPeriodic(1, function dealDamage)
 
     static function dealDamage()

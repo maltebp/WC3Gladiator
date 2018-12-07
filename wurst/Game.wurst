@@ -139,8 +139,10 @@ function createHero()
     EnergySystem.addUnit(hero)
     
     hero.addArtifactSlots()
-
-    // ---
+    ARTIFACT_ORCISHCLEAVER.release()
+    ARTIFACT_WARDRUM.release()
+    ARTIFACT_KILMAIM.release()
+    ARTIFACT_TOOTHOFTHEWARCHIEF.release()
     
     
     addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
