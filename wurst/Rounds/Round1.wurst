@@ -51,6 +51,7 @@ init
     ..setReward(50, 3)
     ..addArtifactRewards(ARTIFACT_ORCISHCLEAVER, ARTIFACT_WARDRUM)
     ..addItemRewards(ITEM_DULLBLADE, ITEM_LEATHERARMOR)
+    ..addAbilityReward(2)
     ..setTitle("Gnolls")
     ..setDescription("Gnolls shouldn't be a problem, but watch out for their Champions - they rally the others.")
     ..setHealthOrbSpawn(90, 60, 0.1, 10, 0.02)

@@ -72,6 +72,13 @@ public class Gladiator
 
     function getSoundOnNewAbility() returns SoundDefinition
         return gladiatorType.getSoundOnNewAbility()
+
+    
+    function getOwner() returns player
+        return owner
+
+    function getColor() returns string
+        return gladiatorType.getColor()
     
 
     protected static function isUnitGladiator(unit whichUnit) returns boolean
@@ -95,6 +102,8 @@ public class GladiatorType
     private int unitType
 
     private string name
+
+    private string color
 
     private LinkedList<int> abilities = new LinkedList<int>
 
@@ -122,6 +131,9 @@ public class GladiatorType
     function setSoundOnNewAbility(string soundPath)
         snd_NewAbility = new SoundDefinition(soundPath, false)
     
+
+    function setColor(string color)
+        this.color = color
 
     function addAbilities(vararg int abilities)
         for abil in abilities
@@ -157,6 +169,10 @@ public class GladiatorType
         checkInit() 
         return unitType
 
+    function getColor() returns string
+        checkInit()
+        return color
+
 
     private static function checkInit()
         if not hasBeenInitialized
@@ -176,6 +192,7 @@ public class GladiatorType
         ..setSoundOnRespawn(Sounds.gromYes3)
         ..setSoundOnNewAbility(Sounds.strongholdWhat1)
         ..addAbilities('A007','A005','A006','A000','A008')
+        ..setColor("|cff98e698")
 
 
 

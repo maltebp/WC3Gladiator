@@ -50,6 +50,7 @@ public class Round
     private int trainingPointsReward
     private LinkedList<Artifact> artifactReward = new LinkedList<Artifact>
     private LinkedList<ItemReward> itemRewards = new LinkedList<ItemReward>
+    private int abilityReward = -1 // Number
     private real healthOrb_FlatToHealInstant
     private real healthOrb_PercToHealInstant
     private real healthOrb_FlatToHealOverTime
@@ -150,6 +151,9 @@ public class Round
     function addItemRewards(vararg ItemReward items)
         for itemReward in items
             itemRewards.add(itemReward)
+
+    function addAbilityReward(int abilityNumber)
+        abilityReward = abilityNumber
 
     /** Make all rounds instantly spawn all units - only for testing! */
     static function toggleInstantSpawn(boolean toggle)
@@ -306,7 +310,7 @@ public class Round
             if numberOfArtifacts > 0 
                 for artifact in artifactReward
 
-                    text += TEXTCOLOR_ARTIFACT+artifact.getName()+" (Artifact)|r "
+                    text += TEXTCOLOR_ARTIFACT+artifact.getName()+" (Artifact)|r"
 
                     i++
 
@@ -319,6 +323,24 @@ public class Round
             return true
 
         return false
+
+    function giveAbilityReward() returns boolean
+
+        if abilityReward > -1
+
+            printTimed(" ", 6)
+
+            string text = "New ability: "
+            text += gladiator.getColor()+gladiator.releaseAbility(abilityReward)+"|r"
+
+            printTimed(text, 6)
+
+            gladiator.getSoundOnNewAbility().playForPlayer(gladiator.getOwner())
+        
+            return true
+
+        else
+            return false
         
 
     static function giveReward()

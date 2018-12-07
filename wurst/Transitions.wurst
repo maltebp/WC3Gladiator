@@ -120,10 +120,20 @@ function toShop_Reward()
 function toShop_RewardItems()
     boolean anyItemsToReward = Round.giveItemReward()
     if anyItemsToReward
+        GetExpiredTimer().start(6, function toShop_RewardAbilities )
+    else
+        GetExpiredTimer().start(0, function toShop_RewardAbilities )
+
+
+function toShop_RewardAbilities()
+    boolean anyAbilitiesToReward = Round.getCurrentRound().giveAbilityReward()
+
+    if anyAbilitiesToReward
         GetExpiredTimer().start(6, function toShop_NextRound )
     else
         GetExpiredTimer().start(0, function toShop_NextRound )
 
+        
 function toShop_NextRound()
     Round.setNextRound()
     ClearTextMessages()
