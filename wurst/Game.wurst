@@ -10,6 +10,7 @@ import Preloader
 import initlater AttackDamage
 import ChargeSystem
 import Artifact
+import ItemReward
 
 
 constant boolean    SPAWNHEROINARENA        = false
@@ -18,6 +19,7 @@ constant boolean    LOCKCAMBOUNDS           = true
 constant boolean    MAKEMAPVISIBLE          = false
 constant boolean    STARTATSPECIFICROUND    = false
 constant int        STARTINGROUND           = 10
+constant boolean    INSTANTSPAWN            = true  // Toggle rounds to spawn all units at the same time!
 
 constant int START_TRAININGPOINTS           = 10
 constant int START_GOLD                     = 75
@@ -63,7 +65,7 @@ init
     ..setCameraPosition(gg_rct_Shop_CamBounds.getCenter())
 
     
-    
+    Round.toggleInstantSpawn(INSTANTSPAWN)
 
     EnableSelect(false, false)
     EnablePreSelect(false, false)
@@ -182,8 +184,9 @@ function delayedInit()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Arena_Visibility, false, false).start()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_MASKED, GetPlayableMapRect(), false, false).start()
 
-    // Setting Artifact Shop
-    new ArtifactShop(gg_unit_n00K_0002, 'O000')
+    // ITEM_DULLBLADE.release()
+    // ITEM_LEATHERARMOR.release()
+    
 
     setRound()
 
