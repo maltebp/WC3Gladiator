@@ -20,7 +20,7 @@ constant boolean    LOCKCAMBOUNDS           = true
 constant boolean    MAKEMAPVISIBLE          = false
 constant boolean    STARTATSPECIFICROUND    = false
 constant int        STARTINGROUND           = 10
-constant boolean    INSTANTSPAWN            = true  // Toggle rounds to spawn all units at the same time!
+constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
 
 constant int START_TRAININGPOINTS           = 10
 constant int START_GOLD                     = 75
@@ -125,6 +125,9 @@ function createHero()
 
     gladiator.releaseAbility(0)
     gladiator.releaseAbility(1)
+    gladiator.releaseAbility(2)
+    gladiator.releaseAbility(3)
+    gladiator.releaseAbility(4)
 
     // Move all this stuff into Gladiator class
 

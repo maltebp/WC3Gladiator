@@ -157,7 +157,7 @@ public class Round
 
     /** Make all rounds instantly spawn all units - only for testing! */
     static function toggleInstantSpawn(boolean toggle)
-        instantSpawn = true
+        instantSpawn = toggle
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Getters

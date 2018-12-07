@@ -22,8 +22,10 @@ constant int ABILITYID  = 'A007'
 
 //=========================================================================================================================================================
 
-constant string array snd_OnAttack_File = [Sounds.metalHeavySliceFlesh3, Sounds.metalHeavySliceFlesh1, Sounds.metalHeavySliceFlesh2]
+constant string array snd_OnAttack_File = [ Sounds.metalMediumSliceFlesh1, Sounds.metalMediumSliceFlesh2, Sounds.metalMediumSliceFlesh3,
+                                            Sounds.metalHeavySliceFlesh3, Sounds.metalHeavySliceFlesh1, Sounds.metalHeavySliceFlesh2]
 SoundDefinition array snd_OnAttack 
+
 
 
 //---------------------------------------------------------------------------------------------------------------------------------------
@@ -32,7 +34,7 @@ SoundDefinition array snd_OnAttack
 function onCast()
 
     if snd_OnAttack[0] == null
-        for i=0 to 2
+        for i=0 to 5
             snd_OnAttack[i] = new SoundDefinition(snd_OnAttack_File[i], false, true)
 
     unit mainTarget = GetSpellTargetUnit()
@@ -53,7 +55,13 @@ function onCast()
         ..setDuration(3)
         target.addEffect("Abilities\\Weapons\\SentinelMissile\\SentinelMissile.mdl", "origin")
         ..destr()
-        snd_OnAttack[GetRandomInt(0, 2)].playOnPoint(target.getPos3Fly())
+
+        if enrageFactor > 1
+            snd_OnAttack[GetRandomInt(3, 5)].playOnPoint(target.getPos3Fly())
+            target.addEffect("Abilities\\Spells\\Human\\SpellSteal\\SpellStealMissile.mdl","chest")
+            ..destr()
+        else
+            snd_OnAttack[GetRandomInt(0, 2)].playOnPoint(target.getPos3Fly())
 
 
 init 

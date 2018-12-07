@@ -19,6 +19,8 @@ constant real MANACOST = 15
 
 
 constant SoundDefinition snd_Error = new SoundDefinition(Sounds.error, false)
+constant SoundDefinition snd_Cast = new SoundDefinition(Sounds.gromYesAttack2, false, true)
+constant SoundDefinition snd_Use = new SoundDefinition(Sounds.gromYesAttack4, false, true)
 
 
 /** Removes the unit's enrage ability and returns the Enrage Charge value */
@@ -27,6 +29,7 @@ public function unit.consumeEnrage() returns real
         return 0
     UnitEnrage enrageInstance = UnitEnrage.getUnitInstance(this)
     real charge = enrageInstance.getCharge()
+    snd_Use.playOnPoint(this.getPos3with(75))
     destroy enrageInstance
     return charge
     
@@ -35,6 +38,7 @@ public function unit.activateEnrage(real charge, real duration)
     UnitEnrage.getUnitInstance(this)
     ..setCharge(charge)
     ..setDuration(duration)
+    snd_Cast.playOnPoint(this.getPos3with(75))
     
 
 public function unit.getEnrageCharge() returns real

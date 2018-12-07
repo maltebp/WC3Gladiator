@@ -31,12 +31,15 @@ constant int ABILITYID = 'A005'
 
 constant string array snd_OnAttack_File = [Sounds.metalHeavySliceFlesh3, Sounds.metalHeavySliceFlesh1, Sounds.metalHeavySliceFlesh2]
 SoundDefinition array snd_OnAttack
+SoundDefinition snd_EnrageHit = new SoundDefinition(Sounds.warstomp, false, true)
 
 
 
 function onCast()
     unit caster = GetSpellAbilityUnit()
     unit target = GetSpellTargetUnit()
+
+    real enrageFactor = 1+caster.consumeEnrage()*ENRAGE_DAMAGEINC
 
     // Sound
     if snd_OnAttack[0] == null
@@ -51,8 +54,10 @@ function onCast()
     target.addEffect("Abilities\\Weapons\\GlaiveMissile\\GlaiveMissile.mdl", "origin")
     ..destr()
 
-    real enrageFactor = 1+caster.consumeEnrage()*ENRAGE_DAMAGEINC
-
+    if enrageFactor > 1
+        target.addEffect("Abilities\\Spells\\Orc\\Disenchant\\DisenchantSpecialArt.mdl", "chest")
+        ..setDuration(3)
+        snd_EnrageHit.playOnPoint(target.getPos3with(150))
 
     caster.damageTargetMelee(target, (BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)*enrageFactor)
     

@@ -25,6 +25,7 @@ class WhirlingStrike
 
     protected static constant int ABILITYID = 'A000'
     protected static constant SoundDefinition snd_OnHit = new SoundDefinition(Sounds.impaleHit, false, true)
+    protected static constant SoundDefinition snd_OnHitEnrage = new SoundDefinition(Sounds.metalHeavySliceFlesh3, false, true)
 
 //
     protected static function onCast()
@@ -49,6 +50,9 @@ class WhirlingStrike
 
         if targets.size() > 0
             snd_OnHit.playOnPoint(caster.getPos3Fly())
+            if enrageFactor > 0
+                snd_OnHitEnrage.playOnPoint(caster.getPos3Fly())
+                
 
         real enrageDmgFactor = 1+enrageFactor*ENRAGE_DAMAGEINC
         real damage = (BASEDAMAGE + I2R(caster.getTotalAttackDamage()) * ATTACKDAMAGESCALE ) * enrageDmgFactor
@@ -58,6 +62,11 @@ class WhirlingStrike
             caster.damageTargetMelee(target, damage)
             target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl", "chest")
             ..setDuration(3)
+
+            if enrageDmgFactor > 1
+                target.addEffect("Abilities\\Spells\\Human\\SpellSteal\\SpellStealMissile.mdl","chest")
+                ..destr()
+            
 
 init
     registerSpellEffectEvent(WhirlingStrike.ABILITYID, function WhirlingStrike.onCast )

@@ -10,6 +10,7 @@ import HashMap
 import Damage
 import ChargeSystem
 import Enrage
+import TimedSpecialEffects
 
 //=========================================================================================================================================================
 
@@ -41,6 +42,12 @@ function onCast()
 
     caster.addCharge(CHARGE)
 
+
+    if enrageFactor > 1
+        addEffect("Abilities\\Spells\\Orc\\WarStomp\\WarStompCaster.mdl",caster.getPos())
+        ..setDuration(4)
+    
+
     for target in targets
         if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAliveTrick() 
             targets.removeUnit(target)
@@ -51,6 +58,11 @@ function onCast()
         ..destr()
         InstantDummyCaster.castTarget(caster.getOwner(), 'A009', 1, Orders.slow, target)
         Buff.add(target)
+
+        if enrageFactor > 1
+            target.addEffect("Abilities\\Spells\\Demon\\DemonBoltImpact\\DemonBoltImpact.mdl","chest")
+            ..destr()
+            
 
 
 
