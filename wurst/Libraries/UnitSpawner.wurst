@@ -365,7 +365,7 @@ public class UnitSpawner
             or if it has spawned what it should.*/
         if instance.spawnCount != 0
             instance.currentSpawnCount++
-            if instance.currentSpawnCount < instance.spawnCount
+            if instance.currentSpawnCount < instance.spawnCount 
                 instance.timer_Spawn.start(instance.getRealWithDeviation(instance.spawnFrequency), function spawn)
             else
                 instance.stop()
@@ -376,8 +376,10 @@ public class UnitSpawner
     /** Spawns all the units for the spawner, instantly */
     function spawnAll()
         if spawnCount > 0
+            spawnFrequency = 0
+            spawnFrequencyDeviation = 0
             for i = 0 to spawnCount
-                spawn() 
+                timer_Spawn.start(0,function spawn ) 
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Other Stuff

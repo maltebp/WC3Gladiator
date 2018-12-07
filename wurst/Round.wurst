@@ -277,26 +277,45 @@ public class Round
 
     /** Rewards items, including artifacts */
     private function rewardItems() returns boolean
+        int numberOfArtifacts = artifactReward.size()
+        int numberOfItems = itemRewards.size()
+        int numberOfRewards = numberOfArtifacts + numberOfItems
 
-        if artifactReward.size() > 0 // or item.size() > 0
+        if numberOfRewards > 0
             
             snd_ItemReward.play()
-            printTimed(" ", 5)
-            string text = "New artifacts unlocked: "
+            printTimed(" ", 8)
+            string text = "New items unlocked: \n"
             
             int i = 0
-            for artifact in artifactReward
 
-                text += TEXTCOLOR_ARTIFACT+artifact.getName()+"|r"
-                i++
-                if i < artifactReward.size()
-                    text += ", "
-                else
-                    text += "."
+            if numberOfItems > 0
+                
+                for itemReward in itemRewards
 
-                artifact.release()
+                    text += TEXTCOLOR_ITEM+itemReward.getName()+"|r"
+                    
+                    i++
 
-            printTimed(text, 5)
+                    if i < numberOfRewards
+                        text += ", "
+
+                    itemReward.release() 
+
+
+            if numberOfArtifacts > 0 
+                for artifact in artifactReward
+
+                    text += TEXTCOLOR_ARTIFACT+artifact.getName()+" (Artifact)|r "
+
+                    i++
+
+                    if i < numberOfRewards
+                        text += ", "
+
+                    artifact.release()
+
+            printTimed(text, 8)
             return true
 
         return false
