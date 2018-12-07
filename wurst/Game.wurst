@@ -143,6 +143,7 @@ function createHero()
     ARTIFACT_WARDRUM.release()
     ARTIFACT_KILMAIM.release()
     ARTIFACT_TOOTHOFTHEWARCHIEF.release()
+    ARTIFACT_TOKENOFSAMURO.release()
     
     
     addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
