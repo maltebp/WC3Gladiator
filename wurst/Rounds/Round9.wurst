@@ -50,8 +50,9 @@ constant real FELFIREBOLT_STARTCOOLDOWN = 5
 init
 
     round = new Round()
-    ..setReward(80, 4)
+    ..setReward(30, 3)
     ..addArtifactRewards(ARTIFACT_GIFTOFTHETAUREN)
+    ..addItemRewards(ITEM_DEMONICFIGURINE)
     ..addAbilityReward(3)
     ..setTitle("Warlocks")
     ..setDescription("They are ready to kill their own minions for their own benefit.")

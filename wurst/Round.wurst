@@ -17,6 +17,7 @@ public class Round
 //  Settings 
 
     private static constant real HEALTHORB_SPAWNFREQ = 20 
+    private static constant real HEALTHORB_DURATION  = 8
     private static constant real HEALTHORB_SPAWNDURATION = 200
 
     private static constant string TEXTCOLOR_GOLD = "|cffffcc00"
@@ -251,7 +252,7 @@ public class Round
 
         new HealthOrb(spawnPos)
         ..setHealInstant(round.healthOrb_FlatToHealInstant, round.healthOrb_PercToHealInstant )
-        ..setHealOverTime(round.healthOrb_FlatToHealOverTime, round.healthOrb_PercToHealOverTime, 6 )
+        ..setHealOverTime(round.healthOrb_FlatToHealOverTime, round.healthOrb_PercToHealOverTime, HEALTHORB_DURATION )
         ..addActivationUnit(hero)
         
 

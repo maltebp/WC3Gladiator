@@ -22,6 +22,7 @@ class WhirlingStrike
 
     private static constant real RANGE = 250
     private static constant int  CHARGE = 10
+    private static constant int  COOLDOWN = 7
 
     private static constant real BASEDAMAGE = 10 
     private static constant real ATTACKDAMAGESCALE = 1
@@ -32,7 +33,7 @@ class WhirlingStrike
     protected static constant int ABILITYID = 'A000'
     protected static constant int TOKENOFSAMURO_BUFFID = 'B00C'
     protected static constant int TOKENOFSAMURO_DUMMYABIL = 'A01N'
-    protected static constant real TOKENOFSAMURO_DURATION = 5
+    protected static constant real TOKENOFSAMURO_DURATION = 4
 
     protected static constant SoundDefinition snd_OnHit         = new SoundDefinition(Sounds.impaleHit, false, true)
     protected static constant SoundDefinition snd_OnHitEnrage   = new SoundDefinition(Sounds.metalHeavySliceFlesh3, false, true)
@@ -45,6 +46,9 @@ class WhirlingStrike
         real enrageFactor = caster.consumeEnrage()
 
         real enrageRangeFactor = 1+enrageFactor*ENRAGE_RANGEINC
+
+        real cooldown = COOLDOWN * (caster.getFrenzyCooldownReduction())
+        caster.setAbilityCooldown(ABILITYID, 1, cooldown)
 
         if caster.hasArtifact(ARTIFACT_TOKENOFSAMURO)
             caster.addTokenOfSamuroBuff(caster, TOKENOFSAMURO_DURATION)

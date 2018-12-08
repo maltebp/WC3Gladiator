@@ -17,13 +17,13 @@ init
 
 
     round = new Round
-    ..setReward(35, 3)
+    ..setReward(30, 3)
     ..addAbilityReward(2)
     ..addItemRewards(ITEM_GARGOYLECLOAK)
 
     ..setTitle("Gargoyles")
     ..setDescription("Sturdy, life sucking bastards - don't let their numbers make you lose focus.")
-    ..setHealthOrbSpawn(80, 50, 0.1, 20, 0.05)
+    ..setHealthOrbSpawn(80, 50, 0.1, 25, 0.05)
 
     RemoteFunction<UnitSpawner> func
 

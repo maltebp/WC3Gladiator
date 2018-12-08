@@ -157,6 +157,8 @@ public constant ItemReward  ITEM_GARGOYLECLOAK      = new ItemReward( 'I00N' )
 public constant ItemReward  ITEM_LAVATEMPEREDBOOTS  = new ItemReward( 'I01G' )
 public constant ItemReward  ITEM_CLOAKOFFLAME       = new ItemReward( 'I00D' )
 public constant ItemReward  ITEM_SOULSTONE          = new ItemReward( 'I01H' )
+public constant ItemReward  ITEM_CLOAKOFTHEWIND     = new ItemReward( 'I00E' )
+public constant ItemReward  ITEM_DEMONICFIGURINE    = new ItemReward( 'I00T' )
 
 
 

@@ -19,7 +19,7 @@ init
 
 
     round = new Round
-    ..setReward(40, 3)
+    ..setReward(30, 3)
     ..addArtifactRewards(ARTIFACT_TOKENOFSAMURO)
     ..addItemRewards(ITEM_SOULSTONE)
 

@@ -22,6 +22,7 @@ constant real DAMAGEFACTOR  = 1
 constant real RANGE         = 400
 constant int  DURATION      = 7
 constant int  CHARGE        = 20
+constant real COOLDOWN      = 14
 constant real ENRAGE_RANGEINC = 0.01 // Pr charge consumed
 
 constant int ABILITYID = 'A008'
@@ -45,6 +46,9 @@ function onCast()
 
     int charge = (caster.hasFrenzy() and caster.hasArtifact(ARTIFACT_BLOODOFMANNOROTH)) ? R2I(CHARGE * (1+BLOODOFMANNOROTH_CHARGEINC)) : CHARGE
     caster.addCharge(charge)
+
+    real cooldown = COOLDOWN * (caster.getFrenzyCooldownReduction())
+    caster.setAbilityCooldown(ABILITYID, 1, cooldown)
 
 
     if enrageFactor > 1

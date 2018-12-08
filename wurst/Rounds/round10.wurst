@@ -55,14 +55,14 @@ int EXPLODINGGOBLIN = 'n00J'
 int MINITANK = 'h004'
 int MECHANIC = 'o001'
 
-int HOMINGROCKETS_DAMAGE = 50
+int HOMINGROCKETS_DAMAGE = 40
 real HOMINGROCKETS_FREQ     = 0.5
 real HOMINGROCKETS_DURATION = 8
 
 
-real EXPLODINGGOBLIN_DAMAGE = 50
+real EXPLODINGGOBLIN_DAMAGE = 40
 real EXPLODINGGOBLIN_RANGE  = 350
-real EXPLODINGGOBLIN_BOSSDAMAGE = 500
+real EXPLODINGGOBLIN_BOSSDAMAGE = 750
 real EXPLODINGGOBLIN_DELAY = 2
 
 SoundDefinition snd_BossSpawn = new SoundDefinition(Sounds.heroTinkerWhat4, false)
@@ -129,14 +129,14 @@ init
 
 
     // Mechanic
-    round.addSpawner(new UnitSpawner(MECHANIC, ENEMYPLAYER, vec2(-639,1025), 20))
+    round.addSpawner(new UnitSpawner(MECHANIC, ENEMYPLAYER, vec2(-639,1025), 24))
     ..setStartDelay(20)
     ..setFrequencyDeviation(0)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
 
     // Mechanic
-    round.addSpawner(new UnitSpawner(MECHANIC, ENEMYPLAYER, vec2(-639,1025), 20))
+    round.addSpawner(new UnitSpawner(MECHANIC, ENEMYPLAYER, vec2(-639,1025), 24))
     ..setStartDelay(20)
     ..setFrequencyDeviation(0)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)

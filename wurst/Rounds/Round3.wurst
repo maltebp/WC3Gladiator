@@ -10,12 +10,12 @@ init
 
 
     round = new Round
-    ..setReward(35, 3)
+    ..setReward(30, 3)
     ..addItemRewards(ITEM_MAGICTALISMAN, ITEM_MAGICGEM)
 
     ..setTitle("Arcane Beings")
     ..setDescription("These beings can grow big - but even though that sounds fascinating, you probably shouldn't let them.")
-    ..setHealthOrbSpawn(80, 40, 0.1, 10, 0.05)
+    ..setHealthOrbSpawn(80, 50, 0.1, 25, 0.05)
 
     RemoteFunction<UnitSpawner> func
 

@@ -133,6 +133,7 @@ init
     'I00F'.setAttackDamage(10) 
     'I01G'.setAttackDamage(10) // Lava Tempered Boots 
     'I00J'.setAttackDamage(8) // Magic Gem
+    'I00T'.setAttackDamage(14) // Demon Figurine
 
     // Editor's Items
     'I00S'.setAttackDamage(30)

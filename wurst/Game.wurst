@@ -12,14 +12,16 @@ import ChargeSystem
 import Artifact
 import ItemReward
 import Gladiator
+import Dialog
 
 
 constant boolean    SPAWNHEROINARENA        = false
 constant boolean    PREPAREHERO             = false
 constant boolean    LOCKCAMBOUNDS           = true
 constant boolean    MAKEMAPVISIBLE          = false
+constant boolean    CUSTOMROUNDSTART        = true
 constant boolean    STARTATSPECIFICROUND    = true
-constant int        STARTINGROUND           = 8
+int        STARTINGROUND           = 10
 constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
 
 constant int START_TRAININGPOINTS           = 8
@@ -44,6 +46,8 @@ public timer timer_GameIntro = getTimer()
 
 vec2 spawnPosOnInit
 
+public dialog dialog_RoundPick
+public button array dialogButton_RoundPick
 
 
 
@@ -53,9 +57,10 @@ vec2 spawnPosOnInit
 
 
 init
-
     MAPREGION = CreateRegion()..addRect(GetPlayableMapRect())
 
+
+    
 
     playMusic(Sounds.orcX1)
 
@@ -87,15 +92,54 @@ init
 
     getTimer().start(1, function delayedInit)
 
-    timer_GameIntro.start(3.0, function gameIntro )
+    timer_GameIntro.start(3.0, function roundPick )
 
 
+function roundPick()
+    if CUSTOMROUNDSTART
 
+        EnableSelect(true, true)
+
+        dialog_RoundPick = createDialog()
+        ..setMessage("Choose starting round")
+        
+        
+        for i = 1 to 10
+            dialogButton_RoundPick[i] = dialog_RoundPick.addButton(i.toString(), i)
+
+        dialog_RoundPick.display(Player(0), true)
+
+        CreateTrigger()
+        ..registerDialogEvent(dialog_RoundPick)
+        ..addAction(function roundPicked)
+
+    else
+        gameIntro()
+
+
+function roundPicked()
+    button pressedButton = GetClickedButton()
+    
+    int round = 1
+
+    for i=1 to 10
+        if pressedButton == dialogButton_RoundPick[i]
+            round = i
+            break
+
+    STARTINGROUND = round
+
+    dialog_RoundPick.display(Player(0), false)
+
+    print("Starting at round "+round.toString())
+
+    timer_GameIntro.start(5, function gameIntro )
 
 
 function gameIntro()
     snd_Text.play()
     canSkipGameInfo = true
+    ClearTextMessages()
     printTimed("|cffffcc00"+"Welcome Gladiator!"+"|r",10)
     printTimed("You will have to face fierce opponents, whose only goal is make you regret the day you "+
        "stepped into the arena. To call yourself the true champion, you have to survive "+Round.getNumberOfRounds().toString()+ " merciless rounds of"+
@@ -221,7 +265,6 @@ function setRound()
         destroy rounds
             
         Round.setCurrentRound(STARTINGROUND)
-        print("Editor start: first round is round "+STARTINGROUND.toCharsetString())
 
 
 function startRound()

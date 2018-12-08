@@ -15,12 +15,12 @@ init
 
 
     round = new Round
-    ..setReward(35, 3)
+    ..setReward(30, 3)
     ..addArtifactRewards(ARTIFACT_TOOTHOFTHEWARCHIEF)
     ..addItemRewards(ITEM_ENCHANTEDSWORD, ITEM_FOOTMANSHELM)
     ..setTitle("Human Battalion")
     ..setDescription("Trained soldiers, specialized in fighting together. Don't let them overrun you.")
-    ..setHealthOrbSpawn(80, 40, 0.1, 10, 0.05)
+    ..setHealthOrbSpawn(80, 50, 0.1, 25, 0.05)
 
 
     // Footman 1
