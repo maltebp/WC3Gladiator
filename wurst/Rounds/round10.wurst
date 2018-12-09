@@ -55,14 +55,14 @@ int EXPLODINGGOBLIN = 'n00J'
 int MINITANK = 'h004'
 int MECHANIC = 'o001'
 
-int HOMINGROCKETS_DAMAGE = 40
+int HOMINGROCKETS_DAMAGE = 50
 real HOMINGROCKETS_FREQ     = 0.5
 real HOMINGROCKETS_DURATION = 8
 
 
 real EXPLODINGGOBLIN_DAMAGE = 40
 real EXPLODINGGOBLIN_RANGE  = 350
-real EXPLODINGGOBLIN_BOSSDAMAGE = 750
+real EXPLODINGGOBLIN_BOSSDAMAGE = 650
 real EXPLODINGGOBLIN_DELAY = 2
 
 SoundDefinition snd_BossSpawn = new SoundDefinition(Sounds.heroTinkerWhat4, false)
@@ -89,7 +89,7 @@ init
     ..setMusic(Sounds.pursuitTheme)
     ..setTitle("Tinker (Boss)")
     ..setDescription("Explosions will be both your friend and enemy")
-    ..setHealthOrbSpawn(100, 80, 0.1, 30, 0.02)
+    ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
 
         // Note: Boss Round spawn 1 more orb
 

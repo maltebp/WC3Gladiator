@@ -13,7 +13,11 @@ import InstantDummyCaster
 import Damage
 
 
-constant real LIGHTNINGWARD_DAMAGE = 20
+constant real LIGHTNINGWARD_DAMAGE = 30
+
+constant real LIGHTNINGCHARGE_DAMAGE = 125
+constant real LIGHTNINGCHARGE_RANGE = 350
+constant real LIGHTNINGCHARGE_DURATION = 8
 
 init
     //=========================================================================================================================================================
@@ -25,7 +29,7 @@ init
 
     ..setTitle("Lightning Lords")
     ..setDescription("Don't go get thunder struck now.")
-    ..setHealthOrbSpawn(81, 50, 0.1, 20, 0.05)
+    ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
 
     // Spawner 1
 
@@ -75,7 +79,7 @@ function lightningChargeCast()
     new DelayedBloodlustCast(caster, 0.25)
     
 
-    new LightningCharge(caster, 80, 350, 8)
+    new LightningCharge(caster, LIGHTNINGCHARGE_DAMAGE, LIGHTNINGCHARGE_RANGE, LIGHTNINGCHARGE_DURATION)
 
 
 function entersMap() returns boolean

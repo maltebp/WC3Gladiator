@@ -23,7 +23,7 @@ constant real   COOLDOWN = 4
 constant int    WARDRUM_ENERGYBONUS    = 5
 constant real   WARDRUM_COOLDOWNREDUC  = 2
 constant real   ORCISHCLEAVER_RANGEINC = 0.4 // Percent
-constant real   ENRAGE_DAMAGEINC = 0.005 // Pr enrage charge consumed
+constant real   ENRAGE_DAMAGEINC = 0.01 // Pr enrage charge consumed
 
 constant int ABILITYID  = 'A007'
 

@@ -16,7 +16,7 @@ public class Round
 
 //  Settings 
 
-    private static constant real HEALTHORB_SPAWNFREQ = 20 
+    private static constant real HEALTHORB_SPAWNFREQ = 25 
     private static constant real HEALTHORB_DURATION  = 8
     private static constant real HEALTHORB_SPAWNDURATION = 200
 

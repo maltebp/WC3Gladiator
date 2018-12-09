@@ -56,11 +56,10 @@ public button array dialogButton_RoundPick
 // Game Init --------------------------------------------------------------------------------------------------------------------
 
 
-
 init
+    // Setting up variables
     MAPREGION = CreateRegion()..addRect(GetPlayableMapRect())
     
-
     playMusic(Sounds.orcX1)
 
     spawnPosOnInit = (SPAWNHEROINARENA) ? HEROSPAWN_ARENA : HEROSPAWN_SHOP
@@ -70,12 +69,7 @@ init
     ..setGold(START_GOLD)
     ..setCameraPosition(gg_rct_Shop_CamBounds.getCenter())
 
-    
     Round.toggleInstantSpawn(INSTANTSPAWN)
-
-    EnableSelect(false, false)
-    EnablePreSelect(false, false)
-    EnableDragSelect(false, false)
 
     if LOCKCAMBOUNDS
         Player(0).setCameraBoundsToRect(gg_rct_Shop_CamBounds)
@@ -83,6 +77,7 @@ init
     CreateTrigger()
     ..registerPlayerEvent(Player(0), EVENT_PLAYER_END_CINEMATIC)
     ..addAction(function startRound)
+
 
     new Fade
     ..setCinematicMode(true)
@@ -245,10 +240,6 @@ function delayedInit()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Shop_Visibility, false, false).start()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Arena_Visibility, false, false).start()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_MASKED, GetPlayableMapRect(), false, false).start()
-
-    // ITEM_DULLBLADE.release()
-    // ITEM_LEATHERARMOR.release()
-    
 
     
 

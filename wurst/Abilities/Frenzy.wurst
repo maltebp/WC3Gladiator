@@ -12,7 +12,7 @@ import Artifact
 
 constant real REGENINCREASE = 0.5 // Percent
 constant real  DURATION = 10
-constant real ENRAGE_DURATIONINC = 0.01 // Per charge consumed
+constant real ENRAGE_DURATIONINC = 0.010 // Per charge consumed
 
 constant real GIFTOFTHETAUREN_COOLDOWNREDUCTION = 0.5
 constant int CHARGE = 15

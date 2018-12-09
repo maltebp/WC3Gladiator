@@ -20,7 +20,7 @@ init
     ..addItemRewards(ITEM_ENCHANTEDSWORD, ITEM_FOOTMANSHELM)
     ..setTitle("Human Battalion")
     ..setDescription("Trained soldiers, specialized in fighting together. Don't let them overrun you.")
-    ..setHealthOrbSpawn(80, 50, 0.1, 25, 0.05)
+    ..setHealthOrbSpawn(100, 50, 0.1, 25, 0.05)
 
 
     // Footman 1

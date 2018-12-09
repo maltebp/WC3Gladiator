@@ -19,7 +19,7 @@ init
 
     ..setTitle("Gnolls")
     ..setDescription("Gnolls shouldn't be a problem, but watch out for their Champions - they rally the others.")
-    ..setHealthOrbSpawn(80, 50, 0.1, 25, 0.05)
+    ..setHealthOrbSpawn(100, 50, 0.1, 25, 0.05)
     
     // Fighter
     round.addSpawner(new UnitSpawner('n004', ENEMYPLAYER, vec2(-639,1025), 8))

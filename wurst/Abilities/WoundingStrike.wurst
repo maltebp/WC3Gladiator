@@ -26,7 +26,7 @@ constant int  DURATION = 5
 constant real  COOLDOWN = 5
 
 constant int  CHARGE = 15
-constant real ENRAGE_DAMAGEINC = 0.005 // Decimal percent pr. enrage charge
+constant real ENRAGE_DAMAGEINC = 0.01 // Decimal percent pr. enrage charge
 
 
 

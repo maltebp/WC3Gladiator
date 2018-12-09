@@ -128,7 +128,7 @@ init
 // ---------------------------------------
 // Setup Attack Damage Items
 
-    'I000'.setAttackDamage(5) // Dull Blade
+    'I000'.setAttackDamage(4) // Dull Blade
     'I00L'.setAttackDamage(10) // Enchanted Sword
     'I00F'.setAttackDamage(10) 
     'I01G'.setAttackDamage(10) // Lava Tempered Boots 
