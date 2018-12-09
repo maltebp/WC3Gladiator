@@ -221,7 +221,7 @@ public class LightningWard
         ..setTarget(target, 75)
         ..setRemoveOnUnitDeath(true)
 
-        ward.damageTargetMagic(target, damage)
+        ward.damageTargetSpell(target, damage)
 
 
     /** Finds the the target for the effect */

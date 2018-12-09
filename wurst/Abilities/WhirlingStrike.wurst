@@ -77,7 +77,7 @@ class WhirlingStrike
 
         for target from targets
             
-            caster.damageTargetMelee(target, damage)
+            caster.damageTargetPhysical(target, damage)
             target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl", "chest")
             ..setDuration(3)
 

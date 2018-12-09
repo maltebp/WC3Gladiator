@@ -71,7 +71,7 @@ function onCast()
     real enrageFactor = 1 + caster.consumeEnrage()*ENRAGE_DAMAGEINC
     for target from targets
         
-        caster.damageTargetMelee(target, (BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)*enrageFactor )
+        caster.damageTargetPhysical(target, (BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)*enrageFactor )
         target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl","chest")
         ..setDuration(3)
         target.addEffect("Abilities\\Weapons\\SentinelMissile\\SentinelMissile.mdl", "origin")

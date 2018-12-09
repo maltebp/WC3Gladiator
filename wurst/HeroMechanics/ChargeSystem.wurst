@@ -40,6 +40,8 @@ constant real   DEGENERATION_FREQ = 0.25
 
 constant int    MAXCHARGE  = 100 // Should be adjusted with game constants
 
+constant boolean TESTMODE = false
+
 // Other constants
 constant int    DEGENERATION_TIMESPERSEC = R2I(1 / DEGENERATION_FREQ)
 
@@ -382,14 +384,15 @@ function adjustChargeFlat()
 
 
 init
-    CreateTrigger()
-    ..registerPlayerChatEvent(Player(0), "addcharge ", false)
-    ..addAction(function addCharge)
+    if TESTMODE
+        CreateTrigger()
+        ..registerPlayerChatEvent(Player(0), "addcharge ", false)
+        ..addAction(function addCharge)
 
-    CreateTrigger()
-    ..registerPlayerChatEvent(Player(0), "adjustCharge perc ", false)
-    ..addAction(function adjustChargePerc)
+        CreateTrigger()
+        ..registerPlayerChatEvent(Player(0), "adjustCharge perc ", false)
+        ..addAction(function adjustChargePerc)
 
-    CreateTrigger()
-    ..registerPlayerChatEvent(Player(0), "adjustCharge flat ", false)
-    ..addAction(function adjustChargeFlat)
+        CreateTrigger()
+        ..registerPlayerChatEvent(Player(0), "adjustCharge flat ", false)
+        ..addAction(function adjustChargeFlat)

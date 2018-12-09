@@ -13,6 +13,7 @@ import Artifact
 import ItemReward
 import Gladiator
 import Dialog
+import Damage
 
 
 constant boolean    SPAWNHEROINARENA        = false
@@ -58,8 +59,6 @@ public button array dialogButton_RoundPick
 
 init
     MAPREGION = CreateRegion()..addRect(GetPlayableMapRect())
-
-
     
 
     playMusic(Sounds.orcX1)
@@ -184,6 +183,8 @@ function createHero()
     ITEM_DULLBLADE.release()
     ITEM_LEATHERARMOR.release()
     ITEM_COMMONGEM.release()
+
+    setDamageTestUnit(hero)
 
     setRound()
 

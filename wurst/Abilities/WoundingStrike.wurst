@@ -101,7 +101,7 @@ function hitTarget(unit target, unit caster, real primaryDamage, real dotDamage,
         ..setDuration(3)
         snd_EnrageHit.playOnPoint(target.getPos3with(150))
 
-    caster.damageTargetMelee(target, primaryDamage)
+    caster.damageTargetPhysical(target, primaryDamage)
     
     real finalDotDamage = (caster.hasArtifact(ARTIFACT_KILMAIM)) ? dotDamage*(1+KILMAIM_DAMAGEINC) : dotDamage
 
@@ -154,7 +154,7 @@ class WoundingStrikeBuff
 
     static function dealDamage()
         thistype instance = GetExpiredTimer().getData() castTo thistype
-        instance.source.damageTargetMelee(instance.target, instance.dotDamage)
+        instance.source.damageTargetPhysical(instance.target, instance.dotDamage)
         instance.target.addEffect("Objects\\Spawnmodels\\Human\\HumanBlood\\HeroBloodElfBlood.mdl", "origin")
         ..setDuration(3)
 

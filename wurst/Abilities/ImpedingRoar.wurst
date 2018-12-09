@@ -61,7 +61,7 @@ function onCast()
             targets.removeUnit(target)
 
     for target from targets
-        caster.damageTargetMelee(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage() ))
+        caster.damageTargetPhysical(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage() ))
         target.addEffect("Abilities\\Spells\\Human\\SpellSteal\\SpellStealMissile.mdl","chest")
         ..destr()
         InstantDummyCaster.castTarget(caster.getOwner(), 'A009', 1, Orders.slow, target)
