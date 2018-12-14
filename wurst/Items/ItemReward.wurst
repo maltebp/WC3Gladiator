@@ -1,0 +1,166 @@
+
+// ================================================================================================================================
+
+package ItemReward
+
+// -----------------------------------------------------------------------------------------------------------------------------
+
+import LinkedList
+import ErrorHandling
+
+
+
+
+// ================================================================================================================================
+
+public class ItemReward
+
+// -----------------------------------------------------------------------------------------------------------------------------
+
+    private int itemId
+    private string name 
+    private ItemShop shop = null
+    private boolean hasBeenReleased = false
+
+    /** Create a new ItemReward */
+    construct( int itemId )
+        this.itemId = itemId
+
+        setupItemName()
+
+    /** Creates an new ItemReward sold from a specific shop */
+    construct( int itemId, ItemShop shop )
+        this.itemId = itemId
+        this.shop = shop
+
+        setupItemName()
+
+    /** Setup the name variable */
+    private function setupItemName()
+        item tempItem = createItem(itemId, vec2(0,0))
+        name = tempItem.getName()
+        tempItem.remove()
+
+    /** Gets the name of the item */
+    function getName() returns string
+        return name
+
+    /** Releases the item to a shop, making it possible to buy */
+    function release()
+        if hasBeenReleased
+            error(name+" has already been released")
+        else
+            if shop == null
+                ItemShop.getReadyShop().addItem(itemId)
+
+            else
+                shop.addItem(itemId)
+            hasBeenReleased = true
+
+
+
+
+// ================================================================================================================================
+ 
+public class ItemShop
+
+// -----------------------------------------------------------------------------------------------------------------------------
+
+    private static constant int MAXITEMS = 11
+
+    private static trigger trg_SellItem = null
+    private static LinkedList<ItemShop> allShops = new LinkedList<ItemShop>
+
+    private unit shop
+    private LinkedList<int> items = new LinkedList<int>
+    
+
+    /** Creates a new ItemShop which can sell ItemReward objects */
+    construct( unit shopUnit )
+        shop = shopUnit
+
+        if trg_SellItem == null
+            trg_SellItem = CreateTrigger()
+            ..addAction(function itemSold)
+
+        trg_SellItem.registerUnitEvent(shop, EVENT_UNIT_SELL_ITEM)
+        
+        allShops.add(this)
+        
+        
+    /** Checks if an item shop is full */
+    function isFull() returns boolean
+        return items.size() >= MAXITEMS
+
+
+    /** Adds an item to the shop's stock */
+    function addItem(int itemId)
+        if isFull()
+            error("Item shop is full")
+            return
+        else
+            items.add(itemId)
+            refreshItems()
+
+        
+    /** Removes all items from the shop and readds them */
+    private function refreshItems()
+        /*  This function is necessary, since the way I add items to the shops
+            they will disappear from the shop, once they're bought */
+        
+        for itemType in items
+            RemoveItemFromStock(shop, itemType)
+            
+        for itemType in items
+            AddItemToStock(shop, itemType, 1, 1)
+
+
+    /** Gets a shop which is not full */
+    static function getReadyShop() returns ItemShop
+        for shop in allShops
+            if not shop.isFull()
+                return shop
+        return null
+
+
+    /** Gets the ArtifactShop object for the particular shop */ 
+    static function getShop(unit shopUnit) returns ItemShop
+        
+        for shop in allShops
+            if shop.shop == shopUnit
+                return shop
+
+        return null
+    
+    /** Trigger action when an item is sold from one of the shops */
+    private static function itemSold()
+        getShop(GetSellingUnit()).refreshItems()
+    
+    
+// ================================================================================================================================
+
+// SHOP SETUP
+public constant ItemShop    SHOP_NOVICEGEAR             = new ItemShop(gg_unit_n003_0015)
+public constant ItemShop    SHOP_CHAMPIONGEAR           = new ItemShop(gg_unit_n002_0017)
+
+// ITEM SETUP
+public constant ItemReward  ITEM_DULLBLADE          = new ItemReward( 'I000' )
+public constant ItemReward  ITEM_COMMONGEM          = new ItemReward( 'I00A' )
+public constant ItemReward  ITEM_LEATHERARMOR       = new ItemReward( 'I006' )
+public constant ItemReward  ITEM_GNOLLSOLDBOOTS     = new ItemReward( 'I007' )
+public constant ItemReward  ITEM_BONEGLOVES         = new ItemReward( 'I01F' )
+public constant ItemReward  ITEM_MAGICTALISMAN      = new ItemReward( 'I00I' )
+public constant ItemReward  ITEM_MAGICGEM           = new ItemReward( 'I00J' )
+public constant ItemReward  ITEM_ENCHANTEDSWORD     = new ItemReward( 'I00L' )
+public constant ItemReward  ITEM_FOOTMANSHELM       = new ItemReward( 'I00M' )
+public constant ItemReward  ITEM_GARGOYLECLOAK      = new ItemReward( 'I00N' )
+public constant ItemReward  ITEM_LAVATEMPEREDBOOTS  = new ItemReward( 'I01G' )
+public constant ItemReward  ITEM_CLOAKOFFLAME       = new ItemReward( 'I00D' )
+public constant ItemReward  ITEM_SOULSTONE          = new ItemReward( 'I01H' )
+public constant ItemReward  ITEM_CLOAKOFTHEWIND     = new ItemReward( 'I00E' )
+public constant ItemReward  ITEM_DEMONICFIGURINE    = new ItemReward( 'I00T' )
+
+
+
+        // Blueprint
+        // public constant ItemReward ITEM_[name] = new ItemReward( itemId )

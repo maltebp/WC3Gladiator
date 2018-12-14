@@ -142,15 +142,16 @@ public class HealthOrb extends Orb
         ..setDuration(3)
 
         // Heal instant
-        if whichUnit.getHP() != whichUnit.getMaxHP() and healInstantPerc>0 
-            whichUnit.setHP(whichUnit.getHP()+whichUnit.getMaxHP()*healInstantPerc)
+        real soulStoneFactor = (whichUnit.hasItemById('I01H')) ? 1.25 : 1        
+        if whichUnit.getHP() != whichUnit.getMaxHP() and healInstantPerc>0
+            whichUnit.setHP(whichUnit.getHP()+whichUnit.getMaxHP()*healInstantPerc*soulStoneFactor )
         if whichUnit.getHP() != whichUnit.getMaxHP() and healInstantFlat>0 
-            whichUnit.setHP(whichUnit.getHP()+healInstantFlat)
+            whichUnit.setHP(whichUnit.getHP()+healInstantFlat*soulStoneFactor)
 
         // Heal over time
         if healOverTimeFlat > 0 or healOverTimePerc > 0
             RegenerateOverTime.forUnit(whichUnit)
-            ..setHealthToRegen(healOverTimeFlat, healInstantPerc)
+            ..setHealthToRegen(healOverTimeFlat*soulStoneFactor, healOverTimePerc*soulStoneFactor)
             ..start(healOverTimerDuration)
 
         destroy this
@@ -195,6 +196,7 @@ class RegenerateOverTime
 
         
     private function regen()
+
         if (healthRegenFlat>0 or healthRegenPerc>0 )
             if unitToRegen.getHP() != unitToRegen.getMaxHP() and healthRegenPerc>0 
                 unitToRegen.setHP(unitToRegen.getHP()+unitToRegen.getMaxHP()*healthRegenPerc)

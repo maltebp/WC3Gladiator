@@ -1,0 +1,251 @@
+
+// ==========================================================================================0
+
+package Artifact
+
+// ==========================================================================================
+
+import HashMap
+import ErrorHandling
+import SoundUtils
+import LinkedList
+
+
+// ----------------------------------------------------------------------------------------
+
+constant int EMPTYSLOT = 'I00Y'
+constant int REMOVEARTIFACTSMASK = 'I00X'
+
+constant SoundDefinition snd_Error = new SoundDefinition(Sounds.error, false)
+
+public unit array SHOP_ORC
+
+public constant int MAXITEMSINSHOP = 11
+
+// ==========================================================================================
+
+/** Removes the artifact with number 1 or 2 (item slot 0 or 1) */
+public function unit.removeArtifact(int artifactNumber)
+    this.itemInSlot(artifactNumber-1).remove()
+    this.addItemToSlot(EMPTYSLOT, artifactNumber-1)
+
+
+/** Removes all artifacts for the unit */
+public function unit.removeAllArtifacts()
+    this.removeArtifact(1)
+    this.removeArtifact(2)
+
+    
+/** Adds to 'empty artifact slot'-items to a specific unit */
+public function unit.addArtifactSlots()
+    if this.itemInSlot(0) != null
+        error("Item slot 0 is not empty for "+this.getName())
+    
+    if this.itemInSlot(1) != null
+        error("Item slot 1 is not empty for "+this.getName())
+
+    this.addItemById(EMPTYSLOT)
+    this.addItemById(EMPTYSLOT)
+
+
+/** Adds an artifact to a unit, removing the empty item artifact slot */
+public function unit.addArtifact(int artifactItemId)
+    
+    if this.hasArtifactItem(artifactItemId)
+        snd_Error.playForPlayer(this.getOwner())   
+    else
+        int emptySlot = -1
+
+        // Finding empty slot
+        if this.itemInSlot(0).getTypeId() == EMPTYSLOT
+            emptySlot = 0
+        
+        else if this.itemInSlot(1).getTypeId() == EMPTYSLOT
+            emptySlot = 1
+
+        // Adding item
+        if emptySlot > -1
+            this.itemInSlot(emptySlot).remove()
+            this.addItemById(artifactItemId)
+
+        else
+            snd_Error.playForPlayer(this.getOwner())  
+        
+public function unit.hasArtifactItem(int artifactItemId) returns boolean
+    return this.hasItemById(artifactItemId)
+
+public function unit.hasArtifact(Artifact artifact) returns boolean
+    return this.hasItemById(artifact.getItemId())
+
+        
+
+// ==========================================================================================
+
+/** Class which contains data about Artifact Shops */
+public class ArtifactShop
+    private static LinkedList<ArtifactShop> shops = new LinkedList<ArtifactShop>
+
+
+    private LinkedList<int> items = new LinkedList<int>
+
+    private int raceType
+    private unit shop
+    private int numberOfItems = 0
+
+    private static trigger trg_SellsItem
+    
+    
+    construct(unit shop, int raceType)
+        this.shop = shop
+        this.raceType = raceType
+
+        if trg_SellsItem == null
+            trg_SellsItem = CreateTrigger()
+            ..addAction(function itemSold)
+        
+        trg_SellsItem.registerUnitEvent(shop, EVENT_UNIT_SELL_ITEM)
+    
+        AddItemToStock(shop, REMOVEARTIFACTSMASK, 1, 1)
+        items.add(REMOVEARTIFACTSMASK)
+        
+
+        shops.add(this)
+
+
+    /** Checks if the shop is full */
+    function isFull() returns boolean
+        return numberOfItems >= MAXITEMSINSHOP 
+
+    /** Adds an item to the shop */
+    function addItem(int itemId)
+        
+        if not isFull()
+            AddItemToStock(shop, itemId, 1, 1)
+            items.add(itemId)
+            numberOfItems++
+
+        else
+            error("Shop is full")
+
+    function getShopUnit() returns unit
+        return shop
+        
+        
+    /** Finds a shop with a racetype, which is not full */
+    static function getReadyShop(int raceType) returns ArtifactShop
+    
+        for shop in shops
+            if shop.raceType == raceType and not shop.isFull()
+                return shop
+
+        error("No more shops available for id '"+raceType.toString()+"'.")
+        return null
+                
+
+    /** Gets the ArtifactShop object for the particular shop */ 
+    static function getShop(unit shopUnit) returns ArtifactShop
+        
+        for shop in shops
+            if shop.shop == shopUnit
+                return shop
+
+        return null
+
+
+    /** Removes all items from the shop and readds them */
+    private function refreshItems()
+        /*  This function is necessary, since the way I add items to the shops
+            they will disappear from the shop, once they're bought */
+        
+        for itemType in items
+            RemoveItemFromStock(shop, itemType)
+            
+        for itemType in items
+            AddItemToStock(shop, itemType, 1, 1)
+            
+
+    /** Action function which runs when an Artifact shop sells an item */
+    private static function itemSold()
+        ArtifactShop shop = getShop(GetSellingUnit())
+        unit hero = GetBuyingUnit()
+        item mask = GetSoldItem()
+
+        
+        if mask.getTypeId() == REMOVEARTIFACTSMASK
+            hero.removeAllArtifacts()
+            shop.refreshItems()
+
+        else if shop.raceType == hero.getTypeId()
+            hero.addArtifact(Artifact.getItem(mask.getTypeId()))
+            shop.refreshItems()
+
+        else
+            snd_Error.playForPlayer(hero.getOwner())
+        
+
+// ==============================================================================================================================
+
+/** The artifact's data */
+public class Artifact
+    private static IterableMap<int, thistype> artifacts = new IterableMap<int, thistype> // Mask ID, artifact
+
+    private int raceType // Defined by a unit's id
+    private int itemId
+    private int maskId
+    private string name
+
+
+    construct(int itemId, int maskId, int raceType)
+        this.itemId = itemId
+        this.maskId = maskId
+        this.raceType = raceType
+
+        item tempItem = createItem(itemId, vec2(7200,9000))
+        name = tempItem.getName()
+        tempItem.remove() 
+
+        artifacts.put(maskId, this)
+    
+    
+    /** Makes the artifact available to buy */
+    function release()
+        ArtifactShop readyShop = ArtifactShop.getReadyShop(raceType)
+        if readyShop != null
+            readyShop.addItem(maskId)
+        else
+            print("null shop")
+
+        
+    /** Find the id of the artifact item matching the maskId */
+    static function getItem(int maskId) returns int
+        Artifact artifact = artifacts.get(maskId)
+
+        if artifact == null
+            error("Artifact doesn't exist")
+            return 0
+
+        else
+            return artifact.itemId
+
+    function getItemId() returns int
+        return itemId
+
+    /** Gets the name of the artifact */
+    function getName() returns string
+        return name
+        
+
+
+//==============================================================================================================================
+// ARTIFACTS
+
+public constant Artifact ARTIFACT_WARDRUM               = new Artifact('I011','I012', 'O000')
+public constant Artifact ARTIFACT_ORCISHCLEAVER         = new Artifact('I00Z', 'I010', 'O000')
+public constant Artifact ARTIFACT_KILMAIM               = new Artifact('I014', 'I019', 'O000')
+public constant Artifact ARTIFACT_TOOTHOFTHEWARCHIEF    = new Artifact('I015', 'I01B', 'O000')
+public constant Artifact ARTIFACT_TOKENOFSAMURO         = new Artifact('I017', 'I01C', 'O000')
+public constant Artifact ARTIFACT_GIFTOFTHETAUREN       = new Artifact('I018', 'I01D', 'O000')
+public constant Artifact ARTIFACT_BLOODOFMANNOROTH      = new Artifact('I013', 'I01E', 'O000')
+
+
+public constant ArtifactShop ARTIFACTSHOP = new ArtifactShop(gg_unit_n00K_0002, 'O000')

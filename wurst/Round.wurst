@@ -7,6 +7,8 @@ import Transitions
 import TimerUtils
 import Orb
 import Music
+import public Artifact
+import public ItemReward
 
 public class Round
 
@@ -14,11 +16,15 @@ public class Round
 
 //  Settings 
 
-    private static constant real HEALTHORB_SPAWNFREQ = 20 
+    private static constant real HEALTHORB_SPAWNFREQ = 25 
+    private static constant real HEALTHORB_DURATION  = 8
     private static constant real HEALTHORB_SPAWNDURATION = 200
 
     private static constant string TEXTCOLOR_GOLD = "|cffffcc00"
     private static constant string TEXTCOLOR_TRAINPOINT = "|cff00FA9A"
+    private static constant string TEXTCOLOR_ARTIFACT = "|cffb3b3ff"
+    private static constant string TEXTCOLOR_ITEM = "|cffd9b38c"
+    
 
 //=========================================================================================================================================================
 
@@ -32,6 +38,7 @@ public class Round
     private static boolean roundWon = false
     private static Round currentRound
     private static boolean isBossRound = false
+    private static boolean instantSpawn = false
 
     
 
@@ -42,6 +49,9 @@ public class Round
     private int number
     private int goldReward
     private int trainingPointsReward
+    private LinkedList<Artifact> artifactReward = new LinkedList<Artifact>
+    private LinkedList<ItemReward> itemRewards = new LinkedList<ItemReward>
+    private int abilityReward = -1 // Number
     private real healthOrb_FlatToHealInstant
     private real healthOrb_PercToHealInstant
     private real healthOrb_FlatToHealOverTime
@@ -54,6 +64,7 @@ public class Round
     private boolean bossRound = false
     private unit boss = null
     private string music = Sounds.orcVictory
+
     Round_RemoteFunction<Round> codeOnClear
     Round_RemoteFunction<Round> codeOnPrepare
     Round_RemoteFunction<Round> codeOnFadeIn
@@ -62,9 +73,11 @@ public class Round
     Round_RemoteFunction<Round> codeOnLastUnitDeath
 
 
+
     private static SoundDefinition snd_GoldReward = new SoundDefinition(Sounds.receiveGold, false)
     private static SoundDefinition snd_RoundInfo = new SoundDefinition(Sounds.questLog, false)
     private static SoundDefinition snd_StartRound = new SoundDefinition(Sounds.goodJob, false)
+    private static SoundDefinition snd_ItemReward = new SoundDefinition(Sounds.itemReceived, false)
 
 // ======================================================================================================================================
 
@@ -118,7 +131,7 @@ public class Round
     function setDescription(string description)
         this.description = description
 
-
+    /** Heal over time is heal per tick. It lasts for 6 seconds, so 6 ticks. */
     function setHealthOrbSpawn( real duration, real healthFlatToHealInstant, real healthPercToHealInstant, real healthFlatToHealOverTime, real healthPercToHealOverTime )
         this.healthOrb_SpawnDuration = duration
         this.healthOrb_FlatToHealInstant = healthFlatToHealInstant
@@ -129,6 +142,23 @@ public class Round
     function setMusic(string music)
         this.music = music
         
+
+    /** Adds one or more artifacts as a reward, when winning the round */
+    function addArtifactRewards(vararg Artifact artifacts)
+        for artifact in artifacts
+            artifactReward.add(artifact)
+
+    /** Adds one or more artifacts as a reward, when winning the round */
+    function addItemRewards(vararg ItemReward items)
+        for itemReward in items
+            itemRewards.add(itemReward)
+
+    function addAbilityReward(int abilityNumber)
+        abilityReward = abilityNumber
+
+    /** Make all rounds instantly spawn all units - only for testing! */
+    static function toggleInstantSpawn(boolean toggle)
+        instantSpawn = toggle
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Getters
@@ -159,6 +189,7 @@ public class Round
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 //  Running
+
     
     /** Starts the currentRound */
     static function startRound()
@@ -184,6 +215,9 @@ public class Round
         if not spawners.isEmpty()
             for spawner in spawners
                 spawner.start()
+
+                if instantSpawn
+                    spawner.spawnAll()
         
     function clear()
         Orb.destroyAll()
@@ -214,11 +248,11 @@ public class Round
     private static function spawnHealthOrb()
         thistype round = GetExpiredTimer().getData() castTo thistype
 
-        vec2 spawnPos = gg_rct_Arena_CamBounds.randomPoint()
+        vec2 spawnPos = gg_rct_Arena_Spawn1.randomPoint()
 
         new HealthOrb(spawnPos)
         ..setHealInstant(round.healthOrb_FlatToHealInstant, round.healthOrb_PercToHealInstant )
-        ..setHealOverTime(round.healthOrb_FlatToHealOverTime, round.healthOrb_PercToHealOverTime, 6 )
+        ..setHealOverTime(round.healthOrb_FlatToHealOverTime, round.healthOrb_PercToHealOverTime, HEALTHORB_DURATION )
         ..addActivationUnit(hero)
         
 
@@ -246,12 +280,87 @@ public class Round
         Player(0).addLumber(trainingPointsReward)
 
 
+    /** Rewards items, including artifacts */
+    private function rewardItems() returns boolean
+        int numberOfArtifacts = artifactReward.size()
+        int numberOfItems = itemRewards.size()
+        int numberOfRewards = numberOfArtifacts + numberOfItems
+
+        if numberOfRewards > 0
+            
+            snd_ItemReward.play()
+            printTimed(" ", 8)
+            string text = "New items unlocked: \n"
+            
+            int i = 0
+
+            if numberOfItems > 0
+                
+                for itemReward in itemRewards
+
+                    text += TEXTCOLOR_ITEM+itemReward.getName()+"|r"
+                    
+                    i++
+
+                    if i < numberOfRewards
+                        text += ", "
+
+                    itemReward.release() 
+
+
+            if numberOfArtifacts > 0 
+                for artifact in artifactReward
+
+                    text += TEXTCOLOR_ARTIFACT+artifact.getName()+" (Artifact)|r"
+
+                    i++
+
+                    if i < numberOfRewards
+                        text += ", "
+
+                    artifact.release()
+
+            printTimed(text, 8)
+            return true
+
+        return false
+
+    function giveAbilityReward() returns boolean
+
+        if abilityReward > -1
+
+            printTimed(" ", 6)
+
+            string text = "New ability: "
+            text += gladiator.getColor()+gladiator.releaseAbility(abilityReward)+"|r"
+
+            printTimed(text, 6)
+
+            gladiator.getSoundOnNewAbility().playForPlayer(gladiator.getOwner())
+        
+            return true
+
+        else
+            return false
+        
+
     static function giveReward()
         currentRound.reward()
+
+    static function giveItemReward() returns boolean
+        return currentRound.rewardItems()
 
     function giveRewardNotFancy()
         Player(0).addGold(goldReward)
         Player(0).addLumber(trainingPointsReward)
+        for artifact in artifactReward
+            artifact.release()
+
+        for itemReward in itemRewards
+            itemReward.release()
+
+        if abilityReward > -1
+            gladiator.releaseAbility(abilityReward)
 
     static function wonRound()
         

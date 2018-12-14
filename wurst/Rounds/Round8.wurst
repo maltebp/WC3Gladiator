@@ -10,16 +10,26 @@ import GroupUtils
 import TimedSpecialEffects
 import UnitVisualsUtils
 import InstantDummyCaster
+import Damage
+
+
+constant real LIGHTNINGWARD_DAMAGE = 30
+
+constant real LIGHTNINGCHARGE_DAMAGE = 125
+constant real LIGHTNINGCHARGE_RANGE = 350
+constant real LIGHTNINGCHARGE_DURATION = 8
 
 init
     //=========================================================================================================================================================
     //  Lightning Lords
 
     round = new Round()
-    ..setReward(80, 4)
+    ..setReward(30, 4)
+    ..addItemRewards(ITEM_CLOAKOFTHEWIND)
+
     ..setTitle("Lightning Lords")
     ..setDescription("Don't go get thunder struck now.")
-    ..setHealthOrbSpawn(90, 80, 0.1, 25, 0.02)
+    ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
 
     // Spawner 1
 
@@ -69,7 +79,7 @@ function lightningChargeCast()
     new DelayedBloodlustCast(caster, 0.25)
     
 
-    new LightningCharge(caster, 100, 350, 8)
+    new LightningCharge(caster, LIGHTNINGCHARGE_DAMAGE, LIGHTNINGCHARGE_RANGE, LIGHTNINGCHARGE_DURATION)
 
 
 function entersMap() returns boolean
@@ -157,7 +167,7 @@ public class SummonLightningWard
         
         unit ward = createUnit( caster.getOwner(), 'h003', vec2(GetSpellTargetX(), GetSpellTargetY()), angle(GetRandomReal(0, PI2)) )
 
-        new LightningWard(ward, 75, 2, 4000, 35)
+        new LightningWard(ward, 75, 2, 4000, LIGHTNINGWARD_DAMAGE)
 
         caster.getSpawner().addSummonedUnit(ward)
 
@@ -202,10 +212,10 @@ public class LightningWard
     protected function damage(unit target)
 
         target.addEffect("Abilities\\Weapons\\Bolt\\BoltImpact.mdl", "chest")
-        ..setDuration(4)
+        ..setDuration(4.)
 
         ward.addEffect("Abilities\\Spells\\Orc\\Purge\\PurgeBuffTarget.mdl", "origin" )
-        ..setDuration(2)
+        ..setDuration(2.)
 
         addEffect("Abilities\\Weapons\\Bolt\\BoltImpact.mdl", ward.getPos().withTerrainZ(75) )
         ..setDuration(4)
@@ -215,7 +225,7 @@ public class LightningWard
         ..setTarget(target, 75)
         ..setRemoveOnUnitDeath(true)
 
-        ward.damageTarget(target, damage)
+        ward.damageTargetSpell(target, damage)
 
 
     /** Finds the the target for the effect */

@@ -1,0 +1,398 @@
+
+// =======================================================================================================================
+
+package ChargeSystem
+
+/*  DESCRIPTION
+
+    Charge:
+    The resource all Heroes has, which is displayed as the exp bar. The resource is gained differently
+    from Hero to Hero, but they all have some things in common:
+        - They degenerate charge equally fast
+        - They may have up to a maximum of 100 charge
+
+    The system:
+    Controls the different unit's charge data, including degeneration rates, and it makes sure to update
+    the unit's. The system is equipped with a set of functions (unit extension functions) to adjust
+    a unit's charge with.
+
+    Setting up:
+    Use
+
+        unit.enableCharge()
+
+    to enable the system for a unit, or simple call on of the adjustments method (this will automatically
+    setup the unit for the charge system.)
+
+*/
+// =======================================================================================================================
+
+import TimerUtils
+import LinkedList
+import HashMap
+import ErrorHandling
+
+// ------------------------------------------------------------------------------------------------------------------------
+// Settings
+
+constant real   DEGENERATION_BASE = 2 // Per second
+constant real   DEGENERATION_FREQ = 0.25
+
+constant int    MAXCHARGE  = 100 // Should be adjusted with game constants
+
+constant boolean TESTMODE = false
+
+// Other constants
+constant int    DEGENERATION_TIMESPERSEC = R2I(1 / DEGENERATION_FREQ)
+
+// =========================================================================================================================
+// Access functions
+
+/** Setup a UnitCharge instance, if the unit doesn't already have one*/
+public function unit.enableCharge()
+    UnitCharge.getUnitInstance(this)
+    
+/** Setup a UnitCharge instance, if the unit doesn't already have one. It sets a custom baseDegeneration for the new/existing instance*/
+public function unit.enableCharge(real baseDegeneration)
+    UnitCharge.getUnitInstance(this).setBaseDegeneration(baseDegeneration)
+    
+/** Reduces the degeneration of a unit's charge. 1 (100%) being the maximum. If duration is set to 0, it will become permanent. */
+public function unit.reduceChargeDegeneration(real percentReduction, real duration ) returns ChargeAdjustment
+    return new ChargeAdjustment(UnitCharge.getUnitInstance(this), 0, -percentReduction, duration)
+
+/** Increases the degeneration of a unit's charge by a percentage (decimal: 0.5 = 50%, 2 = 200%). If duration is set to 0, it will become permanent */
+public function unit.increaseChargeDegeneration(real percentIncrease, real duration ) returns ChargeAdjustment
+    return new ChargeAdjustment(UnitCharge.getUnitInstance(this), 0, percentIncrease, duration)
+
+/** Increases the degeneration of a unit's charge by a flat amount every second. If duration is set to 0, it will become permanen.t */
+public function unit.increaseChargeDegeneration(int flatIncrease, real duration) returns ChargeAdjustment
+    return new ChargeAdjustment(UnitCharge.getUnitInstance(this), flatIncrease, 0, duration)
+
+/** Reduces the degeneration of a unit's charge by a flat amount every second. If duration is set to 0, it will become permanen.t */
+public function unit.reduceChargeDegeneration(int flatReduction, real duration) returns ChargeAdjustment
+    return new ChargeAdjustment(UnitCharge.getUnitInstance(this), -flatReduction, 0, duration)
+
+/** Adds a flat amount of charge to the unit. Creates a UnitCharge instance, if one doesn't already exists. */
+public function unit.addCharge( int amount )
+    UnitCharge.getUnitInstance(this).adjustCharge(amount)
+
+/** Reduces the current charge by a flat amount. Creates a UnitCharge instance, if one doesn't already exists. */
+public function unit.reduceCharge(int amount )
+    UnitCharge.getUnitInstance(this).adjustCharge(-amount)
+
+/** Sets the charge to a specific amount for a unit. Creates a UnitCharge instance if one doesn't already exists */
+public function unit.setCharge( int amount )
+    UnitCharge.getUnitInstance(this).setCharge(amount)
+    
+/** Resets the charge, set charge to 0 and clearing all increases/decreases in degeneration*/
+public function unit.resetCharge()
+    UnitCharge.getUnitInstance(this)
+    ..clearAdjustments()
+    ..setCharge(0)
+
+/** Gets the unit's current charge level. It returns 0 if the unit is not connected to the Charge system (or the unit is not a hero) */
+public function unit.getCharge() returns int
+    if not this.isType(UNIT_TYPE_HERO)
+        return 0
+    if not UnitCharge.unitHasInstance(this)
+        return 0
+    return GetHeroXP(this)
+
+
+/* TODO: Implement this 
+public function unit.stopChargeDegeneration()
+    this.stopChargeDegeneration(0)
+
+public function unit.stopChargeDegeneration(real duration) 
+
+public function unit.startChargeDegeneration() */
+
+
+
+// ===========================================================================================================================
+class UnitCharge
+
+    // Keeps tracks of a unit's charge functionality, including adjustments
+
+    private static IterableMap<unit,thistype> instances
+    private static timer updateTimer
+    
+    private LinkedList<ChargeAdjustment> adjustments = new LinkedList<ChargeAdjustment>
+
+    private real baseDegeneration
+
+    private unit chargeUnit
+
+    private int degenerationFlatAdjust = 0
+    private real degenerationPercAdjust = 0
+
+    private real chargeToAdjust = 0
+
+
+    construct(unit chargeUnit, real baseDegeneration)
+        this.chargeUnit = chargeUnit
+        this.baseDegeneration = baseDegeneration
+
+        if instances == null
+            instances = new IterableMap<unit,thistype>
+            updateTimer = getTimer()..startPeriodic(DEGENERATION_FREQ, function updateAll ) 
+        
+        instances.put(chargeUnit, this)
+
+        chargeUnit.suspendXp(true)
+        setCharge(0)
+        
+
+
+    ondestroy
+        for adjustment in adjustments
+            destroy adjustment
+
+    function setBaseDegeneration(real degeneration)
+        baseDegeneration = degeneration
+        
+    /** Sets the charge for a unit */
+    function setCharge(int charge)
+
+        int currentCharge = GetHeroXP(chargeUnit)
+
+        if charge != currentCharge
+
+            // Adjusting charge to be between max (MAXCHARGE) and min (0)
+            int finalCharge = (charge > MAXCHARGE) ? MAXCHARGE : charge
+            finalCharge = (finalCharge < 0 ) ? 0 : finalCharge
+
+            boolean xpIsSuspended = chargeUnit.isSuspendedXp()
+
+            if xpIsSuspended
+                chargeUnit.suspendXp(false)
+            
+            // If unit has max charge and wants to reduce it
+            if currentCharge == MAXCHARGE and finalCharge < MAXCHARGE
+                UnitStripHeroLevel(chargeUnit, 1)
+                chargeUnit.addXp(finalCharge,false)
+
+            else
+                chargeUnit.addXp(finalCharge-currentCharge, false)
+
+            if xpIsSuspended
+                chargeUnit.suspendXp(true)
+
+        
+    /** Adjusts the charge (addition or subtraction) */
+    function adjustCharge(int charge)
+        setCharge(GetHeroXP(chargeUnit)+charge)
+
+
+    /** Updates the charge unit: degenerating charge, and checking if the unit still exists */
+    function update()
+        
+        if chargeUnit == null
+            error("Charge unit is null")
+            destroy this
+
+        else if not chargeUnit.isAliveTrick()
+            clearAdjustments()
+
+        else
+
+            real percentAdjust = (degenerationPercAdjust < -1) ? 0 : 1+degenerationPercAdjust
+            real chargeAdjust = (baseDegeneration + degenerationFlatAdjust)*percentAdjust
+
+            chargeToAdjust += chargeAdjust / DEGENERATION_TIMESPERSEC
+
+            int chargeToAdjustInt = R2I(chargeToAdjust)
+
+            if chargeToAdjustInt > 0
+                adjustCharge(-chargeToAdjustInt)
+                chargeToAdjust -= chargeToAdjustInt
+
+
+    /** Clears all adjustements for the unit */
+    function clearAdjustments()
+        for adjustment in adjustments
+            if adjustment.clearsOnDeath()
+                adjustment.clear()
+                adjustments.remove(adjustment)
+
+
+    /** Adjusts there degeneration for the unit */
+    function adjustDegeneration( int degenerationFlatAdjust, real degenerationPercAdjust )
+        this.degenerationFlatAdjust += degenerationFlatAdjust
+        this.degenerationPercAdjust += degenerationPercAdjust
+        
+
+    /** Gets the UnitCharge instance for the unit. Creates one if it doesn't exist */
+    static function getUnitInstance(unit whichUnit) returns thistype
+
+        if instances == null or not instances.has(whichUnit)
+            return new UnitCharge(whichUnit, DEGENERATION_BASE)
+
+        return instances.get(whichUnit)
+
+
+    static function unitHasInstance(unit whichUnit) returns boolean
+        return (instances == null) ? false : instances.has(whichUnit)
+
+    
+    private static function updateAll()
+        for chargeUnit in instances
+            instances.get(chargeUnit).update()
+
+    function toString() returns string
+        return "UnitCharge #"+(this castTo int).toString() +
+         " | Degen Per sec: " + ((baseDegeneration+degenerationFlatAdjust)*(1+degenerationPercAdjust)).toString(2)+
+         " | Flat adjust: "+degenerationFlatAdjust.toString() +
+          " | Perc adjust: "+degenerationPercAdjust.toString(2)
+        
+
+
+// =================================================================================================================================
+class ChargeAdjustment
+
+    /* Keeps data about an adjustment to a Unit's charge functionality.
+        It's designed so you can clear the adjustment, before it's supposed
+        to end, without the code breaking.
+    */
+    
+
+    private UnitCharge chargeInstance
+
+    private int degenerationFlatAdjust
+    private real degenerationPercAdjust
+
+    private boolean hasBeenCleared = false
+    private boolean clearOnDeath = false
+    private boolean destroyOnClear = false
+    
+    private timer timer_Duration
+    
+
+    construct(UnitCharge chargeInstance, int degenerationFlatAdjust, real degenerationPercAdjust, real duration)
+        this.degenerationFlatAdjust = degenerationFlatAdjust
+        this.degenerationPercAdjust = degenerationPercAdjust
+        this.chargeInstance = chargeInstance
+
+        if duration > 0
+            clearOnDeath = true
+            timer_Duration = getTimer()
+            ..setData(this castTo int)
+            ..start(duration, function callback_Clear)
+
+        else
+            clearOnDeath = false
+
+        chargeInstance.adjustDegeneration(degenerationFlatAdjust, degenerationPercAdjust)
+
+
+    ondestroy
+        if timer_Duration != null
+            timer_Duration.release()   
+        
+
+    private function clear(boolean destroyInstance)
+        if not hasBeenCleared
+            hasBeenCleared = true
+            chargeInstance.adjustDegeneration(-degenerationFlatAdjust, -degenerationPercAdjust)
+
+        if destroyInstance
+            destroy this
+
+    /** Clears the adjustment from the unit, while considering the 'destroyOnClear' attribute */
+    function clear()
+        clear(destroyOnClear)
+        
+    /** Enables that the instance will be destroyed when cleared */
+    function setDestroyOnClear()
+        destroyOnClear = true
+
+    /** Enables that the adjustment we be cleared on death */
+    function setClearOnDeath()
+        clearOnDeath = true
+
+    /** Checks if the adjustment will be cleared on death */
+    function clearsOnDeath() returns boolean
+        return clearOnDeath
+
+    private static function callback_Clear()
+        GetExpiredTimer().getData() castTo thistype.clear(true)
+
+    function toString() returns string
+        return "ChargeAdjustment #"+(this castTo int).toString()+" | Flat adjust: "+degenerationFlatAdjust.toString()+" | Perc Adjust: "+degenerationPercAdjust.toString() 
+
+
+
+
+
+// ================================================================================================
+// TESTING
+
+unit testUnit
+
+public function setTestUnit(unit whichUnit)
+    testUnit = whichUnit
+    
+
+function addCharge()
+
+    string input = GetEventPlayerChatString()
+    
+    if input.length() > 10
+        
+        int numberInput = input.ltrim("addcharge ").toInt()
+    
+        testUnit.addCharge(numberInput)
+
+        print("Current charge: "+testUnit.getCharge().toString())
+
+    else
+        print("wrong input")
+
+
+
+function adjustChargePerc()
+
+    string input = GetEventPlayerChatString()
+    
+    if input.length() > 10
+        
+        real numberInput = input.ltrim("adjustCharge perc ").toReal()
+    
+        print("Input: "+numberInput.toString())
+
+        testUnit.increaseChargeDegeneration(numberInput, 10)        
+
+    else
+        print("wrong input")
+
+
+
+function adjustChargeFlat()
+
+    string input = GetEventPlayerChatString()
+    
+    if input.length() > 10
+        
+        int numberInput = input.ltrim("adjustCharge flat ").toInt()
+    
+        testUnit.increaseChargeDegeneration(numberInput, 10)
+
+    else
+        print("wrong input")
+    
+
+
+
+init
+    if TESTMODE
+        CreateTrigger()
+        ..registerPlayerChatEvent(Player(0), "addcharge ", false)
+        ..addAction(function addCharge)
+
+        CreateTrigger()
+        ..registerPlayerChatEvent(Player(0), "adjustCharge perc ", false)
+        ..addAction(function adjustChargePerc)
+
+        CreateTrigger()
+        ..registerPlayerChatEvent(Player(0), "adjustCharge flat ", false)
+        ..addAction(function adjustChargeFlat)

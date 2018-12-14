@@ -9,11 +9,13 @@ import GroundEffect
 import GroupUtils
 import TimedSpecialEffects
 import AutoCastAbility
+import Damage
 
 import LinkedList
 
 LinkedList<Flame> flames = new LinkedList<Flame>
 
+constant real BURNDAMAGE = 60
 
 
 init
@@ -25,10 +27,13 @@ init
     end
 
     round = new Round
-    ..setReward(70, 4)
+    ..setReward(30, 3)
+    ..addItemRewards(ITEM_CLOAKOFFLAME, ITEM_LAVATEMPEREDBOOTS)
+
+
     ..setTitle("Through the Fire and Flames")
-    ..setDescription("It's gettin' hot in here - should you stand in the fire?")
-    ..setHealthOrbSpawn(90, 80, 0.1, 20, 0.02)
+    ..setDescription("Should you stand in the fire?")
+    ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
     ..setCodeOnClear(func)
 
     
@@ -114,7 +119,7 @@ class Flame extends GroundEffect
         for target from ENUM_GROUP
             if target.isAlive() and target.getOwner().isEnemyOf(ENEMYPLAYER) and not targetsHit.contains(target)
                 target.addEffect("Abilities\\Spells\\Items\\AIfb\\AIfbSpecialArt.mdl", "chest")
-                dummy.damageTarget(target, 60)
+                dummy.damageTargetSpell(target, BURNDAMAGE)
                 targetsHit.addUnitTimed(target, 0.99)
 
 

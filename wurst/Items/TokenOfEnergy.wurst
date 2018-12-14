@@ -12,6 +12,7 @@ function onCast()
     if caster.getTypeId() == 'O000'
         if caster.hasItemById('I00T')
             caster.restoreEnergy(ENERGYRESTORED)
+            
 
 function condition() returns boolean
     return true

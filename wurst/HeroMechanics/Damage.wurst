@@ -1,5 +1,126 @@
 package Damage
 
-public function unit.damageTargetMelee(unit target, real amount)
+constant boolean TESTMODE = false
 
-    UnitDamageTarget(this, target, amount, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_NORMAL, WEAPON_TYPE_WHOKNOWS)
+
+
+
+/** Deals damage to the target which is adjust like normal attacks (reduced by armor) */
+public function unit.damageTargetPhysical(unit target, real damage)
+    UnitDamageTarget(this, target, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, WEAPON_TYPE_WHOKNOWS)
+
+/** Deals damage to the target which is adjusted as spell damage (reduced by spell reduction and Elune's Grace)*/
+public function unit.damageTargetSpell(unit target, real damage)
+    UnitDamageTarget(this, target, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, WEAPON_TYPE_WHOKNOWS)
+
+/** Deals damage to the target which is not adjusted by anything */
+public function unit.damageTargetUniversal(unit target, real damage)
+    UnitDamageTarget(this, target, damage, false, false, ATTACK_TYPE_MELEE, DAMAGE_TYPE_UNIVERSAL, WEAPON_TYPE_WHOKNOWS)
+
+
+
+
+// Bonus info on damage: Elune's Grace reduces Magic Damage (from regular attacks) AND Spell Damage taken
+
+
+
+
+
+
+
+// ========================================================================================================================================================================================
+// TEST AREA 
+enum DamageType
+    PHYSICAL
+    SPELL
+    UNIVERSAL
+    
+
+unit testUnit
+
+
+function damage(DamageType damageType, real damage)
+    real startHp = testUnit.getHP()
+    
+    unit dummy = createUnit(Player(2), 'h002', testUnit.getPos(), angle(0))
+
+    if damageType == DamageType.SPELL
+        UnitDamageTarget(dummy, testUnit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, WEAPON_TYPE_WHOKNOWS)
+        
+    
+    else if damageType == DamageType.PHYSICAL
+        UnitDamageTarget(dummy, testUnit, damage, false, false, ATTACK_TYPE_MELEE, DAMAGE_TYPE_NORMAL, WEAPON_TYPE_WHOKNOWS)
+
+
+    else if damageType == DamageType.UNIVERSAL
+        UnitDamageTarget(dummy, testUnit, damage, false, false, ATTACK_TYPE_MELEE, DAMAGE_TYPE_UNIVERSAL, WEAPON_TYPE_WHOKNOWS)
+
+    print("Dealt "+(startHp-testUnit.getHP()).toString(1) + " damage.")
+
+    
+
+function damagePhysical()
+    string input = GetEventPlayerChatString()
+
+    if input.length() > 16
+        
+        real numberInput = input.ltrim("damage physical ").toReal()
+    
+        damage(DamageType.PHYSICAL, numberInput)
+
+    else
+        print("wrong input")
+
+function damageSpell()
+    string input = GetEventPlayerChatString()
+
+    if input.length() > 12
+        
+        real numberInput = input.ltrim("damage spell ").toReal()
+    
+        damage(DamageType.SPELL, numberInput)
+
+    else
+        print("wrong input")    
+    
+        
+function damageUniversal()
+    string input = GetEventPlayerChatString()
+
+    if input.length() > 17
+        
+        real numberInput = input.ltrim("damage universal ").toReal()
+    
+        damage(DamageType.UNIVERSAL, numberInput)
+
+    else
+        print("wrong input")    
+    
+
+
+
+function restore()
+    testUnit.setHP(testUnit.getMaxHP())
+
+public function setDamageTestUnit(unit whichUnit)
+    testUnit = whichUnit
+
+
+
+init
+    if TESTMODE
+        CreateTrigger()
+        ..registerPlayerChatEvent(Player(0), "damage physical ", false)
+        ..addAction(function damagePhysical)
+
+        CreateTrigger()
+        ..registerPlayerChatEvent(Player(0), "damage spell ", false)
+        ..addAction(function damageSpell) 
+
+        CreateTrigger()
+        ..registerPlayerChatEvent(Player(0), "damage universal ", false)
+        ..addAction(function damageUniversal) 
+
+        CreateTrigger()
+        ..registerPlayerChatEvent(Player(0), "restore", false)
+        ..addAction(function restore) 
