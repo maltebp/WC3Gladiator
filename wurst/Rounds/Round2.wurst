@@ -4,20 +4,28 @@ import public initlater Round1
 import TimerUtils
 import MyLibrary
 import TimedSpecialEffects
+import UnitVisualsUtils
+
+
+
+constant int SKELETONWARRIOR = 'u001'
+constant int SKELETONARCHER = 'n007'
+constant int NECROMANCER = 'u000'
 
 init
     //=========================================================================================================================================================
     //  Necromancers 
 
-
-    
-
     round = new Round
-    ..setReward(60, 3)
+    ..setReward(30, 3)
+    ..addArtifactRewards(ARTIFACT_KILMAIM)
+    ..addAbilityReward(1)
+    ..addItemRewards(ITEM_BONEGLOVES)
+
     ..setTitle("Necromancers")
     ..setDescription("If you think they stand alone, it will cost you dearly")
-    ..setHealthOrbSpawn(90, 60, 0.1, 10, 0.02)
-    ..addArtifactRewards(ARTIFACT_WARDRUM)
+
+    ..setHealthOrbSpawn(100, 50, 0.1, 25, 0.05)
 
     RemoteFunction<UnitSpawner> func
 
@@ -69,7 +77,7 @@ enum SkeletonType
     ARCHER
 
 class SummonSkeletons
-    private static real SUMMON_FREQ = 16
+    private static real SUMMON_FREQ = 20
     private static real SUMMON_STARTDELAY = 3
     private static real SUMMON_FREQDEVIATION = 1
     private static int SUMMONAMOUNT_ARCHER = 1
@@ -161,7 +169,16 @@ class Skeleton
             
         destroy instance
         
-        
+            
+init
+    UnitVisuals.addUnitType(NECROMANCER)
+    ..setPlayerColor(PLAYER_COLOR_MAROON)
+
+    UnitVisuals.addUnitType(SKELETONWARRIOR)
+    ..setPlayerColor(PLAYER_COLOR_COAL)
+
+    UnitVisuals.addUnitType(SKELETONARCHER)
+    ..setPlayerColor(PLAYER_COLOR_COAL)
 
 
     

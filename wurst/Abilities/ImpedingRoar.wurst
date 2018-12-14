@@ -10,14 +10,19 @@ import HashMap
 import Damage
 import ChargeSystem
 import Enrage
+import TimedSpecialEffects
+import Artifact
+import BloodOfMannoroth
+import Frenzy
 
 //=========================================================================================================================================================
 
-constant real BASEDAMAGE    = 5
-constant real DAMAGEFACTOR  = 1
+constant real BASEDAMAGE    = 20
+constant real DAMAGEFACTOR  = 0.5
 constant real RANGE         = 400
 constant int  DURATION      = 7
 constant int  CHARGE        = 20
+constant real COOLDOWN      = 14
 constant real ENRAGE_RANGEINC = 0.01 // Pr charge consumed
 
 constant int ABILITYID = 'A008'
@@ -39,18 +44,33 @@ function onCast()
     real enrageFactor = 1+ENRAGE_RANGEINC*caster.consumeEnrage()
     group targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), RANGE*enrageFactor)
 
-    caster.addCharge(CHARGE)
+    int charge = (caster.hasFrenzy() and caster.hasArtifact(ARTIFACT_BLOODOFMANNOROTH)) ? R2I(CHARGE * (1+BLOODOFMANNOROTH_CHARGEINC)) : CHARGE
+    caster.addCharge(charge)
+
+    real cooldown = COOLDOWN * (caster.getFrenzyCooldownReduction())
+    caster.setAbilityCooldown(ABILITYID, 1, cooldown)
+
+
+    if enrageFactor > 1
+        addEffect("Abilities\\Spells\\Orc\\WarStomp\\WarStompCaster.mdl",caster.getPos())
+        ..setDuration(4)
+    
 
     for target in targets
         if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAliveTrick() 
             targets.removeUnit(target)
 
     for target from targets
-        caster.damageTargetMelee(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage() ))
+        caster.damageTargetPhysical(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage() ))
         target.addEffect("Abilities\\Spells\\Human\\SpellSteal\\SpellStealMissile.mdl","chest")
         ..destr()
         InstantDummyCaster.castTarget(caster.getOwner(), 'A009', 1, Orders.slow, target)
         Buff.add(target)
+
+        if enrageFactor > 1
+            target.addEffect("Abilities\\Spells\\Demon\\DemonBoltImpact\\DemonBoltImpact.mdl","chest")
+            ..destr()
+            
 
 
 

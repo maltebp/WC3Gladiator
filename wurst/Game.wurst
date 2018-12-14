@@ -12,18 +12,22 @@ import ChargeSystem
 import Artifact
 import ItemReward
 import Gladiator
+import Dialog
+import Damage
+import ClosureTimers
 
 
 constant boolean    SPAWNHEROINARENA        = false
 constant boolean    PREPAREHERO             = false
 constant boolean    LOCKCAMBOUNDS           = true
 constant boolean    MAKEMAPVISIBLE          = false
-constant boolean    STARTATSPECIFICROUND    = false
-constant int        STARTINGROUND           = 10
-constant boolean    INSTANTSPAWN            = true  // Toggle rounds to spawn all units at the same time!
+constant boolean    CUSTOMROUNDSTART        = true
+constant boolean    STARTATSPECIFICROUND    = true
+int        STARTINGROUND           = 10
+constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
 
-constant int START_TRAININGPOINTS           = 10
-constant int START_GOLD                     = 75
+constant int START_TRAININGPOINTS           = 8
+constant int START_GOLD                     = 50
 
 
 public constant player ENEMYPLAYER = Player(11)
@@ -44,21 +48,20 @@ public timer timer_GameIntro = getTimer()
 
 vec2 spawnPosOnInit
 
-
+public dialog dialog_RoundPick
+public button array dialogButton_RoundPick
 
 
 
 // Game Init --------------------------------------------------------------------------------------------------------------------
 
 
-
 init
-
+    // Setting up variables
     MAPREGION = CreateRegion()..addRect(GetPlayableMapRect())
-
-
+    
     playMusic(Sounds.orcX1)
-
+    
     spawnPosOnInit = (SPAWNHEROINARENA) ? HEROSPAWN_ARENA : HEROSPAWN_SHOP
 
     Player(0)
@@ -66,12 +69,7 @@ init
     ..setGold(START_GOLD)
     ..setCameraPosition(gg_rct_Shop_CamBounds.getCenter())
 
-    
     Round.toggleInstantSpawn(INSTANTSPAWN)
-
-    EnableSelect(false, false)
-    EnablePreSelect(false, false)
-    EnableDragSelect(false, false)
 
     if LOCKCAMBOUNDS
         Player(0).setCameraBoundsToRect(gg_rct_Shop_CamBounds)
@@ -80,6 +78,7 @@ init
     ..registerPlayerEvent(Player(0), EVENT_PLAYER_END_CINEMATIC)
     ..addAction(function startRound)
 
+
     new Fade
     ..setCinematicMode(true)
     ..setFadeOutDuration(0)
@@ -87,20 +86,87 @@ init
 
     getTimer().start(1, function delayedInit)
 
-    timer_GameIntro.start(3.0, function gameIntro )
+    timer_GameIntro.start(3.0, function preStartInfo )
 
 
 
+/** Information give before alpha start */
+function preStartInfo()
+
+    snd_Text.play()
+    printTimed(  "|cffff9933Welcome to 'Gladiator'|r"+
+    
+            "\n This map is in |cff99ffccAlpha|r, so features such as "+
+            "multiplayer, more Gladiators, more rounds and a score/life system has not been implemented yet."+
+            "\n"+
+            "\nAny suggestions, bug report or critiscm that you might have are "+
+            "appreciated"+
+            "\nCatch me on Hiveworkshop.com or lakewc3@gmail.com"+
+            "\n"+
+            "\nThank you for playing!"+
+            "\n- Lake",14)
+
+    timer_GameIntro.start(14, function roundPick )
+
+    
+
+function roundPick()
+    if CUSTOMROUNDSTART
+
+        EnableSelect(true, true)
+
+        dialog_RoundPick = createDialog()
+        ..setMessage("Choose starting round")
+        
+        
+        for i = 1 to 10 
+            dialogButton_RoundPick[i] = dialog_RoundPick.addButton(i.toString(), i)
+
+        dialog_RoundPick.display(Player(0), true)
+
+        CreateTrigger()
+        ..registerDialogEvent(dialog_RoundPick)
+        ..addAction(function roundPicked)
+
+    else
+        gameIntroDelay()
+
+
+function roundPicked()
+    button pressedButton = GetClickedButton()
+    
+    int round = 1
+
+    for i=1 to 10
+        if pressedButton == dialogButton_RoundPick[i]
+            round = i
+            break
+
+    STARTINGROUND = round
+
+    dialog_RoundPick.display(Player(0), false)
+
+    printTimed("Starting at round "+round.toString(),5)
+
+
+    timer_GameIntro.start(8, function gameIntroDelay )
+
+
+function gameIntroDelay()
+    
+
+    timer_GameIntro.start(2, function gameIntro )
 
 
 function gameIntro()
     snd_Text.play()
     canSkipGameInfo = true
-    printTimed("|cffffcc00"+"Welcome to the Simple Hero Survival!"+"|r",10)
+    ClearTextMessages()
+    printTimed("|cffffcc00"+"Welcome Gladiator!"+"|r",10)
     printTimed("You will have to face fierce opponents, whose only goal is make you regret the day you "+
-       "chose to step into the arena. To call yourself the true champion, you have to survive "+Round.getNumberOfRounds().toString()+ " merciless rounds of"+
+       "stepped into the arena. To call yourself the true champion, you have to survive "+Round.getNumberOfRounds().toString()+ " merciless rounds of"+
        " slaughter.",10)
-    printTimed("Good luck!", 10)
+    printTimed("At least you will die with honor.", 10)
 
 
     timer_GameIntro.start(13, function fadeIn)
@@ -124,7 +190,6 @@ function createHero()
     gladiator = new Gladiator(GladiatorType.ORC, Player(0), spawnPosOnInit, angle(3*PIHALF))
 
     gladiator.releaseAbility(0)
-    gladiator.releaseAbility(1)
 
     // Move all this stuff into Gladiator class
 
@@ -136,8 +201,16 @@ function createHero()
     EnergySystem.addUnit(hero)
     
     hero.addArtifactSlots()
+    ARTIFACT_WARDRUM.release()
+    
+    ITEM_DULLBLADE.release()
+    ITEM_LEATHERARMOR.release()
+    ITEM_COMMONGEM.release()
 
-    // ---
+    setDamageTestUnit(hero)
+
+    setRound()
+
     
     
     addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
@@ -196,12 +269,7 @@ function delayedInit()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Arena_Visibility, false, false).start()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_MASKED, GetPlayableMapRect(), false, false).start()
 
-    // ITEM_DULLBLADE.release()
-    // ITEM_LEATHERARMOR.release()
     
-
-    setRound()
-
 
 function setRound()
 
@@ -216,7 +284,6 @@ function setRound()
         destroy rounds
             
         Round.setCurrentRound(STARTINGROUND)
-        print("Editor start: first round is round "+STARTINGROUND.toCharsetString())
 
 
 function startRound()

@@ -191,7 +191,7 @@ public class GladiatorType
         ..setSoundOnSpawn(Sounds.gromWhat3)
         ..setSoundOnRespawn(Sounds.gromYes3)
         ..setSoundOnNewAbility(Sounds.strongholdWhat1)
-        ..addAbilities('A007','A005','A006','A000','A008')
+        ..addAbilities('A007','A005','A000','A006','A008')
         ..setColor("|cff98e698")
 
 

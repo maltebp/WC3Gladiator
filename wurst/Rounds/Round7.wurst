@@ -2,9 +2,12 @@ package Round7
 
 import public initlater Round6
 import DiseaseCloud
+import UnitVisualsUtils
+
+constant real DISEASEDAMAGE = 20
 
 
-
+constant int GHOUL = 'u004'
 
 init
 //=========================================================================================================================================================
@@ -16,16 +19,20 @@ init
 
 
     round = new Round
-    ..setReward(70, 4)
+    ..setReward(30, 3)
+    ..addArtifactRewards(ARTIFACT_TOKENOFSAMURO)
+    ..addItemRewards(ITEM_SOULSTONE)
+
+
     ..setTitle("Ghosts 'n' Stuff")
     ..setDescription("It seems like somebody's watching you. And what is that smell?")
-    ..setHealthOrbSpawn(90, 100, 0.1, 25, 0.02)
+    ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
     ..setCodeOnClear(roundFunc)
 
 
 
     // Ghoul - 1
-    round.addSpawner(new UnitSpawner('u004', ENEMYPLAYER, vec2(-639,1025), 8))
+    round.addSpawner(new UnitSpawner(GHOUL, ENEMYPLAYER, vec2(-639,1025), 8))
     ..setStartDelay(4)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -35,7 +42,7 @@ init
     
 
     // Ghoul - 2
-    round.addSpawner(new UnitSpawner('u004', ENEMYPLAYER, vec2(527,1025), 15))
+    round.addSpawner(new UnitSpawner(GHOUL, ENEMYPLAYER, vec2(527,1025), 15))
     ..setStartDelay(40)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -46,7 +53,7 @@ init
     RemoteFunction<UnitSpawner> func
 
     func = (UnitSpawner spawner) -> begin
-        Disease.addUnit(spawner.getLastSpawnedUnit(), 25, 0, 150)
+        Disease.addUnit(spawner.getLastSpawnedUnit(), DISEASEDAMAGE, 0, 150)
     end
 
     // Zombie - 1
@@ -60,7 +67,7 @@ init
     ..setCodeOnSpawn(func)
 
     func = (UnitSpawner spawner) -> begin
-        Disease.addUnit(spawner.getLastSpawnedUnit(), 25, 0, 150)
+        Disease.addUnit(spawner.getLastSpawnedUnit(), DISEASEDAMAGE, 0, 150)
     end
 
     // Zombie - 2
@@ -98,7 +105,10 @@ function removeClouds()
     DiseaseCloud.destroyAll()
         
 
-
+// SETUP COLOR
+init
+    UnitVisuals.addUnitType(GHOUL)
+    ..setPlayerColor(PLAYER_COLOR_COAL)
         
 
 

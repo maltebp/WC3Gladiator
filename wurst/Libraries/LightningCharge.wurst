@@ -10,6 +10,7 @@ import TimerUtils
 import TimedSpecialEffects
 import RegisterEvents
 import HashMap
+import Damage
 
 /* ======================== =========================================================================================================
 
@@ -322,7 +323,7 @@ public class LightningExplosion
         for unit target from ENUM_GROUP
             if not hitTargets.contains(target) and target.isAlive() and target.getOwner().isEnemyOf(damageSource.getOwner())
                 debugMsg("damaging target!")
-                damageSource.damageTarget(target, damage)
+                damageSource.damageTargetSpell(target, damage)
                 onHitSfx(target)
                 hitTargets.addUnit(target)
     

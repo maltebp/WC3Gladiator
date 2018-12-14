@@ -7,24 +7,36 @@ import AttackDamage
 import Damage
 import ChargeSystem
 import Enrage
+import Artifact
+import HashMap
+import InstantDummyCaster
+import TimerUtils
+import Orders
+import BloodOfMannoroth
+import Frenzy
 
 
 class WhirlingStrike
-//
 
 //  Settings
 
-    private static constant real RANGE = 250
-    private static constant int  CHARGE = 20
+    private static constant real RANGE = 300
+    private static constant int  CHARGE = 10
+    private static constant int  COOLDOWN = 7
 
-    private static constant real BASEDAMAGE = 10 
+    private static constant real BASEDAMAGE = 15 
     private static constant real ATTACKDAMAGESCALE = 1
 
-    private static constant real ENRAGE_DAMAGEINC = 0.005 // Pr charge
+    private static constant real ENRAGE_DAMAGEINC = 0.01 // Pr charge
     private static constant real ENRAGE_RANGEINC = 0.005
 
     protected static constant int ABILITYID = 'A000'
-    protected static constant SoundDefinition snd_OnHit = new SoundDefinition(Sounds.impaleHit, false, true)
+    protected static constant int TOKENOFSAMURO_BUFFID = 'B00C'
+    protected static constant int TOKENOFSAMURO_DUMMYABIL = 'A01N'
+    protected static constant real TOKENOFSAMURO_DURATION = 4
+
+    protected static constant SoundDefinition snd_OnHit         = new SoundDefinition(Sounds.impaleHit, false, true)
+    protected static constant SoundDefinition snd_OnHitEnrage   = new SoundDefinition(Sounds.metalHeavySliceFlesh3, false, true)
 
 //
     protected static function onCast()
@@ -35,9 +47,16 @@ class WhirlingStrike
 
         real enrageRangeFactor = 1+enrageFactor*ENRAGE_RANGEINC
 
+        real cooldown = COOLDOWN * (caster.getFrenzyCooldownReduction())
+        caster.setAbilityCooldown(ABILITYID, 1, cooldown)
+
+        if caster.hasArtifact(ARTIFACT_TOKENOFSAMURO)
+            caster.addTokenOfSamuroBuff(caster, TOKENOFSAMURO_DURATION)
+
         targets.enumUnitsInRange(caster.getPos(), RANGE*enrageRangeFactor)
 
-        caster.addCharge(CHARGE)
+        int charge = (caster.hasFrenzy() and caster.hasArtifact(ARTIFACT_BLOODOFMANNOROTH)) ? R2I(CHARGE * (1+BLOODOFMANNOROTH_CHARGEINC)) : CHARGE
+        caster.addCharge(charge)
 
         for target in targets
             if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAliveTrick() 
@@ -49,15 +68,119 @@ class WhirlingStrike
 
         if targets.size() > 0
             snd_OnHit.playOnPoint(caster.getPos3Fly())
+            if enrageFactor > 0
+                snd_OnHitEnrage.playOnPoint(caster.getPos3Fly())
+                
 
         real enrageDmgFactor = 1+enrageFactor*ENRAGE_DAMAGEINC
         real damage = (BASEDAMAGE + I2R(caster.getTotalAttackDamage()) * ATTACKDAMAGESCALE ) * enrageDmgFactor
 
         for target from targets
             
-            caster.damageTargetMelee(target, damage)
+            caster.damageTargetPhysical(target, damage)
             target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl", "chest")
             ..setDuration(3)
+
+            if enrageDmgFactor > 1
+                target.addEffect("Abilities\\Spells\\Human\\SpellSteal\\SpellStealMissile.mdl","chest")
+                ..destr()
+            
+
+        
+class TokenOfSamuroBuff
+
+    private static constant real UPDATEFREQ = 0.25
+    private static constant int     ALPHA = 150
+    private static constant real WS_DURATION = 0.75
+
+    private static IterableMap<unit,thistype> instances
+
+    private unit    target = null
+    private real    duration = 0
+    private timer   timer_Duration = null
+    private timer   timer_Update = null
+    
+
+
+    construct(unit target, real duration)
+
+        this.target = target
+        this.duration = duration
+
+        if instances == null
+            instances = new IterableMap<unit,thistype>
+        
+        instances.put(target,this)
+
+        timer_Duration = getTimer()
+        ..setData(this castTo int)
+        ..start(WS_DURATION+0.05, function callback_ApplyBuff )
+
+        timer_Update = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic(UPDATEFREQ, function callback_Update)
+
+        target.setVertexColor(colorA(255,255,255,ALPHA))
+        target.setPathing(false)
+
+
+        
+
+    ondestroy
+        
+        if target != null
+            if target.isAliveTrick()
+                target.removeAbility(WhirlingStrike.TOKENOFSAMURO_BUFFID)
+            target.setVertexColor(colorA(255,255,255,255))
+            target.setPathing(true)
+        
+        instances.removeValue(this, true)
+        instances.remove(target)
+
+        timer_Duration.release()
+        timer_Update.release()
+
+
+    function applyBuff()
+        // Add the buff
+    
+        InstantDummyCaster.castTarget(target.getOwner(), WhirlingStrike.TOKENOFSAMURO_DUMMYABIL, 1, Orders.bloodlust, target)
+
+        timer_Duration.start(duration, function callback_EndDuration )
+
+
+    function restart(real duration)
+        timer_Duration.start(WS_DURATION+0.05, function callback_ApplyBuff )
+
+    function update()
+        if target == null or not target.isAliveTrick()
+            destroy this
+
+    private static function callback_Update()
+        GetExpiredTimer().getData() castTo thistype.update()
+
+    private static function callback_EndDuration()
+        destroy GetExpiredTimer().getData() castTo thistype
+
+    private static function callback_ApplyBuff()
+        GetExpiredTimer().getData() castTo thistype.applyBuff()
+
+    static function getUnitInstance(unit whichUnit ) returns TokenOfSamuroBuff
+        if instances == null
+            return null
+        return instances.get(whichUnit)
+        
+    
+
+
+function unit.addTokenOfSamuroBuff(unit target, real duration)
+    TokenOfSamuroBuff buffInstance = TokenOfSamuroBuff.getUnitInstance(target)
+    
+    if buffInstance == null
+        new TokenOfSamuroBuff(target, duration)
+    else
+        buffInstance.restart(duration)
+
 
 init
     registerSpellEffectEvent(WhirlingStrike.ABILITYID, function WhirlingStrike.onCast )

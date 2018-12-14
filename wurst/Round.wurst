@@ -16,7 +16,8 @@ public class Round
 
 //  Settings 
 
-    private static constant real HEALTHORB_SPAWNFREQ = 20 
+    private static constant real HEALTHORB_SPAWNFREQ = 25 
+    private static constant real HEALTHORB_DURATION  = 8
     private static constant real HEALTHORB_SPAWNDURATION = 200
 
     private static constant string TEXTCOLOR_GOLD = "|cffffcc00"
@@ -130,7 +131,7 @@ public class Round
     function setDescription(string description)
         this.description = description
 
-
+    /** Heal over time is heal per tick. It lasts for 6 seconds, so 6 ticks. */
     function setHealthOrbSpawn( real duration, real healthFlatToHealInstant, real healthPercToHealInstant, real healthFlatToHealOverTime, real healthPercToHealOverTime )
         this.healthOrb_SpawnDuration = duration
         this.healthOrb_FlatToHealInstant = healthFlatToHealInstant
@@ -157,7 +158,7 @@ public class Round
 
     /** Make all rounds instantly spawn all units - only for testing! */
     static function toggleInstantSpawn(boolean toggle)
-        instantSpawn = true
+        instantSpawn = toggle
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Getters
@@ -247,11 +248,11 @@ public class Round
     private static function spawnHealthOrb()
         thistype round = GetExpiredTimer().getData() castTo thistype
 
-        vec2 spawnPos = gg_rct_Arena_CamBounds.randomPoint()
+        vec2 spawnPos = gg_rct_Arena_Spawn1.randomPoint()
 
         new HealthOrb(spawnPos)
         ..setHealInstant(round.healthOrb_FlatToHealInstant, round.healthOrb_PercToHealInstant )
-        ..setHealOverTime(round.healthOrb_FlatToHealOverTime, round.healthOrb_PercToHealOverTime, 6 )
+        ..setHealOverTime(round.healthOrb_FlatToHealOverTime, round.healthOrb_PercToHealOverTime, HEALTHORB_DURATION )
         ..addActivationUnit(hero)
         
 
@@ -354,6 +355,12 @@ public class Round
         Player(0).addLumber(trainingPointsReward)
         for artifact in artifactReward
             artifact.release()
+
+        for itemReward in itemRewards
+            itemReward.release()
+
+        if abilityReward > -1
+            gladiator.releaseAbility(abilityReward)
 
     static function wonRound()
         
