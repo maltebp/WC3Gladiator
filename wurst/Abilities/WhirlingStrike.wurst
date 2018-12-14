@@ -20,11 +20,11 @@ class WhirlingStrike
 
 //  Settings
 
-    private static constant real RANGE = 275
+    private static constant real RANGE = 300
     private static constant int  CHARGE = 10
     private static constant int  COOLDOWN = 7
 
-    private static constant real BASEDAMAGE = 10 
+    private static constant real BASEDAMAGE = 15 
     private static constant real ATTACKDAMAGESCALE = 1
 
     private static constant real ENRAGE_DAMAGEINC = 0.01 // Pr charge

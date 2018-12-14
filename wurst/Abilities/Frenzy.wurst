@@ -58,7 +58,7 @@ function onCast()
         if caster.getAbilityLevel('A007') > 0
             caster.resetAbilityCooldown('A007')
 
-        caster.setMana(caster.getMaxMana())
+        //caster.setMana(caster.getMaxMana())
 
     snd_OnCast.playOnPoint(caster.getPos3Fly())
 

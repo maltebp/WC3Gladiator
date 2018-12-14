@@ -14,6 +14,7 @@ import ItemReward
 import Gladiator
 import Dialog
 import Damage
+import ClosureTimers
 
 
 constant boolean    SPAWNHEROINARENA        = false
@@ -52,7 +53,6 @@ public button array dialogButton_RoundPick
 
 
 
-
 // Game Init --------------------------------------------------------------------------------------------------------------------
 
 
@@ -61,7 +61,7 @@ init
     MAPREGION = CreateRegion()..addRect(GetPlayableMapRect())
     
     playMusic(Sounds.orcX1)
-
+    
     spawnPosOnInit = (SPAWNHEROINARENA) ? HEROSPAWN_ARENA : HEROSPAWN_SHOP
 
     Player(0)
@@ -86,8 +86,29 @@ init
 
     getTimer().start(1, function delayedInit)
 
-    timer_GameIntro.start(3.0, function roundPick )
+    timer_GameIntro.start(3.0, function preStartInfo )
 
+
+
+/** Information give before alpha start */
+function preStartInfo()
+
+    snd_Text.play()
+    printTimed(  "|cffff9933Welcome to 'Gladiator'|r"+
+    
+            "\n This map is in |cff99ffccAlpha|r, so features such as "+
+            "multiplayer, more Gladiators, more rounds and a score/life system has not been implemented yet."+
+            "\n"+
+            "\nAny suggestions, bug report or critiscm that you might have are "+
+            "appreciated"+
+            "\nCatch me on Hiveworkshop.com or lakewc3@gmail.com"+
+            "\n"+
+            "\nThank you for playing!"+
+            "\n- Lake",14)
+
+    timer_GameIntro.start(14, function roundPick )
+
+    
 
 function roundPick()
     if CUSTOMROUNDSTART
@@ -98,7 +119,7 @@ function roundPick()
         ..setMessage("Choose starting round")
         
         
-        for i = 1 to 10
+        for i = 1 to 10 
             dialogButton_RoundPick[i] = dialog_RoundPick.addButton(i.toString(), i)
 
         dialog_RoundPick.display(Player(0), true)
@@ -108,7 +129,7 @@ function roundPick()
         ..addAction(function roundPicked)
 
     else
-        gameIntro()
+        gameIntroDelay()
 
 
 function roundPicked()
@@ -125,9 +146,16 @@ function roundPicked()
 
     dialog_RoundPick.display(Player(0), false)
 
-    print("Starting at round "+round.toString())
+    printTimed("Starting at round "+round.toString(),5)
 
-    timer_GameIntro.start(5, function gameIntro )
+
+    timer_GameIntro.start(8, function gameIntroDelay )
+
+
+function gameIntroDelay()
+    
+
+    timer_GameIntro.start(2, function gameIntro )
 
 
 function gameIntro()
@@ -242,7 +270,6 @@ function delayedInit()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_MASKED, GetPlayableMapRect(), false, false).start()
 
     
-
 
 function setRound()
 

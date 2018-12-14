@@ -212,10 +212,10 @@ public class LightningWard
     protected function damage(unit target)
 
         target.addEffect("Abilities\\Weapons\\Bolt\\BoltImpact.mdl", "chest")
-        ..setDuration(4)
+        ..setDuration(4.)
 
         ward.addEffect("Abilities\\Spells\\Orc\\Purge\\PurgeBuffTarget.mdl", "origin" )
-        ..setDuration(2)
+        ..setDuration(2.)
 
         addEffect("Abilities\\Weapons\\Bolt\\BoltImpact.mdl", ward.getPos().withTerrainZ(75) )
         ..setDuration(4)

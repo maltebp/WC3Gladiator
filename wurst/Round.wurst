@@ -248,7 +248,7 @@ public class Round
     private static function spawnHealthOrb()
         thistype round = GetExpiredTimer().getData() castTo thistype
 
-        vec2 spawnPos = gg_rct_Arena_CamBounds.randomPoint()
+        vec2 spawnPos = gg_rct_Arena_Spawn1.randomPoint()
 
         new HealthOrb(spawnPos)
         ..setHealInstant(round.healthOrb_FlatToHealInstant, round.healthOrb_PercToHealInstant )

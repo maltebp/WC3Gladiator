@@ -17,8 +17,8 @@ import Frenzy
 
 //=========================================================================================================================================================
 
-constant real BASEDAMAGE    = 5
-constant real DAMAGEFACTOR  = 1
+constant real BASEDAMAGE    = 20
+constant real DAMAGEFACTOR  = 0.5
 constant real RANGE         = 400
 constant int  DURATION      = 7
 constant int  CHARGE        = 20
