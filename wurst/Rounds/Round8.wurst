@@ -1,6 +1,6 @@
 package Round8
 
-import public initlater Round7
+import public Round7
 import TimerUtils
 import RegisterEvents
 import AutoCastAbility

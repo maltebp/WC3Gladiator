@@ -1,6 +1,6 @@
 package Round3
 
-import public initlater Round2
+import public Round2
 import TimerUtils
 
 

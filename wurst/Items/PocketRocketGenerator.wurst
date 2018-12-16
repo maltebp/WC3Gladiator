@@ -1,0 +1,137 @@
+package PocketRocketGenerator
+
+import RegisterEvents
+import HashMap
+import ClosureTimers
+import TimerUtils
+import HomingRockets
+
+
+constant int ITEMID = 'I008'
+constant real ROCKET_FREQ = 6
+constant real ROCKET_RANGE = 600
+constant int ROCKET_DAMAGE = 100 // Remember it's splash
+
+constant real UPDATE_FREQ = 0.2 // THe frequency at which it checks for new targets
+
+class PocketRocketGenerator
+
+    private static IterableMap<unit,thistype> instances 
+
+    private timer timer_Effect
+
+    private unit source
+
+
+    construct(unit source)
+        this.source = source
+
+        if instances == null
+            instances = new IterableMap<unit,thistype>
+        
+        instances.put(source, this)
+
+        timer_Effect = getTimer()
+        ..setData(this castTo int)
+    
+        startCooldown()
+
+
+    ondestroy
+        instances.getAndRemove(source)
+        timer_Effect.release()
+
+
+
+    function fire(unit target)
+        new HomingRocketGenerator(source.getPos(), source.getOwner(), target, ROCKET_DAMAGE)
+        ..setHeightOffset(50)
+
+
+    function getTarget() returns unit
+    
+        group targets = ENUM_GROUP
+        ..clear()
+        ..enumUnitsInRange(source.getPos(),ROCKET_RANGE )
+        
+        for target in targets
+            if target.getOwner().isAllyOf(source.getOwner()) or not target.isAlive()
+                targets.removeUnit(target)
+
+        if targets.size() > 0 
+            unit finalTarget = targets.getRandomUnit()
+            targets.clear()
+            return finalTarget
+
+        return null
+            
+
+        
+
+    function startCooldown()
+        timer_Effect.start(ROCKET_FREQ, function callback_CheckForTarget )
+
+    function update()
+        timer_Effect.start(UPDATE_FREQ, function callback_CheckForTarget )
+
+
+    function checkForTarget()
+        if source.isAlive()
+        
+            unit target = getTarget()
+
+            if target != null
+                fire(target)
+                startCooldown()
+            
+            else
+                update()
+
+
+    static function addUnit(unit whichUnit)
+    
+        if instances == null or not instances.has(whichUnit)
+            new PocketRocketGenerator(whichUnit)
+        
+
+
+    static function removeUnit(unit whichUnit)
+
+        if instances != null and instances.has(whichUnit)
+            destroy instances.get(whichUnit)
+
+
+
+    static function callback_CheckForTarget()
+        GetExpiredTimer().getData() castTo thistype.checkForTarget()
+
+
+
+
+function dropItem()
+    item manipulatedItem = GetManipulatedItem()
+
+    if manipulatedItem.getTypeId() == ITEMID
+
+        unit manipulatingUnit = GetManipulatingUnit()
+
+        doAfter(0.01) ->
+            if not manipulatingUnit.hasItemById(ITEMID)
+                PocketRocketGenerator.removeUnit(manipulatingUnit)
+
+
+function pickUpItem()
+    item manipulatedItem =  GetManipulatedItem()
+
+    if manipulatedItem.getTypeId() == ITEMID
+
+        PocketRocketGenerator.addUnit(GetManipulatingUnit())
+                
+
+
+init
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM, function pickUpItem )
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function dropItem )
+
+    
+

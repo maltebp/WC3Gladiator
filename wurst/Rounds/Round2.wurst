@@ -1,6 +1,6 @@
 package Round2
 
-import public initlater Round1
+import public Round1
 import TimerUtils
 import MyLibrary
 import TimedSpecialEffects

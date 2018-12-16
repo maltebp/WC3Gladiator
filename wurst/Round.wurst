@@ -97,7 +97,7 @@ public class Round
 
         timer_HealthOrbDuration = getTimer()..setData(this castTo int)
         timer_HealthOrbSpawn = getTimer()..setData(this castTo int)
-        rounds.add(this)
+        rounds.push(this)
     
     
     
@@ -454,6 +454,8 @@ public class Round
             codeOnPrepare.run(this)
     
         
+
+
         
                
 public interface Round_RemoteFunction<Round>

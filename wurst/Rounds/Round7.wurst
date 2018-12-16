@@ -1,6 +1,6 @@
 package Round7
 
-import public initlater Round6
+import public Round6
 import DiseaseCloud
 import UnitVisualsUtils
 

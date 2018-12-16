@@ -1,0 +1,4 @@
+package RandomAngle
+
+public function randomAngle() returns angle
+    return angle(GetRandomReal(0, PI2))

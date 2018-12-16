@@ -1,0 +1,69 @@
+package DeathSpawn
+
+import HashMap
+import RandomAngle
+import RegisterEvents
+
+HashMap<unit, DeathSpawnData> instances = new HashMap<unit,DeathSpawnData>
+
+public function unit.addDeathSpawn(int deathSpawnId, int numberOfUnits) returns DeathSpawnData
+    return new DeathSpawnData(this, deathSpawnId, numberOfUnits)
+
+interface RemoteFunc
+
+    function run(unit u)
+
+public class DeathSpawnData
+
+    private static trigger trg_UnitDies
+
+    private int numberOfUnits
+    private int deathSpawnId
+
+    private unit source
+
+    private RemoteFunc codeOnUnitSpawn
+
+
+    construct(unit source, int deathSpawnId, int numberOfUnits)
+        this.source = source
+        this.deathSpawnId = deathSpawnId
+        this.numberOfUnits = numberOfUnits
+
+        if trg_UnitDies == null
+            trg_UnitDies = CreateTrigger()
+            ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_DEATH)
+            ..addAction(function unitDies)
+
+        instances.put(source, this)
+
+        
+    ondestroy
+        instances.remove(source)
+        if codeOnUnitSpawn != null
+            destroy codeOnUnitSpawn
+
+
+    function setCodeOnUnitSpawn(RemoteFunc codeOnUnitSpawn)
+        this.codeOnUnitSpawn = codeOnUnitSpawn
+
+
+    private function spawn()
+
+        let sourcePos = source.getPos()
+        unit spawnedUnit
+
+        for i = 1 to numberOfUnits
+            spawnedUnit = createUnit(source.getOwner(),deathSpawnId, sourcePos, randomAngle())
+            if codeOnUnitSpawn != null
+                codeOnUnitSpawn.run(spawnedUnit)
+
+        destroy this
+        
+        
+    private static function unitDies()
+        unit dyingUnit = GetDyingUnit()
+    
+        if not instances == null and instances.has(dyingUnit)
+            instances.get(dyingUnit).spawn()
+        

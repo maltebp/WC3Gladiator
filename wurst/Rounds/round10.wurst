@@ -1,4 +1,4 @@
-package round10
+package Round10
 
 
 /* 
@@ -31,13 +31,13 @@ package round10
     
     Boss: chasing rockets - fires rockets after all players
 
-
 */
+
 
 //=========================================================================================================================================================
 //  Engineer (Boss)
 
-import public initlater Round9
+import public Round9
 
 import TimerUtils
 import RegisterEvents
@@ -82,10 +82,11 @@ init
 
     
 
-
-
     round = new Round()
-    ..setReward(80, 4)
+    ..setReward(30, 3)
+    ..addItemRewards(ITEM_POCKETROCKETGENERATOR, ITEM_DEFLECTIVEDISCDEVICE, ITEM_TINKERSPERSONALHAMMER)
+    ..addArtifactRewards(ARTIFACT_BLOODOFMANNOROTH)
+
     ..setMusic(Sounds.pursuitTheme)
     ..setTitle("Tinker (Boss)")
     ..setDescription("Explosions will be both your friend and enemy")

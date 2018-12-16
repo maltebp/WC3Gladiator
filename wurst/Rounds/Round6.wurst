@@ -1,6 +1,6 @@
 package Round6
 
-import public initlater Round5
+import public Round5
 
 import TimerUtils
 import Orders

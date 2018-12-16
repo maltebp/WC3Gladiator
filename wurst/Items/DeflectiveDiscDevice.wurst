@@ -1,0 +1,55 @@
+package DeflectiveDiscDevice
+
+import LinkedList
+import RegisterEvents
+import InstantDummyCaster
+import Orders
+import ClosureTimers
+import TimedSpecialEffects
+import SoundUtils
+
+
+constant real COOLDOWN = 20
+constant int ITEMID = 'I00B'
+
+constant SoundDefinition snd_Effect = new SoundDefinition(Sounds.defendCaster1, false, true)
+
+LinkedList<unit> instances = new LinkedList<unit>
+
+
+
+function doEffect(unit whichUnit)
+    
+    InstantDummyCaster.castTarget(whichUnit.getOwner(), 'A01T', 1, Orders.innerfire, whichUnit, whichUnit.getPos())
+
+    instances.add(whichUnit)
+
+
+    addEffect("Abilities\\Spells\\Undead\\ReplenishMana\\ReplenishManaCasterOverhead.mdl", whichUnit, "origin")
+    ..setDuration(3)
+    ..setTimeScale(1.5)
+
+    snd_Effect.playOnPoint(whichUnit.getPos3with(75))
+
+
+
+    doAfter(COOLDOWN) ->
+        if whichUnit != null
+            instances.remove(whichUnit)
+
+
+
+function attacked()
+    unit attackedUnit = GetTriggerUnit()
+    
+    if attackedUnit.hasItemById(ITEMID)
+
+        if not instances.contains(attackedUnit)
+
+            doEffect(attackedUnit)
+
+        
+
+init
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ATTACKED, function attacked )
+    

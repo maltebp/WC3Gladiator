@@ -1,0 +1,70 @@
+
+
+// ------------------------------------------------------------------------------------------------------------------
+package OnUnitTypeEnter
+// ------------------------------------------------------------------------------------------------------------------
+/*
+    DESCRIPTION
+
+    A small library, extending the functionality of the OnUnitEnterLeave library,
+    with UnitType specific events and actions.
+
+    Use the onUnitTypeEnter function to add action to a given unittype. 
+
+*/
+
+import HashMap
+import LinkedList
+import OnUnitEnterLeave
+
+// ------------------------------------------------------------------------------------------------------------------
+
+
+/** Adds an action for when a specific unit type enters the map */
+public function onUnitTypeEnter(int unitType, ActionFunction actionFunction)
+    if unitTypeActions == null
+        setup()
+
+    getUnitTypeActions(unitType).add(actionFunction)
+
+
+// =================================================================================================================    
+
+HashMap<int, LinkedList<ActionFunction>> unitTypeActions
+
+
+/** Gets the action list (LinkedList) of a unit types actions,
+    or creates a new one if one doesn't exist. */
+function getUnitTypeActions(int unitType) returns LinkedList<ActionFunction>
+    if unitTypeActions.has(unitType)
+        return unitTypeActions.get(unitType)
+    else
+        let actionList = new LinkedList<ActionFunction>
+        unitTypeActions.put(unitType, actionList)
+        return actionList
+
+
+/** Checks if the unit which entered is among the types which has specific
+    unit type actions connected to it */
+function unitEnteredMap()
+    let enteringUnit = getEnterLeaveUnit()
+    let enteringUnitId = enteringUnit.getTypeId()
+    
+    if unitTypeActions.has(enteringUnitId)
+        print("A unit has entered the map")
+        
+        let actionList = unitTypeActions.get(enteringUnitId)
+
+        for action in actionList
+            action.run(enteringUnit)
+
+        
+/** Sets up the system - is only run once */
+function setup()
+    onEnter(function unitEnteredMap)
+    unitTypeActions = new HashMap<int, LinkedList<ActionFunction>>
+
+    
+/** Interface for lambda expressions */
+interface ActionFunction
+    function run(unit enteredUnit)

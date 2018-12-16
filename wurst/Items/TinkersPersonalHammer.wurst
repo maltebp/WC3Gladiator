@@ -1,0 +1,61 @@
+package TinkersPersonalHammer
+
+import ClosureTimers
+import RegisterEvents
+import LinkedList
+import GroupUtils
+import Damage
+
+
+constant real RANGE = 500
+constant int ITEMID = 'I009'
+constant real DAMAGE = 200
+constant real COOLDOWN = 10
+
+LinkedList<unit> instances = new LinkedList<unit>
+
+
+function doEffect(unit caster, unit target)
+
+    caster.damageTargetSpell(target, DAMAGE)
+
+    flashEffect("Abilities\\Weapons\\FarseerMissile\\FarseerMissile.mdl", target,"chest")
+
+    instances.add(caster)
+    doAfter(COOLDOWN) ->
+        instances.remove(caster)
+
+
+function findTarget(unit caster) returns unit
+
+    group targets = ENUM_GROUP
+    ..clear()
+    ..enumUnitsInRange(caster.getPos(), RANGE )
+    
+    for target in targets
+        if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAlive()
+            targets.removeUnit(target)
+
+    if targets.size() > 0 
+        unit finalTarget = targets.getNearestUnit(caster.getPos())
+        targets.clear()
+        return finalTarget
+
+    return null
+
+    
+function checkForTarget()
+    unit caster = GetSpellAbilityUnit()
+
+    if caster.hasItemById(ITEMID) and not instances.contains(caster)
+
+        
+        unit target = findTarget(caster)
+
+        if target != null
+            doEffect(caster,target)
+        
+
+init
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT, function checkForTarget )
+

@@ -71,8 +71,8 @@ public class HomingRocketGenerator
 
     /** Offsets the generator's height (z). It takes terrain into consideration */
     function setHeightOffset(real heightOffset)
-        if sourceUnit != null
-            sourceUnit.setFlyHeight(heightOffset, 999999)
+        if rocketGenerator != null
+            rocketGenerator.setFlyHeight(heightOffset, 999999)
         else
             error("Source unit is null")
 

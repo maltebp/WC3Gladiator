@@ -9,8 +9,6 @@ import LinkedList
 import ErrorHandling
 
 
-
-
 // ================================================================================================================================
 
 public class ItemReward
@@ -159,6 +157,9 @@ public constant ItemReward  ITEM_CLOAKOFFLAME       = new ItemReward( 'I00D' )
 public constant ItemReward  ITEM_SOULSTONE          = new ItemReward( 'I01H' )
 public constant ItemReward  ITEM_CLOAKOFTHEWIND     = new ItemReward( 'I00E' )
 public constant ItemReward  ITEM_DEMONICFIGURINE    = new ItemReward( 'I00T' )
+public constant ItemReward  ITEM_POCKETROCKETGENERATOR = new ItemReward('I008')
+public constant ItemReward  ITEM_DEFLECTIVEDISCDEVICE = new ItemReward('I00B')
+public constant ItemReward  ITEM_TINKERSPERSONALHAMMER = new ItemReward('I009')
 
 
 

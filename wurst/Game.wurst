@@ -15,16 +15,21 @@ import Gladiator
 import Dialog
 import Damage
 import ClosureTimers
+import OnUnitEnterLeave
 
 
 constant boolean    SPAWNHEROINARENA        = false
+constant boolean    ARENACORNERSPAWN        = true
 constant boolean    PREPAREHERO             = false
-constant boolean    LOCKCAMBOUNDS           = true
+constant boolean    LOCKCAMBOUNDS           = false
 constant boolean    MAKEMAPVISIBLE          = false
-constant boolean    CUSTOMROUNDSTART        = true
+constant boolean    CUSTOMROUNDSTART        = false
 constant boolean    STARTATSPECIFICROUND    = true
-int        STARTINGROUND           = 10
+int        STARTINGROUND                    = 11
 constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
+constant boolean    PRINTALPHAINTRO         = false
+
+constant int array STARTINGITEMS = ['I00M', 'I00M','I00L', 'I009']
 
 constant int START_TRAININGPOINTS           = 8
 constant int START_GOLD                     = 50
@@ -33,6 +38,7 @@ constant int START_GOLD                     = 50
 public constant player ENEMYPLAYER = Player(11)
 public constant vec2 HEROSPAWN_SHOP = vec2(-8129,-8198)
 public constant vec2 HEROSPAWN_ARENA = vec2(173,501)
+public constant vec2 HEROSPAWN_ARENACORNER = vec2(600,-100)
 public SoundDefinition snd_HeroInit = new SoundDefinition(Sounds.gromWhat3, false)
 public SoundDefinition snd_Text = new SoundDefinition(Sounds.questActivateWhat1, false)
 
@@ -62,17 +68,25 @@ init
     
     playMusic(Sounds.orcX1)
     
-    spawnPosOnInit = (SPAWNHEROINARENA) ? HEROSPAWN_ARENA : HEROSPAWN_SHOP
+    spawnPosOnInit = (SPAWNHEROINARENA) ? ((ARENACORNERSPAWN) ? HEROSPAWN_ARENACORNER: HEROSPAWN_ARENA) : HEROSPAWN_SHOP
 
     Player(0)
     ..setLumber(START_TRAININGPOINTS)
     ..setGold(START_GOLD)
+    
     ..setCameraPosition(gg_rct_Shop_CamBounds.getCenter())
+
+    if SPAWNHEROINARENA
+        Player(0).setCameraPosition(gg_rct_Arena_CamBounds.getCenter())
+        
+    else if LOCKCAMBOUNDS
+        Player(0).setCameraBoundsToRect(gg_rct_Shop_CamBounds)
+        
+        
 
     Round.toggleInstantSpawn(INSTANTSPAWN)
 
-    if LOCKCAMBOUNDS
-        Player(0).setCameraBoundsToRect(gg_rct_Shop_CamBounds)
+    
 
     CreateTrigger()
     ..registerPlayerEvent(Player(0), EVENT_PLAYER_END_CINEMATIC)
@@ -86,8 +100,11 @@ init
 
     getTimer().start(1, function delayedInit)
 
-    timer_GameIntro.start(3.0, function preStartInfo )
 
+    if PRINTALPHAINTRO
+        timer_GameIntro.start(3.0, function preStartInfo )
+    else
+        timer_GameIntro.start(3.0, function roundPick )
 
 
 /** Information give before alpha start */
@@ -153,7 +170,6 @@ function roundPicked()
 
 
 function gameIntroDelay()
-    
 
     timer_GameIntro.start(2, function gameIntro )
 
@@ -197,6 +213,8 @@ function createHero()
     ..suspendXp(true)
     ..setColor(PLAYER_COLOR_WHEAT)
     ..enableCharge()
+    ..setInvulnerable(true)
+    ..pause()
 
     EnergySystem.addUnit(hero)
     
@@ -217,10 +235,9 @@ function createHero()
     ..setDuration(3)
 
     if PREPAREHERO
-        hero.addItemById('I00Q')
-        hero.addItemById('I00O')
-        hero.addItemById('I00N')
-        hero.addItemById('I00P')
+        for i = 0 to 4
+            hero.addItemById(STARTINGITEMS[i])
+            
         
 
     getTimer().start(1.25, function playHeroSound)
@@ -246,6 +263,10 @@ function enableControls()
 
     Player(0)
     ..selectSingle(hero)
+
+    hero
+    ..setInvulnerable(false)
+    ..unpause()
 
     GetExpiredTimer().start(3, function printStartInfo)
 
@@ -273,9 +294,16 @@ function delayedInit()
 
 function setRound()
 
+    LinkedList<Round> rounds = Round.getRounds()
+
+    // for round in rounds
+    //     print(round.getTitle())
+
+        
+
     if STARTATSPECIFICROUND
 
-        LinkedList<Round> rounds = Round.getRounds()
+        
         for round in rounds
             if  round.getNumber() < STARTINGROUND
                 round.giveRewardNotFancy()
