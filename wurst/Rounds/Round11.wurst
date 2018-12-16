@@ -60,13 +60,9 @@ init
 
     onUnitTypeEnter(ROCKGIANT) rockGiant ->
         new DeathSpawnData(rockGiant, SHARDLING, SHARDLINGS_SPAWNNUMBER)
+        ..setEffectOnSpawn("Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl")
         ..setCodeOnUnitSpawn() spawnedUnit ->
              rockGiant.getSpawner().addSummonedUnit(spawnedUnit)
-            
-    onUnitTypeEnter(SHARDLING) shardling ->
-        addEffect("Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl", shardling.getPos())
-        ..setDuration(4)
-
         
 
 

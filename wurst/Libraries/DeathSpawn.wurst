@@ -1,17 +1,45 @@
+
+
+// ----------------------------------------------------------------------------------------------------------------------------------------------
 package DeathSpawn
+// ----------------------------------------------------------------------------------------------------------------------------------------------
+
+/*  DESCRIPTION
+    A small library to add so called "death spawn" units (units that
+    spawn when a unit dies) to a particular units (like hydras).null
+
+    HOW TO USE
+    Just use the function
+
+        unit.addDeathSpawn()
+    
+    To add deathspawn to a unit. You have a few methods on the 
+    returned DeathSpawnData object to alter how they spawn (effect
+     and code on spawn)
+
+*/
+
+// ----------------------------------------------------------------------------------------------------------------------------------------------
 
 import HashMap
 import RandomAngle
-import RegisterEvents
+import TimedSpecialEffects
 
-HashMap<unit, DeathSpawnData> instances = new HashMap<unit,DeathSpawnData>
+// ----------------------------------------------------------------------------------------------------------------------------------------------
+
 
 public function unit.addDeathSpawn(int deathSpawnId, int numberOfUnits) returns DeathSpawnData
     return new DeathSpawnData(this, deathSpawnId, numberOfUnits)
 
-interface RemoteFunc
+// ----------------------------------------------------------------------------------------------------------------------------------------------
 
+
+HashMap<unit, DeathSpawnData> instances = new HashMap<unit,DeathSpawnData>
+
+
+interface RemoteFunc
     function run(unit u)
+
 
 public class DeathSpawnData
 
@@ -21,6 +49,7 @@ public class DeathSpawnData
     private int deathSpawnId
 
     private unit source
+    private string effectOnSpawn
 
     private RemoteFunc codeOnUnitSpawn
 
@@ -37,15 +66,20 @@ public class DeathSpawnData
 
         instances.put(source, this)
 
-        
+
     ondestroy
         instances.remove(source)
         if codeOnUnitSpawn != null
             destroy codeOnUnitSpawn
 
 
+    /** Set a lambdaexpression to run for each unit spawnning */
     function setCodeOnUnitSpawn(RemoteFunc codeOnUnitSpawn)
         this.codeOnUnitSpawn = codeOnUnitSpawn
+
+    /** Sets the sfx on the unit spawning - it's set to the position of the unit*/
+    function setEffectOnSpawn(string effectOnSpawn)
+        this.effectOnSpawn = effectOnSpawn
 
 
     private function spawn()
@@ -57,6 +91,11 @@ public class DeathSpawnData
             spawnedUnit = createUnit(source.getOwner(),deathSpawnId, sourcePos, randomAngle())
             if codeOnUnitSpawn != null
                 codeOnUnitSpawn.run(spawnedUnit)
+
+            if effectOnSpawn != null
+                addEffect(effectOnSpawn, spawnedUnit.getPos())
+                ..setDuration(5)
+
 
         destroy this
         
