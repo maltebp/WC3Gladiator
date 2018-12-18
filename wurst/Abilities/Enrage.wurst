@@ -19,7 +19,7 @@ constant real COOLDOWN = 6
 constant int MAXCONSUMEAMOUNT = 40
 constant real DURATION = 6
 constant real MANACOST = 15
-constant let STANDARDOFTHEORCS_RAGEBONUS = 25
+constant let MEMOIROFTHEPAST_RAGEBONUS = 25
 
 
 constant SoundDefinition snd_Error = new SoundDefinition(Sounds.error, false)
@@ -158,8 +158,8 @@ function onCast()
             int consumedCharge = (charge > MAXCONSUMEAMOUNT) ? MAXCONSUMEAMOUNT : charge
             caster.reduceCharge(consumedCharge)
 
-            if caster.hasArtifact(ARTIFACT_STANDARDOFTHEORCS)
-                consumedCharge += STANDARDOFTHEORCS_RAGEBONUS
+            if caster.hasArtifact(ARTIFACT_MEMOIROFTHEPAST)
+                consumedCharge += MEMOIROFTHEPAST_RAGEBONUS
 
             caster.activateEnrage(I2R(consumedCharge), DURATION)
         

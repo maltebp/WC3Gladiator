@@ -20,8 +20,8 @@ constant real   BASEDAMAGE = 5
 constant real   DAMAGEFACTOR = 1.5
 constant int    CHARGE    = 10
 constant real   COOLDOWN = 4
-constant int    WARDRUM_ENERGYBONUS    = 5
-constant real   WARDRUM_COOLDOWNREDUC  = 2
+constant int    BLOODFEATHERSHEART_ENERGYBONUS    = 5
+constant real   BLOODFEATHERSHEART_COOLDOWNREDUC  = 2
 constant real   ORCISHCLEAVER_RANGEINC = 0.4 // Percent
 constant real   ENRAGE_DAMAGEINC = 0.01 // Pr enrage charge consumed
 
@@ -54,14 +54,14 @@ function onCast()
     caster.addCharge(charge)
 
 
-    boolean hasWarDrum = caster.hasArtifact(ARTIFACT_WARDRUM)
-    real cooldown = (hasWarDrum) ? COOLDOWN - WARDRUM_COOLDOWNREDUC : COOLDOWN
+    boolean hasBloodFeathers = caster.hasArtifact(ARTIFACT_BLOODFEATHERSHEART)
+    real cooldown = (hasBloodFeathers) ? COOLDOWN - BLOODFEATHERSHEART_COOLDOWNREDUC : COOLDOWN
     cooldown *= (caster.getFrenzyCooldownReduction())
 
     caster.setAbilityCooldown(ABILITYID, 1, cooldown)
     
-    if hasWarDrum
-        caster.addCharge(WARDRUM_ENERGYBONUS)
+    if hasBloodFeathers
+        caster.addCharge(BLOODFEATHERSHEART_ENERGYBONUS)
 
     for target in targets
         if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAliveTrick() 

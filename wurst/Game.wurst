@@ -214,7 +214,7 @@ function createHero()
     EnergySystem.addUnit(hero)
     
     hero.addArtifactSlots()
-    ARTIFACT_WARDRUM.release()
+    ARTIFACT_BLOODFEATHERSHEART.release()
     
     ITEM_DULLBLADE.release()
     ITEM_LEATHERARMOR.release()
