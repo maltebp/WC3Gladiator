@@ -213,7 +213,7 @@ public class Artifact
         if readyShop != null
             readyShop.addItem(maskId)
         else
-            print("null shop")
+            error("null shop")
 
         
     /** Find the id of the artifact item matching the maskId */
@@ -246,6 +246,7 @@ public constant Artifact ARTIFACT_TOOTHOFTHEWARCHIEF    = new Artifact('I015', '
 public constant Artifact ARTIFACT_TOKENOFSAMURO         = new Artifact('I017', 'I01C', 'O000')
 public constant Artifact ARTIFACT_GIFTOFTHETAUREN       = new Artifact('I018', 'I01D', 'O000')
 public constant Artifact ARTIFACT_BLOODOFMANNOROTH      = new Artifact('I013', 'I01E', 'O000')
+public constant Artifact ARTIFACT_STANDARDOFTHEORCS     = new Artifact('I016','I01K','O000')
 
 
 public constant ArtifactShop ARTIFACTSHOP = new ArtifactShop(gg_unit_n00K_0002, 'O000')

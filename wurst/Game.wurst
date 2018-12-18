@@ -20,7 +20,7 @@ constant boolean    LOCKCAMBOUNDS           = true
 constant boolean    MAKEMAPVISIBLE          = true
 constant boolean    CUSTOMROUNDSTART        = false 
 constant boolean    STARTATSPECIFICROUND    = true
-int        STARTINGROUND                    = 10
+int        STARTINGROUND                    = 12
 constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
 constant boolean    PRINTALPHAINTRO         = false
 
@@ -37,8 +37,8 @@ public constant vec2 HEROSPAWN_ARENACORNER = vec2(600,-100)
 public SoundDefinition snd_HeroInit = new SoundDefinition(Sounds.gromWhat3, false)
 public SoundDefinition snd_Text = new SoundDefinition(Sounds.questActivateWhat1, false)
 
-public unit hero
-public Gladiator gladiator
+public unit         hero
+public Gladiator    gladiator
 
 
 public region MAPREGION
