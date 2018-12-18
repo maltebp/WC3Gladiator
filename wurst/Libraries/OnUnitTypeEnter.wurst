@@ -51,7 +51,6 @@ function unitEnteredMap()
     let enteringUnitId = enteringUnit.getTypeId()
     
     if unitTypeActions.has(enteringUnitId)
-        print("A unit has entered the map")
         
         let actionList = unitTypeActions.get(enteringUnitId)
 

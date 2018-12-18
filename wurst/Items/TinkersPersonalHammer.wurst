@@ -9,7 +9,7 @@ import Damage
 
 constant real RANGE = 500
 constant int ITEMID = 'I009'
-constant real DAMAGE = 200
+constant real DAMAGE = 175
 constant real COOLDOWN = 10
 
 LinkedList<unit> instances = new LinkedList<unit>
@@ -17,14 +17,16 @@ LinkedList<unit> instances = new LinkedList<unit>
 
 function doEffect(unit caster, unit target)
 
+
+    if target.getHP() > DAMAGE
+        flashEffect("Abilities\\Weapons\\FarseerMissile\\FarseerMissile.mdl", target,"chest")
+    else
+        flashEffect("Abilities\\Weapons\\FarseerMissile\\FarseerMissile.mdl",target.getPos())
     caster.damageTargetSpell(target, DAMAGE)
 
-    flashEffect("Abilities\\Weapons\\FarseerMissile\\FarseerMissile.mdl", target,"chest")
+    
 
-    instances.add(caster)
-    doAfter(COOLDOWN) ->
-        instances.remove(caster)
-
+ 
 
 function findTarget(unit caster) returns unit
 
@@ -47,13 +49,21 @@ function findTarget(unit caster) returns unit
 function checkForTarget()
     unit caster = GetSpellAbilityUnit()
 
+
     if caster.hasItemById(ITEMID) and not instances.contains(caster)
 
-        
+
         unit target = findTarget(caster)
+
 
         if target != null
             doEffect(caster,target)
+            
+
+            instances.add(caster)
+
+            doAfter(COOLDOWN) ->
+                instances.remove(caster)
         
 
 init

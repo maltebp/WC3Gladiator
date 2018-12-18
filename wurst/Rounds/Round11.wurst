@@ -6,19 +6,15 @@ package Round11
 
 import public Round10
 
-import TimerUtils
 import RegisterEvents
 import AutoCastAbility
-import GroupUtils
-import TimedSpecialEffects
 import UnitVisualsUtils
-import InstantDummyCaster
-import ChannelOnUnit
-import Orders
-import HashMap
-import ErrorHandling
 import OnUnitTypeEnter
 import DeathSpawn
+import Shockwave
+import ClosureTimers
+import EarthquakeNoChannel
+import Preloader
 
 
 // ================================================================================================================================
@@ -27,8 +23,21 @@ import DeathSpawn
 constant ROCKGIANT = 'e000'
 constant SHARDLING = 'n00O'
 
-constant int SHARDLINGS_SPAWNNUMBER = 4
+constant let SHARDLINGS_SPAWNNUMBER = 4
+constant let SHOCKWAVE_STARTCOOLDOWN = 5.
+constant let SHOCKWAVE_COOLDOWN = 15.
+constant let SHOCKWAVE_DAMAGE = 300.
+constant let SHOCKWAVE_SPEED = 800.
+constant let SHOCKWAVE_WIDTH = 175.
+constant let SHOCKWAVE_CASTDELAY = 2.
+constant let EARTHQUAKE_DURATION = 30.
+constant let EARTHQUAKE_COOLDOWN = 120.
+constant let EARTHQUAKE_STARTCOOLDOWN = 10.
+constant let EARTHQUAKE_SLOWFACTOR = 0.4
+constant let EARTHQUAKE_RANGE = 250.
+// For other earthquake adjustments see the dummy spell
 
+constant let snd_Shockwave = new SoundDefinition(Sounds.mountainGiantPissed1, false)
 
 //=========================================================================================================================================================
 //  Setup
@@ -37,20 +46,34 @@ init
 
     round = new Round()
     ..setReward(30, 3)
+    ..addItemRewards(ITEM_STONEDOLL, ITEM_GIANTSSKIN)
     ..setTitle("Rock Giants")
-    ..setDescription("...")
+    ..setDescription("It's probably best if you clean up the rubbles you smash them into.")
     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.02)
+    ..setCodeOnClear() r ->
+        Earthquake.clearAll()
 
     // Spawner 1
-    round.addSpawner(new UnitSpawner(ROCKGIANT, ENEMYPLAYER, vec2(-639,1025), 30))
+    round.addSpawner(new UnitSpawner(ROCKGIANT, ENEMYPLAYER, vec2(-639,1025), 15))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSoundOnSpawn(Sounds.mountainGiantYes3)
     ..setSpawnEffect("Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl")
-    ..setSpawnCount(6)
+    ..setSpawnCount(8)
 
+    // Spawner 2
+    round.addSpawner(new UnitSpawner(ROCKGIANT, ENEMYPLAYER, vec2(-639,1025), 30))
+    ..setStartDelay(50)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.mountainGiantYes3)
+    ..setSpawnEffect("Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl")
+    ..setSpawnCount(2)
+
+    // Other setup
 
     UnitVisuals.addUnitType(ROCKGIANT)
     ..setPlayerColor(PLAYER_COLOR_LIGHT_GRAY)
@@ -63,14 +86,41 @@ init
         ..setEffectOnSpawn("Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl")
         ..setCodeOnUnitSpawn() spawnedUnit ->
              rockGiant.getSpawner().addSummonedUnit(spawnedUnit)
-        
+
+    addAutoCastAbilityToUnitType(ROCKGIANT, new AutoCastAoePoint('A01U', Orders.carrionswarm, TargetType.ENEMY_POINT, 600, SHOCKWAVE_STARTCOOLDOWN, SHOCKWAVE_COOLDOWN))
+    
+    addAutoCastAbilityToUnitType(ROCKGIANT, new AutoCastAoePoint('A01W', Orders.dispel, TargetType.ENEMY_POINT, 800, EARTHQUAKE_STARTCOOLDOWN, EARTHQUAKE_COOLDOWN))
+    
+
+    registerSpellEffectEvent('A01U', function shockWaveEffect)
+
+    registerSpellEffectEvent('A01W', function earthquakeCast)
+
+
+    preloadAbility('A01U')
+    preloadAbility('A01W')
 
 
 //=========================================================================================================================================================
 // 
 //
 
-init 
+function earthquakeCast()
+    new Earthquake(GetSpellAbilityUnit(), vec2(GetSpellTargetX(), GetSpellTargetY()), EARTHQUAKE_DURATION, EARTHQUAKE_RANGE, EARTHQUAKE_SLOWFACTOR)
+
+
+function shockWaveEffect()
+    let caster = GetSpellAbilityUnit()
+    let targetPos = vec2(GetSpellTargetX(), GetSpellTargetY())
+
+    caster.setAnimation("spell")
+    snd_Shockwave.play() 
+
+    doAfter(SHOCKWAVE_CASTDELAY) ->
+        if caster.isAlive()
+            caster.setAnimation("attack")
+            caster.castShockwave(targetPos, SHOCKWAVE_DAMAGE, 2500, SHOCKWAVE_WIDTH, SHOCKWAVE_SPEED)
+
    
 
 

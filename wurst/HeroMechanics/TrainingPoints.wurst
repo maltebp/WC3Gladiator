@@ -9,9 +9,13 @@ constant real ATTACKSPEED_PER_POINT = 0.01
 
 // Update these at some point
 constant integer    TRAINID_HEALTH = 'I002'
+constant integer    TRAINID_HEALTH5 = 'I00F'
 constant integer    TRAINID_ARMOR = 'I003'
+constant integer    TRAINID_ARMOR5 = 'I00K'
 constant integer    TRAINID_POWER = 'I004'
+constant integer    TRAINID_POWER5 = 'I00C'
 constant integer    TRAINID_ATTACKSPEED = 'I001'
+constant integer    TRAINID_ATTACKSPEED5 = 'I00G'
 constant integer    TRAINID_RESET = 'I005'
 
 
@@ -90,17 +94,33 @@ class HeroTrainingPoints
             instance.pointsTrained++
             instance.adjustHealth(HEALTH_PER_POINT)
 
+        else if whatToTrain == TRAINID_HEALTH5
+            instance.pointsTrained += 5
+            instance.adjustHealth(HEALTH_PER_POINT*5)
+
         else if whatToTrain == TRAINID_ARMOR
             instance.pointsTrained++
             instance.adjustArmor(ARMOR_PER_POINT)
+
+        else if whatToTrain == TRAINID_ARMOR5
+            instance.pointsTrained += 5
+            instance.adjustArmor(ARMOR_PER_POINT*5)
 
         else if whatToTrain == TRAINID_ATTACKSPEED
             instance.pointsTrained++
             instance.adjustAttackSpeed(ATTACKSPEED_PER_POINT)
 
+        else if whatToTrain == TRAINID_ATTACKSPEED5
+            instance.pointsTrained += 5
+            instance.adjustAttackSpeed(ATTACKSPEED_PER_POINT*5)
+
         else if whatToTrain == TRAINID_POWER
             instance.pointsTrained++
             instance.adjustPower(POWER_PER_POINT) 
+
+        else if whatToTrain == TRAINID_POWER5
+            instance.pointsTrained += 5
+            instance.adjustPower(POWER_PER_POINT*5) 
 
         else if whatToTrain == TRAINID_RESET
             instance.resetPoints()
@@ -110,7 +130,7 @@ class HeroTrainingPoints
 
 function itemBoughtFilter() returns boolean
     integer itemId = GetSoldItem().getTypeId()
-    return itemId == TRAINID_HEALTH or itemId == TRAINID_ARMOR or itemId == TRAINID_ATTACKSPEED or itemId == TRAINID_POWER or itemId == TRAINID_RESET
+    return itemId == TRAINID_HEALTH or itemId == TRAINID_ARMOR or itemId == TRAINID_ATTACKSPEED or itemId == TRAINID_POWER or itemId == TRAINID_HEALTH5 or itemId == TRAINID_ARMOR5 or itemId == TRAINID_ATTACKSPEED5 or itemId == TRAINID_POWER5 or itemId == TRAINID_RESET
 
 init 
     CreateTrigger()

@@ -95,7 +95,7 @@ init
         // Note: Boss Round spawn 1 more orb
 
     // Setting up Round-remote functions
-    Round_RemoteFunction<Round> roundFunction
+    Round_RemoteFunction roundFunction
     
     // Prepare
     roundFunction = (Round round) -> begin

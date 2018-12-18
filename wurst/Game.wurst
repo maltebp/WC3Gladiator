@@ -7,29 +7,24 @@ import EnergySystem
 import Music
 import TimedSpecialEffects
 import Preloader
-import initlater AttackDamage
 import ChargeSystem
-import Artifact
-import ItemReward
 import Gladiator
 import Dialog
 import Damage
-import ClosureTimers
-import OnUnitEnterLeave
 
 
 constant boolean    SPAWNHEROINARENA        = false
-constant boolean    ARENACORNERSPAWN        = true
+constant boolean    ARENACORNERSPAWN        = false
 constant boolean    PREPAREHERO             = false
-constant boolean    LOCKCAMBOUNDS           = false
-constant boolean    MAKEMAPVISIBLE          = false
-constant boolean    CUSTOMROUNDSTART        = false
+constant boolean    LOCKCAMBOUNDS           = true
+constant boolean    MAKEMAPVISIBLE          = true
+constant boolean    CUSTOMROUNDSTART        = false 
 constant boolean    STARTATSPECIFICROUND    = true
-int        STARTINGROUND                    = 11
+int        STARTINGROUND                    = 10
 constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
 constant boolean    PRINTALPHAINTRO         = false
 
-constant int array STARTINGITEMS = ['I00M', 'I00M','I00L', 'I009']
+constant int array STARTINGITEMS = ['I00M', 'I00M','I00M', 'I009']
 
 constant int START_TRAININGPOINTS           = 8
 constant int START_GOLD                     = 50

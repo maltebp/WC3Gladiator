@@ -9,6 +9,7 @@ import Orb
 import Music
 import public Artifact
 import public ItemReward
+import ClosureTimers
 
 public class Round
 
@@ -65,12 +66,12 @@ public class Round
     private unit boss = null
     private string music = Sounds.orcVictory
 
-    Round_RemoteFunction<Round> codeOnClear
-    Round_RemoteFunction<Round> codeOnPrepare
-    Round_RemoteFunction<Round> codeOnFadeIn
-    Round_RemoteFunction<Round> codeOnStart 
-    Round_RemoteFunction<Round> codeOnHeroDeath
-    Round_RemoteFunction<Round> codeOnLastUnitDeath
+    Round_RemoteFunction codeOnClear
+    Round_RemoteFunction codeOnPrepare
+    Round_RemoteFunction codeOnFadeIn
+    Round_RemoteFunction codeOnStart 
+    Round_RemoteFunction codeOnHeroDeath
+    Round_RemoteFunction codeOnLastUnitDeath
 
 
 
@@ -108,7 +109,7 @@ public class Round
         this.goldReward = goldReward
         this.trainingPointsReward = trainingPointsReward
 
-    function setCodeOnClear( Round_RemoteFunction<Round> whichCode )
+    function setCodeOnClear( Round_RemoteFunction whichCode )
         this.codeOnClear = whichCode
 
     function addSpawner(UnitSpawner spawner) returns UnitSpawner
@@ -423,7 +424,9 @@ public class Round
                 roundWon()           
                     
             else if wasLastUnit()
-                roundWon()
+                doAfter(0.1) ->
+                    if wasLastUnit()
+                        roundWon()
             
 
      static function startNextRound()
@@ -458,7 +461,7 @@ public class Round
 
         
                
-public interface Round_RemoteFunction<Round>
+public interface Round_RemoteFunction
     function run(Round round)
  
                 

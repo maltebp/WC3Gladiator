@@ -7,7 +7,7 @@ constant boolean TESTMODE = false
 
 /** Deals damage to the target which is adjust like normal attacks (reduced by armor) */
 public function unit.damageTargetPhysical(unit target, real damage)
-    UnitDamageTarget(this, target, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, WEAPON_TYPE_WHOKNOWS)
+    UnitDamageTarget(this, target, damage, false, false, ATTACK_TYPE_MELEE, DAMAGE_TYPE_NORMAL, WEAPON_TYPE_WHOKNOWS)
 
 /** Deals damage to the target which is adjusted as spell damage (reduced by spell reduction and Elune's Grace)*/
 public function unit.damageTargetSpell(unit target, real damage)

@@ -22,3 +22,20 @@ public function unit.getNearestEnemyTargetInRect(rect whichRect) returns unit
             target = u
         
     return target
+
+
+public function isFriendly() returns boolean
+    return false
+
+public function unit.isValidEnemyTarget(player enemy) returns boolean
+    return this.getOwner().isEnemyOf(enemy) and this.isAliveTrick()
+
+
+public function group.enumEnemyTargets(player enemy, vec2 pos, real range)
+    this.enumUnitsInRange(pos, range)
+
+    if this.size() > 0
+        for target in this
+            if not target.isValidEnemyTarget(enemy)
+                this.removeUnit(target)
+    

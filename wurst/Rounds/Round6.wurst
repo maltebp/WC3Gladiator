@@ -22,9 +22,6 @@ init
 //=========================================================================================================================================================
 //  Flame Elementals
 
-    Round_RemoteFunction<Round> func = (Round round) -> begin
-        removeFlames()
-    end
 
     round = new Round
     ..setReward(30, 3)
@@ -34,7 +31,8 @@ init
     ..setTitle("Through the Fire and Flames")
     ..setDescription("Should you stand in the fire?")
     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
-    ..setCodeOnClear(func)
+    ..setCodeOnClear() r ->
+        removeFlames()
 
     
 

@@ -1,0 +1,134 @@
+package EarthquakeNoChannel
+
+import LinkedList
+import TimerUtils
+import Orders
+import HashMap
+import MyLibrary
+import Preloader
+
+public class EarthquakeBuff
+    private static constant let BUFFID = 'B00F'
+    private static constant let ABILITYID = 'A01X'
+    private static let buffMap = new IterableMap<unit, thistype>
+
+    private timer timer_Duration = null
+    private unit target
+    private int slowfactor = -1
+
+    private construct(unit target)
+        this.target = target
+        timer_Duration = getTimer()
+        ..setData(this castTo int)
+
+        buffMap.put(target, this)
+
+    ondestroy
+        if target != null
+            if target.isAlive()
+                target.removeAbility(BUFFID)
+            buffMap.remove(target)
+        timer_Duration.release()
+
+
+    private function applyBuff(real slowfactor, player source)
+        this.slowfactor = R2I(slowfactor*100)
+
+        this.slowfactor = (this.slowfactor > 100) ? 100 : ((this.slowfactor<0) ? 0 : this.slowfactor) 
+
+        createUnit(source, 'h002', target.getPos(), angle(0))
+        ..addAbility(ABILITYID)
+        ..setAbilityLevel(ABILITYID, this.slowfactor)
+        ..issueTargetOrderById(Orders.slow, target)
+        ..setTimedLife(3)
+
+
+    static function addToUnit(unit target, player playerSource, real duration, real slowFactor)
+        
+        let instance = (buffMap.has(target)) ? buffMap.get(target) : new EarthquakeBuff(target)
+        
+        if R2I(slowFactor*100) != instance.slowfactor
+            instance.applyBuff(slowFactor, playerSource)
+
+        instance.timer_Duration.start(duration, function callback_EndDuration)
+            
+    static function callback_EndDuration()
+        destroy GetExpiredTimer().getData() castTo thistype
+        
+    static function preload()
+        preloadAbility(BUFFID)
+        preloadAbility(ABILITYID)
+
+
+
+public class Earthquake
+
+    private static constant let UPDATEFREQ = 0.5
+    private static let instances = new LinkedList<thistype>
+    
+    private player playerSource
+    private vec2 pos
+    private real range
+    private effect sfx
+    private real slowFactor
+
+    private timer timer_Duration 
+    private timer timer_SlowUpdate
+
+    construct(unit source, vec2 pos, real duration, real range, real slowFactor)
+
+        this.playerSource = source.getOwner()
+        this.pos = pos
+        this.range = range
+        this.slowFactor = slowFactor
+
+        sfx = addEffect("Abilities\\Spells\\Orc\\EarthQuake\\EarthQuakeTarget.mdl", pos)
+
+        addEffect("Abilities\\Spells\\Orc\\WarStomp\\WarStompCaster.mdl", pos)
+        ..setScale(1)
+        ..destr()
+        
+        timer_Duration = getTimer()
+        ..setData(this castTo int)
+        ..start(duration, function callback_EndDuration)
+
+        timer_SlowUpdate = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic(UPDATEFREQ, function callback_SlowUpdate)
+
+        instances.add(this)
+
+    ondestroy
+
+        if timer_SlowUpdate != null
+            timer_SlowUpdate.release()
+
+        if timer_Duration != null
+            timer_Duration.release()
+
+        sfx.destr()
+
+        instances.remove(this)
+
+
+    static function clearAll()
+        for instance in instances
+            destroy instance
+
+
+    function updateSlow()
+        let targets = ENUM_GROUP..enumEnemyTargets(playerSource, pos, range)
+
+        if targets.size() > 0
+            for target from targets
+                EarthquakeBuff.addToUnit(target, playerSource, 1, slowFactor)
+        
+
+    private static function callback_SlowUpdate()
+        GetExpiredTimer().getData() castTo thistype.updateSlow()
+
+    private static function callback_EndDuration()
+        destroy GetExpiredTimer().getData() castTo thistype
+
+init
+    EarthquakeBuff.preload()

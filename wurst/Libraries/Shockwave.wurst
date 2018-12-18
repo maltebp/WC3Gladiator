@@ -1,0 +1,126 @@
+
+
+//========================================================================================================================================
+ 
+package Shockwave
+
+//========================================================================================================================================
+
+/*  DESCRIPTION
+
+*/
+
+// ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+import LinkedList
+import TimerUtils
+import MyLibrary
+import Damage
+
+// ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//  SETTINGS
+
+
+// ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+public function unit.castShockwave(vec2 targetPos, real damage, real distance, real width, real speed)
+    new Shockwave(targetPos, this, damage, distance, width, speed)
+
+class Shockwave
+
+    private let hitTargets = new LinkedList<unit>   
+    private real damage
+    private unit source
+    private real width 
+    private angle direction
+
+    private vec2 currentPos
+    private real distanceTravelled = 0
+
+    private timer timer_Move
+    private real distance
+
+    construct(vec2 targetPos, unit source, real damage, real distance, real width, real speed)
+
+        this.source = source
+        this.damage = damage
+        this.width = width
+        this.distance = distance
+
+        timer_Move = getTimer() 
+        ..setData(this castTo int)
+        ..startPeriodic(width/speed, function callback_Move)
+
+        currentPos = source.getPos()
+
+        direction = currentPos.angleTo(targetPos)
+
+        addEffect("Abilities\\Spells\\Orc\\WarStomp\\WarStompCaster.mdl", currentPos.polarOffset(direction, 150))
+        ..setScale(0.5)
+        ..destr()
+
+    ondestroy
+        timer_Move.release()
+        destroy hitTargets
+        
+
+    protected function targetEffect(unit target)
+        target.addEffect("Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl", "chest")
+        ..destr()
+
+    protected function damageTarget(unit target)
+        source.damageTargetPhysical(target, damage)
+    
+
+    protected function isValidTarget(unit filterUnit) returns boolean
+        return not hitTargets.contains(filterUnit) and filterUnit.isValidEnemyTarget(source.getOwner())
+
+    protected function lineEffect()
+        real roll = GetRandomReal(0,PI2)
+        real sizeFactor = 1+GetRandomReal(0,0.2)
+
+        addEffect("Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl", currentPos)
+        ..setOrientation(0,0, roll)
+        ..setScale(1.2*sizeFactor)
+        ..destr()
+        addEffect("Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl", currentPos)
+        ..setOrientation(0,0, roll)
+        ..setScale(1.2*sizeFactor)
+        ..destr()
+        addEffect("Abilities\\Spells\\Orc\\EarthQuake\\EarthQuakeTarget.mdl", currentPos)
+        ..setOrientation(0, 0, roll)
+        ..setScale(0.5*sizeFactor)
+        ..destr()
+
+    protected function onCastEffect()
+        
+    protected function checkTargets()
+        group targets = ENUM_GROUP..enumUnitsInRange(currentPos, width)
+    
+        for target in targets
+            if not isValidTarget(target)
+                targets.removeUnit(target)
+
+        if targets.size() > 0
+            for target from targets
+                hitTargets.add(target)
+                targetEffect(target)
+                damageTarget(target)
+                
+
+    protected function move()
+        currentPos = currentPos.polarOffset(direction, width)
+        distanceTravelled += width
+
+        lineEffect()
+        checkTargets()
+
+        if distanceTravelled >= distance
+            destroy this
+
+
+    private static function callback_Move()
+        GetExpiredTimer().getData() castTo thistype.move()
+
+

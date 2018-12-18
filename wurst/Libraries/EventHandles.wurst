@@ -1,0 +1,17 @@
+// package EventHandles
+
+
+
+// unit castingUnit
+// public function getCastingUnit() returns unit
+//     return castingUnit
+    
+// unit targetUnit
+// public function getTargetUnit() returns unit
+//     return targetUnit
+
+// public function onAbilityEvent()
+
+// init
+//     CreateTrigger()
+//     ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_SPELL)

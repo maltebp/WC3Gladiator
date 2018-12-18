@@ -15,6 +15,7 @@ import Artifact
 import GroupUtils
 import BloodOfMannoroth
 import Frenzy
+import ClosureTimers
 
 //=========================================================================================================================================================
 
@@ -105,7 +106,8 @@ function hitTarget(unit target, unit caster, real primaryDamage, real dotDamage,
     
     real finalDotDamage = (caster.hasArtifact(ARTIFACT_KILMAIM)) ? dotDamage*(1+KILMAIM_DAMAGEINC) : dotDamage
 
-    WoundingStrikeBuff.add(target, caster, finalDotDamage, dotDuration)
+    doAfter(0.1) ->
+        WoundingStrikeBuff.add(target, caster, finalDotDamage, dotDuration)
 
 
 

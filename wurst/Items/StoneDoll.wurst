@@ -1,0 +1,86 @@
+package StoneDoll
+
+import HashMap
+import Orders
+import Preloader
+import InstantDummyCaster
+import TimerUtils
+import MyLibrary
+import LinkedList
+import ClosureTimers
+
+constant let ITEMID = 'I01I'
+constant let DURATION = 4.
+constant let COOLDOWN = 5.
+constant let RANGE = 150.
+
+constant let cooldownMap = new LinkedList<unit>
+
+class StoneDollBuff
+    private static constant let BUFFID = 'B00G'
+    private static constant let ABILITYID = 'A01Z'
+    private static let buffMap = new IterableMap<unit, thistype>
+
+    private timer timer_Duration = null
+    private unit target
+
+    private construct(unit target)
+        this.target = target
+
+        timer_Duration = getTimer()
+        ..setData(this castTo int)
+
+        InstantDummyCaster.castTarget(Player(PLAYER_NEUTRAL_AGGRESSIVE), ABILITYID, 1, Orders.slow, target, target.getPos())
+
+        buffMap.put(target, this)
+
+    ondestroy
+        if target != null
+            if target.isAlive()
+                target.removeAbility(BUFFID)
+            buffMap.remove(target)
+        timer_Duration.release()
+
+    static function addToUnit(unit target)
+        let instance = (buffMap.has(target)) ? buffMap.get(target) : new StoneDollBuff(target)
+        instance.timer_Duration.start(DURATION, function callback_EndDuration)
+
+    static function callback_EndDuration()
+        destroy GetExpiredTimer().getData() castTo thistype
+        
+    static function preload()
+        preloadAbility(BUFFID)
+        preloadAbility(ABILITYID)
+
+
+function onSpellCast()
+    let caster = GetSpellAbilityUnit()
+    
+    if caster.hasItemById(ITEMID) and not cooldownMap.contains(caster)
+       
+        group targets = ENUM_GROUP..enumEnemyTargets(caster.getOwner(), caster.getPos(), RANGE)
+        
+        if targets.size() > 0
+            doAfter(0.1) ->
+                for target from targets
+                    StoneDollBuff.addToUnit(target)
+
+        cooldownMap.add(caster)
+        doAfter(COOLDOWN) ->
+            if caster != null
+                cooldownMap.remove(caster)
+
+        let casterPos = caster.getPos()
+        addEffect("Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl", casterPos)
+        ..destr()
+        addEffect("Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl", casterPos)
+        ..destr()
+            
+        
+        
+        
+init
+    CreateTrigger()
+    ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST)
+    ..addAction(function onSpellCast)
+    
