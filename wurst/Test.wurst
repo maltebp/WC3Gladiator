@@ -1,0 +1,18 @@
+package Test
+
+import AbilityObjEditing
+import Abilities
+import ObjectIdGenerator
+import ObjectIds
+
+@compiletime
+function createAbilityObject()
+
+
+    int id= 'BHbd'
+
+    new AbilityDefinitionThunderBoltCreep(ABIL_ID_GEN.next())
+    ..setName("Test stormbolt")
+    ..setBuffs(1, id.toRawCode() )
+
+

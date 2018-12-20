@@ -1,4 +1,4 @@
-package WoundingStrike
+package WoundingStrikeGladiator
 
 import SoundUtils
 import RegisterEvents

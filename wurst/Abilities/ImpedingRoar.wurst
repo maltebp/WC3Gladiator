@@ -14,18 +14,36 @@ import TimedSpecialEffects
 import Artifact
 import BloodOfMannoroth
 import Frenzy
+import ClosureTimers
+import Stun
+import ObjectIdGenerator
+import BuffObjEditing
+import Icons
+import Effect
+import Assets
+import AbilityObjEditing
+import ObjectIds
+import ClosureForGroups
+import MyLibrary
 
 //=========================================================================================================================================================
 
 constant real BASEDAMAGE    = 20
 constant real DAMAGEFACTOR  = 0.5
 constant real RANGE         = 400
-constant int  DURATION      = 7
+constant real  DURATION      = 7
 constant int  CHARGE        = 20
 constant real COOLDOWN      = 14
+constant let  STUNDURATION  = 3.
 constant real ENRAGE_RANGEINC = 0.01 // Pr charge consumed
 
 constant int ABILITYID = 'A008'
+
+
+let WARDRUM_SPELLID = compiletime(ABIL_ID_GEN.next())
+let WARDRUM_BUFFID = compiletime(BUFF_ID_GEN.next())
+let WARDRUM_DURATION = 18.
+let WARDRUM_DMGINCREASE = 0.25
 
 // For Slow Factor: see ability in Editor
 
@@ -50,7 +68,6 @@ function onCast()
     real cooldown = COOLDOWN * (caster.getFrenzyCooldownReduction())
     caster.setAbilityCooldown(ABILITYID, 1, cooldown)
 
-
     if enrageFactor > 1
         addEffect("Abilities\\Spells\\Orc\\WarStomp\\WarStompCaster.mdl",caster.getPos())
         ..setDuration(4)
@@ -64,14 +81,23 @@ function onCast()
         caster.damageTargetPhysical(target, BASEDAMAGE+I2R(caster.getTotalAttackDamage() ))
         target.addEffect("Abilities\\Spells\\Human\\SpellSteal\\SpellStealMissile.mdl","chest")
         ..destr()
-        InstantDummyCaster.castTarget(caster.getOwner(), 'A009', 1, Orders.slow, target)
-        Buff.add(target)
+
+
+        let duration = (caster.hasArtifact(ARTIFACT_STANDARDOFTHEORCS)) ? DURATION+STUNDURATION : DURATION
+
+        doAfter(0.01) -> 
+            Buff.add(target, duration)
 
         if enrageFactor > 1
             target.addEffect("Abilities\\Spells\\Demon\\DemonBoltImpact\\DemonBoltImpact.mdl","chest")
             ..destr()
+
+        if caster.hasArtifact(ARTIFACT_STANDARDOFTHEORCS)
+            target.stun(STUNDURATION)
             
 
+    if caster.hasArtifact(ARTIFACT_WARDRUM)
+        wardrumApplyBuff(caster)
 
 
 class Buff
@@ -82,6 +108,7 @@ class Buff
 
     construct(unit whichTarget)
         target = whichTarget
+        InstantDummyCaster.castTarget(Player(PLAYER_NEUTRAL_AGGRESSIVE), 'A009', 1, Orders.slow, target)
         timer_Duration = getTimer()..setData(this castTo int)
         
 
@@ -92,15 +119,17 @@ class Buff
         targets.remove(target)
 
 
-    static function add(unit whichTarget)   
+    static function add(unit whichTarget, real duration)   
         
         if not targets.has(whichTarget)
             targets.put(whichTarget, new Buff(whichTarget) )
 
-        targets.get(whichTarget).start()
+        targets.get(whichTarget).start(duration)
+
         
-    private function start()
-        timer_Duration.start(I2R(DURATION), function removeBuff)
+        
+    private function start(real duration)
+        timer_Duration.start(duration, function removeBuff)
 
     static function removeBuff()
         destroy GetExpiredTimer().getData() castTo thistype
@@ -108,3 +137,42 @@ class Buff
 
 init
     registerSpellEffectEvent(ABILITYID, function onCast)
+
+
+
+function wardrumApplyBuff(unit caster)
+
+    forUnitsInRange(caster.getPos(), RANGE) target ->
+        
+        if target.isAliveTrick() and target.isAllyOf(caster)
+            InstantDummyCaster.castTarget(caster.getOwner(), WARDRUM_SPELLID, 1, Orders.innerfire, target)
+
+
+
+
+
+
+
+@compiletime
+function generateObjects()
+
+
+    new BuffDefinition(WARDRUM_BUFFID, 'Binf')
+    ..setIconNormal(1, Icons.bTNDrum)
+    ..setArtTarget(1, Abilities.barkSkinTarget)
+    ..setTooltipNormal(1, "War Drum")
+    ..setTooltipNormalExtended(1, "Has increased attack damage")
+    
+
+    new AbilityDefinitionInnerFireCreep(WARDRUM_SPELLID)
+    ..setBuffs(1, WARDRUM_BUFFID.toRawCode())
+    ..setManaCost(1, 0)
+    ..setAnimationNames("")
+    ..setCastRange(1, 10000)
+    ..setCooldown(1, 0)
+    ..setEffectSound("")
+    ..setDurationHero(1, WARDRUM_DURATION)
+    ..setDurationNormal(1, WARDRUM_DURATION)
+    ..setDamageIncrease(1, WARDRUM_DMGINCREASE)
+    ..setDefenseIncrease(1, 0)
+

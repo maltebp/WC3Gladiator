@@ -1,0 +1,104 @@
+package Stun
+
+import AbilityObjEditing
+import BuffObjEditing
+
+import InstantDummyCaster
+import ObjectIdGenerator
+import Orders
+import GameTimer
+import TimerUtils
+import ClosureTimers
+
+import HashMap
+import ObjectIds
+
+
+public let stunDataMap = new IterableMap<unit, StunData>
+
+public let SPELLID = compiletime(ABIL_ID_GEN.next())
+public let BUFFID = compiletime(BUFF_ID_GEN.next())
+
+public function unit.stun(real duration)
+    StunData.getInstance(this).startStun(duration)
+
+public function unit.removeStun()
+    if this.isStunned()
+        destroy stunDataMap.get(this)
+
+/** Only checks if the unit is stunned with the generic stun */
+public function unit.isStunned() returns boolean
+    return stunDataMap.has(this)
+
+
+class StunData
+    
+    private real startTime = 0
+    private timer timer_Duration = null
+    private unit stunnedUnit = null
+
+    construct(unit whichUnit)
+        stunnedUnit = whichUnit
+        
+        doAfter(0.01) ->
+            InstantDummyCaster.castTarget(Player(PLAYER_NEUTRAL_AGGRESSIVE), SPELLID, 1, Orders.creepthunderbolt, stunnedUnit)
+        
+        timer_Duration = getTimer()
+        ..setData(this castTo int)
+
+        startTime = getElapsedGameTime()
+
+        stunDataMap.put(stunnedUnit, this)
+
+
+    ondestroy
+        stunnedUnit.removeAbility(BUFFID)
+        stunDataMap.remove(stunnedUnit)
+        timer_Duration.release()
+
+        
+    function startDuration(real duration)
+        timer_Duration.start(duration, () -> destroy GetExpiredTimer().getData() castTo thistype)
+
+
+    function startStun(real duration)
+        if duration > getElapsedGameTime()-startTime
+            startDuration(duration)
+
+
+    static function getInstance(unit whichUnit) returns thistype
+        thistype instance
+        
+        if stunDataMap.has(whichUnit)
+            instance = stunDataMap.get(whichUnit)
+
+        else
+            instance = new StunData(whichUnit)
+
+        return instance
+
+
+@compiletime
+function setupAbility()
+
+
+    new BuffDefinition(BUFFID, 'BPSE')
+
+    new AbilityDefinitionThunderBoltCreep(SPELLID)
+    ..setCastRange(1, 90000)
+    ..setDurationHero(1, 0)
+    ..setDurationNormal(1, 0)
+    ..setCooldown(1, 0)
+    ..setManaCost(1,0)
+    ..setDamage(1, 0)
+    ..setMissileArt("")
+    ..setMissileSpeed(10000000)
+    ..setAnimationNames("")
+    ..setBuffs(1, BUFFID.toRawCode())
+
+    
+    
+    
+
+
+    

@@ -35,6 +35,9 @@ class WhirlingStrike
     protected static constant int TOKENOFSAMURO_DUMMYABIL = 'A01N'
     protected static constant real TOKENOFSAMURO_DURATION = 4
 
+    private static constant let WARBLADEOFSAMURO_RANGEREDUCTION = 0.4 // Decimalpercent
+    private static constant let WARBLADEOFSAMURO_DMGINCREASE = 1. // Decimalpercent
+
     protected static constant SoundDefinition snd_OnHit         = new SoundDefinition(Sounds.impaleHit, false, true)
     protected static constant SoundDefinition snd_OnHitEnrage   = new SoundDefinition(Sounds.metalHeavySliceFlesh3, false, true)
 
@@ -43,9 +46,19 @@ class WhirlingStrike
         unit caster = GetSpellAbilityUnit()
         group targets = ENUM_GROUP
 
-        real enrageFactor = caster.consumeEnrage()
+        let hasWarblade = caster.hasArtifact(ARTIFACT_WARBLADEOFSAMURO)
 
-        real enrageRangeFactor = 1+enrageFactor*ENRAGE_RANGEINC
+        let enrageFactor = caster.consumeEnrage()
+
+        let enrageRangeFactor = 1 + enrageFactor*ENRAGE_RANGEINC
+        let enrageDmgFactor = 1 + enrageFactor*ENRAGE_DAMAGEINC
+
+        let range = (hasWarblade) ? (RANGE * enrageRangeFactor * WARBLADEOFSAMURO_RANGEREDUCTION) : RANGE * enrageRangeFactor
+
+        real damage = (BASEDAMAGE + I2R(caster.getTotalAttackDamage()) * ATTACKDAMAGESCALE ) * enrageDmgFactor
+
+        damage = (hasWarblade) ? damage * (1+WARBLADEOFSAMURO_DMGINCREASE) : damage
+         
 
         real cooldown = COOLDOWN * (caster.getFrenzyCooldownReduction())
         caster.setAbilityCooldown(ABILITYID, 1, cooldown)
@@ -53,7 +66,7 @@ class WhirlingStrike
         if caster.hasArtifact(ARTIFACT_TOKENOFSAMURO)
             caster.addTokenOfSamuroBuff(caster, TOKENOFSAMURO_DURATION)
 
-        targets.enumUnitsInRange(caster.getPos(), RANGE*enrageRangeFactor)
+        targets.enumUnitsInRange(caster.getPos(), range)
 
         int charge = (caster.hasFrenzy() and caster.hasArtifact(ARTIFACT_BLOODOFMANNOROTH)) ? R2I(CHARGE * (1+BLOODOFMANNOROTH_CHARGEINC)) : CHARGE
         caster.addCharge(charge)
@@ -70,10 +83,7 @@ class WhirlingStrike
             snd_OnHit.playOnPoint(caster.getPos3Fly())
             if enrageFactor > 0
                 snd_OnHitEnrage.playOnPoint(caster.getPos3Fly())
-                
-
-        real enrageDmgFactor = 1+enrageFactor*ENRAGE_DAMAGEINC
-        real damage = (BASEDAMAGE + I2R(caster.getTotalAttackDamage()) * ATTACKDAMAGESCALE ) * enrageDmgFactor
+        
 
         for target from targets
             
