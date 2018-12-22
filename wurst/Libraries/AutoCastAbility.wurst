@@ -40,6 +40,7 @@ import TimerUtils
 import GroupUtils
 import RegisterEvents
 import ErrorHandling
+import ClosureForGroups
 
 
 
@@ -66,6 +67,14 @@ public function TargetType.isFriendly() returns boolean
 public function TargetType.isEnemy() returns boolean
     return this == TargetType.ENEMY_POINT or this == TargetType.ENEMY_IMMEDIATE or this == TargetType.ENEMY_UNIT
 
+public function TargetType.isPoint() returns boolean
+    return this == TargetType.ENEMY_POINT or this == TargetType.FRIENDLY_POINT
+
+public function TargetType.isUnit() returns boolean
+    return this == TargetType.ENEMY_UNIT or this == TargetType.FRIENDLY_UNIT
+
+public function TargetType.isImmediate() returns boolean
+    return this == TargetType.ENEMY_IMMEDIATE or this == TargetType.FRIENDLY_IMMEDIATE
 
 
 
@@ -114,6 +123,9 @@ public function unit.addAutoCastAbility( AutoCastAbilityType whichAbilityType )
     AutoCastAbilityType    
     The class from which you create types of abilities to autocast.
 */
+
+public interface RemoteFunc
+
 
 /** Class to contain information about an autocast ability*/
 public class AutoCastAbilityType
@@ -624,3 +636,60 @@ public class AutoCastWard extends AutoCastAbilityType
 
         return false
           
+
+/* --------------------------------------------------------------------------------
+    No buff
+    Checks that the unit doesn't have a specific debuff on
+*/
+public class AutoCastNoBuff extends AutoCastAbilityType
+
+
+    private int buffId
+
+    construct(int abilityId, int orderId, TargetType targetType, real triggerRange, real startCooldown, real cooldown, int buffId )
+        super( abilityId, orderId, targetType, triggerRange, startCooldown, cooldown )
+        this.buffId = buffId
+            
+
+    override function findTarget(unit caster) returns boolean
+    
+        let targets = ENUM_GROUP
+        ..clear()
+        ..enumUnitsInRange(caster.getPos(), triggerRange)
+                
+        if targets.size() > 0
+            
+            // Removing unfit targets
+            for target in targets
+
+                if target.hasAbility(buffId)
+                    targets.removeUnit(target)
+
+                else if not target.isAlive() or target == caster
+                    targets.removeUnit(target)
+        
+                else if targetType.isEnemy() and not target.getOwner().isEnemyOf(caster.getOwner())
+                    targets.removeUnit(target)
+
+                else if targetType.isFriendly() and target.getOwner().isEnemyOf(caster.getOwner())
+                    targets.removeUnit(target)
+
+
+            if targets.size() > 0
+
+                let target = targets.getRandomUnit()
+
+                if targetType.isUnit()
+                    caster.issueTargetOrderById( orderId, target)
+
+                else if targetType.isPoint()
+                    caster.issuePointOrderById(orderId, target.getPos())
+
+                else if targetType.isImmediate()
+                    caster.issueImmediateOrderById(orderId)
+
+                targets.clear()
+            
+                return true
+
+        return false

@@ -25,9 +25,9 @@ init
 
     round = new Round()
     ..setReward(30, 4)
-    ..addItemRewards(ITEM_CLOAKOFTHEWIND)
+    ..addItemRewards(ITEM_STORMLORDCROWN)
 
-    ..setTitle("Lightning Lords")
+    ..setTitle("STORMLORDS")
     ..setDescription("Don't go get thunder struck now.")
     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
 

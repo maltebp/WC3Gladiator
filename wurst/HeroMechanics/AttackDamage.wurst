@@ -135,13 +135,13 @@ init
     'I00J'.setAttackDamage(8) // Magic Gem
     'I00T'.setAttackDamage(14) // Demon Figurine
     'I009'.setAttackDamage(10) // Demon Figurine
+    'I01R'.setAttackDamage(25) // Fel Stone
 
     // Editor's Items
     'I00S'.setAttackDamage(30)
     'I00P'.setAttackDamage(80)
 
- // ---------------------------------------
-
+ // --------------------------------------
 
     // Setup of item triggerrs
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_PAWN_ITEM, function manipulatesItem)

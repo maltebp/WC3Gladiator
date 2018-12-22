@@ -24,6 +24,19 @@ public function unit.getNearestEnemyTargetInRect(rect whichRect) returns unit
     return target
 
 
+/** Checks how many of a certain item type the unit has */
+public function unit.getNumberOfItem(int itemId) returns int
+    var number = 0
+    let inventorySize = this.inventorySize()
+    
+    if inventorySize > 0
+
+        for index = 0 to (inventorySize-1)
+            if this.itemInSlot(index).getTypeId() == itemId
+                number++       
+
+    return number
+
 public function isFriendly() returns boolean
     return false
 

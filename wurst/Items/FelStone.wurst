@@ -1,0 +1,28 @@
+package FelStone
+
+import ClosureTimers
+import MyLibrary
+
+constant let ITEMID = 'I01R'
+constant let HEALTHCOST = 10 // percent
+
+function onSpellCast()
+    let caster = GetSpellAbilityUnit()
+
+    if caster.hasItemById(ITEMID)
+
+        let healthToDrain = caster.getNumberOfItem(ITEMID)*HEALTHCOST
+
+        if caster.getHP() > healthToDrain
+            doAfter(0.1) -> 
+                caster.setHP(caster.getHP() - healthToDrain )
+        
+        else
+            doAfter(0.1) -> 
+                caster.kill()
+
+init
+    CreateTrigger()
+    ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST)
+    ..addAction(function onSpellCast)
+    

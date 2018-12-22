@@ -47,7 +47,6 @@ init
     round = new Round()
     ..setReward(30, 3)
     ..addItemRewards(ITEM_STONEDOLL, ITEM_GIANTSSKIN)
-    ..addArtifactRewards(ARTIFACT_STANDARDOFTHEORCS, ARTIFACT_MEMOIROFTHEPAST, ARTIFACT_WARBLADEOFSAMURO, ARTIFACT_HELMOFTHEWARLORD)
     ..addAbilityReward(4)
     ..setTitle("Rock Giants")
     ..setDescription("It's probably best if you clean up the rubbles you smash them into.")

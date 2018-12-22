@@ -10,8 +10,8 @@ import LinkedList
 import ClosureTimers
 
 constant let ITEMID = 'I01I'
-constant let DURATION = 4.
-constant let COOLDOWN = 5.
+constant let DURATION = 10.
+constant let COOLDOWN = 12.
 constant let RANGE = 200.
 
 constant let cooldownMap = new LinkedList<unit>

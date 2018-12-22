@@ -120,7 +120,6 @@ function preStartInfo()
 
     timer_GameIntro.start(14, function roundPick )
 
-    
 
 function roundPick()
     if CUSTOMROUNDSTART

@@ -1,0 +1,144 @@
+package Ensnare
+
+import HashMap
+import RegisterEvents
+import ErrorHandling
+import TimerUtils
+import ClosureTimers
+
+class Ensnare
+
+
+    private static let DUMMYID = 'o004'
+    private static let updateFreq = 0.1
+    private static let instances = new IterableMap<unit,thistype>
+
+    private timer timer_Update = null
+    private timer timer_Duration = null
+
+    private boolean hasHit = false
+    private unit source = null
+    private unit target = null
+    private unit net = null
+
+    private EnsnareDefinition definition = null
+
+
+    construct(unit source, unit target, EnsnareDefinition definition)
+        this.source = source
+        this.target = target
+        this.definition = definition
+
+        timer_Update = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic( updateFreq, () -> GetExpiredTimer().getData() castTo thistype.update() )
+
+        timer_Duration = getTimer()
+        ..setData(this castTo int)
+    
+        if instances.has(target)
+            destroy instances.get(target)
+
+        instances.put(target, this)
+
+
+    ondestroy
+
+        if net != null
+            net.remove()
+
+        if target != null and target.isAliveTrick()
+            target.removeAbility(definition.buffId)
+            doAfter( 5 ) ->
+                if target != null and target.isAliveTrick() and  target.hasAbility(definition.buffId) and not instances.has(target)
+                    instances.remove(target)
+                    /* This is just a safety precaution. Not sure what is causing it not to remove the buff all times
+                        but this should fix it temporarily - hopefully */
+
+        instances.remove(target)
+
+        timer_Update.release()
+        timer_Duration.release()
+
+
+
+
+
+
+    private function onHit()
+
+
+        hasHit = true
+
+        let owningPlayer = (source != null) ? source.getOwner() : Player(PLAYER_NEUTRAL_AGGRESSIVE)
+
+        net = createUnit(owningPlayer, DUMMYID, target.getPos(), angle(0))
+        ..setMaxHP(R2I(definition.ensnareHp), true)
+        ..setVertexColor(0,0,0,0)
+
+        if definition.duration > 0
+            timer_Duration.start( updateFreq, () -> destroy GetExpiredTimer().getData() castTo thistype )
+
+
+    private function update()
+        if target != null and target.isAliveTrick()
+
+            
+            if hasHit
+        
+                if not target.hasAbility(definition.buffId)
+                    destroy this
+
+                else if net == null or not net.isAlive()
+                    destroy this
+                
+            else
+                if target.hasAbility(definition.buffId)
+                    onHit()
+                                    
+        else
+            destroy this
+
+
+
+    static function clearAll()
+        for instanceUnit in instances
+            destroy instances.get(instanceUnit)
+
+
+
+    
+
+public class EnsnareDefinition
+    
+    private static let definitions = new IterableMap<int, thistype>
+
+    protected int abilityId
+    protected int buffId
+    protected real duration
+    protected real ensnareHp
+
+    construct(int abilityId, int buffId, real duration, real ensnareHp)
+        this.abilityId = abilityId
+        this.buffId = buffId
+        this.duration = duration
+        this.ensnareHp = ensnareHp
+
+        registerSpellEffectEvent(abilityId, function onCast)
+
+        definitions.put(abilityId, this)
+        
+
+    private static function onCast()
+        int abilityId = GetSpellAbilityId()
+        
+        if definitions.has(abilityId)
+            new Ensnare(GetSpellAbilityUnit(), GetSpellTargetUnit(), definitions.get(abilityId))
+        else
+            error("Ensnare definitions doesn't exist")
+
+
+
+        
+
+        

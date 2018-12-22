@@ -155,13 +155,14 @@ public constant let  ITEM_GARGOYLECLOAK      = new ItemReward( 'I00N' )
 public constant let  ITEM_LAVATEMPEREDBOOTS  = new ItemReward( 'I01G' )
 public constant let  ITEM_CLOAKOFFLAME       = new ItemReward( 'I00D' )
 public constant let  ITEM_SOULSTONE          = new ItemReward( 'I01H' )
-public constant let  ITEM_CLOAKOFTHEWIND     = new ItemReward( 'I00E' )
+public constant let  ITEM_STORMLORDCROWN     = new ItemReward( 'I00E' )
 public constant let  ITEM_DEMONICFIGURINE           = new ItemReward( 'I00T' )
 public constant let  ITEM_POCKETROCKETGENERATOR     = new ItemReward('I008')
 public constant let  ITEM_DEFLECTIVEDISCDEVICE      = new ItemReward('I00B')
 public constant let  ITEM_TINKERSPERSONALHAMMER     = new ItemReward('I009')
 public constant let     ITEM_STONEDOLL = new ItemReward('I01I')
 public constant let     ITEM_GIANTSSKIN = new ItemReward('I00U')
+public constant let ITEM_FELSTONE = new ItemReward('I01R')
 
 
 

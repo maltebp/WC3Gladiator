@@ -22,6 +22,7 @@ import Icons
 import ObjectIds
 import Damage
 import Assets
+import Ensnare
 
 
 // ================================================================================================================================
@@ -33,21 +34,28 @@ let BERSERKER = 'n00Q'
 let WOLFRIDER = 'n00R'
 let DOOMSAYER = 'n00P'
 
-let BERSERK_ABILITYID = compiletime(ABIL_ID_GEN.next())
-let BERSERK_BUFFID = compiletime( BUFF_ID_GEN.next() )
-let BERSERK_STARTCOOLDOWN = 20.
-let BERSERK_ATTACKSPEEDINC = .5
-let BERSERK_MOVESPEEDINC = .5
-let BERSERK_SND = new SoundDefinition(Sounds.bloodlustTarget, false, true)
-let BERSERK_DAMAGETAKENINC = 1.
-let BERSERK_DAMAGEINC = 23 // Flat bonus
+let BERSERK_DAMAGETAKENINC  = 2.
+let BERSERK_DAMAGEINC       = 25 // Flat bonus
+let BERSERK_STARTCOOLDOWN   = 20.
+let BERSERK_ATTACKSPEEDINC  = .5
+let BERSERK_MOVESPEEDINC    = .5
+
+let BERSERK_ABILITYID   = compiletime(ABIL_ID_GEN.next())
+let BERSERK_BUFFID      = compiletime( BUFF_ID_GEN.next() )
+let BERSERK_SND         = new SoundDefinition(Sounds.bloodlustTarget, false, true)
 
 let RAINOFFIRE_ABILITYID = compiletime(ABIL_ID_GEN.next())
-let RAINOFFIRE_DAMAGE_SHARD = 75.  
+let RAINOFFIRE_DAMAGE_SHARD = 70.  
 let RAINOFFIRE_RANGE = 250.
-let RAINOFFIRE_CHANNELDURATION = 15 // Each wave is 1 second
-let RAINOFFIRE_COOLDOWN = 20.
-let RAINOFFIRE_STARTCOOLDOWN = 15.
+let RAINOFFIRE_CHANNELDURATION = 10 // Each wave is 1 second
+let RAINOFFIRE_COOLDOWN = 15.
+let RAINOFFIRE_STARTCOOLDOWN = 10.
+
+let ENSNARE_ABILITYID = compiletime( ABIL_ID_GEN.next() )
+let ENSNARE_BUFFID = compiletime( BUFF_ID_GEN.next() )
+let ENSNARE_STARTCOOLDOWN = 5.
+let ENSNARE_COOLDOWN = 30.
+let ENSNARE_HP =       250.
 
 
 //=========================================================================================================================================================
@@ -57,49 +65,69 @@ init
 
     round = new Round()
     ..setReward(30, 3)
+    ..addArtifactRewards(ARTIFACT_MEMOIROFTHEPAST)
+    ..addItemRewards(ITEM_FELSTONE)
     ..setTitle("Fel Orcs")
-    ..setDescription("...")
+    ..setDescription("Don't let them pin you down, or they'll burn you.")
     ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
+    ..setCodeOnLastUnitDeath() r ->
+        Ensnare.clearAll()
 
+    // BERSERKER 1
+    round.addSpawner(new UnitSpawner(BERSERKER, ENEMYPLAYER, vec2(-639,1025), 15))
+    ..setStartDelay(4)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.gruntYesAttack2)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    ..setSpawnCount(8)
 
-    // // BERSERKER 1
-    // round.addSpawner(new UnitSpawner(BERSERKER, ENEMYPLAYER, vec2(-639,1025), 15))
-    // ..setStartDelay(5)
-    // ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSoundOnSpawn(Sounds.gruntYesAttack2)
-    // ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
-    // ..setSpawnCount(8)
-
+    // BERSERKER 2
+    round.addSpawner(new UnitSpawner(BERSERKER, ENEMYPLAYER, vec2(-639,1025), 30))
+    ..setStartDelay(70)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.gruntYesAttack2)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    ..setSpawnCount(2)
 
     // DOOM SAYER 1
-    round.addSpawner(new UnitSpawner(DOOMSAYER, ENEMYPLAYER, vec2(-639,1025), 15))
-    ..setStartDelay(10)
+    round.addSpawner(new UnitSpawner(DOOMSAYER, ENEMYPLAYER, vec2(-639,1025), 20))
+    ..setStartDelay(15)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSoundOnSpawn(Sounds.shamanYesAttack3)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
-    ..setSpawnCount(8)
+    ..setSpawnCount(6)
 
-    // // WOLF RIDER 1
-    // round.addSpawner(new UnitSpawner(WOLFRIDER, ENEMYPLAYER, vec2(-639,1025), 15))
-    // ..setStartDelay(15)
-    // ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSoundOnSpawn(Sounds.wolfriderYes2)
-    // ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
-    // ..setSpawnCount(8)
+    // DOOM SAYER 2
+    round.addSpawner(new UnitSpawner(DOOMSAYER, ENEMYPLAYER, vec2(-639,1025), 30))
+    ..setStartDelay(90)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.shamanYesAttack3)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    ..setSpawnCount(2)
 
-
+    // WOLF RIDER 1
+    round.addSpawner(new UnitSpawner(WOLFRIDER, ENEMYPLAYER, vec2(-639,1025), 20))
+    ..setStartDelay(12)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.wolfriderYes2)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    ..setSpawnCount(6)
 
     // Auto Casting
     
     addAutoCastAbilityToUnitType(BERSERKER, new AutoCastAbilityType(BERSERK_ABILITYID, Orders.berserk, TargetType.SELF_IMMEDIATE, 1000, 30, 1000))
     addAutoCastAbilityToUnitType(DOOMSAYER, new AutoCastAoePoint(RAINOFFIRE_ABILITYID, Orders.rainoffire, TargetType.ENEMY_POINT, 800, RAINOFFIRE_STARTCOOLDOWN, RAINOFFIRE_COOLDOWN))
-    
+    addAutoCastAbilityToUnitType(WOLFRIDER, new AutoCastNoBuff(ENSNARE_ABILITYID, Orders.ensnare, TargetType.ENEMY_UNIT, 500, ENSNARE_STARTCOOLDOWN, ENSNARE_COOLDOWN, ENSNARE_BUFFID))
 
     UnitVisuals.addUnitType(BERSERKER)
     ..setPlayerColor(PLAYER_COLOR_COAL)
@@ -130,6 +158,8 @@ init
     registerSpellEffectEvent(BERSERK_ABILITYID, function berserk_OnCast)
 
     preloadAbility('A023')
+
+    new EnsnareDefinition(ENSNARE_ABILITYID, ENSNARE_BUFFID, 0, ENSNARE_HP)
 
 @compiletime
 function createAbilities()
@@ -173,6 +203,33 @@ function createAbilities()
     ..setDurationNormal(1, 0.01)
     ..setDamagePerSecond(1, 0)
     ..setTargetsAllowed(1, "ground,enemy")
+
+
+
+// ENSNARE
+
+
+    int tempBuff = BUFF_ID_GEN.next()
+
+    new BuffDefinition(ENSNARE_BUFFID,'Beng')
+    ..setTooltipNormal(1, "Ensnare")
+    ..setTooltipNormalExtended(1, "Can't move.")
+    new BuffDefinition(tempBuff,'Bena')
+    ..setTooltipNormal(1, "Ensnare")
+    ..setArtTarget(1, Abilities.ensnareTarget )
+
+    new AbilityDefinitionEnsnare(ENSNARE_ABILITYID)
+    ..setTooltipNormal(1, "Ensnare")
+    ..setTooltipNormalExtended(1, "")
+    ..setManaCost(1, 0)  
+    ..setCooldown(1, 0)
+    ..setDurationHero(1, 0.00)
+    ..setDurationNormal(1, 0.00)
+    ..setRequirements("")
+    ..setBuffs( 1, tempBuff.toRawCode()+","+ENSNARE_BUFFID.toRawCode())
+
+
+
 
 
 
