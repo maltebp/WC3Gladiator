@@ -11,6 +11,7 @@ import TimerUnitData
 import TimedSpecialEffects
 import initlater Frenzy
 import Artifact
+import ClosureTimers
 
 constant int ABILITYID = 'A01M'
 constant int DUMMYABILITYID = 'A01L'
@@ -18,7 +19,7 @@ constant int BUFFID = 'B007'
 constant real COOLDOWN = 6
 constant int MAXCONSUMEAMOUNT = 40
 constant real DURATION = 6
-constant real MANACOST = 15
+constant real MANACOST = 25
 constant let MEMOIROFTHEPAST_RAGEBONUS = 25
 
 
@@ -167,7 +168,9 @@ function onCast()
             getTimer()
             ..setUnitData(caster)
             ..start(0.01, function resetCooldown)
-            caster.addMana(MANACOST)
+
+            doAfter(0.01) ->
+                caster.addMana(MANACOST)
             snd_Error.playForPlayer(caster.getOwner())
     
 

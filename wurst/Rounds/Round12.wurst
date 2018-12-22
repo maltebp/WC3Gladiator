@@ -28,18 +28,26 @@ import Assets
 // Settings
 
 
+
+let BERSERKER = 'n00Q'
+let WOLFRIDER = 'n00R'
+let DOOMSAYER = 'n00P'
+
 let BERSERK_ABILITYID = compiletime(ABIL_ID_GEN.next())
 let BERSERK_BUFFID = compiletime( BUFF_ID_GEN.next() )
 let BERSERK_STARTCOOLDOWN = 20.
-let BERSERK_ATTACKSPEEDINC = 1.
+let BERSERK_ATTACKSPEEDINC = .5
 let BERSERK_MOVESPEEDINC = .5
 let BERSERK_SND = new SoundDefinition(Sounds.bloodlustTarget, false, true)
 let BERSERK_DAMAGETAKENINC = 1.
+let BERSERK_DAMAGEINC = 23 // Flat bonus
 
-let RAINOFFIRE_DAMAGE_SHARD = 75
-let RAINOFFIRE_DAMAGE_FIRE = 100
-let RAINOFFIRE_RANGE = 300
-let RAINOFFIRE_DURATION = 15 // Each wave is 1 second
+let RAINOFFIRE_ABILITYID = compiletime(ABIL_ID_GEN.next())
+let RAINOFFIRE_DAMAGE_SHARD = 75.  
+let RAINOFFIRE_RANGE = 250.
+let RAINOFFIRE_CHANNELDURATION = 15 // Each wave is 1 second
+let RAINOFFIRE_COOLDOWN = 20.
+let RAINOFFIRE_STARTCOOLDOWN = 15.
 
 
 //=========================================================================================================================================================
@@ -51,9 +59,56 @@ init
     ..setReward(30, 3)
     ..setTitle("Fel Orcs")
     ..setDescription("...")
-    ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.02)
+    ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
 
+
+    // // BERSERKER 1
+    // round.addSpawner(new UnitSpawner(BERSERKER, ENEMYPLAYER, vec2(-639,1025), 15))
+    // ..setStartDelay(5)
+    // ..setFrequencyDeviation(0.1)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSoundOnSpawn(Sounds.gruntYesAttack2)
+    // ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    // ..setSpawnCount(8)
+
+
+    // DOOM SAYER 1
+    round.addSpawner(new UnitSpawner(DOOMSAYER, ENEMYPLAYER, vec2(-639,1025), 15))
+    ..setStartDelay(10)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.shamanYesAttack3)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    ..setSpawnCount(8)
+
+    // // WOLF RIDER 1
+    // round.addSpawner(new UnitSpawner(WOLFRIDER, ENEMYPLAYER, vec2(-639,1025), 15))
+    // ..setStartDelay(15)
+    // ..setFrequencyDeviation(0.1)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSoundOnSpawn(Sounds.wolfriderYes2)
+    // ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    // ..setSpawnCount(8)
+
+
+
+    // Auto Casting
     
+    addAutoCastAbilityToUnitType(BERSERKER, new AutoCastAbilityType(BERSERK_ABILITYID, Orders.berserk, TargetType.SELF_IMMEDIATE, 1000, 30, 1000))
+    addAutoCastAbilityToUnitType(DOOMSAYER, new AutoCastAoePoint(RAINOFFIRE_ABILITYID, Orders.rainoffire, TargetType.ENEMY_POINT, 800, RAINOFFIRE_STARTCOOLDOWN, RAINOFFIRE_COOLDOWN))
+    
+
+    UnitVisuals.addUnitType(BERSERKER)
+    ..setPlayerColor(PLAYER_COLOR_COAL)
+
+    UnitVisuals.addUnitType(DOOMSAYER)
+    ..setPlayerColor(PLAYER_COLOR_PEANUT)
+
+    UnitVisuals.addUnitType(WOLFRIDER)
+    ..setPlayerColor(PLAYER_COLOR_COAL)
 
 
 //=========================================================================================================================================================
@@ -66,13 +121,15 @@ init
 function berserk_OnCast()
     unit caster = GetSpellAbilityUnit()
     BERSERK_SND.playOnPoint(caster.getPos3with(100))
+    caster.addAbility('A023')
+    caster.setAbilityLevel('A023', BERSERK_DAMAGEINC)
+    caster.issueImmediateOrder("stop")
 
 
 init
     registerSpellEffectEvent(BERSERK_ABILITYID, function berserk_OnCast)
-    createUnit(Player(0), 'nchg', vec2(8000,-8000), angle(0))
-    ..addAbility(BERSERK_ABILITYID)
-    ..addAbility('ACrg')
+
+    preloadAbility('A023')
 
 @compiletime
 function createAbilities()
@@ -103,19 +160,19 @@ function createAbilities()
     ..setDurationNormal(1, 0)
 
 
-
 // RAIN OF FIRE
-    new AbilityDefinitionRainofFire(BERSERK_ABILITYID)
-    ..setTooltipNormal(1, "Berserk")
+    new AbilityDefinitionRainofFirecreep(RAINOFFIRE_ABILITYID)
+    ..setTooltipNormal(1, "Rain of Fire")
     ..setTooltipNormalExtended(1, "")
-    ..setAnimationNames("spell")
-    ..setBuffs(1, BERSERK_BUFFID.toRawCode())
-    ..setAttackSpeedIncrease(1, BERSERK_ATTACKSPEEDINC)
-    ..setMovementSpeedIncrease(1, BERSERK_MOVESPEEDINC)
-    ..setDamageTakenIncrease(1, BERSERK_DAMAGETAKENINC)
+    ..setManaCost(1, 0)  
+    ..setNumberofWaves(1, RAINOFFIRE_CHANNELDURATION)   
+    ..setDamage(1, RAINOFFIRE_DAMAGE_SHARD)
+    ..setAreaofEffect(1, RAINOFFIRE_RANGE)
     ..setCooldown(1, 0)
-    ..setDurationHero(1, 0)
-    ..setDurationNormal(1, 0)
+    ..setDurationHero(1, 0.01)
+    ..setDurationNormal(1, 0.01)
+    ..setDamagePerSecond(1, 0)
+    ..setTargetsAllowed(1, "ground,enemy")
 
 
 

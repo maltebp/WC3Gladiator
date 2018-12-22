@@ -51,7 +51,7 @@ init
     ..addAbilityReward(4)
     ..setTitle("Rock Giants")
     ..setDescription("It's probably best if you clean up the rubbles you smash them into.")
-    ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.02)
+    ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
     ..setCodeOnClear() r ->
         Earthquake.clearAll()
 

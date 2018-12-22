@@ -12,7 +12,7 @@ import ClosureTimers
 constant let ITEMID = 'I01I'
 constant let DURATION = 4.
 constant let COOLDOWN = 5.
-constant let RANGE = 150.
+constant let RANGE = 200.
 
 constant let cooldownMap = new LinkedList<unit>
 
@@ -30,7 +30,8 @@ class StoneDollBuff
         timer_Duration = getTimer()
         ..setData(this castTo int)
 
-        InstantDummyCaster.castTarget(Player(PLAYER_NEUTRAL_AGGRESSIVE), ABILITYID, 1, Orders.slow, target, target.getPos())
+        doAfter(0.01) ->
+            InstantDummyCaster.castTarget(Player(PLAYER_NEUTRAL_AGGRESSIVE), ABILITYID, 1, Orders.slow, target, target.getPos())
 
         buffMap.put(target, this)
 
@@ -61,8 +62,8 @@ function onSpellCast()
         group targets = ENUM_GROUP..enumEnemyTargets(caster.getOwner(), caster.getPos(), RANGE)
         
         if targets.size() > 0
-            doAfter(0.1) ->
-                for target from targets
+            for target from targets
+                doAfter(0.1) ->
                     StoneDollBuff.addToUnit(target)
 
         cooldownMap.add(caster)

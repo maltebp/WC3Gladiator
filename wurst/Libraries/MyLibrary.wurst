@@ -28,7 +28,7 @@ public function isFriendly() returns boolean
     return false
 
 public function unit.isValidEnemyTarget(player enemy) returns boolean
-    return this.getOwner().isEnemyOf(enemy) and this.isAliveTrick()
+    return this.getOwner().isEnemyOf(enemy) and this.isAlive()
 
 
 public function group.enumEnemyTargets(player enemy, vec2 pos, real range)
