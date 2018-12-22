@@ -15,10 +15,31 @@ import Shockwave
 import ClosureTimers
 import EarthquakeNoChannel
 import Preloader
+import AbilityObjEditing
+import ObjectIdGenerator
+import BuffObjEditing
+import Icons
+import ObjectIds
+import Damage
+import Assets
 
 
 // ================================================================================================================================
 // Settings
+
+
+let BERSERK_ABILITYID = compiletime(ABIL_ID_GEN.next())
+let BERSERK_BUFFID = compiletime( BUFF_ID_GEN.next() )
+let BERSERK_STARTCOOLDOWN = 20.
+let BERSERK_ATTACKSPEEDINC = 1.
+let BERSERK_MOVESPEEDINC = .5
+let BERSERK_SND = new SoundDefinition(Sounds.bloodlustTarget, false, true)
+let BERSERK_DAMAGETAKENINC = 1.
+
+let RAINOFFIRE_DAMAGE_SHARD = 75
+let RAINOFFIRE_DAMAGE_FIRE = 100
+let RAINOFFIRE_RANGE = 300
+let RAINOFFIRE_DURATION = 15 // Each wave is 1 second
 
 
 //=========================================================================================================================================================
@@ -28,15 +49,74 @@ init
 
     round = new Round()
     ..setReward(30, 3)
-    ..setTitle("Naga")
+    ..setTitle("Fel Orcs")
     ..setDescription("...")
     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.02)
 
-        
+    
 
 
 //=========================================================================================================================================================
 // 
 //
 
-    
+
+
+
+function berserk_OnCast()
+    unit caster = GetSpellAbilityUnit()
+    BERSERK_SND.playOnPoint(caster.getPos3with(100))
+
+
+init
+    registerSpellEffectEvent(BERSERK_ABILITYID, function berserk_OnCast)
+    createUnit(Player(0), 'nchg', vec2(8000,-8000), angle(0))
+    ..addAbility(BERSERK_ABILITYID)
+    ..addAbility('ACrg')
+
+@compiletime
+function createAbilities()
+
+
+
+// BERSERK
+    new BuffDefinition(BERSERK_BUFFID,'bbsk')
+    ..setName(1,"Berserk")
+    ..setArtTarget(1, Abilities.bloodLustTarget)
+    ..setTargetAttachmentPoint0(1, "right,hand")
+    ..setTargetAttachmentPoint1(1, "left,hand")
+    ..setTooltipNormal(1, "Berserk")
+    ..setTooltipNormalExtended(1, "Increased speed but also takes more damage.")
+    ..setIcon(Icons.bTNBerserk)
+
+    new AbilityDefinitionBeserk(BERSERK_ABILITYID)
+    ..setName("Berserk")
+    ..setTooltipNormal(1, "Berserk")
+    ..setTooltipNormalExtended(1, "")
+    ..setAnimationNames("spell")
+    ..setBuffs(1, BERSERK_BUFFID.toRawCode())
+    ..setAttackSpeedIncrease(1, BERSERK_ATTACKSPEEDINC)
+    ..setMovementSpeedIncrease(1, BERSERK_MOVESPEEDINC)
+    ..setDamageTakenIncrease(1, BERSERK_DAMAGETAKENINC)
+    ..setCooldown(1, 0)
+    ..setDurationHero(1, 0)
+    ..setDurationNormal(1, 0)
+
+
+
+// RAIN OF FIRE
+    new AbilityDefinitionRainofFire(BERSERK_ABILITYID)
+    ..setTooltipNormal(1, "Berserk")
+    ..setTooltipNormalExtended(1, "")
+    ..setAnimationNames("spell")
+    ..setBuffs(1, BERSERK_BUFFID.toRawCode())
+    ..setAttackSpeedIncrease(1, BERSERK_ATTACKSPEEDINC)
+    ..setMovementSpeedIncrease(1, BERSERK_MOVESPEEDINC)
+    ..setDamageTakenIncrease(1, BERSERK_DAMAGETAKENINC)
+    ..setCooldown(1, 0)
+    ..setDurationHero(1, 0)
+    ..setDurationNormal(1, 0)
+
+
+
+

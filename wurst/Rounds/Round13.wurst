@@ -1,0 +1,68 @@
+package Round13
+
+// let CRIPPLINGSTRIKE_DAMAGE = 100.
+// let CRIPPLINGSTRIKE_DURATION = 6.
+// let CRIPPLINGSTRIKE_MOVEMENTSLOW = 0.5
+// let CRIPPLINGSTRIKE_ATTACKSLOW = 0.25
+// let CRIPPLINGSTRIKE_SND = new SoundDefinition(Sounds.metalHeavyChopFlesh3, false, true)
+
+// //=========================================================================================================================================================
+// //  Setup
+
+// init
+
+//     round = new Round()
+//     ..setReward(30, 3)
+//     ..setTitle("Fel Orcs")
+//     ..setDescription("...")
+//     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.02)
+
+    
+
+
+// //=========================================================================================================================================================
+// // 
+// //
+
+    
+
+
+
+// function cripplingStrike_onCast()
+//     unit caster = GetSpellAbilityUnit()
+//     unit target = GetSpellTargetUnit()
+    
+//     caster.damageTargetPhysical(target, CRIPPLINGSTRIKE_DAMAGE)
+//     flashEffect(Abilities.stampedeMissileDeath, target, "origin")
+//     CRIPPLINGSTRIKE_SND.playOnPoint(target.getPos3with(100))
+
+
+// public let CRIPPLINGSTRIKE_ABILITYID = compiletime(ABIL_ID_GEN.next())
+// public let CRIPPLINGSTRIKE_BUFFID = compiletime(BUFF_ID_GEN.next())
+
+
+// init
+//     registerSpellEffectEvent(CRIPPLINGSTRIKE_ABILITYID, function cripplingStrike_onCast)
+
+//     createUnit(Player(0), 'ogru', vec2(8000,-8000), angle(0))
+//     ..addAbility(CRIPPLINGSTRIKE_ABILITYID)
+
+// @compiletime
+// function createAbility()
+
+//     new BuffDefinition(CRIPPLINGSTRIKE_BUFFID, 'Aslo')
+//     ..setIcon(Icons.bTNCriticalStrike)
+//     ..setTooltipNormal(1, "Crippled")
+//     ..setTooltipNormalExtended(1, "This unit is slowed")
+//     ..setArtTarget(1, "")
+
+//     new AbilityDefinitionCripplecreep(CRIPPLINGSTRIKE_ABILITYID)
+//     ..setName("Crippling Strike (Dummy)")
+//     ..setAnimationNames("attack")
+//     ..setManaCost(1, 0)
+//     ..setCastRange(1, 150)
+//     ..setCooldown(1, 0)
+//     ..setMovementSpeedReduction(1, CRIPPLINGSTRIKE_MOVEMENTSLOW)
+//     ..setAttackSpeedReduction(1, CRIPPLINGSTRIKE_ATTACKSLOW)
+//     ..setBuffs(1,CRIPPLINGSTRIKE_BUFFID.toRawCode())
+//     ..setDurationHero(1, CRIPPLINGSTRIKE_DURATION)
