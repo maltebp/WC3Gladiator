@@ -1,0 +1,37 @@
+package Teleport
+
+import RegisterEvents
+import Assets
+
+let ABILITYID = 'A027'
+
+vec2 mousePosition = vec2(0,0)
+
+
+function onCast()
+    let caster = GetSpellAbilityUnit()
+
+    let startPos = caster.getPos()
+
+    caster.setAnimation("spell")
+
+    flashEffect(Abilities.blinkTarget, startPos)
+    flashEffect(Abilities.blinkTarget, mousePosition)
+    
+    caster.setPos(mousePosition)
+    caster.setFacing(startPos.angleTo(mousePosition))
+
+
+function onMouseMove()
+    if GetTriggerPlayer() == Player(0)
+        mousePosition = vec2(BlzGetTriggerPlayerMouseX(), BlzGetTriggerPlayerMouseY())
+        
+
+init
+
+
+    registerPlayerEvent(EVENT_PLAYER_MOUSE_MOVE, function onMouseMove )
+
+    registerSpellEffectEvent(ABILITYID, function onCast )
+
+    createUnit(Player(0),'H007', vec2(8000,-8000), angle(0))

@@ -1,0 +1,150 @@
+package ArcaneWard
+
+import TimerUtils
+import HashMap
+import Abilities
+import RegisterEvents
+import Assets
+import Game
+import ClosureForGroups
+import MyLibrary
+import Damage
+
+// Settings
+
+let ABILITYID = 'A028'
+
+
+class ArcaneWard
+
+    private static let EXPLOSIONFREQ = 1.
+    private let snd = new SoundDefinition(Sounds.manaFlareLoop, true, true)
+
+    private vec2 pos
+
+    private effect sfx_wisp
+    private effect sfx_flare
+
+    private real duration
+    private unit source
+
+    private timer timer_Explosion = null
+
+    private timer timer_Duration = null
+    
+    construct(vec2 pos, unit source, real duration)
+
+        this.source = source
+        this.pos = pos
+        this.duration = duration
+
+        snd.playOnPoint(pos.withTerrainZ(100),R2I(duration))
+
+
+        sfx_wisp = addEffect(Units.wisp1, pos)
+        ..setScale(1.5)
+        ..setColorByPlayer(Player(19))
+        ..setColor(color(255, 150, 200))
+        
+        sfx_flare = addEffect(Abilities.manaFlareTarget, pos)
+        ..setHeight(75)
+        ..setScale(4)
+
+        timer_Explosion = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic(EXPLOSIONFREQ, () -> GetExpiredTimer().getData() castTo thistype.startExplosion() )
+
+        timer_Duration = getTimer()
+        ..setData(this castTo int)
+        ..start(duration, () -> destroy GetExpiredTimer().getData() castTo thistype )
+
+
+    ondestroy
+        timer_Duration.release()
+        timer_Explosion.release()
+        sfx_flare.destr()
+        sfx_wisp.destr()
+        
+        destroy snd
+
+
+    function startExplosion()
+        new ArcaneExplosion(pos, source, 350, 100, 0)
+
+
+
+
+class ArcaneExplosion
+    
+    private static let MOVEFREQ = 0.05
+    private static let ANIMATIONTIME = 0.75
+    private static let SOUND = new SoundDefinition(Sounds.bloodMageRangedAttack, false, true)
+
+    private vec2 pos
+    private real damage
+    private effect explosion
+    private timer timer_Update
+    private real finalRange
+    private real currentRange = 0
+    private real rangePerMove
+    private unit source
+    private let hitTargets = new LinkedList<unit>
+
+    construct(vec2 pos, unit source, real range, real damage, real slow)
+
+        this.source = source
+        this.finalRange = range
+
+        this.pos = pos
+
+        this.damage = damage
+
+        rangePerMove = range / (ANIMATIONTIME / MOVEFREQ)
+
+        explosion = addEffect(Units.wispExplode, pos)
+        ..setScale(1.5)
+        ..setTime(0.3)
+        ..setHeight(-100)
+
+        SOUND.playOnPoint(pos.withTerrainZ(100))
+
+
+        timer_Update = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic(MOVEFREQ, () -> GetExpiredTimer().getData() castTo thistype.move() )
+
+
+    ondestroy
+        explosion.destr()
+        destroy hitTargets
+        timer_Update.release()
+
+        
+    function targetFilter(unit target) returns boolean
+        return target.isAlive() and target.isEnemyOf(source) and not hitTargets.contains(target)
+
+        
+    function move()
+
+        currentRange += 25
+
+        forUnitsInRange(pos, currentRange) target ->
+            if targetFilter(target)
+                flashEffect(Abilities.spiritOfVengeanceMissile, target, "chest")
+                source.damageTargetSpell(target, damage)
+                hitTargets.add(target)    
+
+        if currentRange >= finalRange
+            destroy this
+
+
+
+
+
+
+init
+    registerSpellEffectEvent(ABILITYID, () -> new ArcaneWard(vec2(GetSpellTargetX(), GetSpellTargetY()), GetSpellAbilityUnit(), 10) )
+
+
+
+    

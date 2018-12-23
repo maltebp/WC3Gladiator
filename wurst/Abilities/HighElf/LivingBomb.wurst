@@ -1,0 +1,81 @@
+package LivingBomb
+import RegisterEvents
+import FadeAndFilters
+import MyLibrary
+import Damage
+import Assets
+
+let ABILITYID = 'A026'
+
+class LivingBomb
+    
+    private unit source
+    private unit target
+    
+    private timer timer_Explosion
+    private timer timer_Duration
+
+    private real damagePrimary
+    private real damageSecondary
+    private real explosionFreq
+    private real explosionRange
+
+    private effect sfx
+
+    construct(unit target, unit source, real damage)
+
+        this.target = target
+        this.source = source
+
+        sfx = target.addEffect(Units.wisp1, "origin")
+        ..setColorByPlayer(Player(15))
+        ..setColor(color(255, 255, 255))
+
+        timer_Explosion = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic(2, () -> GetExpiredTimer().getData() castTo thistype.explode() )
+
+        timer_Duration = getTimer()
+        ..setData(this castTo int)
+        ..start(10, () -> destroy GetExpiredTimer().getData() castTo thistype )
+
+
+    ondestroy
+        timer_Explosion.release()
+        timer_Duration.release()
+        sfx.destr()
+
+    function targetFilter(unit target) returns boolean
+        return target.isAlive() and target.isEnemyOf(source)
+
+    function explode()
+        
+        if target.isAlive()
+
+            source.damageTargetSpell(target, 50)
+
+            addEffect(Abilities.orbOfDeathMissile, target.getPos())
+            ..setScale(1.25)
+            ..setTimeScale(0.75)
+            ..destr()
+            
+        
+            addEffect(Abilities.steamTankImpact, target.getPos() )
+            ..setScale(0.5)
+            ..destr()
+            
+
+
+        
+        else
+            destroy this
+
+
+
+
+
+
+init
+    registerSpellEffectEvent(ABILITYID) ->
+        new LivingBomb(GetSpellTargetUnit(), GetSpellAbilityUnit(), 50)
+        
