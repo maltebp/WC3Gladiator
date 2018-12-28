@@ -1,4 +1,153 @@
 package MagicMissile
 
+import LinkedList
+import TimerUtils
+import HashMap
+import Abilities
+import RegisterEvents
+import SoundUtils
+import ClosureForGroups
+import Damage
+import MyLibrary
+
+
+
+let ABILITY_ID = 'A02A'
+let SOUND_LAUNCH = new SoundDefinition(Sounds.spellStealMissile1, false, true)
+let SOUND_HIT = new SoundDefinition(Sounds.priestMissileHit2, false, true)
+
+init
+    registerSpellEffectEvent(ABILITY_ID, () -> new MagicMissile(GetSpellAbilityUnit(), vec2(GetSpellTargetX(), GetSpellTargetY()), 1000 ) )
+
 class MagicMissile
+
+    private static let moveFreq = 0.05
+    private static LinkedList<thistype> instances = new LinkedList<thistype>
     
+    private effect missile
+    private effect missileSfx
+    private effect missileSfx1
+    private real percentDamage
+    private vec2 pos
+    private real speed
+    private real finalDistance
+    private real distance = 0
+    private unit sourceUnit
+    private angle direction
+    private player sourcePlayer
+    private real damage
+    private int numberOfHits = 0
+    private let hitTargets = new LinkedList<unit>
+    private timer timer_Move
+    private real width // Radius
+    
+    construct(unit source, vec2 targetPos, real speed)
+        sourceUnit = source
+        sourcePlayer = source.getOwner()
+        
+        damage = 75
+        width = 125
+
+
+        finalDistance = 800
+
+        pos = source.getPos()
+        direction = pos.angleTo(targetPos)
+
+        this.speed = speed * moveFreq
+
+        SOUND_LAUNCH.playOnPoint(pos.withTerrainZ(100))
+
+        missile = addEffect(Abilities.annihilationMissile, pos)
+        ..setRoll(direction)
+        ..setScale(0.6)
+        ..setHeight(80)
+
+        missileSfx1 = addEffect(Abilities.dragonHawkMissile, pos)
+        ..setRoll(direction)
+        ..setYaw(angle(PI))
+        ..setScale(0.75)
+        ..setHeight(80)
+
+        timer_Move = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic( moveFreq, () -> GetExpiredTimer().getData() castTo thistype.update() )
+
+        instances.add(this)
+
+
+    ondestroy
+
+        missile.destr()
+        missileSfx1.destr()
+        timer_Move.release()
+        destroy hitTargets
+
+
+    function targetFilter(unit target) returns boolean
+        return not hitTargets.contains(target) and target != null and target.isAliveTrick() and target.isEnemyOf(sourceUnit)
+
+
+    function targetEffect( unit target)
+        sourceUnit.damageTargetSpell(target, damage)
+        flashEffect(Abilities.spiritOfVengeanceMissile, target, "chest")
+        SOUND_HIT.playOnPoint(target.getPos3with(50))
+
+
+    function update()
+        
+        pos = pos.polarOffset(direction, speed)
+        distance += speed
+
+        missile.setPos(pos)
+        // missileSfx.setPos(pos)
+        missileSfx1.setPos(pos)
+
+
+        forUnitsInRange(pos, width) target ->
+            if targetFilter(target)
+                targetEffect(target)
+                hitTargets.add(target)
+
+        if distance > finalDistance
+            destroy this
+
+    static function clearAll()
+
+
+
+
+
+class TargetBuffGroup
+
+    private static IterableMap<unit, thistype> instances  = new IterableMap<unit, thistype>
+
+    private LinkedList<MagicMissileBuff> buffs = new LinkedList<MagicMissileBuff> 
+    private unit target
+
+
+    static function getUnitInstance(unit whichUnit)
+
+
+IterableMap<unit, LinkedList<MagicMissileBuff> > targetBuffs 
+
+
+class MagicMissileBuff
+    
+
+    private TargetBuffGroup target
+    
+
+    construct()
+
+
+    ondestroy
+
+
+
+    
+    
+    
+    
+    
+

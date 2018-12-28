@@ -17,8 +17,9 @@ let ABILITYID = 'A028'
 
 class ArcaneWard
 
-    private static let EXPLOSIONFREQ = 1.
+    private static let EXPLOSIONFREQ = 2.
     private let snd = new SoundDefinition(Sounds.manaFlareLoop, true, true)
+    private sound sndInstance
 
     private vec2 pos
 
@@ -38,7 +39,7 @@ class ArcaneWard
         this.pos = pos
         this.duration = duration
 
-        snd.playOnPoint(pos.withTerrainZ(100),R2I(duration))
+        sndInstance = snd.playOnPoint(pos.withTerrainZ(100),R2I(duration)).snd
 
 
         sfx_wisp = addEffect(Units.wisp1, pos)
@@ -65,7 +66,7 @@ class ArcaneWard
         sfx_flare.destr()
         sfx_wisp.destr()
         
-        destroy snd
+        sndInstance.stop(true, true)
 
 
     function startExplosion()
@@ -130,7 +131,7 @@ class ArcaneExplosion
 
         forUnitsInRange(pos, currentRange) target ->
             if targetFilter(target)
-                flashEffect(Abilities.spiritOfVengeanceMissile, target, "chest")
+                flashEffect(Abilities.murgulMagicMissile, target, "chest")
                 source.damageTargetSpell(target, damage)
                 hitTargets.add(target)    
 

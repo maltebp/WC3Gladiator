@@ -54,13 +54,13 @@ class LivingBomb
 
             source.damageTargetSpell(target, 50)
 
-            addEffect(Abilities.orbOfDeathMissile, target.getPos())
+            target.addEffect(Abilities.orbOfDeathMissile, "chest")
             ..setScale(1.25)
             ..setTimeScale(0.75)
             ..destr()
             
         
-            addEffect(Abilities.steamTankImpact, target.getPos() )
+            target.addEffect(Abilities.steamTankImpact, "chest" )
             ..setScale(0.5)
             ..destr()
             

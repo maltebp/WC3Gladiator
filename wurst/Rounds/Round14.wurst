@@ -1,0 +1,638 @@
+package Round14
+import ClosureTimers
+import FadeAndFilters
+import HashMap
+import RegisterEvents
+import ErrorHandling
+import ChannelOnUnit
+import AutoCastAbility
+import Game
+import Round13
+import RandomAngle
+import LightningUtil
+import Abilities
+import TimerUnitData
+import AbilityObjEditing
+import ObjectIdGenerator
+import UnitVisualsUtils
+import ObjectIds
+import BuffObjEditing
+import Assets
+import Damage
+import ClosureForGroups
+import MyLibrary
+import InstantDummyCaster
+import TimedSpecialEffects
+
+let DRAGON_ID = 'n00S'
+let GROWNDRAGON_ID = 'n00T'
+let BROODER_ID = 'n011'
+let PROTECTOR_ID = 'n00U'
+
+let DRAGON_DAMAGE_MIN = 15
+let DRAGON_DAMAGE_MAX = 30
+let DRAGON_HEALTH_MIN = 200
+let DRAGON_HEALTH_MAX = 400
+let DRAGON_SCALE_MIN = 0.6
+let DRAGON_SCALE_MAX = 0.9
+
+let EGG_ID = 'h008' 
+let EGG_NUMBER = 18
+let EGG_HATCHTIME = 100
+let EGG_SPAWNRECT = gg_rct_Arena_Spawn1
+let BROOD_STARTCOOLDOWN = 10.
+let BROOD_COOLDOWN = 2.
+let BROOD_ABILITYID = 'A029'
+let BROOD_TIMEREDUCED = 8 // Per second
+
+let DRAGONSTRIKE_ABILITYID = compiletime(ABIL_ID_GEN.next())
+let DRAGONSTRIKE_ABILITYID_DUMMY = compiletime(ABIL_ID_GEN.next())
+let DRAGONSTRIKE_DEBUFFID = compiletime(BUFF_ID_GEN.next())
+let DRAGONSTRIKE_DAMAGE = 80.
+let DRAGONSTRIKE_DOTDAMAGE = 20.
+let DRAGONSTRIKE_ARMORRED = 6
+let DRAGONSTRIKE_AOERANGE = 200.
+let DRAGONSTRIKE_DURATION = 8.
+let DRAGONSTRIKE_AOEDAMAGE = 100.
+let DRAGONSTRIKE_COOLDOWN = 10.
+let DRAGONSTRIKE_STARTCOOLDOWN = 5.
+let DRAGONSTRIKE_SOUND = new SoundDefinition(Sounds.metalHeavyChopFlesh3, false, true)
+
+let MENDEGGS_ABILITYID = compiletime(ABIL_ID_GEN.next())
+let MENDEGGS_HEALAMOUNT = 80.
+let MENDEGGS_COOLDOWN = 4.
+let MENDEGGS_STARTCOOLDOWN = 1.
+
+UnitSpawner eggSpawner
+
+init
+    // EGG
+    eggSpawner = new UnitSpawner(EGG_ID, ENEMYPLAYER, vec2(-639,1025), 0)
+
+    
+
+    Round round = new Round()
+    ..setReward(30, 3)
+    ..setTitle("Dragons")
+    ..setDescription("...")
+    ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
+
+    round.setCodeOnPrepare() r ->
+        generateEggs()
+
+    round.setCodeOnStart() r ->
+        eggSpawner.stop()
+        DragonEgg.enableHatching()
+        
+    round.addSpawner(eggSpawner)
+
+    // BROODER
+    round.addSpawner(new UnitSpawner(BROODER_ID, ENEMYPLAYER, vec2(-639,1025), 30))
+    ..setStartDelay(15)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.dragonSpawnYes1)
+    ..setSpawnEffect(Abilities.polyMorphDoneGround)
+    ..setSpawnCount(5)
+
+    // PROTECTOR 1
+    round.addSpawner(new UnitSpawner(BROODER_ID, ENEMYPLAYER, vec2(-639,1025), 40))
+    ..setStartDelay(5)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.dragonSpawnYes1)
+    ..setSpawnEffect(Abilities.polyMorphDoneGround)
+    ..setSpawnCount(3)
+
+    // PROTECTOR 2
+    round.addSpawner(new UnitSpawner(BROODER_ID, ENEMYPLAYER, vec2(-639,1025), 30))
+    ..setStartDelay(50)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.dragonSpawnYes1)
+    ..setSpawnEffect(Abilities.polyMorphDoneGround)
+    ..setSpawnCount(2)
+
+
+
+
+    // Auto Casting
+    addAutoCastAbilityToUnitType(BROODER_ID, new AutoCastBrood())
+
+    addAutoCastAbilityToUnitType(PROTECTOR_ID, new AutoCastMendEggs())
+    addAutoCastAbilityToUnitType(PROTECTOR_ID, new AutoCastAbilityType(DRAGONSTRIKE_ABILITYID, Orders.fingerofdeath, TargetType.ENEMY_UNIT, 400, DRAGONSTRIKE_STARTCOOLDOWN, DRAGONSTRIKE_COOLDOWN))
+
+    // Unit Visuals
+    UnitVisuals.addUnitType(BROODER_ID).setPlayerColor(PLAYER_COLOR_WHEAT)
+    UnitVisuals.addUnitType(PROTECTOR_ID).setPlayerColor(PLAYER_COLOR_LIGHT_GRAY)
+
+    UnitVisuals.addUnitType(DRAGON_ID).setPlayerColor(PLAYER_COLOR_PEANUT)
+    UnitVisuals.addUnitType(GROWNDRAGON_ID).setPlayerColor(PLAYER_COLOR_BROWN)
+
+
+
+function generateEggs()
+
+    // Entire Zone Bounds
+    let xMax = EGG_SPAWNRECT.getMaxX()
+    let xMin = EGG_SPAWNRECT.getMinX()
+    let yMax = EGG_SPAWNRECT.getMaxY()
+    let yMin = EGG_SPAWNRECT.getMinY()
+
+    // Entire Zone height and width
+    let width = xMax - xMin
+    let height = yMax - yMin
+
+    // Sub Zones
+    let xZoneNumber = 4
+    let yZoneNumber = 4
+
+    let zoneWidth = width / xZoneNumber
+    let zoneHeight = height / yZoneNumber
+
+    let totalZones = xZoneNumber * yZoneNumber
+
+    let eggsInEachZone = EGG_NUMBER div totalZones
+    let eggsRest = EGG_NUMBER mod totalZones
+
+    // Spawning
+    for xIndex = 1 to xZoneNumber
+
+        let zoneMinX = xMin + zoneWidth * (xIndex-1)
+        let zoneMaxX = xMin + zoneWidth * xIndex  
+        
+        for yIndex = 1 to yZoneNumber
+
+            let zoneMinY    =   yMin + zoneHeight * (yIndex-1)
+            let zoneMaxY    =   yMin + zoneHeight * yIndex 
+
+            for eggIndex = 1 to eggsInEachZone
+
+                let spawnPos = vec2( GetRandomReal(zoneMinX, zoneMaxX), GetRandomReal(zoneMinY,zoneMaxY))
+                new DragonEgg( spawnPos )
+
+    // Rest Eggs
+    if eggsRest > 0
+        
+        for index = 1 to eggsRest
+            let spawnPos = vec2( GetRandomReal(xMin,xMax), GetRandomReal(yMin,yMax))
+            new DragonEgg( spawnPos )
+
+            
+
+
+class DragonEgg
+
+    private static let instances = new IterableMap<unit, thistype>
+    private static let eggs = new LinkedList<unit>
+
+    private static let UPDATETIMER = getTimer()
+
+    private unit egg
+    
+    private vec2 pos
+
+    private int timeToHatch = EGG_HATCHTIME
+    private boolean hatchEnabled = false
+    private boolean hasHatched = false
+
+
+    construct(vec2 pos)
+
+        this.pos = pos
+
+        egg = createUnit(Player(0), EGG_ID, pos, angle(GetRandomReal(0, PI2)) )
+        ..setMaxMana(EGG_HATCHTIME)
+        ..setMana(I2R(EGG_HATCHTIME))
+
+        if eggSpawner != null
+            eggSpawner.addSummonedUnit(egg)
+        else
+            error("Eggspawner is not existing")
+
+        if instances.size() == 0
+
+            UPDATETIMER.startPeriodic( 1, function updateAll )
+
+        eggs.add(egg)
+        instances.put(egg, this)
+
+
+    ondestroy
+        
+        if egg != null      
+            if egg.isAlive()
+                doAfter(0.01) ->
+                    egg.kill()      
+            instances.remove(egg)
+            eggs.remove(egg)
+        else
+            instances.removeValue(this, true)
+        
+        if instances.size() == 0
+            UPDATETIMER.pause()
+
+
+    function hatch()
+
+        unit dragon 
+
+        if timeToHatch <= 0
+
+            dragon = createUnit(ENEMYPLAYER, GROWNDRAGON_ID, pos, randomAngle())
+            
+
+        else
+            
+            dragon = createUnit(ENEMYPLAYER, DRAGON_ID, pos, randomAngle()) 
+
+            let hp = DRAGON_HEALTH_MIN + (DRAGON_HEALTH_MAX-DRAGON_HEALTH_MIN)/EGG_HATCHTIME * (EGG_HATCHTIME-timeToHatch)
+
+            let dmg = DRAGON_DAMAGE_MIN + (DRAGON_DAMAGE_MAX-DRAGON_DAMAGE_MIN)/EGG_HATCHTIME * (EGG_HATCHTIME-timeToHatch)
+
+            let scale = DRAGON_SCALE_MIN + (DRAGON_SCALE_MAX-DRAGON_SCALE_MIN)/EGG_HATCHTIME * (EGG_HATCHTIME-timeToHatch)
+
+            dragon
+            ..setBaseDamage(R2I(dmg), 1)
+            ..setMaxHP(hp.toInt(), true)
+            ..setScale(scale)
+
+        eggSpawner.addSummonedUnit(dragon)
+
+        destroy this
+
+        
+
+
+    function reduceHatchTime(int timeToReduce)
+
+        timeToHatch -= timeToReduce
+        
+        if timeToHatch <= 0
+            hatch()
+
+        else
+            egg.setMana(I2R(timeToHatch))
+
+
+
+    private function update()
+        
+        reduceHatchTime(1)
+      
+
+    private static function updateAll()
+        for instanceKey in instances
+            let instance = instances.get(instanceKey)
+            if instance.hatchEnabled
+                instance.update()
+        
+    
+    protected static function getInstance( unit egg ) returns thistype
+
+        if instances.has(egg)
+            return instances.get(egg)
+        else
+            return null
+
+
+    /** Returns the list of all egg units */
+    protected static function getAllEggs() returns LinkedList<unit>
+        return eggs
+
+    protected static function enableHatching()
+        for instanceKey in instances
+            instances.get(instanceKey).hatchEnabled = true
+
+
+
+function unitDies()
+    unit dyingUnit = GetDyingUnit()
+
+    if dyingUnit.getTypeId() == EGG_ID
+        let egg = DragonEgg.getInstance(dyingUnit)
+        if egg != null
+            egg.hatch()
+
+
+
+class Brood extends ChannelOnUnit
+
+    private effect targetSfx
+    private Lightning lightningSfx
+    private timer timer_Animation
+
+    construct(unit caster, unit target)
+        super( caster, target, 0, 1 )
+
+        caster.setAnimation("spell")
+
+        targetSfx = addEffect(Abilities.aerialShacklesTarget, target.getPos())
+        ..setScale(0.9)
+        ..setHeight(10)
+        ..setRoll(angle(PIHALF)+target.getFacingAngle())
+
+        
+        lightningSfx = new Lightning(LIGHTNING_MAGIC_LEASH,0)
+        ..setSource(caster.getPos3with(60))
+        ..setTarget(target.getPos3with(25))
+
+        timer_Animation = getTimer()
+        ..setUnitData(caster)
+        ..startPeriodic(1.5, () -> GetExpiredTimer().getUnitData().setAnimation("spell"))
+
+
+    ondestroy
+        targetSfx.destr()
+        destroy lightningSfx
+        timer_Animation.release()
+
+    override function periodicEffect()
+        DragonEgg.getInstance(target).reduceHatchTime(BROOD_TIMEREDUCED)
+
+
+class AutoCastBrood extends AutoCastAbilityType
+    
+    construct()
+        super( BROOD_ABILITYID, Orders.drain, TargetType.FRIENDLY_UNIT, 2000, BROOD_STARTCOOLDOWN, BROOD_COOLDOWN )
+
+
+    override function findTarget(unit caster) returns boolean
+
+        unit bestTarget = null
+
+        // Finding the best target, determined by the lowest amount of mana (closest to hatching)
+        for egg in DragonEgg.getAllEggs()
+
+            if bestTarget == null
+                bestTarget = egg
+
+            else
+                if egg.isAliveTrick()
+                    if bestTarget.getMana() > egg.getMana()
+                        bestTarget = egg
+                    else if bestTarget.getMana() == egg.getMana() and caster.getPos().distanceTo(egg.getPos()) < caster.getPos().distanceTo(bestTarget.getPos())
+                        bestTarget = egg
+
+        if bestTarget == null
+            error("Best target is null")
+            return false
+
+        else if not bestTarget.isAlive()
+            error("Best target is dead")
+            return false
+
+        else
+            caster.issueTargetOrderById(orderId, bestTarget)
+
+        return true
+
+
+class AutoCastMendEggs extends AutoCastAbilityType
+    
+    construct()
+        super( MENDEGGS_ABILITYID, Orders.roar, TargetType.FRIENDLY_IMMEDIATE, 20000, MENDEGGS_STARTCOOLDOWN, MENDEGGS_COOLDOWN )
+
+
+    override function findTarget(unit caster) returns boolean
+
+        let targets = ENUM_GROUP
+        ..clear()
+        ..enumUnitsInRange(caster.getPos(), 20000)
+
+        for target in targets
+            if target.getTypeId() != EGG_ID and not target.isAliveTrick() and target.getHP() == target.getMaxHP()
+                targets.removeUnit(target)
+
+        if targets.size() > 0
+            caster.issueImmediateOrderById(Orders.roar)
+
+            
+            targets.clear()
+            return true
+
+        targets.clear()
+        return false
+
+        
+
+
+
+
+class DragonStrikeDebuff
+
+    private static let instances = new IterableMap<unit, thistype>
+    
+    private unit source
+    private real damage
+    private unit target
+    private player sourcePlayer
+    private timer timer_Duration
+    private timer timer_Effect
+
+    construct(unit target)
+
+        this.target = target
+
+        instances.put(target, this)
+
+        timer_Duration = getTimer()
+        ..setData(this castTo int)
+
+        timer_Effect = getTimer()
+        ..setData(this castTo int)
+
+
+    ondestroy
+        instances.remove(target)
+        timer_Duration.release()
+        timer_Effect.release()
+    
+    static function addToUnit(unit target, unit source, real damage, real duration)
+
+        thistype instance
+
+        if not instances.has(target)
+            instance = new DragonStrikeDebuff(target)
+
+        else
+            instance = instances.get(target)
+
+        instance.startBuff(source, damage, duration)
+            
+    function damageTarget()
+        
+        if target == null or not target.isAliveTrick() or not target.hasAbility(DRAGONSTRIKE_DEBUFFID)
+            destroy this
+            
+        else
+            unit damageSource = null
+            if source == null
+                damageSource = createUnit(sourcePlayer, 'h00B', target.getPos(), angle(0))
+                ..setTimedLife(1)
+            else
+                damageSource = source
+                
+            damageSource.damageTargetSpell(target, damage)
+        
+
+    private function startBuff(unit source, real damage, real duration)
+        this.source = source
+        this.sourcePlayer = source.getOwner()
+        this.damage = damage
+        
+        timer_Duration.start(duration+0.1, () -> destroy GetExpiredTimer().getData() castTo thistype)
+        timer_Effect.startPeriodic(1, () -> GetExpiredTimer().getData() castTo thistype.damageTarget() )
+
+
+
+effect dragonStrikeSfx = null
+
+@compiletime
+function generateAbilities()
+    new AbilityDefinitionFingerofDeath(DRAGONSTRIKE_ABILITYID)
+    ..setName("Dragon Strike")
+    ..setLightningEffects("")
+    ..setDamage(1, 0)
+    ..setTargetsAllowed(1, "ancient,nonancient,enemies")
+    ..setCastRange(1, 150)
+    ..setManaCost(1, 0)
+    ..setCooldown(1, 0)
+    ..setHeroAbility(false)
+    ..setArtTarget("")
+    ..setAnimationNames("spell,slam")
+    ..setTooltipNormal(1, "Dragon Strike")
+    ..setTooltipNormalExtended(1, "")
+
+    new BuffDefinition(DRAGONSTRIKE_DEBUFFID, 'Ainf')
+    ..setTooltipNormal(1, "Dragon Strike")
+    ..setTooltipNormalExtended(1, "Armor has been decreased")
+    ..setName(1, "Dragon Strike")
+    ..setIcon(Icons.bTNMarkOfFire)
+    ..setArtTarget(1,Abilities.incinerateBuff)
+    ..setTargetAttachmentPoint0(1, "chest")
+
+    new AbilityDefinitionInnerFireCreep(DRAGONSTRIKE_ABILITYID_DUMMY)
+    ..setName("Dragon Strike (Dummy)")
+    ..setManaCost(1, 0)
+    ..setDefenseIncrease(1, -DRAGONSTRIKE_ARMORRED)
+    ..setDamageIncrease(1, 0)
+    ..setEffectSound("")
+    ..setTargetsAllowed(1, "air,ground,enemies")
+    ..setDurationHero(1, DRAGONSTRIKE_DURATION)
+    ..setDurationNormal(1, DRAGONSTRIKE_DURATION)
+    ..setCooldown(1, 0)
+    ..setCastRange(1, 30000)
+    ..setBuffs(1, DRAGONSTRIKE_DEBUFFID.toRawCode())
+
+    new AbilityDefinitionRoarcreep(MENDEGGS_ABILITYID)
+    ..setName("Mend Eggs")
+    ..setTooltipNormal(1, "Mend Eggs")
+    ..setTooltipNormalExtended(1, "")
+    ..setAreaofEffect(1, 0)
+    ..setTargetsAllowed(1, "none")
+    ..setArtCaster("")
+    ..setAnimationNames("spell")
+    ..setDamageIncrease(1, 0)
+    ..setManaCost(1, 0)
+    ..setCooldown(1, 0)
+    
+    
+let MENDEGGS_SOUND = new SoundDefinition(Sounds.healTarget1, false, true)
+
+function mendEggs_OnCast()
+    let caster = GetSpellAbilityUnit()
+    let casterPos = caster.getPos3Real()
+
+
+    addEffect(Abilities.replenishHealthCasterOverhead, casterPos)
+    ..setScale(1.5)
+    ..setHeight(120)
+    ..destr()
+
+    addEffect(Abilities.replenishHealthCaster, casterPos)
+    ..setScale(1.5)
+    ..destr()
+
+    MENDEGGS_SOUND.playOnPoint(casterPos)
+    
+
+    forUnitsInRange(caster.getPos(), 20000 ) egg ->
+
+        if egg.getTypeId() == EGG_ID and egg.isAliveTrick() and egg.getHP() < egg.getMaxHP()
+        
+            let maxHp = egg.getMaxHP()
+            let currentHp = egg.getHP()
+            let finalHp = ( (currentHp+MENDEGGS_HEALAMOUNT) < maxHp ) ? currentHp+MENDEGGS_HEALAMOUNT : maxHp
+            
+            egg.setHP(finalHp)
+
+            addEffect(Abilities.healTarget, egg.getPos())
+            ..setHeight(15)
+            ..setDuration(2)
+            
+
+
+            
+    
+
+init
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST) ->
+        if GetSpellAbilityId() == DRAGONSTRIKE_ABILITYID
+            dragonStrikeSfx = GetSpellAbilityUnit().addEffect(Abilities.phoenix_Missile_mini, "weapon")
+            doAfter(1.) ->
+                dragonStrikeSfx.destr()
+
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SPELL_EFFECT) ->
+        if GetSpellAbilityId() == DRAGONSTRIKE_ABILITYID
+            
+            let caster = GetSpellAbilityUnit()
+            let castingPlayer = caster.getOwner()
+            let target = GetSpellTargetUnit()
+
+            DRAGONSTRIKE_SOUND.playOnPoint(target.getPos3with(100))
+
+            target.addEffect(Abilities.redDragonMissile, "chest")
+            ..destr()
+
+            caster.damageTargetPhysical(target, DRAGONSTRIKE_DAMAGE)
+
+            DragonStrikeDebuff.addToUnit(target, caster, DRAGONSTRIKE_DOTDAMAGE, DRAGONSTRIKE_DURATION)
+            
+            InstantDummyCaster.castTarget(castingPlayer, DRAGONSTRIKE_ABILITYID_DUMMY, 1, Orders.innerfire, target)
+
+            forUnitsInRange(target.getPos(), DRAGONSTRIKE_AOERANGE) aoeTarget ->
+                
+                if aoeTarget.isEnemyOf(caster) and aoeTarget.isAliveTrick() and aoeTarget != target
+                    aoeTarget.addEffect(Abilities.fireBallMissile, "chest")
+                    ..destr()
+
+                    caster.damageTargetPhysical(aoeTarget, DRAGONSTRIKE_AOEDAMAGE)
+                    InstantDummyCaster.castTarget(castingPlayer, DRAGONSTRIKE_ABILITYID_DUMMY, 1, Orders.innerfire, aoeTarget)
+                    DragonStrikeDebuff.addToUnit(aoeTarget, caster, DRAGONSTRIKE_DOTDAMAGE, DRAGONSTRIKE_DURATION)
+                    
+
+
+    registerSpellEffectEvent(MENDEGGS_ABILITYID, function mendEggs_OnCast )
+
+    registerSpellEffectEvent(BROOD_ABILITYID, () -> new Brood(GetSpellAbilityUnit(), GetSpellTargetUnit()))
+
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function unitDies )
+        
+
+    // createUnit(Player(0), PROTECTOR_ID, vec2(7700,-8300),angle(0) )
+    // ..addAbility(DRAGONSTRIKE_ABILITYID)
+    // ..addAbility(MENDEGGS_ABILITYID)
+
+   
+
+    // new DragonEgg(vec2(7700,-8150))
+    // new DragonEgg(vec2(7600,-8150))
+    // new DragonEgg(vec2(7600,-8050))
+    // new DragonEgg(vec2(7700,-8050))
+
+    // DragonEgg.enableHatching()
+    

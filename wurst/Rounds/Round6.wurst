@@ -75,9 +75,6 @@ init
 
 
 
-
-
-
 class Flame extends GroundEffect
 
     private static group targetsHit = CreateGroup()
@@ -121,6 +118,7 @@ class Flame extends GroundEffect
                 targetsHit.addUnitTimed(target, 0.99)
 
 
+                
 function lavaSpawnDies()
 
     if GetDyingUnit().getTypeId() == 'n00C'

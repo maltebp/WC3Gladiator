@@ -1,68 +1,77 @@
 package Round13
 
-// let CRIPPLINGSTRIKE_DAMAGE = 100.
-// let CRIPPLINGSTRIKE_DURATION = 6.
-// let CRIPPLINGSTRIKE_MOVEMENTSLOW = 0.5
-// let CRIPPLINGSTRIKE_ATTACKSLOW = 0.25
-// let CRIPPLINGSTRIKE_SND = new SoundDefinition(Sounds.metalHeavyChopFlesh3, false, true)
+import Round12
 
-// //=========================================================================================================================================================
-// //  Setup
+import Game
+import Abilities
+import UnitVisualsUtils
 
-// init
 
-//     round = new Round()
-//     ..setReward(30, 3)
-//     ..setTitle("Fel Orcs")
-//     ..setDescription("...")
-//     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.02)
+let WATERBEING_ID   = 'n00Y'
+let STORMCALLER_ID  = 'n00V'
+let WATERCALLER_ID  = 'n00W'
+let MYRMIDON_ID     = 'n00X'
 
+init
+
+    Round round
     
+    round = new Round()
+    ..setReward(30, 3)
+    ..setTitle("Naga")
+    ..setDescription("...")
+    ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
 
 
-// //=========================================================================================================================================================
-// // 
-// //
-
-    
-
-
-
-// function cripplingStrike_onCast()
-//     unit caster = GetSpellAbilityUnit()
-//     unit target = GetSpellTargetUnit()
-    
-//     caster.damageTargetPhysical(target, CRIPPLINGSTRIKE_DAMAGE)
-//     flashEffect(Abilities.stampedeMissileDeath, target, "origin")
-//     CRIPPLINGSTRIKE_SND.playOnPoint(target.getPos3with(100))
+    // Storm Caller 1
+    round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 15))
+    ..setStartDelay(8)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.nagaSirenYesAttack3)
+    ..setSpawnEffect(Abilities.crushingWaveDamage)
+    ..setSpawnCount(8)
 
 
-// public let CRIPPLINGSTRIKE_ABILITYID = compiletime(ABIL_ID_GEN.next())
-// public let CRIPPLINGSTRIKE_BUFFID = compiletime(BUFF_ID_GEN.next())
+     // Water Caller 1
+     round.addSpawner(new UnitSpawner(WATERCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 15))
+     ..setStartDelay(10)
+     ..setFrequencyDeviation(0.1)
+     ..setRandomSpawn(gg_rct_Arena_Spawn1)
+     ..setNearestTargetOnSpawn(GetPlayableMapRect())
+     ..setSoundOnSpawn(Sounds.snapDragonYes2)
+     ..setSpawnEffect(Abilities.crushingWaveDamage)
+     ..setSpawnCount(8)
 
 
-// init
-//     registerSpellEffectEvent(CRIPPLINGSTRIKE_ABILITYID, function cripplingStrike_onCast)
+    // Myrmidon 1
+    round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMYPLAYER, vec2(-639,1025), 15))
+    ..setStartDelay(5)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.giantSeaTurtleYes2)
+    ..setSpawnEffect(Abilities.crushingWaveDamage)
+    ..setSpawnCount(8)
 
-//     createUnit(Player(0), 'ogru', vec2(8000,-8000), angle(0))
-//     ..addAbility(CRIPPLINGSTRIKE_ABILITYID)
+     // Water Being 1 TEMP
+    round.addSpawner(new UnitSpawner(WATERBEING_ID, ENEMYPLAYER, vec2(-639,1025), 20))
+    ..setStartDelay(10)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(8)
 
-// @compiletime
-// function createAbility()
+    // Unit Visuals
+    UnitVisuals.addUnitType(STORMCALLER_ID)
+    ..setPlayerColor(PLAYER_COLOR_AQUA)
 
-//     new BuffDefinition(CRIPPLINGSTRIKE_BUFFID, 'Aslo')
-//     ..setIcon(Icons.bTNCriticalStrike)
-//     ..setTooltipNormal(1, "Crippled")
-//     ..setTooltipNormalExtended(1, "This unit is slowed")
-//     ..setArtTarget(1, "")
+    UnitVisuals.addUnitType(WATERCALLER_ID)
+    ..setPlayerColor(PLAYER_COLOR_AQUA)
 
-//     new AbilityDefinitionCripplecreep(CRIPPLINGSTRIKE_ABILITYID)
-//     ..setName("Crippling Strike (Dummy)")
-//     ..setAnimationNames("attack")
-//     ..setManaCost(1, 0)
-//     ..setCastRange(1, 150)
-//     ..setCooldown(1, 0)
-//     ..setMovementSpeedReduction(1, CRIPPLINGSTRIKE_MOVEMENTSLOW)
-//     ..setAttackSpeedReduction(1, CRIPPLINGSTRIKE_ATTACKSLOW)
-//     ..setBuffs(1,CRIPPLINGSTRIKE_BUFFID.toRawCode())
-//     ..setDurationHero(1, CRIPPLINGSTRIKE_DURATION)
+    UnitVisuals.addUnitType(MYRMIDON_ID)
+    ..setPlayerColor(PLAYER_COLOR_PEANUT)
+
+    UnitVisuals.addUnitType(WATERBEING_ID)
+    ..setPlayerColor(PLAYER_COLOR_AQUA)

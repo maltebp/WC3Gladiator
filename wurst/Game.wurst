@@ -20,7 +20,7 @@ constant boolean    LOCKCAMBOUNDS           = false
 constant boolean    MAKEMAPVISIBLE          = true
 constant boolean    CUSTOMROUNDSTART        = false 
 constant boolean    STARTATSPECIFICROUND    = true
-int        STARTINGROUND                    = 12
+int        STARTINGROUND                    = 14
 constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
 constant boolean    PRINTALPHAINTRO         = false
 

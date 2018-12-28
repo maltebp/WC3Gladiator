@@ -103,7 +103,7 @@ public class UnitSpawner
     function stop()
         isRunning = false
         timer_Spawn.pause()
-    
+
     /** Stops the spawner, and removes all the units that it has made */
     function clear()
 

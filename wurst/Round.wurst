@@ -66,6 +66,7 @@ public class Round
     private unit boss = null
     private string music = Sounds.orcVictory
 
+
     Round_RemoteFunction codeOnClear = null
     Round_RemoteFunction codeOnPrepare = null
     Round_RemoteFunction codeOnFadeIn = null
@@ -74,11 +75,11 @@ public class Round
     Round_RemoteFunction codeOnLastUnitDeath = null
 
 
-
     private static SoundDefinition snd_GoldReward = new SoundDefinition(Sounds.receiveGold, false)
     private static SoundDefinition snd_RoundInfo = new SoundDefinition(Sounds.questLog, false)
     private static SoundDefinition snd_StartRound = new SoundDefinition(Sounds.goodJob, false)
     private static SoundDefinition snd_ItemReward = new SoundDefinition(Sounds.itemReceived, false)
+
 
 // ======================================================================================================================================
 
@@ -111,6 +112,12 @@ public class Round
 
     function setCodeOnClear( Round_RemoteFunction whichCode )
         this.codeOnClear = whichCode
+
+    function setCodeOnStart( Round_RemoteFunction whichCode )
+        this.codeOnStart = whichCode
+
+    function setCodeOnPrepare( Round_RemoteFunction whichCode )
+        this.codeOnPrepare = whichCode
 
     function addSpawner(UnitSpawner spawner) returns UnitSpawner
         spawners.add(spawner)
