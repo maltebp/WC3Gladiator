@@ -23,45 +23,45 @@ init
     ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
 
 
-    // Storm Caller 1
-    round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 15))
-    ..setStartDelay(8)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSoundOnSpawn(Sounds.nagaSirenYesAttack3)
-    ..setSpawnEffect(Abilities.crushingWaveDamage)
-    ..setSpawnCount(8)
+    // // Storm Caller 1
+    // round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 15))
+    // ..setStartDelay(8)
+    // ..setFrequencyDeviation(0.1)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSoundOnSpawn(Sounds.nagaSirenYesAttack3)
+    // ..setSpawnEffect(Abilities.crushingWaveDamage)
+    // ..setSpawnCount(8)
 
 
-     // Water Caller 1
-     round.addSpawner(new UnitSpawner(WATERCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 15))
-     ..setStartDelay(10)
-     ..setFrequencyDeviation(0.1)
-     ..setRandomSpawn(gg_rct_Arena_Spawn1)
-     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-     ..setSoundOnSpawn(Sounds.snapDragonYes2)
-     ..setSpawnEffect(Abilities.crushingWaveDamage)
-     ..setSpawnCount(8)
+    //  // Water Caller 1
+    //  round.addSpawner(new UnitSpawner(WATERCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 15))
+    //  ..setStartDelay(10)
+    //  ..setFrequencyDeviation(0.1)
+    //  ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    //  ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    //  ..setSoundOnSpawn(Sounds.snapDragonYes2)
+    //  ..setSpawnEffect(Abilities.crushingWaveDamage)
+    //  ..setSpawnCount(8)
 
 
     // Myrmidon 1
-    round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMYPLAYER, vec2(-639,1025), 15))
+    round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMYPLAYER, vec2(548,1000), 1))
     ..setStartDelay(5)
     ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSoundOnSpawn(Sounds.giantSeaTurtleYes2)
     ..setSpawnEffect(Abilities.crushingWaveDamage)
     ..setSpawnCount(8)
 
-     // Water Being 1 TEMP
-    round.addSpawner(new UnitSpawner(WATERBEING_ID, ENEMYPLAYER, vec2(-639,1025), 20))
-    ..setStartDelay(10)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(8)
+    //  // Water Being 1 TEMP
+    // round.addSpawner(new UnitSpawner(WATERBEING_ID, ENEMYPLAYER, vec2(-639,1025), 20))
+    // ..setStartDelay(10)
+    // ..setFrequencyDeviation(0.1)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSpawnCount(8)
 
     // Unit Visuals
     UnitVisuals.addUnitType(STORMCALLER_ID)

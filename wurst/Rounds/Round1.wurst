@@ -21,7 +21,7 @@ init
     ..setDescription("Gnolls shouldn't be a problem, but watch out for their Champions - they rally the others.")
     ..setHealthOrbSpawn(100, 50, 0.1, 25, 0.05)
     
-    // Fighter
+    // Gnoll Fighter
     round.addSpawner(new UnitSpawner('n004', ENEMYPLAYER, vec2(-639,1025), 8))
     ..setStartDelay(4)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)

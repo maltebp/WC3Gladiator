@@ -1,39 +1,5 @@
 package Round10
 
-
-/* 
-
-    [x] Units
-        [x] Boss
-        [x] Exploding Robot
-        [x] Mini tank
-        [x] Repairman
-
-    [x] Mechanics
-        [x] Chasing Rockets
-        [x] Robot explosion
-        [x] Repairmain, repair
-
-    [x] Systems
-        [x] Make sure you only have to kill the boss
-        [x] Add sounds (On Death sound)
-        [x] Setup Special Music
-
-
-    Boss: Engineer in tank version, slowly chasing you. He takes very little damage - kill him by destroying robots near him.
-
-    Exploding Robots: Small exploding robots, which explode on death. Be careful how many you kill at a time. Don't kill them away from boss
-    they determin the speed at which you can kill him.
-    
-    Mini tank: Firing rockets at you
-
-    Repair man: attempts to heal boss
-    
-    Boss: chasing rockets - fires rockets after all players
-
-*/
-
-
 //=========================================================================================================================================================
 //  Engineer (Boss)
 

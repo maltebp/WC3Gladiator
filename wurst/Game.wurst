@@ -12,7 +12,6 @@ import Gladiator
 import Dialog
 import Damage
 
-
 constant boolean    SPAWNHEROINARENA        = false
 constant boolean    ARENACORNERSPAWN        = false
 constant boolean    PREPAREHERO             = false
@@ -20,7 +19,7 @@ constant boolean    LOCKCAMBOUNDS           = false
 constant boolean    MAKEMAPVISIBLE          = true
 constant boolean    CUSTOMROUNDSTART        = false 
 constant boolean    STARTATSPECIFICROUND    = true
-int        STARTINGROUND                    = 14
+int        STARTINGROUND                    = 15
 constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
 constant boolean    PRINTALPHAINTRO         = false
 

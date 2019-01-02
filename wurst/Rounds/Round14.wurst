@@ -1,4 +1,11 @@
+
+//=========================================================================================================================================================
+
 package Round14
+
+// NAGA
+
+//=========================================================================================================================================================
 import ClosureTimers
 import FadeAndFilters
 import HashMap
@@ -23,54 +30,65 @@ import ClosureForGroups
 import MyLibrary
 import InstantDummyCaster
 import TimedSpecialEffects
+//=========================================================================================================================================================
 
-let DRAGON_ID = 'n00S'
-let GROWNDRAGON_ID = 'n00T'
-let BROODER_ID = 'n011'
-let PROTECTOR_ID = 'n00U'
+// ROUND SETTINGS
 
-let DRAGON_DAMAGE_MIN = 15
-let DRAGON_DAMAGE_MAX = 30
-let DRAGON_HEALTH_MIN = 200
-let DRAGON_HEALTH_MAX = 400
-let DRAGON_SCALE_MIN = 0.6
-let DRAGON_SCALE_MAX = 0.9
+let DRAGON_ID       = 'n00S'
+let GROWNDRAGON_ID  = 'n00T'
+let BROODER_ID      = 'n011'
+let PROTECTOR_ID    = 'n00U'
+let EGG_ID          = 'h008' 
 
-let EGG_ID = 'h008' 
-let EGG_NUMBER = 18
-let EGG_HATCHTIME = 100
-let EGG_SPAWNRECT = gg_rct_Arena_Spawn1
-let BROOD_STARTCOOLDOWN = 10.
-let BROOD_COOLDOWN = 2.
-let BROOD_ABILITYID = 'A029'
-let BROOD_TIMEREDUCED = 8 // Per second
+// Dragon
+let DRAGON_DAMAGE_MIN   = 15
+let DRAGON_DAMAGE_MAX   = 30
+let DRAGON_HEALTH_MIN   = 200
+let DRAGON_HEALTH_MAX   = 400
+let DRAGON_SCALE_MIN    = 0.6
+let DRAGON_SCALE_MAX    = 0.9
 
+// Eggs
+let EGG_NUMBER          = 15
+let EGG_HATCHTIME       = 100
+let EGG_SPAWNRECT       = gg_rct_Arena_Spawn1
+let BROOD_STARTCOOLDOWN = 1.
+let BROOD_COOLDOWN      = 2.
+let BROOD_TIMEREDUCED   = 8 // Per second
+let BROOD_ABILITYID     = 'A029'
+
+// DragonStrike
+let DRAGONSTRIKE_DAMAGE         = 80.
+let DRAGONSTRIKE_DOTDAMAGE      = 20.
+let DRAGONSTRIKE_ARMORRED       = 6
+let DRAGONSTRIKE_AOERANGE       = 200.
+let DRAGONSTRIKE_DURATION       = 8.
+let DRAGONSTRIKE_AOEDAMAGE      = 100.
+let DRAGONSTRIKE_COOLDOWN       = 10.
+let DRAGONSTRIKE_STARTCOOLDOWN  = 5.
+let DRAGONSTRIKE_SOUND          = new SoundDefinition(Sounds.metalHeavyChopFlesh3, false, true)
+
+// Mend eggs
+let MENDEGGS_HEALAMOUNT = 80.
+let MENDEGGS_COOLDOWN = 6.
+let MENDEGGS_STARTCOOLDOWN = 1.
+
+// Other constants
 let DRAGONSTRIKE_ABILITYID = compiletime(ABIL_ID_GEN.next())
 let DRAGONSTRIKE_ABILITYID_DUMMY = compiletime(ABIL_ID_GEN.next())
 let DRAGONSTRIKE_DEBUFFID = compiletime(BUFF_ID_GEN.next())
-let DRAGONSTRIKE_DAMAGE = 80.
-let DRAGONSTRIKE_DOTDAMAGE = 20.
-let DRAGONSTRIKE_ARMORRED = 6
-let DRAGONSTRIKE_AOERANGE = 200.
-let DRAGONSTRIKE_DURATION = 8.
-let DRAGONSTRIKE_AOEDAMAGE = 100.
-let DRAGONSTRIKE_COOLDOWN = 10.
-let DRAGONSTRIKE_STARTCOOLDOWN = 5.
-let DRAGONSTRIKE_SOUND = new SoundDefinition(Sounds.metalHeavyChopFlesh3, false, true)
-
 let MENDEGGS_ABILITYID = compiletime(ABIL_ID_GEN.next())
-let MENDEGGS_HEALAMOUNT = 80.
-let MENDEGGS_COOLDOWN = 4.
-let MENDEGGS_STARTCOOLDOWN = 1.
 
 UnitSpawner eggSpawner
+
+//=========================================================================================================================================================
+
 
 init
     // EGG
     eggSpawner = new UnitSpawner(EGG_ID, ENEMYPLAYER, vec2(-639,1025), 0)
 
-    
-
+    // Round Setup
     Round round = new Round()
     ..setReward(30, 3)
     ..setTitle("Dragons")
@@ -83,8 +101,9 @@ init
     round.setCodeOnStart() r ->
         eggSpawner.stop()
         DragonEgg.enableHatching()
-        
+
     round.addSpawner(eggSpawner)
+
 
     // BROODER
     round.addSpawner(new UnitSpawner(BROODER_ID, ENEMYPLAYER, vec2(-639,1025), 30))
@@ -97,7 +116,7 @@ init
     ..setSpawnCount(5)
 
     // PROTECTOR 1
-    round.addSpawner(new UnitSpawner(BROODER_ID, ENEMYPLAYER, vec2(-639,1025), 40))
+    round.addSpawner(new UnitSpawner(PROTECTOR_ID, ENEMYPLAYER, vec2(-639,1025), 30))
     ..setStartDelay(5)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -105,18 +124,6 @@ init
     ..setSoundOnSpawn(Sounds.dragonSpawnYes1)
     ..setSpawnEffect(Abilities.polyMorphDoneGround)
     ..setSpawnCount(3)
-
-    // PROTECTOR 2
-    round.addSpawner(new UnitSpawner(BROODER_ID, ENEMYPLAYER, vec2(-639,1025), 30))
-    ..setStartDelay(50)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSoundOnSpawn(Sounds.dragonSpawnYes1)
-    ..setSpawnEffect(Abilities.polyMorphDoneGround)
-    ..setSpawnCount(2)
-
-
 
 
     // Auto Casting
@@ -131,7 +138,6 @@ init
 
     UnitVisuals.addUnitType(DRAGON_ID).setPlayerColor(PLAYER_COLOR_PEANUT)
     UnitVisuals.addUnitType(GROWNDRAGON_ID).setPlayerColor(PLAYER_COLOR_BROWN)
-
 
 
 function generateEggs()
@@ -204,7 +210,7 @@ class DragonEgg
 
         this.pos = pos
 
-        egg = createUnit(Player(0), EGG_ID, pos, angle(GetRandomReal(0, PI2)) )
+        egg = createUnit( ENEMYPLAYER, EGG_ID, pos, angle(GetRandomReal(0, PI2)) )
         ..setMaxMana(EGG_HATCHTIME)
         ..setMana(I2R(EGG_HATCHTIME))
 
@@ -319,14 +325,21 @@ function unitDies()
 
 
 
+function unit.isTargetOfBrood() returns boolean
+    return Brood.targets.contains(this)
+
 class Brood extends ChannelOnUnit
 
     private effect targetSfx
     private Lightning lightningSfx
     private timer timer_Animation
 
+    static let targets = new LinkedList<unit>
+
     construct(unit caster, unit target)
         super( caster, target, 0, 1 )
+
+        targets.add(target)
 
         caster.setAnimation("spell")
 
@@ -350,6 +363,9 @@ class Brood extends ChannelOnUnit
         destroy lightningSfx
         timer_Animation.release()
 
+        if target != null
+            targets.remove(target)
+
     override function periodicEffect()
         DragonEgg.getInstance(target).reduceHatchTime(BROOD_TIMEREDUCED)
 
@@ -364,6 +380,13 @@ class AutoCastBrood extends AutoCastAbilityType
 
         unit bestTarget = null
 
+        print("checking for target")
+
+        let allEggs = DragonEgg.getAllEggs()
+
+        if allEggs.size() == 0
+            return false
+
         // Finding the best target, determined by the lowest amount of mana (closest to hatching)
         for egg in DragonEgg.getAllEggs()
 
@@ -371,7 +394,7 @@ class AutoCastBrood extends AutoCastAbilityType
                 bestTarget = egg
 
             else
-                if egg.isAliveTrick()
+                if egg.isAliveTrick() and not egg.isTargetOfBrood()
                     if bestTarget.getMana() > egg.getMana()
                         bestTarget = egg
                     else if bestTarget.getMana() == egg.getMana() and caster.getPos().distanceTo(egg.getPos()) < caster.getPos().distanceTo(bestTarget.getPos())
@@ -386,6 +409,8 @@ class AutoCastBrood extends AutoCastAbilityType
             return false
 
         else
+            if bestTarget.getMaxHP() == bestTarget.getHP()
+                bestTarget.setHP( bestTarget.getMaxHP()-1)
             caster.issueTargetOrderById(orderId, bestTarget)
 
         return true
@@ -404,7 +429,7 @@ class AutoCastMendEggs extends AutoCastAbilityType
         ..enumUnitsInRange(caster.getPos(), 20000)
 
         for target in targets
-            if target.getTypeId() != EGG_ID and not target.isAliveTrick() and target.getHP() == target.getMaxHP()
+            if target.getTypeId() != EGG_ID or not target.isAliveTrick() or target.getHP() == target.getMaxHP()
                 targets.removeUnit(target)
 
         if targets.size() > 0

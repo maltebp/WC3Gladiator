@@ -1,0 +1,53 @@
+
+package Round15
+
+import Round14
+
+import Round
+import Game
+
+
+// Unit IDs
+
+let HATCHLING_ID = 'n012'
+
+init
+    Round round
+    
+    round = new Round()
+    ..setReward(30, 3)
+    ..setTitle("Spiders")
+    ..setDescription("...")
+    ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
+
+    // Storm Caller 1
+    round.addSpawner(new UnitSpawner(HATCHLING_ID, ENEMYPLAYER, vec2(-639,1025), 1))
+    ..setStartDelay(5)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(115)
+
+    // Storm Caller 2
+    round.addSpawner(new UnitSpawner(HATCHLING_ID, ENEMYPLAYER, vec2(-639,1025), 1))
+    ..setStartDelay(4)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(115)
+
+    // Storm Caller 2
+    round.addSpawner(new UnitSpawner(HATCHLING_ID, ENEMYPLAYER, vec2(-639,1025), 1))
+    ..setStartDelay(10)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(80)
+
+    // Storm Caller 2
+    round.addSpawner(new UnitSpawner(HATCHLING_ID, ENEMYPLAYER, vec2(-639,1025), 1))
+    ..setStartDelay(18)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(60)
