@@ -96,7 +96,7 @@ function toShop_RoundReview()
 
     hero.unpause()
 
-    if hasWon and Round.getCurrentRoundNumber() == Round.getNumberOfRounds()
+    if hasWon and Round.getCurrentRoundNumber() == FINALROUND
         playMusic(Sounds.heroicVictory)
         print("Congratulations, you've completed all rounds!")
         GetExpiredTimer().start(5, function gameVictory)

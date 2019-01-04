@@ -29,12 +29,11 @@ import Ensnare
 // Settings
 
 
-
 let BERSERKER = 'n00Q'
 let WOLFRIDER = 'n00R'
 let DOOMSAYER = 'n00P'
 
-let BERSERK_DAMAGETAKENINC  = 2.
+let BERSERK_DAMAGETAKENINC  = 3.
 let BERSERK_DAMAGEINC       = 25 // Flat bonus
 let BERSERK_STARTCOOLDOWN   = 20.
 let BERSERK_ATTACKSPEEDINC  = .5
@@ -74,14 +73,14 @@ init
         Ensnare.clearAll()
 
     // BERSERKER 1
-    round.addSpawner(new UnitSpawner(BERSERKER, ENEMYPLAYER, vec2(-639,1025), 15))
+    round.addSpawner(new UnitSpawner(BERSERKER, ENEMYPLAYER, vec2(-639,1025), 20))
     ..setStartDelay(4)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSoundOnSpawn(Sounds.gruntYesAttack2)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
-    ..setSpawnCount(8)
+    ..setSpawnCount(6)
 
     // BERSERKER 2
     round.addSpawner(new UnitSpawner(BERSERKER, ENEMYPLAYER, vec2(-639,1025), 30))
@@ -94,14 +93,14 @@ init
     ..setSpawnCount(2)
 
     // DOOM SAYER 1
-    round.addSpawner(new UnitSpawner(DOOMSAYER, ENEMYPLAYER, vec2(-639,1025), 20))
+    round.addSpawner(new UnitSpawner(DOOMSAYER, ENEMYPLAYER, vec2(-639,1025), 30))
     ..setStartDelay(15)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSoundOnSpawn(Sounds.shamanYesAttack3)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
-    ..setSpawnCount(6)
+    ..setSpawnCount(4)
 
     // DOOM SAYER 2
     round.addSpawner(new UnitSpawner(DOOMSAYER, ENEMYPLAYER, vec2(-639,1025), 30))
@@ -111,7 +110,7 @@ init
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSoundOnSpawn(Sounds.shamanYesAttack3)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
-    ..setSpawnCount(2)
+    ..setSpawnCount(1)
 
     // WOLF RIDER 1
     round.addSpawner(new UnitSpawner(WOLFRIDER, ENEMYPLAYER, vec2(-639,1025), 20))

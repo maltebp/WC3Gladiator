@@ -1,16 +1,40 @@
+// ======================================================================================================================================
+
 package Round13
 
-import Round12
+// -------------------------------------------------------------------------------------------------------------------------------------
 
+import Round12
 import Game
 import Abilities
+import AbilityObjEditing
 import UnitVisualsUtils
+import ObjectIdGenerator
+import Icons
+import BuffObjEditing
+import RegisterEvents
+import HashMap
+import FadeAndFilters
+import Orders
+import ErrorHandling
+import AutoCastAbility
 
+// ======================================================================================================================================
 
+// SETTINGS
 let WATERBEING_ID   = 'n00Y'
 let STORMCALLER_ID  = 'n00V'
 let WATERCALLER_ID  = 'n00W'
 let MYRMIDON_ID     = 'n00X'
+
+
+// OTHER CONSTANTS
+
+let TORNADOES_ID = compiletime(ABIL_ID_GEN.next())
+
+
+
+// ======================================================================================================================================
 
 init
 
@@ -22,17 +46,15 @@ init
     ..setDescription("...")
     ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
 
-
-    // // Storm Caller 1
-    // round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 15))
-    // ..setStartDelay(8)
-    // ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSoundOnSpawn(Sounds.nagaSirenYesAttack3)
-    // ..setSpawnEffect(Abilities.crushingWaveDamage)
-    // ..setSpawnCount(8)
-
+    // Storm Caller 1
+    round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 5))
+    ..setStartDelay(5)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.nagaSirenYesAttack3)
+    ..setSpawnEffect(Abilities.crushingWaveDamage)
+    ..setSpawnCount(3)
 
     //  // Water Caller 1
     //  round.addSpawner(new UnitSpawner(WATERCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 15))
@@ -44,23 +66,14 @@ init
     //  ..setSpawnEffect(Abilities.crushingWaveDamage)
     //  ..setSpawnCount(8)
 
-
-    // Myrmidon 1
-    round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMYPLAYER, vec2(548,1000), 1))
-    ..setStartDelay(5)
-    ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSoundOnSpawn(Sounds.giantSeaTurtleYes2)
-    ..setSpawnEffect(Abilities.crushingWaveDamage)
-    ..setSpawnCount(8)
-
-    //  // Water Being 1 TEMP
-    // round.addSpawner(new UnitSpawner(WATERBEING_ID, ENEMYPLAYER, vec2(-639,1025), 20))
-    // ..setStartDelay(10)
+    // // Myrmidon 1
+    // round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMYPLAYER, vec2(548,1000), 1))
+    // ..setStartDelay(5)
     // ..setFrequencyDeviation(0.1)
     // ..setRandomSpawn(gg_rct_Arena_Spawn1)
     // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSoundOnSpawn(Sounds.giantSeaTurtleYes2)
+    // ..setSpawnEffect(Abilities.crushingWaveDamage)
     // ..setSpawnCount(8)
 
     // Unit Visuals
@@ -75,3 +88,110 @@ init
 
     UnitVisuals.addUnitType(WATERBEING_ID)
     ..setPlayerColor(PLAYER_COLOR_AQUA)
+
+
+    // Ability triggers
+    registerSpellEffectEvent(TORNADOES_ID, () -> new TornadoAbility(GetSpellAbilityUnit()))
+
+    // Auto Cast Abilities
+    addAutoCastAbilityToUnitType( STORMCALLER_ID, 
+        new AutoCastAbilityType(TORNADOES_ID, Orders.tranquility, TargetType.ENEMY_IMMEDIATE, 10000, 0.01, 1) )
+
+
+// ======================================================================================================================================
+// TORNADO
+
+
+// Ability Class
+class TornadoAbility
+
+    private static let UPDATE_FREQ = 0.1
+    private static let instances = new IterableMap<unit, thistype>
+    
+    private unit caster
+
+    private timer timer_Update
+
+
+    construct( unit caster )
+
+        this.caster = caster
+
+        if instances.has(caster)
+            destroy this
+            error("Caster already exists in instances")
+
+        else
+            instances.put(caster, this)
+
+            timer_Update = getTimer()
+            ..setData( this castTo int )
+            ..startPeriodic(UPDATE_FREQ, () -> GetExpiredTimer().getData() castTo thistype.update() )
+
+            print("Started casting")
+
+
+    ondestroy
+        if caster == null
+            instances.removeValue(this, true)
+        else
+            instances.remove(caster)
+
+        timer_Update.release()
+
+        print("Destroyed")
+
+    
+
+    private function update()
+        if caster == null or not caster.isAliveTrick() or caster.getCurrentOrder() != Orders.tranquility 
+            destroy this
+        
+        else
+            print("still casting")
+
+
+// Generating ability
+@compiletime
+function generateTornadoAbility()
+
+    new BuffDefinition(BUFF_ID_GEN.next(), 'xEtq')
+    ..setAreaEffect(1, "")
+
+    new AbilityDefinitionKeeperoftheGroveTranquility(TORNADOES_ID)
+    ..setName("Tornadoes")
+    ..setHeroAbility(false)
+    ..setManaCost(1, 0)
+    ..setAreaofEffect(1, 0)
+    ..setAnimationNames("stand")
+    ..setArtCaster("")
+    ..setArtTarget("")
+    ..setAreaEffect("")
+    ..setTargetsAllowed(1, "none")
+    ..setDurationHero(1, 1000)
+    ..setDurationNormal(1, 1000)
+    ..setCooldown(1, 0)
+    ..setTooltipNormal(1, "Tornadoes")
+    ..setTooltipNormalExtended(1, "")
+    ..setIconNormal(Icons.bTNTornado)
+    ..setEffects(1, "")
+
+
+// ======================================================================================================================================
+
+
+
+
+
+// ======================================================================================================================================
+
+// TESTING
+
+// init
+//     createUnit(Player(0), STORMCALLER_ID, HEROSPAWN_ARENA, angle(0))
+//     ..addAbility(TORNADOES_ID)
+
+
+
+    
+

@@ -15,19 +15,25 @@ import Damage
 constant boolean    SPAWNHEROINARENA        = false
 constant boolean    ARENACORNERSPAWN        = false
 constant boolean    PREPAREHERO             = false
-constant boolean    LOCKCAMBOUNDS           = false
+constant boolean    LOCKCAMBOUNDS           = true
 constant boolean    MAKEMAPVISIBLE          = true
-constant boolean    CUSTOMROUNDSTART        = false 
+constant boolean    CUSTOMROUNDSTART        = true 
 constant boolean    STARTATSPECIFICROUND    = true
-int        STARTINGROUND                    = 15
+int        STARTINGROUND                    = 1
+public let                 FINALROUND       = 12
 constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
-constant boolean    PRINTALPHAINTRO         = false
+constant boolean    PRINTALPHAINTRO         = true
+
+
+let VERSION = "0.1.1a (Alpha)"
+
+
+let HEROSPAWN_CAMLOCK = Rect(-8129, -8198, -8129, -8198)
 
 constant int array STARTINGITEMS = ['I00M', 'I00M','I00M', 'I009']
 
 constant int START_TRAININGPOINTS           = 8
 constant int START_GOLD                     = 50
-
 
 public constant player ENEMYPLAYER = Player(11)
 public constant vec2 HEROSPAWN_SHOP = vec2(-8129,-8198)
@@ -35,6 +41,7 @@ public constant vec2 HEROSPAWN_ARENA = vec2(173,501)
 public constant vec2 HEROSPAWN_ARENACORNER = vec2(600,-100)
 public SoundDefinition snd_HeroInit = new SoundDefinition(Sounds.gromWhat3, false)
 public SoundDefinition snd_Text = new SoundDefinition(Sounds.questActivateWhat1, false)
+let SND_ENTEREDROUNDNUMBER = new SoundDefinition(Sounds.questNew, false)
 
 public unit         hero
 public Gladiator    gladiator
@@ -43,6 +50,7 @@ public Gladiator    gladiator
 public region MAPREGION
 boolean escapeIsEnabled = false
 boolean canSkipGameInfo
+boolean canTypeStartingRound = false
 
 public timer timer_GameIntro = getTimer()
 
@@ -68,13 +76,15 @@ init
     ..setLumber(START_TRAININGPOINTS)
     ..setGold(START_GOLD)
     
-    ..setCameraPosition(gg_rct_Shop_CamBounds.getCenter())
+    
 
     if SPAWNHEROINARENA
         Player(0).setCameraPosition(gg_rct_Arena_CamBounds.getCenter())
         
     else if LOCKCAMBOUNDS
-        Player(0).setCameraBoundsToRect(gg_rct_Shop_CamBounds)
+        Player(0)
+        ..setCameraPosition(gg_rct_Shop_CamBounds.getCenter())
+        ..setCameraBoundsToRect(HEROSPAWN_CAMLOCK)
         
         
 
@@ -88,9 +98,13 @@ init
 
 
     new Fade
-    ..setCinematicMode(true)
+    ..setCinematicMode(not CUSTOMROUNDSTART)
     ..setFadeOutDuration(0)
     ..start(FADEOUT)
+
+    if CUSTOMROUNDSTART
+        EnableSelect(false, false)
+        EnablePreSelect(false, false)
 
     getTimer().start(1, function delayedInit)
 
@@ -106,13 +120,14 @@ function preStartInfo()
 
     snd_Text.play()
     printTimed(  "|cffff9933Welcome to 'Gladiator'|r"+
-    
-            "\n This map is in |cff99ffccAlpha|r, so features such as "+
-            "multiplayer, more Gladiators, more rounds and a score/life system has not been implemented yet."+
+            "\n"+
+            "\n"+"|cffaaaaaa Version "+VERSION+"|r"+
+            "\n"+
+            "\n This is an Alpha version, meaning that multiplayer, more Gladiators, more rounds and a score/life system are yet to be implemented."+
             "\n"+
             "\nAny suggestions, bug report or critiscm that you might have are "+
             "appreciated"+
-            "\nCatch me on Hiveworkshop.com or lakewc3@gmail.com"+
+            "\nCatch me on |cfffff0b6Hiveworkshop.com|r or |cfffff0b6lakewc3@gmail.com|r"+
             "\n"+
             "\nThank you for playing!"+
             "\n- Lake",14)
@@ -123,20 +138,16 @@ function preStartInfo()
 function roundPick()
     if CUSTOMROUNDSTART
 
-        EnableSelect(true, true)
+        canTypeStartingRound = true
 
-        dialog_RoundPick = createDialog()
-        ..setMessage("Choose starting round")
-        
-        
-        for i = 1 to 10 
-            dialogButton_RoundPick[i] = dialog_RoundPick.addButton(i.toString(), i)
+        ClearTextMessages()
+        snd_Text.play()
+        print("|cffff9933Choose starting round|r")
+        print("Type the round number you want to start at (between 1 and "+FINALROUND.toString()+"):")
 
-        dialog_RoundPick.display(Player(0), true)
 
-        CreateTrigger()
-        ..registerDialogEvent(dialog_RoundPick)
-        ..addAction(function roundPicked)
+
+        timer_GameIntro.start(10, function gameIntroDelay)
 
     else
         gameIntroDelay()
@@ -164,7 +175,11 @@ function roundPicked()
 
 function gameIntroDelay()
 
-    timer_GameIntro.start(2, function gameIntro )
+    if CUSTOMROUNDSTART
+        ShowInterface(false, 1)
+
+    canTypeStartingRound = false
+    timer_GameIntro.start(4, function gameIntro )
 
 
 function gameIntro()
@@ -173,7 +188,7 @@ function gameIntro()
     ClearTextMessages()
     printTimed("|cffffcc00"+"Welcome Gladiator!"+"|r",10)
     printTimed("You will have to face fierce opponents, whose only goal is make you regret the day you "+
-       "stepped into the arena. To call yourself the true champion, you have to survive "+Round.getNumberOfRounds().toString()+ " merciless rounds of"+
+       "stepped into the arena. To call yourself the true champion, you have to survive "+FINALROUND.toString()+ " merciless rounds of"+
        " slaughter.",10)
     printTimed("At least you will die with honor.", 10)
 
@@ -257,6 +272,9 @@ function enableControls()
     Player(0)
     ..selectSingle(hero)
 
+    if LOCKCAMBOUNDS
+        Player(0).setCameraBoundsToRect(gg_rct_Shop_CamBounds)
+
     hero
     ..setInvulnerable(false)
     ..unpause()
@@ -317,6 +335,17 @@ function startRound()
     else if canSkipGameInfo
         fadeIn()
         
+
+function enteredRoundNumber()
+    if canTypeStartingRound
+        ClearTextMessages()
+        let roundNumber = GetEventPlayerChatString().toInt()
+        STARTINGROUND = roundNumber
+        printTimed("Starting at round "+roundNumber.toString(),5)
+        SND_ENTEREDROUNDNUMBER.play()   
+        gameIntroDelay()     
+
+
 init
     preloadAbility('A004')
     preloadAbility('A002')
@@ -324,6 +353,13 @@ init
     preloadAbility('A003')
     
     finishPreload()
+
+
+    let customRoundTrg = CreateTrigger()
+    for int index = 1 to FINALROUND
+        customRoundTrg.registerPlayerChatEvent(Player(0), index.toString(), true)
+        customRoundTrg.addAction(function enteredRoundNumber)
+        
     
 
 
