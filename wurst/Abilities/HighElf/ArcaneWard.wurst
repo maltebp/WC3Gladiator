@@ -18,7 +18,7 @@ let ABILITYID = 'A028'
 class ArcaneWard
 
     private static let EXPLOSIONFREQ = 2.
-    private let snd = new SoundDefinition(Sounds.manaFlareLoop, true, true)
+    private static let snd = new SoundDefinition(Sounds.manaFlareLoop, true, true)
     private sound sndInstance
 
     private vec2 pos
@@ -39,8 +39,7 @@ class ArcaneWard
         this.pos = pos
         this.duration = duration
 
-        sndInstance = snd.playOnPoint(pos.withTerrainZ(100),R2I(duration)).snd
-
+        sndInstance = snd.playOnPoint(pos.withTerrainZ(100),R2I(duration)*1000).snd
 
         sfx_wisp = addEffect(Units.wisp1, pos)
         ..setScale(1.5)
@@ -65,8 +64,9 @@ class ArcaneWard
         timer_Explosion.release()
         sfx_flare.destr()
         sfx_wisp.destr()
+        sndInstance.stop(false, true)
         
-        sndInstance.stop(true, true)
+        //sndInstance.stop(true, true)
 
 
     function startExplosion()

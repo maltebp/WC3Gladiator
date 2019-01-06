@@ -18,6 +18,9 @@ import FadeAndFilters
 import Orders
 import ErrorHandling
 import AutoCastAbility
+import Units
+import MyLibrary
+import Damage
 
 // ======================================================================================================================================
 
@@ -26,6 +29,14 @@ let WATERBEING_ID   = 'n00Y'
 let STORMCALLER_ID  = 'n00V'
 let WATERCALLER_ID  = 'n00W'
 let MYRMIDON_ID     = 'n00X'
+
+
+// Tornado
+let TORNADO_DAMAGE = 100. // Per second
+let TORNADO_RANGE   = 125.
+let TORNADO_SPEED   = 50.
+
+
 
 
 // OTHER CONSTANTS
@@ -47,14 +58,14 @@ init
     ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
 
     // Storm Caller 1
-    round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 5))
+    round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 4))
     ..setStartDelay(5)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSoundOnSpawn(Sounds.nagaSirenYesAttack3)
     ..setSpawnEffect(Abilities.crushingWaveDamage)
-    ..setSpawnCount(3)
+    ..setSpawnCount(30)
 
     //  // Water Caller 1
     //  round.addSpawner(new UnitSpawner(WATERCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 15))
@@ -106,12 +117,12 @@ init
 class TornadoAbility
 
     private static let UPDATE_FREQ = 0.1
+    private static let ANIMATION_FREQ = 1.167
     private static let instances = new IterableMap<unit, thistype>
     
     private unit caster
-
     private timer timer_Update
-
+    private timer timer_Animation
 
     construct( unit caster )
 
@@ -128,7 +139,15 @@ class TornadoAbility
             ..setData( this castTo int )
             ..startPeriodic(UPDATE_FREQ, () -> GetExpiredTimer().getData() castTo thistype.update() )
 
-            print("Started casting")
+            timer_Animation = getTimer()
+            ..setData( this castTo int )
+            ..startPeriodic(ANIMATION_FREQ, () -> GetExpiredTimer().getData() castTo thistype.doAnimation() )
+
+            doAnimation()
+
+            let spawnPos = caster.getPos().moveTowards(hero.getPos(), 150)
+            new Tornado(caster, hero, spawnPos, TORNADO_SPEED, TORNADO_DAMAGE, TORNADO_RANGE)
+            ..destroyOnSourceDeath(true)
 
 
     ondestroy
@@ -138,17 +157,112 @@ class TornadoAbility
             instances.remove(caster)
 
         timer_Update.release()
-
-        print("Destroyed")
+        timer_Animation.release()
 
     
+    private function doAnimation()
+        caster.setAnimation("spell")
+
 
     private function update()
         if caster == null or not caster.isAliveTrick() or caster.getCurrentOrder() != Orders.tranquility 
             destroy this
+
+
+// Tornado
+class Tornado
+
+    private static let MOVEFREQ = 0.01
+    private static let DAMAGEFREQ = 1.
+    private static let instances = new LinkedList<thistype>
+    
+    private real movePerUpdate
+    private real speed
+    private real damage
+    private unit target
+    private real range
+    private unit source
+
+    private effect tornado
+    private vec2 pos
+
+    private var destroyOnSourceDeath = false
+
+    private timer timer_Update
+    private timer timer_Damage
+
+    construct(unit source, unit target, vec2 spawnPos, real speed, real damage, real range)
+
+        this.target = target
+        this.pos = spawnPos
+        this.speed = speed
+        this.damage = damage
+        this.range = range
+        this.source = source
+
+        movePerUpdate = speed * MOVEFREQ
+
+        tornado = addEffect(Abilities.tornadoElementalSmall, pos)
+        ..setScale(0.75)
+        ..setColor(175, 255, 230)
         
+        timer_Update = getTimer()
+        ..setData(this castTo int)
+        ..start(1.1, () -> GetExpiredTimer().getData() castTo thistype.enableMove())
+
+        timer_Damage = getTimer()
+        ..setData(this castTo int)
+
+        instances.add(this)
+        
+
+    ondestroy
+        tornado.destr()
+        
+
+        timer_Update.release()
+        timer_Damage.release()
+
+        instances.remove(this)
+        
+
+    private function enableMove()
+        timer_Update.startPeriodic(MOVEFREQ, () -> GetExpiredTimer().getData() castTo thistype.move() )
+        timer_Damage.startPeriodic(DAMAGEFREQ, () -> GetExpiredTimer().getData() castTo thistype.damage() )
+    
+
+    private function damage()
+        let targets = ENUM_GROUP
+        ..clear()
+        ..enumUnitsInRange(pos, range)
+
+        for target from targets
+            
+            if target.isAliveTrick() and target.isEnemyOf(source)
+                source.damageTargetSpell(target, damage)
+
+
+    private function move()
+
+        if target == null or not target.isAliveTrick()
+            destroy this
+
+        else if destroyOnSourceDeath and (source == null or not source.isAliveTrick())
+            destroy this
+
         else
-            print("still casting")
+            pos = pos.moveTowards(target.getPos(), movePerUpdate)
+            tornado.setPos(pos)
+
+        
+    function destroyOnSourceDeath(boolean toggle)
+        destroyOnSourceDeath = toggle
+
+
+
+
+
+
 
 
 // Generating ability

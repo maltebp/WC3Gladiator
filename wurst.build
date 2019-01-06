@@ -3,7 +3,7 @@ projectName: "WC3Gladiator"
 dependencies:
 - "https://github.com/wurstscript/wurstStdlib2"
 buildMapData:
-  name: "Gladiator"
-  fileName: "Gladiator"
+  name: "Gladiator (v0.1.1 Alpha)"
+  fileName: "Gladiator-v0.1.1a"
   author: "Lake"
   playerCount: 1
