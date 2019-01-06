@@ -58,14 +58,14 @@ init
     ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
 
     // Storm Caller 1
-    round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 4))
+    round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 20))
     ..setStartDelay(5)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSoundOnSpawn(Sounds.nagaSirenYesAttack3)
     ..setSpawnEffect(Abilities.crushingWaveDamage)
-    ..setSpawnCount(30)
+    ..setSpawnCount(2)
 
     //  // Water Caller 1
     //  round.addSpawner(new UnitSpawner(WATERCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 15))
@@ -172,6 +172,7 @@ class TornadoAbility
 // Tornado
 class Tornado
 
+    private static let SOUND = new SoundDefinition(Sounds.cycloneLoop1, true, true)
     private static let MOVEFREQ = 0.01
     private static let DAMAGEFREQ = 1.
     private static let instances = new LinkedList<thistype>
@@ -182,6 +183,9 @@ class Tornado
     private unit target
     private real range
     private unit source
+    private unit soundUnit
+
+    private sound snd
 
     private effect tornado
     private vec2 pos
@@ -202,6 +206,13 @@ class Tornado
 
         movePerUpdate = speed * MOVEFREQ
 
+        
+        soundUnit = createUnit(Player(PLAYER_NEUTRAL_PASSIVE), 'h002', pos, angle(0))
+        snd = SOUND.play(500000).snd
+        snd.setVolume(90)
+        AttachSoundToUnit(snd, soundUnit)
+        
+
         tornado = addEffect(Abilities.tornadoElementalSmall, pos)
         ..setScale(0.75)
         ..setColor(175, 255, 230)
@@ -217,8 +228,12 @@ class Tornado
         
 
     ondestroy
-        tornado.destr()
+        tornado
+        ..setTimeScale(2)
+        ..destr()
         
+        soundUnit.remove()
+        snd.stop(false,true)
 
         timer_Update.release()
         timer_Damage.release()
@@ -253,6 +268,8 @@ class Tornado
         else
             pos = pos.moveTowards(target.getPos(), movePerUpdate)
             tornado.setPos(pos)
+            soundUnit.setPos(pos)
+            
 
         
     function destroyOnSourceDeath(boolean toggle)
