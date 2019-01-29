@@ -141,7 +141,7 @@ public class Lightning
         this.targetPos = targetPos
         update()
 
-     /** Sets the target to a unit with a real zOffset (terrain height is already included). Also updates the lightning to it's new position */
+    /** Sets the target to a unit with a real zOffset (terrain height is already included). Also updates the lightning to it's new position */
     function setTarget(unit targetUnit, real zOffset)
         this.targetUnit = targetUnit
         targetZOffset = zOffset
