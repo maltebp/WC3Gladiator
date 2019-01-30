@@ -1,0 +1,36 @@
+
+
+package Updater
+
+
+import TimerUtils
+
+
+/** Gives a class the update functionality including an update function as well, as a timer */
+public abstract class Updater
+
+    protected real updateFreq = 0.01 // Adjustable update frequency
+    private timer updateTimer = null
+
+    ondestroy
+        if updateTimer != null
+            updateTimer.release()
+
+    /** Starts the update. Without this, extending the class will have no effect*/
+    protected function startUpdate()
+        if updateTimer == null
+            updateTimer = getTimer()
+            ..setData( this castTo int )
+
+        updateTimer
+        ..startPeriodic( updateFreq, () -> GetExpiredTimer().getData() castTo thistype.update() ) 
+
+    /** Stops the update prematurely (before the class is destroyed) */
+    protected function stopUpdate()
+        if updateTimer != null
+            updateTimer.release()
+            updateTimer = null
+
+    /** The function which is called whenever the update happens */
+    protected abstract function update()
+    
