@@ -25,6 +25,7 @@ import OnUnitTypeEnter
 import Updater
 import TimedSpecialEffects
 import ObjectIds
+import Assets
 
 // ======================================================================================================================================
 
@@ -121,6 +122,14 @@ init
 
     // Ability triggers
     registerSpellEffectEvent(TORNADOES_ID, () -> new TornadoAbility(GetSpellAbilityUnit()))
+    registerSpellEffectEvent( WOUNDINGSTRIKE_ABIL_ID) ->
+        let caster = GetSpellAbilityUnit()
+        let target = GetSpellTargetUnit()
+
+        flashEffect(Abilities.stampedeMissileDeath, target, "chest")
+
+        caster.damageTargetPhysical( target, WOUNDINGSTRIKE_DAMAGE_INITIAL )
+        WoundingStrikeBuff.applyToUnit( target, caster, WOUNDINGSTRIKE_DAMAGE_OVERTIME, WOUNDINGSTRIKE_DURATION )
 
     // Auto Cast Abilities
     addAutoCastAbilityToUnitType( STORMCALLER_ID, 
@@ -392,6 +401,61 @@ class StormChargeBuff extends Updater
 // ====================================================================================================================================
 // WOUNDING STRIKE
 
+class WoundingStrikeBuff extends Updater
+
+    private static let instances = new IterableMap<unit,thistype>
+
+    private unit target
+    private unit source
+    private real damage
+    private real duration
+
+    private timer durationTimer
+
+    construct( unit target, unit source, real damage, real duration )
+        this.target = target
+        this.source = source
+        this.damage = damage
+        this.duration = duration
+
+        durationTimer = getTimer()
+        ..setData( this castTo int )
+        ..start( duration, () -> destroy GetExpiredTimer().getData() castTo thistype )
+
+        updateFreq = 1
+
+        startUpdate()
+
+        instances.put(target, this)
+    
+
+    ondestroy
+
+        durationTimer.release()
+
+        if target != null
+            instances.remove(target)
+        else
+            instances.removeValue(this, true)
+
+
+    override function update()
+        
+        if target == null or not target.isAliveTrick()
+            destroy this
+
+        else
+            source.damageTargetPhysical(target, damage)
+            target.addEffect( Objects.humanBloodFootman, "chest")
+            ..setDuration(3)
+    
+            
+    static function applyToUnit( unit whichUnit, unit source, real damage, real duration )
+        
+        if instances.has(whichUnit)
+            destroy instances.get(whichUnit)
+
+        new WoundingStrikeBuff( whichUnit, source, damage, duration )
 
 
 
@@ -406,7 +470,7 @@ function generateWoundingStrike()
     ..setArtTarget(1, "")
 
     new AbilityDefinitionSlowCreep(WOUNDINGSTRIKE_ABIL_ID)
-    ..setArtCaster(Abilities.impaleHitTarget)
+    ..setArtCaster("")
     ..setCasterAttachmentPoint("chest")
     ..setAnimationNames("attack")
     ..setName("Wounding Strike")
