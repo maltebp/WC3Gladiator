@@ -22,6 +22,8 @@ import Units
 import MyLibrary
 import Damage
 import OnUnitTypeEnter
+import Updater
+import TimedSpecialEffects
 
 // ======================================================================================================================================
 
@@ -114,7 +116,8 @@ init
         new AutoCastAbilityType(TORNADOES_ID, Orders.tranquility, TargetType.ENEMY_IMMEDIATE, 10000, 0.01, 1) )
 
     onUnitTypeEnter( STORMCALLER_ID) enteringUnit ->
-        // Do stuff
+        print("Unit entered the map!")
+        StormChargeBuff.applyToUnit(enteringUnit, STORMCHARGE_DAMAGE, STORMCHARGE_RANGE)
 
 // ======================================================================================================================================
 // TORNADO
@@ -312,41 +315,65 @@ function generateTornadoAbility()
 
 // ====================================================================================================================================
 
-let STORMCHARGE_BUFF = compiletime( BUFF_ID_GEN.next() ) 
+let STORMCHARGE_BUFF = compiletime(createDummyBuffObject("Storm Charged", "This unit is charge with the power of the storm. All enemies around it takes damage periodically.",
+     Icons.bTNOrbOfLightning, Abilities.purgeBuffTarget, "origin"))
 
-class StormCharge
+class StormChargeBuff extends Updater
 
     private static let instances = new IterableMap<unit,thistype>
 
     private unit chargedUnit
     private real damage
-    private real damageFreq
     private real range
 
-    private string targetSfx
-    private string casterSfx
+    construct( unit chargedUnit, real damage, real range )
+        this.chargedUnit = chargedUnit
+        this.damage = damage
+        this.range = range
+    
+        chargedUnit.addAbility( STORMCHARGE_BUFF.abilId )
 
+        updateFreq = STORMCHARGE_DAMAGEFREQ
 
-    construct()
+        startUpdate()
+
+        instances.put(chargedUnit, this)
+    
+
     ondestroy
 
+        if chargedUnit != null
+            instances.remove(chargedUnit)
+
+        else
+            instances.removeValue(this, true)
+
+
     // Deal damage etc.
-    function update()
+    override function update()
+        
+        if chargedUnit == null or not chargedUnit.isAliveTrick()
+            destroy this
+
+        else
+            let targets = ENUM_GROUP..enumUnitsInRange(chargedUnit.getPos(), range)
+
+            for target in targets
+                if target != chargedUnit and target.isEnemyOf(chargedUnit) and target.isAliveTrick()
+                    chargedUnit.damageTargetSpell(target, damage)
+                    target.addEffect( Abilities.lightningShieldBuff, "origin")
+                    ..setDuration(2)
+
 
     
-    function applyToUnit( unit whichUnit )
+    static function applyToUnit( unit whichUnit, real damage, real range )
+        
+        if instances.has(whichUnit)
+            destroy instances.get(whichUnit)
+
+        new StormChargeBuff( whichUnit, damage, range )
+
         // Add the storm charge buff to a certain unit
-
-    
-
-
-
-
-@compiletime
-function generateStormChargeBuff()
-    
-    createDummyBuffObject("Storm Charged", "This unit is charge with the power of the storm. All enemies around it takes damage periodically.",
-     Icons.bTNOrbOfLightning, "", "")
 
 
 
