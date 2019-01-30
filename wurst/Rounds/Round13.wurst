@@ -24,6 +24,7 @@ import Damage
 import OnUnitTypeEnter
 import Updater
 import TimedSpecialEffects
+import ObjectIds
 
 // ======================================================================================================================================
 
@@ -39,16 +40,26 @@ let TORNADO_DAMAGE = 100. // Per second
 let TORNADO_RANGE   = 125.
 let TORNADO_SPEED   = 50.
 
-
 // Storm Charge
 let STORMCHARGE_DAMAGE = 50.
 let STORMCHARGE_RANGE = 125.
 let STORMCHARGE_DAMAGEFREQ = 1.
 
+// Wounding Strike
+let WOUNDINGSTRIKE_DAMAGE_INITIAL = 100.
+let WOUNDINGSTRIKE_DAMAGE_OVERTIME = 20.
+let WOUNDINGSTRIKE_COOLDOWN = 15.
+let WOUNDINGSTRIKE_DURATION = 5.
+let WOUNDINGSTRIKE_ATTACKSPEEDRED = 0.
+let WOUNDINGSTRIKE_MOVESPEEDRED = 0.4
+
 
 
 // OTHER CONSTANTS
 let TORNADOES_ID = compiletime(ABIL_ID_GEN.next())
+
+let WOUNDINGSTRIKE_ABIL_ID = compiletime( ABIL_ID_GEN.next() )
+let WOUNDINGSTRIKE_BUFF_ID = compiletime( BUFF_ID_GEN.next() )
 
 
 
@@ -64,15 +75,15 @@ init
     ..setDescription("...")
     ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
 
-    // Storm Caller 1
-    round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 20))
-    ..setStartDelay(5)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSoundOnSpawn(Sounds.nagaSirenYesAttack3)
-    ..setSpawnEffect(Abilities.crushingWaveDamage)
-    ..setSpawnCount(2)
+    // // Storm Caller 1
+    // round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 20))
+    // ..setStartDelay(5)
+    // ..setFrequencyDeviation(0.1)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSoundOnSpawn(Sounds.nagaSirenYesAttack3)
+    // ..setSpawnEffect(Abilities.crushingWaveDamage)
+    // ..setSpawnCount(2)
 
     //  // Water Caller 1
     //  round.addSpawner(new UnitSpawner(WATERCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 15))
@@ -84,15 +95,15 @@ init
     //  ..setSpawnEffect(Abilities.crushingWaveDamage)
     //  ..setSpawnCount(8)
 
-    // // Myrmidon 1
-    // round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMYPLAYER, vec2(548,1000), 1))
-    // ..setStartDelay(5)
-    // ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSoundOnSpawn(Sounds.giantSeaTurtleYes2)
-    // ..setSpawnEffect(Abilities.crushingWaveDamage)
-    // ..setSpawnCount(8)
+    // Myrmidon 1
+    round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMYPLAYER, vec2(548,1000), 15))
+    ..setStartDelay(3)
+    ..setFrequencyDeviation(0.01)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.giantSeaTurtleYes2)
+    ..setSpawnEffect(Abilities.crushingWaveDamage)
+    ..setSpawnCount(8)
 
     // Unit Visuals
     UnitVisuals.addUnitType(STORMCALLER_ID)
@@ -114,6 +125,10 @@ init
     // Auto Cast Abilities
     addAutoCastAbilityToUnitType( STORMCALLER_ID, 
         new AutoCastAbilityType(TORNADOES_ID, Orders.tranquility, TargetType.ENEMY_IMMEDIATE, 10000, 0.01, 1) )
+
+     // Auto Cast Abilities
+    addAutoCastAbilityToUnitType( MYRMIDON_ID, 
+        new AutoCastAbilityType(WOUNDINGSTRIKE_ABIL_ID, Orders.slow, TargetType.ENEMY_UNIT, 1000, 3, WOUNDINGSTRIKE_COOLDOWN) )
 
     onUnitTypeEnter( STORMCALLER_ID) enteringUnit ->
         print("Unit entered the map!")
@@ -349,7 +364,6 @@ class StormChargeBuff extends Updater
             instances.removeValue(this, true)
 
 
-    // Deal damage etc.
     override function update()
         
         if chargedUnit == null or not chargedUnit.isAliveTrick()
@@ -373,11 +387,42 @@ class StormChargeBuff extends Updater
 
         new StormChargeBuff( whichUnit, damage, range )
 
-        // Add the storm charge buff to a certain unit
-
 
 
 // ====================================================================================================================================
+// WOUNDING STRIKE
+
+
+
+
+@compiletime
+function generateWoundingStrike()
+
+    new BuffDefinition( WOUNDINGSTRIKE_BUFF_ID, 'Bslo' )
+    ..setIcon( Icons.bTNImpale )
+    ..setName(1, "Wounding Strike")
+    ..setTooltipNormal(1, "Wounding Strike")
+    ..setTooltipNormalExtended(1, "Slowed and takes damage over time!")
+    ..setArtTarget(1, "")
+
+    new AbilityDefinitionSlowCreep(WOUNDINGSTRIKE_ABIL_ID)
+    ..setArtCaster(Abilities.impaleHitTarget)
+    ..setCasterAttachmentPoint("chest")
+    ..setAnimationNames("attack")
+    ..setName("Wounding Strike")
+    ..setDurationHero(1, WOUNDINGSTRIKE_DURATION)
+    ..setDurationNormal(1, WOUNDINGSTRIKE_DURATION)
+    ..setAttackSpeedFactor(1, WOUNDINGSTRIKE_ATTACKSPEEDRED)
+    ..setMovementSpeedFactor(1, WOUNDINGSTRIKE_MOVESPEEDRED)
+    ..setManaCost(1, 0)
+    ..setCastRange(1, 150)
+    ..setBuffs(1, WOUNDINGSTRIKE_BUFF_ID.toRawCode() )
+
+
+
+
+
+
 
 
 
@@ -388,13 +433,6 @@ class StormChargeBuff extends Updater
 
 
 // ======================================================================================================================================
-
-// TESTING
-
-// init
-//     createUnit(Player(0), STORMCALLER_ID, HEROSPAWN_ARENA, angle(0))
-//     ..addAbility(TORNADOES_ID)
-
 
 
     
