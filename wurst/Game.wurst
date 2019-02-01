@@ -25,7 +25,7 @@ constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn a
 constant boolean    PRINTALPHAINTRO         = true
 
 
-let VERSION = "0.1.1a (Alpha)"
+let VERSION = "0.1.2a (Alpha)"
 
 
 let HEROSPAWN_CAMLOCK = Rect(-8129, -8198, -8129, -8198)
