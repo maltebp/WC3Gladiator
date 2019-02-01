@@ -1,6 +1,8 @@
 package Round7
 
 import public Round6
+import Assets
+import UnitVisualsUtils
 
 // ===========================================================================================================================
 // SETTINGS
@@ -13,6 +15,11 @@ let POISON_DIMINISH_RATE = 1 // time between each diminish
 let WEB_DURATION = 1.
 let WEB_COOLDOWN = 8.
 
+
+// IDs
+let HATCHLING = 'n012'
+let SPITTER = 'n013'
+let WEBBER = 'n014'
 
 
 // ===========================================================================================================================
@@ -27,11 +34,75 @@ init
     ..addItemRewards()
 
 
-    // Fire Spawn - 1
-    round.addSpawner(new UnitSpawner('n00C', ENEMYPLAYER, vec2(-639,1025), 12))
-    ..setStartDelay(4)
+    // Hatchling 1
+    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    ..setStartDelay(3)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(120)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+
+    // Hatchling 2
+    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    ..setStartDelay(3)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(120)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+
+    // Hatchling 2
+    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    ..setStartDelay(50)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(70)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+
+    // Webber 3
+    round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 8))
+    ..setStartDelay(10)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(15)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+    ..setSoundOnSpawn( Sounds.arachnathidWhat2)
+
+    // Webber 3
+    round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 15))
+    ..setStartDelay(40)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(7)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+    ..setSoundOnSpawn( Sounds.arachnathidWhat2)
+
+    // Spitter 1
+    round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 6))
+    ..setStartDelay(20)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(16)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+    ..setSoundOnSpawn( Sounds.arachnathidWhat1)
+
+    // Spitter 2
+    round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 6))
+    ..setStartDelay(50)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(10)
-    ..setSpawnEffect("Abilities\\Spells\\Other\\Incinerate\\FireLordDeathExplode.mdl")
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+    ..setSoundOnSpawn( Sounds.arachnathidWhat1)
+
+
+    // Player Color
+    UnitVisuals.addUnitType(HATCHLING).setPlayerColor(PLAYER_COLOR_COAL)
+    UnitVisuals.addUnitType(WEBBER).setPlayerColor(PLAYER_COLOR_COAL)
+    UnitVisuals.addUnitType(SPITTER).setPlayerColor(PLAYER_COLOR_MINT)

@@ -19,10 +19,10 @@ constant boolean    LOCKCAMBOUNDS           = true
 constant boolean    MAKEMAPVISIBLE          = false
 constant boolean    CUSTOMROUNDSTART        = false
 constant boolean    STARTATSPECIFICROUND    = true
-int        STARTINGROUND                    = 12
+int        STARTINGROUND                    = 7
 public let                 FINALROUND       = 13
 constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
-constant boolean    PRINTALPHAINTRO         = true
+constant boolean    PRINTALPHAINTRO         = false
 
 
 let VERSION = "0.1.2a (Alpha)"
