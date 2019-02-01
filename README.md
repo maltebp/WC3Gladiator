@@ -14,7 +14,7 @@
 
 
 ## Map Concept
-A Hero survival/defense map, where you have to survive by killing all monsters in the arena in series of rounds. But beware: this is not your typical item-focused survival. This map introduces a custom made combat-system and unique round mechanics to spice things up a bit!
+A Hero survival/defense map, where you have to survive by killing all monsters in the arena in series of rounds. But beware: this is not your typical item-focused survival. This map introduces unique round mechanics and a (soon-to-be-implemented) custom made combat-system and to spice things up a bit!
 
 
 ## This Repo
