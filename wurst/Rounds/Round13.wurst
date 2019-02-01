@@ -49,8 +49,8 @@ let STORMCHARGE_RANGE = 175.
 let STORMCHARGE_DAMAGEFREQ = 1.
 
 // Wounding Strike
-let WOUNDINGSTRIKE_DAMAGE_INITIAL = 100.
-let WOUNDINGSTRIKE_DAMAGE_OVERTIME = 20.
+let WOUNDINGSTRIKE_DAMAGE_INITIAL = 30.
+let WOUNDINGSTRIKE_DAMAGE_OVERTIME = 10.
 let WOUNDINGSTRIKE_COOLDOWN = 15.
 let WOUNDINGSTRIKE_DURATION = 6.
 let WOUNDINGSTRIKE_ATTACKSPEEDRED = 0.
@@ -61,12 +61,12 @@ let WOUNDINGSTRIKE_MOVESPEEDRED = 0.4
 let SUMMONELEMENTAL_COOLDOWN = 15.
 
 // Elemental Attack
-let ELEMENTAL_RANGE = 500.
+let ELEMENTAL_RANGE = 700.
 let ELEMENTAL_COOLDOWN = 2.
-let ELEMENTAL_DAMAGE = 50.
-let ELEMENTAL_DISTANCE = 600.
+let ELEMENTAL_DAMAGE = 70.
+let ELEMENTAL_DISTANCE = 1000.
 let ELEMENTAL_WIDTH = 200.
-let ELEMENTAL_SPEED = 600.
+let ELEMENTAL_SPEED = 350.
 
 
 
@@ -95,35 +95,45 @@ init
     ..setDescription("...")
     ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
 
-    // // Storm Caller 1
-    // round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 10))
-    // ..setStartDelay(5)
-    // ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSoundOnSpawn(Sounds.nagaSirenYesAttack3)
-    // ..setSpawnEffect(Abilities.crushingWaveDamage)
-    // ..setSpawnCount(10)
+    // Storm Caller 1
+    round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 24))
+    ..setStartDelay(30)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.nagaSirenYesAttack3)
+    ..setSpawnEffect(Abilities.crushingWaveDamage)
+    ..setSpawnCount(5)
 
      // Water Caller 1
-    round.addSpawner(new UnitSpawner(WATERCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 10))
-    ..setStartDelay(2)
+    round.addSpawner(new UnitSpawner(WATERCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 22))
+    ..setStartDelay(16)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSoundOnSpawn(Sounds.snapDragonYes2)
+    ..setSpawnEffect(Abilities.crushingWaveDamage)  
+    ..setSpawnCount(5)
+
+    // Myrmidon 1
+    round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMYPLAYER, vec2(548,1000), 30 ))
+    ..setStartDelay(2)
+    ..setFrequencyDeviation(0.01)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.giantSeaTurtleYes2)
+    ..setSpawnEffect(Abilities.crushingWaveDamage)
+    ..setSpawnCount(4)
+
+    // Myrmidon 2
+    round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMYPLAYER, vec2(548,1000), 30))
+    ..setStartDelay(80)
+    ..setFrequencyDeviation(0.01)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.giantSeaTurtleYes2)
     ..setSpawnEffect(Abilities.crushingWaveDamage)
     ..setSpawnCount(2)
-
-    // // Myrmidon 1
-    // round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMYPLAYER, vec2(548,1000), 15))
-    // ..setStartDelay(3)
-    // ..setFrequencyDeviation(0.01)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSoundOnSpawn(Sounds.giantSeaTurtleYes2)
-    // ..setSpawnEffect(Abilities.crushingWaveDamage)
-    // ..setSpawnCount(8)
 
     // Unit Visuals
     UnitVisuals.addUnitType(STORMCALLER_ID)
@@ -415,8 +425,7 @@ class StormChargeBuff extends Updater
             for target in targets
                 if target != chargedUnit and target.isEnemyOf(chargedUnit) and target.isAliveTrick()
                     chargedUnit.damageTargetSpell(target, damage)
-                    target.addEffect( Abilities.lightningShieldBuff, "origin")
-                    ..setDuration(2)
+                    flashEffect( Abilities.farseerMissile, target, "chest")
 
 
     
@@ -551,23 +560,25 @@ class WaveAttack extends Updater
     private effect wave
     private real distanceTravelled = 0
 
+    private let targetsHit = new LinkedList<unit>
+
     construct( vec2 targetPos, unit source, real damage, real distance, real width, real speed )
         this.source = source
         this.damage = damage
         this.distance = distance
         this.width = width
 
-        direction = targetPos.angleTo(source.getPos())
+        direction = source.getPos().angleTo(targetPos)
         currentPos = source.getPos()
 
         updateFreq = 0.01
-        movePerUpdate = updateFreq / speed
+        movePerUpdate = updateFreq * speed
 
         wave = addEffect( Abilities.crushingWaveMissile, currentPos )
         ..setHeight(50)
-        ..setColor( 170, 255, 255)
+        ..setColor( 170, 255, 90)
         ..setOrientation(0, 0, direction.radians() )
-        ..setScale(0.60)
+        ..setScale(0.5)
 
         startUpdate()
         
@@ -575,21 +586,27 @@ class WaveAttack extends Updater
 
     ondestroy
         wave.destr()
+        destroy targetsHit
 
     override function update()
-
         
-        currentPos.polarOffset( direction, movePerUpdate )
+        currentPos = currentPos.polarOffset( direction, movePerUpdate )
         wave.setPos( currentPos )
 
-        distanceTravelled += movePerUpdate
+        let targets = ENUM_GROUP..enumUnitsInRange(currentPos, width)
 
+        for target from targets
+            if target.isAliveTrick() and target.isEnemyOf(source) and not targetsHit.has(target)
+                source.damageTargetSpell(target, damage)
+                targetsHit.add(target)
+
+
+        distanceTravelled += movePerUpdate
         if distanceTravelled >= distance
             destroy this
 
 
     
-
 
 
 
