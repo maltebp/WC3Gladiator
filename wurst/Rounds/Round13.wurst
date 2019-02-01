@@ -92,8 +92,9 @@ init
     round = new Round()
     ..setReward(30, 3)
     ..setTitle("Naga")
-    ..setDescription("...")
+    ..setDescription("Take care of the wind and the tide.")
     ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
+    ..addItemRewards( ITEM_LIVINGWATER ) 
 
     // Storm Caller 1
     round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 24))

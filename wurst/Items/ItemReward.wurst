@@ -163,6 +163,9 @@ public constant let  ITEM_TINKERSPERSONALHAMMER     = new ItemReward('I009')
 public constant let     ITEM_STONEDOLL = new ItemReward('I01I')
 public constant let     ITEM_GIANTSSKIN = new ItemReward('I00U')
 public constant let ITEM_FELSTONE = new ItemReward('I01R')
+public constant let ITEM_LIVINGWATER = new ItemReward('I01S')
+public constant let ITEM_TRIDENT = new ItemReward('I01T')
+
 
 
 

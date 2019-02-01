@@ -136,6 +136,7 @@ init
     'I00T'.setAttackDamage(14) // Demon Figurine
     'I009'.setAttackDamage(10) // Demon Figurine
     'I01R'.setAttackDamage(25) // Fel Stone
+    'I01T'.setAttackDamage(15)
 
     // Editor's Items
     'I00S'.setAttackDamage(30)

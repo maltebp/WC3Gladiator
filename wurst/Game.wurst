@@ -15,12 +15,12 @@ import Damage
 constant boolean    SPAWNHEROINARENA        = false
 constant boolean    ARENACORNERSPAWN        = false
 constant boolean    PREPAREHERO             = false
-constant boolean    LOCKCAMBOUNDS           = false
-constant boolean    MAKEMAPVISIBLE          = true
-constant boolean    CUSTOMROUNDSTART        = true
+constant boolean    LOCKCAMBOUNDS           = true
+constant boolean    MAKEMAPVISIBLE          = false
+constant boolean    CUSTOMROUNDSTART        = false
 constant boolean    STARTATSPECIFICROUND    = true
 int        STARTINGROUND                    = 13
-public let                 FINALROUND       = 13
+public let                 FINALROUND       = 14
 constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
 constant boolean    PRINTALPHAINTRO         = false
 
