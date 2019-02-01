@@ -1,0 +1,21 @@
+package LivingWater
+
+import ClosureTimers
+
+constant let ITEMID = 'I01S'
+constant let HEALAMOUNT = 10 
+
+function onSpellCast()
+    let caster = GetSpellAbilityUnit()
+
+    if caster.hasItemById(ITEMID)
+
+        let finalHealth = ((caster.getHP() + HEALAMOUNT) > caster.getMaxHP()) ? caster.getMaxHP() : caster.getHP() + HEALAMOUNT
+        doAfter(0.1) ->
+            caster.setHP(finalHealth)
+
+init
+    CreateTrigger()
+    ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_SPELL_CAST)
+    ..addAction(function onSpellCast)
+    
