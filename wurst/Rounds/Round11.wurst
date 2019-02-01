@@ -86,7 +86,7 @@ init
         new DeathSpawnData(rockGiant, SHARDLING, SHARDLINGS_SPAWNNUMBER)
         ..setEffectOnSpawn("Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl")
         ..setCodeOnUnitSpawn() spawnedUnit ->
-             rockGiant.getSpawner().addSummonedUnit(spawnedUnit)
+            rockGiant.getSpawner().addSummonedUnit(spawnedUnit)
 
     addAutoCastAbilityToUnitType(ROCKGIANT, new AutoCastAoePoint('A01U', Orders.carrionswarm, TargetType.ENEMY_POINT, 600, SHOCKWAVE_STARTCOOLDOWN, SHOCKWAVE_COOLDOWN))
     
