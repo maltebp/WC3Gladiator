@@ -12,6 +12,7 @@ constant int SKELETONWARRIOR = 'u001'
 constant int SKELETONARCHER = 'n007'
 constant int NECROMANCER = 'u000'
 
+
 init
     //=========================================================================================================================================================
     //  Necromancers 

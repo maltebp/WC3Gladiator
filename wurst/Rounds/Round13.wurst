@@ -37,20 +37,20 @@ let MYRMIDON_ID     = 'n00X'
 
 
 // Tornado
-let TORNADO_DAMAGE = 100. // Per second
+let TORNADO_DAMAGE = 70. // Per second
 let TORNADO_RANGE   = 125.
 let TORNADO_SPEED   = 50.
 
 // Storm Charge
-let STORMCHARGE_DAMAGE = 50.
-let STORMCHARGE_RANGE = 125.
+let STORMCHARGE_DAMAGE = 30.
+let STORMCHARGE_RANGE = 175.
 let STORMCHARGE_DAMAGEFREQ = 1.
 
 // Wounding Strike
 let WOUNDINGSTRIKE_DAMAGE_INITIAL = 100.
 let WOUNDINGSTRIKE_DAMAGE_OVERTIME = 20.
 let WOUNDINGSTRIKE_COOLDOWN = 15.
-let WOUNDINGSTRIKE_DURATION = 5.
+let WOUNDINGSTRIKE_DURATION = 6.
 let WOUNDINGSTRIKE_ATTACKSPEEDRED = 0.
 let WOUNDINGSTRIKE_MOVESPEEDRED = 0.4
 
@@ -76,15 +76,15 @@ init
     ..setDescription("...")
     ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
 
-    // // Storm Caller 1
-    // round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 20))
-    // ..setStartDelay(5)
-    // ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSoundOnSpawn(Sounds.nagaSirenYesAttack3)
-    // ..setSpawnEffect(Abilities.crushingWaveDamage)
-    // ..setSpawnCount(2)
+    // Storm Caller 1
+    round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 10))
+    ..setStartDelay(5)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.nagaSirenYesAttack3)
+    ..setSpawnEffect(Abilities.crushingWaveDamage)
+    ..setSpawnCount(10)
 
     //  // Water Caller 1
     //  round.addSpawner(new UnitSpawner(WATERCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 15))
@@ -96,15 +96,15 @@ init
     //  ..setSpawnEffect(Abilities.crushingWaveDamage)
     //  ..setSpawnCount(8)
 
-    // Myrmidon 1
-    round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMYPLAYER, vec2(548,1000), 15))
-    ..setStartDelay(3)
-    ..setFrequencyDeviation(0.01)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSoundOnSpawn(Sounds.giantSeaTurtleYes2)
-    ..setSpawnEffect(Abilities.crushingWaveDamage)
-    ..setSpawnCount(8)
+    // // Myrmidon 1
+    // round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMYPLAYER, vec2(548,1000), 15))
+    // ..setStartDelay(3)
+    // ..setFrequencyDeviation(0.01)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSoundOnSpawn(Sounds.giantSeaTurtleYes2)
+    // ..setSpawnEffect(Abilities.crushingWaveDamage)
+    // ..setSpawnCount(8)
 
     // Unit Visuals
     UnitVisuals.addUnitType(STORMCALLER_ID)
@@ -139,9 +139,8 @@ init
     addAutoCastAbilityToUnitType( MYRMIDON_ID, 
         new AutoCastAbilityType(WOUNDINGSTRIKE_ABIL_ID, Orders.slow, TargetType.ENEMY_UNIT, 1000, 3, WOUNDINGSTRIKE_COOLDOWN) )
 
-    onUnitTypeEnter( STORMCALLER_ID) enteringUnit ->
-        print("Unit entered the map!")
-        StormChargeBuff.applyToUnit(enteringUnit, STORMCHARGE_DAMAGE, STORMCHARGE_RANGE)
+    // onUnitTypeEnter( STORMCALLER_ID) enteringUnit ->
+    //     StormChargeBuff.applyToUnit(enteringUnit, STORMCHARGE_DAMAGE, STORMCHARGE_RANGE)
 
 // ======================================================================================================================================
 // TORNADO
