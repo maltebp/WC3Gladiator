@@ -8,7 +8,8 @@
 
 
 ### Currently working on...
-Designing and rough implementation code for the new combat system. Check it out and bring me your feedback [here](https://www.hiveworkshop.com/threads/ideas-feedback-for-combat-system.312212/)! :smile:
+1. Focus on creating rounds up to round 15 (release 0.2a)
+2. Designing and rough implementation code for the new combat system. Check it out and bring me your feedback [here](https://www.hiveworkshop.com/threads/ideas-feedback-for-combat-system.312212/)! :smile:
 
 
 
