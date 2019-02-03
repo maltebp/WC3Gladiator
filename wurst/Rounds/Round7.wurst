@@ -1,12 +1,15 @@
 package Round7
 
 import public Round6
-import Assets
 import UnitVisualsUtils
+import HashMap
+import Updater
+import ObjectIdGenerator
+import AbilityObjEditing
+import AutoCastAbility
 
 // ===========================================================================================================================
 // SETTINGS
-
 
 let POISON_DMG = 30. // Per second
 let POISON_DIMINISH_DELAY = 3.
@@ -14,12 +17,14 @@ let POISON_DIMINISH_RATE = 1 // time between each diminish
 
 let WEB_DURATION = 1.
 let WEB_COOLDOWN = 8.
-
+let WEB_RANGE = 600.
 
 // IDs
 let HATCHLING = 'n012'
 let SPITTER = 'n013'
 let WEBBER = 'n014'
+
+let WEB_ID = compiletime( ABIL_ID_GEN.next() )
 
 
 // ===========================================================================================================================
@@ -106,3 +111,82 @@ init
     UnitVisuals.addUnitType(HATCHLING).setPlayerColor(PLAYER_COLOR_COAL)
     UnitVisuals.addUnitType(WEBBER).setPlayerColor(PLAYER_COLOR_COAL)
     UnitVisuals.addUnitType(SPITTER).setPlayerColor(PLAYER_COLOR_MINT)
+
+    // Register
+    addAutoCastAbilityToUnitType( WEBBER, 
+        new AutoCastAbilityType( WEB_ID, Orders.web, TargetType.ENEMY_UNIT, 5000, 1, WEB_COOLDOWN ) )
+
+
+
+
+        
+// =============================================================================================================================================
+// WEB
+
+@compiletime
+function createWebAbility()
+    new AbilityDefinitionWebcreep( WEB_ID )
+    ..setCooldown(1, 0)
+    ..setDurationHero(1, WEB_DURATION )
+    ..setDurationNormal( 1, WEB_DURATION )
+    ..setCastRange(1, WEB_RANGE )
+
+
+
+// =============================================================================================================================================
+// POISON
+
+class PoisonedUnit extends Updater
+    
+    private static let instances = new IterableMap<unit, thistype>
+
+    private unit theUnit = null
+    private int stacks = 0
+   
+
+    construct( unit whichUnit )
+        this.theUnit = whichUnit
+
+        updateFreq = 1. // update freq
+
+        instances.put( whichUnit, this )
+
+
+    ondestroy
+        
+        if theUnit == null
+            instances.removeValue(this, true)
+
+        else
+            instances.remove(theUnit)
+
+
+
+    override function update()
+        // Deal damage
+        
+
+    
+    function applyStack( int stacks )
+        this.stacks += stacks
+
+        if this.stacks > 0
+            // Update the visual - restart
+
+        else
+            destroy this
+        
+
+
+    static function getInstance( unit whichUnit ) returns thistype
+        if instances.has( whichUnit )
+            return instances.get(whichUnit)
+        else
+            return new PoisonedUnit(whichUnit)
+
+
+        
+/** Add or subtract stacks */
+public function unit.addPoisonStack( int stacks )
+    PoisonedUnit.getInstance(this).applyStack( stacks )
+    
