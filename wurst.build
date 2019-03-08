@@ -2,6 +2,7 @@
 projectName: "WC3Gladiator"
 dependencies:
 - "https://github.com/wurstscript/wurstStdlib2"
+- "https://github.com/maltebp/ProjectileSystem"
 buildMapData:
   name: "Gladiator (v0.1.2 Alpha)"
   fileName: "Gladiator-v0.1.2a"

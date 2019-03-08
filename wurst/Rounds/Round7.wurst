@@ -7,6 +7,13 @@ import Updater
 import ObjectIdGenerator
 import AbilityObjEditing
 import AutoCastAbility
+import Assets
+import BuffObjEditing
+import ObjectIds
+import Projectile
+import RegisterEvents
+import ClosureTimers
+import InstantDummyCaster
 
 // ===========================================================================================================================
 // SETTINGS
@@ -21,10 +28,11 @@ let WEB_RANGE = 600.
 
 // IDs
 let HATCHLING = 'n012'
-let SPITTER = 'n013'
+let SPITTER = 'n013'    
 let WEBBER = 'n014'
 
 let WEB_ID = compiletime( ABIL_ID_GEN.next() )
+let WEB_DUMMY_ID = compiletime( ABIL_ID_GEN.next() )
 
 
 // ===========================================================================================================================
@@ -39,32 +47,32 @@ init
     ..addItemRewards()
 
 
-    // Hatchling 1
-    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
-    ..setStartDelay(3)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(120)
-    // ..setSpawnEffect( Abilities.orbVenomMissile )
+    // // Hatchling 1
+    // round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    // ..setStartDelay(3)
+    // ..setFrequencyDeviation(0.1)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSpawnCount(120)
+    // // ..setSpawnEffect( Abilities.orbVenomMissile )
 
-    // Hatchling 2
-    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
-    ..setStartDelay(3)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(120)
-    // ..setSpawnEffect( Abilities.orbVenomMissile )
+    // // Hatchling 2
+    // round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    // ..setStartDelay(3)
+    // ..setFrequencyDeviation(0.1)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSpawnCount(120)
+    // // ..setSpawnEffect( Abilities.orbVenomMissile )
 
-    // Hatchling 2
-    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
-    ..setStartDelay(50)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(70)
-    // ..setSpawnEffect( Abilities.orbVenomMissile )
+    // // Hatchling 2
+    // round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    // ..setStartDelay(50)
+    // ..setFrequencyDeviation(0.1)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSpawnCount(70)
+    // // ..setSpawnEffect( Abilities.orbVenomMissile )
 
     // Webber 3
     round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 8))
@@ -86,23 +94,25 @@ init
     // ..setSpawnEffect( Abilities.orbVenomMissile )
     ..setSoundOnSpawn( Sounds.arachnathidWhat2)
 
-    // Spitter 1
-    round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 6))
-    ..setStartDelay(20)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(16)
-    // ..setSpawnEffect( Abilities.orbVenomMissile )
-    ..setSoundOnSpawn( Sounds.arachnathidWhat1)
+    // // Spitter 1
+    // round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 6))
+    // ..setStartDelay(20)
+    // ..setFrequencyDeviation(0.1)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSpawnCount(16)
+    // // ..setSpawnEffect( Abilities.orbVenomMissile )
+    // ..setSoundOnSpawn( Sounds.arachnathidWhat1)
 
-    // Spitter 2
-    round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 6))
-    ..setStartDelay(50)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(10)
+    // // Spitter 2
+    // round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 6))
+    // ..setStartDelay(50)
+    // ..setFrequencyDeviation(0.1)
+    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    // ..setSpawnCount(10)
+
+
     // ..setSpawnEffect( Abilities.orbVenomMissile )
     ..setSoundOnSpawn( Sounds.arachnathidWhat1)
 
@@ -114,22 +124,91 @@ init
 
     // Register
     addAutoCastAbilityToUnitType( WEBBER, 
-        new AutoCastAbilityType( WEB_ID, Orders.web, TargetType.ENEMY_UNIT, 5000, 1, WEB_COOLDOWN ) )
+        new AutoCastAbilityType( WEB_ID, Orders.chainlightning, TargetType.ENEMY_UNIT, 5000, 1, WEB_COOLDOWN ) )
+
+    
+    registerSpellEffectEvent( WEB_ID, function webOnCast )
+    
 
 
 
 
-        
+
 // =============================================================================================================================================
 // WEB
 
 @compiletime
 function createWebAbility()
-    new AbilityDefinitionWebcreep( WEB_ID )
+
+
+    new AbilityDefinitionChainLightningcreep(WEB_ID)
+    ..setLightningEffects("")
+    ..setArtSpecial("")
+    ..setArtTarget("")
+    ..setDamageperTarget(1, 0)
+    ..setAnimationNames("spell")
+    ..setCastRange(1, WEB_RANGE)
+    ..setNumberofTargetsHit(1, 1)
+    ..setManaCost(1,0)
+
+    
+
+    let tempBuff1 = BUFF_ID_GEN.next()
+    let tempBuff2 = BUFF_ID_GEN.next()
+
+    new BuffDefinition(tempBuff1,'Bena')
+    ..setIcon(Icons.bTNWeb)
+    ..setTooltipNormal(1, "Ensnare")
+    ..setArtTarget(1, "" )
+
+    new BuffDefinition(tempBuff2,'Beng')
+    ..setIcon(Icons.bTNWeb)
+    ..setTooltipNormal(1, "Ensnare")
+    ..setTooltipNormalExtended(1, "Can't move.")
+
+    new AbilityDefinitionEnsnare(WEB_DUMMY_ID)
+    ..setTooltipNormal(1, "Ensnare")
+    ..setTooltipNormalExtended(1, "")
+    ..setMissileArt("")
+    ..setMissileSpeed(10000)
+    ..setManaCost(1, 0)  
     ..setCooldown(1, 0)
-    ..setDurationHero(1, WEB_DURATION )
-    ..setDurationNormal( 1, WEB_DURATION )
-    ..setCastRange(1, WEB_RANGE )
+    ..setDurationHero(1, WEB_DURATION)
+    ..setDurationNormal(1, WEB_DURATION)
+    ..setRequirements("")
+    ..setBuffs( 1, tempBuff2.toRawCode()+","+tempBuff1.toRawCode())
+
+function webOnCast()
+    let caster = GetSpellAbilityUnit()
+    let target = GetSpellTargetUnit()
+
+    let projectile = new Projectile( caster.getPos().withTerrainZ(30), Abilities.webmissile )
+
+    projectile.addActionOnFinish() ->
+        if target.isAliveTrick()
+            print(target.getName() + " is webbed!")
+
+            InstantDummyCaster.castTarget( ENEMYPLAYER, WEB_DUMMY_ID, 1, Orders.ensnare, target)
+            
+            let sfx = addEffect(Abilities.webTarget, target.getPos().withTerrainZ(40))
+            ..setScale(1.25)
+
+            doAfter(WEB_DURATION) ->
+                if sfx != null
+                    sfx.destr()
+            
+            doPeriodicallyTimed(0.2, WEB_DURATION-0.1) cb ->
+                if not target.isAlive() and sfx != null
+                    sfx.destr()
+                    destroy cb
+
+            
+            
+            
+
+
+    projectile.fireUnit(target, 50, true, 600, 0.25)
+
 
 
 
