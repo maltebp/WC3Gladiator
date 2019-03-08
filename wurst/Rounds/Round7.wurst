@@ -14,13 +14,20 @@ import Projectile
 import RegisterEvents
 import ClosureTimers
 import InstantDummyCaster
+import MyLibrary
+import Damage
 
 // ===========================================================================================================================
 // SETTINGS
 
 let POISON_DMG = 30. // Per second
 let POISON_DIMINISH_DELAY = 3.
-let POISON_DIMINISH_RATE = 1 // time between each diminish
+let POISON_DIMINISH_RATE = 1. // time between each diminish
+let POISON_ATTACK_RANGE = 600.
+let POISON_SPEED = 600.
+let POISON_AOE = 200.
+let POISON_SPIT_DMG = 5.
+let POISON_SPIT_RATE = 2.
 
 let WEB_DURATION = 1.
 let WEB_COOLDOWN = 8.
@@ -33,6 +40,10 @@ let WEBBER = 'n014'
 
 let WEB_ID = compiletime( ABIL_ID_GEN.next() )
 let WEB_DUMMY_ID = compiletime( ABIL_ID_GEN.next() )
+
+let POISON_SPIT_ID = compiletime( ABIL_ID_GEN.next() )
+let POISON_BUFF_ID = compiletime( createDummyBuffObject("Poison", "You have been poisoned by a spider", Icons.bTNCorrosiveBreath ))
+
 
 
 // ===========================================================================================================================
@@ -74,43 +85,43 @@ init
     // ..setSpawnCount(70)
     // // ..setSpawnEffect( Abilities.orbVenomMissile )
 
-    // Webber 3
-    round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 8))
-    ..setStartDelay(10)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(15)
-    // ..setSpawnEffect( Abilities.orbVenomMissile )
-    ..setSoundOnSpawn( Sounds.arachnathidWhat2)
-
-    // Webber 3
-    round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 15))
-    ..setStartDelay(40)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(7)
-    // ..setSpawnEffect( Abilities.orbVenomMissile )
-    ..setSoundOnSpawn( Sounds.arachnathidWhat2)
-
-    // // Spitter 1
-    // round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 6))
-    // ..setStartDelay(20)
+    // // Webber 3
+    // round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 8))
+    // ..setStartDelay(10)
     // ..setFrequencyDeviation(0.1)
     // ..setRandomSpawn(gg_rct_Arena_Spawn1)
     // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSpawnCount(16)
+    // ..setSpawnCount(15)
     // // ..setSpawnEffect( Abilities.orbVenomMissile )
-    // ..setSoundOnSpawn( Sounds.arachnathidWhat1)
+    // ..setSoundOnSpawn( Sounds.arachnathidWhat2)
 
-    // // Spitter 2
-    // round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 6))
-    // ..setStartDelay(50)
+    // // Webber 3
+    // round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 15))
+    // ..setStartDelay(40)
     // ..setFrequencyDeviation(0.1)
     // ..setRandomSpawn(gg_rct_Arena_Spawn1)
     // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSpawnCount(10)
+    // ..setSpawnCount(7)
+    // // ..setSpawnEffect( Abilities.orbVenomMissile )
+    // ..setSoundOnSpawn( Sounds.arachnathidWhat2)
+
+    // Spitter 1
+    round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 6))
+    ..setStartDelay(20)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(16)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+    ..setSoundOnSpawn( Sounds.arachnathidWhat1)
+
+    // Spitter 2
+    round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 6))
+    ..setStartDelay(50)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(10)
 
 
     // ..setSpawnEffect( Abilities.orbVenomMissile )
@@ -126,8 +137,14 @@ init
     addAutoCastAbilityToUnitType( WEBBER, 
         new AutoCastAbilityType( WEB_ID, Orders.chainlightning, TargetType.ENEMY_UNIT, 5000, 1, WEB_COOLDOWN ) )
 
-    
+    // Register
+    addAutoCastAbilityToUnitType( SPITTER, 
+        new AutoCastAbilityType( POISON_SPIT_ID, Orders.chainlightning, TargetType.ENEMY_UNIT, 5000, 1, POISON_SPIT_RATE ) )
+
+
+    // Registering Spell Effects
     registerSpellEffectEvent( WEB_ID, function webOnCast )
+    registerSpellEffectEvent( POISON_SPIT_ID, function onPoisonSpit )
     
 
 
@@ -215,56 +232,86 @@ function webOnCast()
 // =============================================================================================================================================
 // POISON
 
-class PoisonedUnit extends Updater
+
+@compiletime
+function createPoisonAbility()
+    new AbilityDefinitionChainLightningcreep(POISON_SPIT_ID)
+    ..setLightningEffects("")
+    ..setArtSpecial("")
+    ..setArtTarget("")
+    ..setDamageperTarget(1, 0)
+    ..setAnimationNames("attack")
+    ..setCastRange(1, POISON_ATTACK_RANGE)
+    ..setNumberofTargetsHit(1, 1)
+    ..setManaCost(1,0)
+
+function onPoisonSpit()
+    let caster = GetSpellAbilityUnit()
+    let targetPos = GetSpellTargetUnit().getPos().withTerrainZ()
     
+    new Projectile( caster.getPos().withTerrainZ(30), Abilities.chimaeraAcidMissile )
+    ..firePoint( targetPos, POISON_SPEED, 0.2)
+    ..addActionOnFinish() ->
+        let targets = ENUM_GROUP..enumEnemyTargets( ENEMYPLAYER, targetPos.toVec2(), POISON_AOE )
+    
+        for target from targets
+            caster.damageTargetPhysical(target, POISON_SPIT_DMG)
+            target.addPoisonStack(1)
+
+
+class PoisonedUnit extends Updater
     private static let instances = new IterableMap<unit, thistype>
+
+    private effect sfx = null
 
     private unit theUnit = null
     private int stacks = 0
-   
+
+    private CallbackPeriodic diminishCb
+    private CallbackSingle diminishDelayCb
 
     construct( unit whichUnit )
         this.theUnit = whichUnit
-
+        sfx = addEffect( Abilities.bottleImpact, whichUnit, "chest")
+        whichUnit.addAbility(POISON_BUFF_ID.abilId)
         updateFreq = 1. // update freq
-
         instances.put( whichUnit, this )
+
+        startUpdate()
 
 
     ondestroy
-        
         if theUnit == null
             instances.removeValue(this, true)
-
         else
             instances.remove(theUnit)
-
+            sfx.destr()
+            theUnit.removeAbility(POISON_BUFF_ID.abilId)
 
 
     override function update()
         // Deal damage
         
-
     
-    function applyStack( int stacks )
-        this.stacks += stacks
+    function applyStack( int stacksToApply )
+        this.stacks += stacksToApply
 
-        if this.stacks > 0
-            // Update the visual - restart
+        if stacksToApply > 0
+            // if diminishDelayCb == null
+            //     diminishDelayCb = doAfter( POISON_DIMINISH_DELAY) ->
+            //         if diminishCb == null
+            //             doPeriodically(POISON_DIMINISH_RATE) cb ->
+            //                 applyStack(-1)
+                            
 
-        else
+
+        else if stacks <= 0
             destroy this
-        
-
-
+    
     static function getInstance( unit whichUnit ) returns thistype
-        if instances.has( whichUnit )
-            return instances.get(whichUnit)
-        else
-            return new PoisonedUnit(whichUnit)
+        return instances.has( whichUnit ) ? instances.get(whichUnit) : new PoisonedUnit(whichUnit)
 
 
-        
 /** Add or subtract stacks */
 public function unit.addPoisonStack( int stacks )
     PoisonedUnit.getInstance(this).applyStack( stacks )
