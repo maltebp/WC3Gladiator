@@ -36,18 +36,18 @@ let MYRMIDON_ID     = 'n00X'
 
 
 // Tornado
-let TORNADO_DAMAGE = 70. // Per second
+let TORNADO_DAMAGE = 35. // Per second
 let TORNADO_RANGE   = 125.
 let TORNADO_SPEED   = 50.
 
 // Storm Charge
-let STORMCHARGE_DAMAGE = 30.
+let STORMCHARGE_DAMAGE = 15.
 let STORMCHARGE_RANGE = 175.
 let STORMCHARGE_DAMAGEFREQ = 1.
 
 // Wounding Strike
-let WOUNDINGSTRIKE_DAMAGE_INITIAL = 30.
-let WOUNDINGSTRIKE_DAMAGE_OVERTIME = 10.
+let WOUNDINGSTRIKE_DAMAGE_INITIAL = 15.
+let WOUNDINGSTRIKE_DAMAGE_OVERTIME = 8.
 let WOUNDINGSTRIKE_COOLDOWN = 15.
 let WOUNDINGSTRIKE_DURATION = 6.
 let WOUNDINGSTRIKE_ATTACKSPEEDRED = 0.
@@ -60,7 +60,7 @@ let SUMMONELEMENTAL_COOLDOWN = 15.
 // Elemental Attack
 let ELEMENTAL_RANGE = 700.
 let ELEMENTAL_COOLDOWN = 2.
-let ELEMENTAL_DAMAGE = 70.
+let ELEMENTAL_DAMAGE = 35.
 let ELEMENTAL_DISTANCE = 1000.
 let ELEMENTAL_WIDTH = 200.
 let ELEMENTAL_SPEED = 350.
@@ -90,7 +90,7 @@ init
     ..setReward(30, 3)
     ..setTitle("Naga")
     ..setDescription("Take care of the wind and the tide.")
-    ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
+    ..setHealthOrbSpawn(100, 75, 0.1, 30, 0.02)
     ..addItemRewards( ITEM_LIVINGWATER ) 
 
     // Storm Caller 1

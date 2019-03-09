@@ -26,7 +26,7 @@ init
     ..setTitle("Necromancers")
     ..setDescription("If you think they stand alone, it will cost you dearly")
 
-    ..setHealthOrbSpawn(100, 50, 0.1, 25, 0.05)
+    ..setHealthOrbSpawn(100, 50, 0.1, 25, 0.02)
 
     RemoteFunction<UnitSpawner> func
 

@@ -43,7 +43,7 @@ init
 
     ..setTitle("Arcane Beings")
     ..setDescription("These beings can grow big - but even though that sounds fascinating, you probably shouldn't let them.")
-    ..setHealthOrbSpawn(100, 50, 0.1, 25, 0.05)
+    ..setHealthOrbSpawn(100, 50, 0.1, 25, 0.02)
 
     RemoteFunction<UnitSpawner> func
 
