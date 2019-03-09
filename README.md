@@ -1,6 +1,6 @@
 # Gladiator - Warcraft 3 Custom Map :dragon:
 
-[Latest Release (v0.1.1a)](https://github.com/maltebp/WC3Gladiator/releases/download/v0.1.1a/Gladiator-v0.1.1a.w3x)
+[DOWNLOAD](https://github.com/maltebp/WC3Gladiator/releases/latest)
 
 [Hiveworkshop Post](https://www.hiveworkshop.com/threads/gladiator-alpha.310920/)
 
@@ -9,7 +9,8 @@
 
 ### Currently working on...
 1. Focus on creating rounds up to round 15 (release 0.2a)
-2. Designing and rough implementation code for the new combat system. Check it out and bring me your feedback [here](https://www.hiveworkshop.com/threads/ideas-feedback-for-combat-system.312212/)! :smile:
+2. Creating a missile system, which I need before I can finish a specific round (see repo [here](https://github.com/maltebp/MissileSystem))
+3. _On hold:_ Designing and rough implementation code for the new combat system. Check it out and bring me your feedback [here](https://www.hiveworkshop.com/threads/ideas-feedback-for-combat-system.312212/)! :smile:
 
 
 
