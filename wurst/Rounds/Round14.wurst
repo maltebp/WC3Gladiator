@@ -31,6 +31,7 @@ import ClosureForGroups
 import MyLibrary
 import InstantDummyCaster
 import TimedSpecialEffects
+import Updater
 //=========================================================================================================================================================
 
 // ROUND SETTINGS
@@ -55,7 +56,7 @@ let EGG_HATCHTIME       = 100
 let EGG_SPAWNRECT       = gg_rct_Arena_Spawn1
 let BROOD_STARTCOOLDOWN = 1.
 let BROOD_COOLDOWN      = 2.
-let BROOD_TIMEREDUCED   = 8 // Per second
+let BROOD_TIMEREDUCED   = 6 // Per second
 let BROOD_ABILITYID     = 'A029'
 
 // DragonStrike
@@ -329,47 +330,66 @@ function unitDies()
 function unit.isTargetOfBrood() returns boolean
     return Brood.targets.contains(this)
 
-class Brood extends ChannelOnUnit
+
+
+// ==========================================================================================================================================
+// BROOD
+
+class Brood extends Updater
+
+    // Saved to ensure that to Brooders wont target the same egg.
+    static let targets = new LinkedList<unit>
 
     private effect targetSfx
     private Lightning lightningSfx
-    private timer timer_Animation
 
-    static let targets = new LinkedList<unit>
+    private unit target = null
+    private unit caster = null
+
+    private CallbackPeriodic effectCb = null
+    private CallbackPeriodic animationCb = null
 
     construct(unit caster, unit target)
-        super( caster, target, 0, 1 )
+        this.caster = caster
+        this.target = target
 
         targets.add(target)
 
-        caster.setAnimation("spell")
-
-        targetSfx = addEffect(Abilities.aerialShacklesTarget, target.getPos())
+        targetSfx = addEffect(Abilities.aerialShacklesTarget, target.getPos().withTerrainZ(10))
         ..setScale(0.9)
-        ..setHeight(10)
         ..setRoll(angle(PIHALF)+target.getFacingAngle())
 
-        
         lightningSfx = new Lightning(LIGHTNING_MAGIC_LEASH,0)
-        ..setSource(caster.getPos3with(60))
-        ..setTarget(target.getPos3with(25))
+        ..setSource(caster.getPos().withTerrainZ(60))
+        ..setTarget(target.getPos().withTerrainZ(20))
 
-        timer_Animation = getTimer()
-        ..setUnitData(caster)
-        ..startPeriodic(1.5, () -> GetExpiredTimer().getUnitData().setAnimation("spell"))
+        caster.setAnimation("spell")
+        animationCb = doPeriodically(1.5) cb ->
+            caster.setAnimation("spell")
 
+        effectCb = doPeriodically(1) cb ->
+            if checkForDestroy()
+                DragonEgg.getInstance(target).reduceHatchTime(BROOD_TIMEREDUCED)
 
     ondestroy
         targetSfx.destr()
         destroy lightningSfx
-        timer_Animation.release()
+        
+        destroy effectCb
+        destroy animationCb
 
         if target != null
             targets.remove(target)
 
-    override function periodicEffect()
-        DragonEgg.getInstance(target).reduceHatchTime(BROOD_TIMEREDUCED)
+    private function checkForDestroy() returns boolean
+        if caster == null or not caster.isAliveTrick() or target == null or not target.isAliveTrick()
+            destroy this
+            return false
+        return true
 
+    override function update()
+        checkForDestroy()
+    
 
 class AutoCastBrood extends AutoCastAbilityType
     
@@ -381,7 +401,6 @@ class AutoCastBrood extends AutoCastAbilityType
 
         unit bestTarget = null
 
-        print("checking for target")
 
         let allEggs = DragonEgg.getAllEggs()
 
@@ -411,11 +430,15 @@ class AutoCastBrood extends AutoCastAbilityType
 
         else
             if bestTarget.getMaxHP() == bestTarget.getHP()
-                bestTarget.setHP( bestTarget.getMaxHP()-1)
+                bestTarget.setHP( bestTarget.getMaxHP()-5)
             caster.issueTargetOrderById(orderId, bestTarget)
 
         return true
 
+
+
+// ==========================================================================================================================================
+// MEND EGGS
 
 class AutoCastMendEggs extends AutoCastAbilityType
     
@@ -446,7 +469,7 @@ class AutoCastMendEggs extends AutoCastAbilityType
         
 
 
-
+// ===============================================================================================================================================================================================================
 
 class DragonStrikeDebuff
 
@@ -590,7 +613,7 @@ function mendEggs_OnCast()
 
         if egg.getTypeId() == EGG_ID and egg.isAliveTrick() and egg.getHP() < egg.getMaxHP()
         
-            let maxHp = egg.getMaxHP()
+            let maxHp = egg.getMaxHP()-5
             let currentHp = egg.getHP()
             let finalHp = ( (currentHp+MENDEGGS_HEALAMOUNT) < maxHp ) ? currentHp+MENDEGGS_HEALAMOUNT : maxHp
             
