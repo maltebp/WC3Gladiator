@@ -165,6 +165,7 @@ public constant let     ITEM_GIANTSSKIN = new ItemReward('I00U')
 public constant let ITEM_FELSTONE = new ItemReward('I01R')
 public constant let ITEM_LIVINGWATER = new ItemReward('I01S')
 public constant let ITEM_TRIDENT = new ItemReward('I01T')
+public constant let ITEM_SPIDERBRACERS = new ItemReward('I01U')
 
 
 

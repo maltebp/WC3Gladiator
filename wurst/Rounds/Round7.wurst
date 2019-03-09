@@ -23,7 +23,7 @@ import TimerUtils
 // SETTINGS
 
 let POISON_DMG = 1. // Per second
-let POISON_DIMINISH_DELAY = 3.
+let POISON_DIMINISH_DELAY = 2.
 let POISON_DIMINISH_RATE = 0.5 // time between each diminish
 let POISON_ATTACK_RANGE = 600.
 let POISON_SPEED = 600.
@@ -57,63 +57,63 @@ init
     ..setDescription("They're everywhere!")
     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
     ..setReward(30, 3)
-    ..addItemRewards()
+    ..addItemRewards(ITEM_SPIDERBRACERS)
 
 
-    // // Hatchling 1
-    // round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
-    // ..setStartDelay(3)
-    // ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSpawnCount(120)
-    // // ..setSpawnEffect( Abilities.orbVenomMissile )
-
-    // // Hatchling 2
-    // round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
-    // ..setStartDelay(3)
-    // ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSpawnCount(120)
-    // // ..setSpawnEffect( Abilities.orbVenomMissile )
-
-    // // Hatchling 2
-    // round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
-    // ..setStartDelay(50)
-    // ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSpawnCount(70)
-    // // ..setSpawnEffect( Abilities.orbVenomMissile )
-
-    // // Webber 3
-    // round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 8))
-    // ..setStartDelay(10)
-    // ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSpawnCount(15)
-    // // ..setSpawnEffect( Abilities.orbVenomMissile )
-    // ..setSoundOnSpawn( Sounds.arachnathidWhat2)
-
-    // // Webber 3
-    // round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 15))
-    // ..setStartDelay(40)
-    // ..setFrequencyDeviation(0.1)
-    // ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    // ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    // ..setSpawnCount(7)
-    // // ..setSpawnEffect( Abilities.orbVenomMissile )
-    // ..setSoundOnSpawn( Sounds.arachnathidWhat2)
-
-    // Spitter 1
-    round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 6))
-    ..setStartDelay(20)
+    // Hatchling 1
+    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(16)
+    ..setSpawnCount(120)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+
+    // Hatchling 2
+    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    ..setStartDelay(3)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(120)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+
+    // Hatchling 2
+    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    ..setStartDelay(50)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(70)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+
+    // Webber 3
+    round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 8))
+    ..setStartDelay(10)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(15)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+    ..setSoundOnSpawn( Sounds.arachnathidWhat2)
+
+    // Webber 3
+    round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 15))
+    ..setStartDelay(40)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(7)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+    ..setSoundOnSpawn( Sounds.arachnathidWhat2)
+
+    // Spitter 1
+    round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 12))
+    ..setStartDelay(12)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(10)
     // ..setSpawnEffect( Abilities.orbVenomMissile )
     ..setSoundOnSpawn( Sounds.arachnathidWhat1)
 
@@ -206,7 +206,6 @@ function webOnCast()
 
     projectile.addActionOnFinish() ->
         if target.isAliveTrick()
-            print(target.getName() + " is webbed!")
 
             InstantDummyCaster.castTarget( ENEMYPLAYER, WEB_DUMMY_ID, 1, Orders.ensnare, target)
             
@@ -267,7 +266,8 @@ class PoisonedUnit extends Updater
     private static let TEXTSIZE = 11.
     private static let TEXT_Z_OFFSET = 160.
     
-    private static let instances = new IterableMap<unit, thistype>
+    private static let instances = new LinkedList<thistype>
+    private static let units = new IterableMap<unit, thistype>
 
     private effect sfx = null
 
@@ -288,7 +288,8 @@ class PoisonedUnit extends Updater
         sfx = addEffect( Abilities.bottleImpact, whichUnit, "chest")
         whichUnit.addAbility(POISON_BUFF_ID.abilId)
         updateFreq = 1. // update freq
-        instances.put( whichUnit, this )
+        units.put( whichUnit, this )
+        instances.add(this)
 
         // Using damage source to ensure that damage is dealt even if the spider is dead
         damageSource = DummyRecycler.get(vec2(0,0), angle(0))
@@ -317,12 +318,13 @@ class PoisonedUnit extends Updater
         diminishDelayTimer.release()
 
         if theUnit == null
-            instances.removeValue(this, true)
+            units.removeValue(this, true)
         else
-            instances.remove(theUnit)
+            units.remove(theUnit)
             sfx.destr()
             theUnit.removeAbility(POISON_BUFF_ID.abilId)
-        
+
+        instances.remove(this)
 
 
     override function update()
@@ -350,8 +352,13 @@ class PoisonedUnit extends Updater
             destroy this
     
     static function getInstance( unit whichUnit ) returns thistype
-        return instances.has( whichUnit ) ? instances.get(whichUnit) : new PoisonedUnit(whichUnit)
+        return units.has( whichUnit ) ? units.get(whichUnit) : new PoisonedUnit(whichUnit)
 
+
+    static function clearAll()
+        /* We have to list with instances, in case that the units are removed from the map. */
+        for instance in instances
+            destroy instance
 
 /** Add or subtract stacks */
 public function unit.addPoisonStack( int stacks )
