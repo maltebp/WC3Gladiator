@@ -54,7 +54,7 @@ init
     round = new Round
     ..setTitle("Arachnophobia")
     ..setDescription("They're everywhere!")
-    ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
+    ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.02)
     ..setReward(30, 3)
     ..addItemRewards(ITEM_SPIDERBRACERS)
     ..setCodeOnLastUnitDeath() r ->
