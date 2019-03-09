@@ -1,15 +1,10 @@
-// ======================================================================================================================================
+package Round7
 
-package Round13
-
-// -------------------------------------------------------------------------------------------------------------------------------------
-
-import public Round12
-
+import public Round6
 import DiseaseCloud
 import UnitVisualsUtils
 
-constant real DISEASEDAMAGE = 35
+constant real DISEASEDAMAGE = 20
 
 
 constant int GHOUL = 'u004'
@@ -26,7 +21,7 @@ init
 
 
     ..setTitle("Ghosts 'n' Stuff")
-    ..setDescription("It seems like somebody's watching you.")
+    ..setDescription("It seems like somebody's watching you. And what is that smell?")
     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
     ..setCodeOnClear() r ->
         removeClouds()

@@ -140,6 +140,7 @@ public class ItemShop
 // SHOP SETUP
 public constant ItemShop    SHOP_NOVICEGEAR             = new ItemShop(gg_unit_n003_0015)
 public constant ItemShop    SHOP_CHAMPIONGEAR           = new ItemShop(gg_unit_n002_0017)
+public constant ItemShop    SHOP_LEGENDSGEAR            = new ItemShop(gg_unit_n000_0000)
 
 // ITEM SETUP
 public constant let  ITEM_COMMONGEM          = new ItemReward( 'I00A' )
@@ -165,6 +166,7 @@ public constant let     ITEM_GIANTSSKIN = new ItemReward('I00U')
 public constant let ITEM_FELSTONE = new ItemReward('I01R')
 public constant let ITEM_LIVINGWATER = new ItemReward('I01S')
 public constant let ITEM_TRIDENT = new ItemReward('I01T')
+public constant let ITEM_SPIDERBRACERS = new ItemReward('I01U')
 
 
 

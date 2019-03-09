@@ -3,15 +3,12 @@ package Round6
 import public Round5
 
 import TimerUtils
-import Orders
 import RegisterEvents
 import GroundEffect
 import GroupUtils
 import TimedSpecialEffects
 import AutoCastAbility
 import Damage
-
-import LinkedList
 
 LinkedList<Flame> flames = new LinkedList<Flame>
 
@@ -30,7 +27,7 @@ init
 
     ..setTitle("Through the Fire and Flames")
     ..setDescription("Should you stand in the fire?")
-    ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
+    ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.02)
     ..setCodeOnClear() r ->
         removeFlames()
 

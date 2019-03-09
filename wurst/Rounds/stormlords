@@ -1,8 +1,6 @@
+package Round8
 
-package Round15
-
-import public Round14
-
+import public Round7
 import TimerUtils
 import RegisterEvents
 import AutoCastAbility
@@ -15,9 +13,9 @@ import InstantDummyCaster
 import Damage
 
 
-constant real LIGHTNINGWARD_DAMAGE = 40
+constant real LIGHTNINGWARD_DAMAGE = 30
 
-constant real LIGHTNINGCHARGE_DAMAGE = 225
+constant real LIGHTNINGCHARGE_DAMAGE = 125
 constant real LIGHTNINGCHARGE_RANGE = 350
 constant real LIGHTNINGCHARGE_DURATION = 8
 

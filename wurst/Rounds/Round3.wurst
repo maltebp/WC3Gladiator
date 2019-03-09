@@ -2,6 +2,34 @@ package Round3
 
 import public Round2
 import TimerUtils
+import Updater
+import ClosureTimers
+import Assets
+import TimedSpecialEffects
+import ClosureForGroups
+import DummyRecycler
+import MyLibrary
+import Damage
+import ObjectIdGenerator
+import AbilityObjEditing
+import AutoCastAbility
+import RegisterEvents
+import Projectile
+import GroupUtils
+
+
+let EXPLOSION_DAMAGE = 50. // Base
+let EXPLOSION_COUNTDOWN = 3.
+let EXPLOSION_DELAY = 0.5
+let EXPLOSION_RANGE = 200 // BASE
+let EXPLOSION_MINDAMAGE = 0.5 // Percentage
+
+let MISSILES_DAMAGE_FACTOR = 1.5
+let MISSILES_RANGE = 2000.
+let MISSILES_COOLDOWN = 10.
+
+let MISSILES_ID = compiletime(ABIL_ID_GEN.next() )
+let MISSILES_SOUND = new SoundDefinition(Sounds.shimmeringPortalEntrance, false, true)
 
 
 init
@@ -15,7 +43,7 @@ init
 
     ..setTitle("Arcane Beings")
     ..setDescription("These beings can grow big - but even though that sounds fascinating, you probably shouldn't let them.")
-    ..setHealthOrbSpawn(100, 50, 0.1, 25, 0.05)
+    ..setHealthOrbSpawn(100, 50, 0.1, 25, 0.02)
 
     RemoteFunction<UnitSpawner> func
 
@@ -66,9 +94,13 @@ init
     ..setCodeOnSpawn(func)
     ..setSoundOnSpawn(Sounds.obsidianAvengerWhat2)
 
-    
+    addAutoCastAbilityToUnitType('n008', new AutoCastAbilityType( MISSILES_ID, Orders.roar, TargetType.ENEMY_IMMEDIATE, MISSILES_RANGE, 5, MISSILES_COOLDOWN ))
 
-class Grow
+
+// ======================================================================================================================================
+// GROW
+
+class Grow extends Updater
     
     private static constant real    GROWTH_DURATION = 30
     private static constant real    GROWTH_SCALE = 0.75                  // Final scale increase in %
@@ -86,7 +118,6 @@ class Grow
 
     private integer growthCounter = 1 
     private unit    mob
-    private timer   timer_Grow
 
     construct(unit whichUnit, real startScale)
         mob = whichUnit
@@ -97,37 +128,137 @@ class Grow
         scalePerGrowth = (startScale * GROWTH_SCALE) / I2R(GROWTH_MAXCOUNT)
         damagePerGrowth = (I2R(startDamage)*GROWTH_DMG) / I2R(GROWTH_MAXCOUNT)
         
-        timer_Grow = getTimer()
-        ..setData(this castTo int)
-        ..startPeriodic( GROWTH_FREQ, function callGrowth )
+        updateFreq = GROWTH_FREQ
+        startUpdate()
 
     ondestroy
-        timer_Grow.release()
+        if mob != null
+            new ArcaneExplosion(mob.getPos(), growthCounter)
 
-    private static function callGrowth()
-        GetExpiredTimer().getData() castTo thistype.grow()
-
-    private function grow()
+    override function update()
     
         if( mob != null and mob.isAliveTrick() )
-    
+
             if( growthCounter <= GROWTH_MAXCOUNT )
                 growthCounter = growthCounter + 1
 
                 mob.setBaseDamage(startDamage+R2I(damagePerGrowth*growthCounter), 1)
                 mob.setScale(startScale+scalePerGrowth*growthCounter)
-                
+    
 
-            else
-                destroy this
         else
             destroy this
+            
 
 
 
+
+// ======================================================================================================================================
+// ARCANE EXPLOSION
         
 
+class ArcaneExplosion
+    private vec3 pos
+    private int growthCount
 
+    private effect array[2] sfx 
+
+    construct( vec2 pos, int growthCount )
+
+        this.pos = pos.withTerrainZ() - vec3(-20, 0, 0) // apparently the position is off by a lil bit
+        this.growthCount = growthCount
+
+        sfx[0] = addEffect( Units.wisp1, pos + vec3(0,0,30))
+        ..setScale( 1 * (1. + growthCount/75.) )
+        ..setColorByPlayer( Player(3) )
+        ..setColor(255, 100, 255)
+
+        sfx[1] = addEffect( Units.wisp1, pos + vec3(0,0,30))
+        ..setScale( 0.8 * (1. + growthCount/75.) )
+        ..setColorByPlayer( Player(21) )
+
+        doAfter( EXPLOSION_COUNTDOWN ) ->
+            this.explode()
     
 
+    private function explode()
+
+        sfx[0].destr()
+        sfx[1].destr()
+
+        doAfter( EXPLOSION_DELAY ) ->
+
+            addEffect( Abilities.orbOfDeathMissile, this.pos + vec3(0,0,30) )
+            ..setScale(1.2 * (1. + growthCount/75.))
+            ..setTimeScale(0.75)
+            ..destr()
+            
+            addEffect( Abilities.steamTankImpact, this.pos )
+            ..setScale(0.6 * (1. + growthCount/75.))
+            ..destr()
+
+            addEffect( Units.wispExplode, this.pos )
+            ..setScale(0.6 * (1. + growthCount/50.))
+            ..setTime(0.3)
+            ..setTimeScale(1.5)
+            ..setDuration(4)
+
+            let scaledRange = EXPLOSION_RANGE * (1. + growthCount/75.)
+            let scaledDamage =  EXPLOSION_DAMAGE * (1. + growthCount/25.)
+
+            let pos2 = pos.toVec2()
+            let source = DummyRecycler.get(pos2, angle(0))
+
+            forUnitsInRange(pos2, scaledRange) target ->
+                if target.getOwner().isEnemyOf(ENEMYPLAYER)
+                    flashEffect(Abilities.blackKeeperMissile, target, "chest")
+
+                    let distance = target.getPos().distanceTo(pos2)
+                    let exactDamage = scaledDamage * (1 - (distance/scaledRange)*(1.-EXPLOSION_MINDAMAGE) )
+
+                    source.damageTargetSpell(target, exactDamage)
+            
+
+            destroy this
+
+    ondestroy
+        
+        
+            
+
+// ======================================================================================================================================
+// MISSILES
+
+@compiletime
+function createMissilesAbility()
     
+    new AbilityDefinitionRoarcreep(MISSILES_ID)
+    ..setManaCost(1, 0)
+    ..setCooldown(1, 0)
+    ..setTargetsAllowed(1, "none")
+    ..setArtCaster("")
+    ..setAnimationNames("spell")
+
+init
+    registerSpellEffectEvent( MISSILES_ID) ->
+        let caster = GetSpellAbilityUnit()
+
+        let casterDamage = caster.getBaseDamage(1)*MISSILES_DAMAGE_FACTOR
+        MISSILES_SOUND.playOnPoint(caster.getPos3Real())
+        
+        forEnemiesInRange( ENEMYPLAYER, caster.getPos(), MISSILES_RANGE ) target ->
+            let projectile = new Projectile( caster.getPos().withTerrainZ(75), Abilities.druidoftheTalonMissile)
+            ..fireUnit(target, 50, true, 800, 0)
+            ..addActionOnFinish() ->
+                caster.damageTargetSpell(target, casterDamage)
+                target.addEffect( Abilities.blackKeeperMissile, "chest")
+                ..destr()            
+            projectile.getEffect().setScale(2)
+
+            
+
+        doAfter(1) ->
+            let units = ENUM_GROUP..enumEnemyTargets(caster.getOwner(), caster.getPos(), 5000)
+            caster.issueTargetOrderById(Orders.attack, units.getNearestUnit(caster.getPos()) )
+            units.clear()
+        

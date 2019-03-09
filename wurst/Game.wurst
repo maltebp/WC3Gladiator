@@ -17,10 +17,10 @@ constant boolean    ARENACORNERSPAWN        = false
 constant boolean    PREPAREHERO             = false
 constant boolean    LOCKCAMBOUNDS           = true
 constant boolean    MAKEMAPVISIBLE          = false
-constant boolean    CUSTOMROUNDSTART        = false
+constant boolean    CUSTOMROUNDSTART        = true
 constant boolean    STARTATSPECIFICROUND    = true
-int        STARTINGROUND                    = 12
-public let                 FINALROUND       = 13
+int        STARTINGROUND                    = 1
+public let                 FINALROUND       = 15
 constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
 constant boolean    PRINTALPHAINTRO         = true
 

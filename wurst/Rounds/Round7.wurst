@@ -1,114 +1,367 @@
 package Round7
 
 import public Round6
-import DiseaseCloud
 import UnitVisualsUtils
+import HashMap
+import Updater
+import ObjectIdGenerator
+import AbilityObjEditing
+import AutoCastAbility
+import Assets
+import BuffObjEditing
+import ObjectIds
+import Projectile
+import RegisterEvents
+import ClosureTimers
+import InstantDummyCaster
+import MyLibrary
+import Damage
+import DummyRecycler
+import TimerUtils
 
-constant real DISEASEDAMAGE = 20
+// ===========================================================================================================================
+// SETTINGS
+
+let POISON_DMG = 1. // Per second
+let POISON_DIMINISH_DELAY = 2.
+let POISON_DIMINISH_RATE = 0.5 // time between each diminish
+let POISON_ATTACK_RANGE = 600.
+let POISON_SPEED = 600.
+let POISON_AOE = 150.
+let POISON_SPIT_DMG = 5.
+let POISON_SPIT_RATE = 2.
+
+let WEB_DURATION = 1.
+let WEB_COOLDOWN = 8.
+let WEB_RANGE = 600.
+
+// IDs
+let HATCHLING = 'n012'
+let SPITTER = 'n013'    
+let WEBBER = 'n014'
+
+let WEB_ID = compiletime( ABIL_ID_GEN.next() )
+let WEB_DUMMY_ID = compiletime( ABIL_ID_GEN.next() )
+
+let POISON_SPIT_ID = compiletime( ABIL_ID_GEN.next() )
+let POISON_BUFF_ID = compiletime( createDummyBuffObject("Poison", "You have been poisoned by a spider", Icons.bTNCorrosiveBreath ))
 
 
-constant int GHOUL = 'u004'
-
+// ===========================================================================================================================
+// SETUP
 init
-//=========================================================================================================================================================
-//  Ghosts 'n' Stuff
-
 
     round = new Round
+    ..setTitle("Arachnophobia")
+    ..setDescription("They're everywhere!")
+    ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.02)
     ..setReward(30, 3)
-    ..addArtifactRewards(ARTIFACT_TOKENOFSAMURO)
-    ..addItemRewards(ITEM_SOULSTONE)
+    ..addItemRewards(ITEM_SPIDERBRACERS)
+    ..setCodeOnLastUnitDeath() r ->
+        PoisonedUnit.clearAll()
 
 
-    ..setTitle("Ghosts 'n' Stuff")
-    ..setDescription("It seems like somebody's watching you. And what is that smell?")
-    ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
-    ..setCodeOnClear() r ->
-        removeClouds()
+    // Hatchling 1
+    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    ..setStartDelay(3)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(120)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
 
+    // Hatchling 2
+    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    ..setStartDelay(3)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(120)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
 
+    // Hatchling 2
+    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    ..setStartDelay(50)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(70)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
 
-    // Ghoul - 1
-    round.addSpawner(new UnitSpawner(GHOUL, ENEMYPLAYER, vec2(-639,1025), 8))
-    ..setStartDelay(4)
+    // Webber 3
+    round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 8))
+    ..setStartDelay(10)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(15)
-    ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
-    
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+    ..setSoundOnSpawn( Sounds.arachnathidWhat2)
 
-    // Ghoul - 2
-    round.addSpawner(new UnitSpawner(GHOUL, ENEMYPLAYER, vec2(527,1025), 15))
+    // Webber 3
+    round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 15))
     ..setStartDelay(40)
-    ..setFrequencyDeviation(0.03)
+    ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(5)
-    ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
-    
-    RemoteFunction<UnitSpawner> func
+    ..setSpawnCount(7)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+    ..setSoundOnSpawn( Sounds.arachnathidWhat2)
 
-    func = (UnitSpawner spawner) -> begin
-        Disease.addUnit(spawner.getLastSpawnedUnit(), DISEASEDAMAGE, 0, 150)
-    end
-
-    // Zombie - 1
-    round.addSpawner(new UnitSpawner('n00D', ENEMYPLAYER, vec2(527,1025), 15))
-    ..setStartDelay(10)
-    ..setFrequencyDeviation(0.03)
+    // Spitter 1
+    round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 12))
+    ..setStartDelay(12)
+    ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(8)
-    ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
-    ..setCodeOnSpawn(func)
+    ..setSpawnCount(10)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+    ..setSoundOnSpawn( Sounds.arachnathidWhat1)
 
-    func = (UnitSpawner spawner) -> begin
-        Disease.addUnit(spawner.getLastSpawnedUnit(), DISEASEDAMAGE, 0, 150)
-    end
-
-    // Zombie - 2
-    round.addSpawner(new UnitSpawner('n00D', ENEMYPLAYER, vec2(527,1025), 20))
-    ..setStartDelay(40)
-    ..setFrequencyDeviation(0.03)
+    // Spitter 2
+    round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 6))
+    ..setStartDelay(50)
+    ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(4)
-    ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
-    ..setCodeOnSpawn(func)
+    ..setSpawnCount(10)
 
-    // Ghost - 1
-    round.addSpawner(new UnitSpawner('u005', ENEMYPLAYER, vec2(527,1025), 18))
-    ..setStartDelay(20)
-    ..setFrequencyDeviation(0.03)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(6)
-    ..setSpawnEffect("Abilities\\Spells\\NightElf\\Blink\\BlinkCaster.mdl")
 
-    // Ghost - 1
-    round.addSpawner(new UnitSpawner('u005', ENEMYPLAYER, vec2(527,1025), 30))
-    ..setStartDelay(80)
-    ..setFrequencyDeviation(0.03)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(2)
-    ..setSpawnEffect("Abilities\\Spells\\NightElf\\Blink\\BlinkCaster.mdl")
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+    ..setSoundOnSpawn( Sounds.arachnathidWhat1)
 
-    
+
+    // Player Color
+    UnitVisuals.addUnitType(HATCHLING).setPlayerColor(PLAYER_COLOR_COAL)
+    UnitVisuals.addUnitType(WEBBER).setPlayerColor(PLAYER_COLOR_COAL)
+    UnitVisuals.addUnitType(SPITTER).setPlayerColor(PLAYER_COLOR_MINT)
+
+    // Register
+    addAutoCastAbilityToUnitType( WEBBER, 
+        new AutoCastAbilityType( WEB_ID, Orders.chainlightning, TargetType.ENEMY_UNIT, 5000, 1, WEB_COOLDOWN ) )
+
+    // Register
+    addAutoCastAbilityToUnitType( SPITTER, 
+        new AutoCastAbilityType( POISON_SPIT_ID, Orders.chainlightning, TargetType.ENEMY_UNIT, 5000, 1, POISON_SPIT_RATE ) )
+
+
+    // Registering Spell Effects
+    registerSpellEffectEvent( WEB_ID, function webOnCast )
+    registerSpellEffectEvent( POISON_SPIT_ID, function onPoisonSpit )
     
 
-function removeClouds()
-    DiseaseCloud.destroyAll()
+
+
+
+
+// =============================================================================================================================================
+// WEB
+
+@compiletime
+function createWebAbility()
+
+
+    new AbilityDefinitionChainLightningcreep(WEB_ID)
+    ..setLightningEffects("")
+    ..setArtSpecial("")
+    ..setArtTarget("")
+    ..setDamageperTarget(1, 0)
+    ..setAnimationNames("spell")
+    ..setCastRange(1, WEB_RANGE)
+    ..setNumberofTargetsHit(1, 1)
+    ..setManaCost(1,0)
+
+    
+
+    let tempBuff1 = BUFF_ID_GEN.next()
+    let tempBuff2 = BUFF_ID_GEN.next()
+
+    new BuffDefinition(tempBuff1,'Bena')
+    ..setIcon(Icons.bTNWeb)
+    ..setTooltipNormal(1, "Ensnare")
+    ..setArtTarget(1, "" )
+
+    new BuffDefinition(tempBuff2,'Beng')
+    ..setIcon(Icons.bTNWeb)
+    ..setTooltipNormal(1, "Ensnare")
+    ..setTooltipNormalExtended(1, "Can't move.")
+
+    new AbilityDefinitionEnsnare(WEB_DUMMY_ID)
+    ..setTooltipNormal(1, "Ensnare")
+    ..setTooltipNormalExtended(1, "")
+    ..setMissileArt("")
+    ..setMissileSpeed(10000)
+    ..setManaCost(1, 0)  
+    ..setCooldown(1, 0)
+    ..setDurationHero(1, WEB_DURATION)
+    ..setDurationNormal(1, WEB_DURATION)
+    ..setRequirements("")
+    ..setCooldown(1,0)
+    ..setBuffs( 1, tempBuff2.toRawCode()+","+tempBuff1.toRawCode())
+
+function webOnCast()
+    let caster = GetSpellAbilityUnit()
+    let target = GetSpellTargetUnit()
+
+    let projectile = new Projectile( caster.getPos().withTerrainZ(30), Abilities.webmissile )
+
+    projectile.addActionOnFinish() ->
+        if target.isAliveTrick()
+
+            InstantDummyCaster.castTarget( ENEMYPLAYER, WEB_DUMMY_ID, 1, Orders.ensnare, target)
+            
+            let sfx = addEffect(Abilities.webTarget, target.getPos().withTerrainZ(40))
+            ..setScale(1.25)
+
+            doAfter(WEB_DURATION) ->
+                if sfx != null
+                    sfx.destr()
+            
+            doPeriodicallyTimed(0.2, WEB_DURATION-0.1) cb ->
+                if not target.isAlive() and sfx != null
+                    sfx.destr()
+                    destroy cb
+
+            
+            
+            
+
+
+    projectile.fireUnit(target, 50, true, 600, 0.25)
+
+
+
+
+// =============================================================================================================================================
+// POISON
+
+
+@compiletime
+function createPoisonAbility()
+    new AbilityDefinitionChainLightningcreep(POISON_SPIT_ID)
+    ..setLightningEffects("")
+    ..setArtSpecial("")
+    ..setArtTarget("")
+    ..setDamageperTarget(1, 0)
+    ..setAnimationNames("attack")
+    ..setCastRange(1, POISON_ATTACK_RANGE)
+    ..setNumberofTargetsHit(1, 1)
+    ..setManaCost(1,0)
+    ..setCooldown(1,0)
+
+function onPoisonSpit()
+    let caster = GetSpellAbilityUnit()
+    let targetPos = GetSpellTargetUnit().getPos().withTerrainZ()
+    
+    new Projectile( caster.getPos().withTerrainZ(30), Abilities.chimaeraAcidMissile )
+    ..firePoint( targetPos, POISON_SPEED, 0.2)
+    ..addActionOnFinish() ->
+        let targets = ENUM_GROUP..enumEnemyTargets( ENEMYPLAYER, targetPos.toVec2(), POISON_AOE )
+    
+        for target from targets
+            caster.damageTargetPhysical(target, POISON_SPIT_DMG)
+            target.addPoisonStack(1)
+
+
+class PoisonedUnit extends Updater
+    private static let TEXTSIZE = 11.
+    private static let TEXT_Z_OFFSET = 160.
+    
+    private static let instances = new LinkedList<thistype>
+    private static let units = new IterableMap<unit, thistype>
+
+    private effect sfx = null
+
+    private unit theUnit = null
+    private unit damageSource = null
+    private int stacks = 0
+
+    private timer diminishTimer
+    private timer diminishDelayTimer = null
+
+    private CallbackPeriodic texttagUpdateCb = null
+
+    private texttag stackText = null
+
+
+    construct( unit whichUnit )
+        this.theUnit = whichUnit
+        sfx = addEffect( Abilities.bottleImpact, whichUnit, "chest")
+        whichUnit.addAbility(POISON_BUFF_ID.abilId)
+        updateFreq = 1. // update freq
+        units.put( whichUnit, this )
+        instances.add(this)
+
+        // Using damage source to ensure that damage is dealt even if the spider is dead
+        damageSource = DummyRecycler.get(vec2(0,0), angle(0))
+
+        stackText = CreateTextTag()
+        ..setPermanent(true)
+        ..setColor( 50,200,75, 255)
+    
+        texttagUpdateCb = doPeriodically(ANIMATION_PERIOD) cb ->
+            if theUnit != null and theUnit.isAliveTrick()
+                stackText.setPos(theUnit.getPos().withTerrainZ()+vec3(-20,0,TEXT_Z_OFFSET))
+            else
+                destroy this
+
+        // Timers
+        diminishDelayTimer = getTimer()..setData(this castTo int)
+        diminishTimer = getTimer()..setData(this castTo int)
+
+        startUpdate()
+
+
+    ondestroy
+        destroy texttagUpdateCb
+        stackText.destr()
+        diminishTimer.release()
+        diminishDelayTimer.release()
+
+        if theUnit == null
+            units.removeValue(this, true)
+        else
+            units.remove(theUnit)
+            sfx.destr()
+            theUnit.removeAbility(POISON_BUFF_ID.abilId)
+
+        instances.remove(this)
+
+
+    override function update()
+        damageSource.damageTargetPhysical(theUnit, POISON_DMG*stacks )
+
+
+    function startDiminish()
+        diminishTimer.startPeriodic(POISON_DIMINISH_RATE) () ->
+            GetExpiredTimer().getData() castTo thistype.applyStack(-1)
         
-
-// SETUP COLOR
-init
-    UnitVisuals.addUnitType(GHOUL)
-    ..setPlayerColor(PLAYER_COLOR_COAL)
-        
-
-
     
+    function applyStack( int stacksToApply )
+        this.stacks += stacksToApply
 
+        stackText.setText(stacks.toString(), TEXTSIZE)
+
+        if stacksToApply > 0
+
+            diminishTimer.pause()
+
+            diminishDelayTimer.start(POISON_DIMINISH_DELAY) () ->
+                GetExpiredTimer().getData() castTo thistype.startDiminish()
+                            
+        else if stacks <= 0
+            destroy this
+    
+    static function getInstance( unit whichUnit ) returns thistype
+        return units.has( whichUnit ) ? units.get(whichUnit) : new PoisonedUnit(whichUnit)
+
+
+    static function clearAll()
+        /* We have to list with instances, in case that the units are removed from the map. */
+        for instance in instances
+            destroy instance
+
+/** Add or subtract stacks */
+public function unit.addPoisonStack( int stacks )
+    PoisonedUnit.getInstance(this).applyStack( stacks )
     
