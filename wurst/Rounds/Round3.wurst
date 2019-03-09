@@ -3,6 +3,20 @@ package Round3
 import public Round2
 import TimerUtils
 import Updater
+import ClosureTimers
+import Assets
+import TimedSpecialEffects
+import ClosureForGroups
+import DummyRecycler
+import MyLibrary
+import Damage
+
+
+let EXPLOSION_DAMAGE = 50. // Base
+let EXPLOSION_COUNTDOWN = 3.
+let EXPLOSION_DELAY = 0.5
+let EXPLOSION_RANGE = 200 // BASE
+let EXPLOSION_MINDAMAGE = 0.5 // Percentage
 
 
 init
@@ -102,8 +116,8 @@ class Grow extends Updater
         startUpdate()
 
     ondestroy
-        print("Mob died!")
-
+        if mob != null
+            new ArcaneExplosion(mob.getPos(), growthCounter)
 
     override function update()
     
@@ -114,9 +128,7 @@ class Grow extends Updater
 
                 mob.setBaseDamage(startDamage+R2I(damagePerGrowth*growthCounter), 1)
                 mob.setScale(startScale+scalePerGrowth*growthCounter)
-            
-            else
-                stopUpdate()
+    
 
         else
             destroy this
@@ -130,8 +142,75 @@ class Grow extends Updater
         
 
 class ArcaneExplosion
+    private vec3 pos
+    private int growthCount
+
+    private effect array[2] sfx 
+
+    construct( vec2 pos, int growthCount )
+
+        this.pos = pos.withTerrainZ() - vec3(-20, 0, 0) // apparently the position is off by a lil bit
+        this.growthCount = growthCount
+
+        sfx[0] = addEffect( Units.wisp1, pos + vec3(0,0,30))
+        ..setScale( 1 * (1. + growthCount/75.) )
+        ..setColorByPlayer( Player(19) )
+        ..setColor(255, 100, 255)
+
+        sfx[1] = addEffect( Units.wisp1, pos + vec3(0,0,30))
+        ..setScale( 0.8 * (1. + growthCount/75.) )
+        ..setColorByPlayer( Player(21) )
+        ..setColor(255, 255, 255)
+
+        doAfter( EXPLOSION_COUNTDOWN ) ->
+            this.explode()
     
 
-    
+    private function explode()
 
-    
+        sfx[0].destr()
+        sfx[1].destr()
+
+        doAfter( EXPLOSION_DELAY ) ->
+
+            addEffect( Abilities.orbOfDeathMissile, this.pos + vec3(0,0,30) )
+            ..setScale(1.2 * (1. + growthCount/75.))
+            ..setTimeScale(0.75)
+            ..destr()
+            
+            addEffect( Abilities.steamTankImpact, this.pos )
+            ..setScale(0.6 * (1. + growthCount/75.))
+            ..destr()
+
+            addEffect( Units.wispExplode, this.pos )
+            ..setScale(0.6 * (1. + growthCount/50.))
+            ..setTime(0.3)
+            ..setTimeScale(1.5)
+            ..setDuration(4)
+
+            let scaledRange = EXPLOSION_RANGE * (1. + growthCount/75.)
+            let scaledDamage =  EXPLOSION_DAMAGE * (1. + growthCount/25.)
+
+            let pos2 = pos.toVec2()
+            let source = DummyRecycler.get(pos2, angle(0))
+
+            forUnitsInRange(pos2, scaledRange) target ->
+                if target.getOwner().isEnemyOf(ENEMYPLAYER)
+                    flashEffect(Abilities.blackKeeperMissile, target, "chest")
+
+                    let distance = target.getPos().distanceTo(pos2)
+                    let exactDamage = scaledDamage * (1 - (distance/scaledRange)*(1.-EXPLOSION_MINDAMAGE) )
+                    
+                    source.damageTargetSpell(target, exactDamage)
+            
+
+            destroy this
+
+    ondestroy
+        
+        
+            
+
+            
+
+            
