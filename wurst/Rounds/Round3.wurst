@@ -2,6 +2,7 @@ package Round3
 
 import public Round2
 import TimerUtils
+import Updater
 
 
 init
@@ -66,9 +67,10 @@ init
     ..setCodeOnSpawn(func)
     ..setSoundOnSpawn(Sounds.obsidianAvengerWhat2)
 
-    
+// ======================================================================================================================================
+// GROW
 
-class Grow
+class Grow extends Updater
     
     private static constant real    GROWTH_DURATION = 30
     private static constant real    GROWTH_SCALE = 0.75                  // Final scale increase in %
@@ -86,7 +88,6 @@ class Grow
 
     private integer growthCounter = 1 
     private unit    mob
-    private timer   timer_Grow
 
     construct(unit whichUnit, real startScale)
         mob = whichUnit
@@ -97,36 +98,39 @@ class Grow
         scalePerGrowth = (startScale * GROWTH_SCALE) / I2R(GROWTH_MAXCOUNT)
         damagePerGrowth = (I2R(startDamage)*GROWTH_DMG) / I2R(GROWTH_MAXCOUNT)
         
-        timer_Grow = getTimer()
-        ..setData(this castTo int)
-        ..startPeriodic( GROWTH_FREQ, function callGrowth )
+        updateFreq = GROWTH_FREQ
+        startUpdate()
 
     ondestroy
-        timer_Grow.release()
+        print("Mob died!")
 
-    private static function callGrowth()
-        GetExpiredTimer().getData() castTo thistype.grow()
 
-    private function grow()
+    override function update()
     
         if( mob != null and mob.isAliveTrick() )
-    
+
             if( growthCounter <= GROWTH_MAXCOUNT )
                 growthCounter = growthCounter + 1
 
                 mob.setBaseDamage(startDamage+R2I(damagePerGrowth*growthCounter), 1)
                 mob.setScale(startScale+scalePerGrowth*growthCounter)
-                
-
+            
             else
-                destroy this
+                stopUpdate()
+
         else
             destroy this
+            
 
 
 
+
+// ======================================================================================================================================
+// ARCANE EXPLOSION
         
 
+class ArcaneExplosion
+    
 
     
 

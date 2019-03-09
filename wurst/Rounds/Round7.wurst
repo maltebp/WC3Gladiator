@@ -47,7 +47,6 @@ let POISON_SPIT_ID = compiletime( ABIL_ID_GEN.next() )
 let POISON_BUFF_ID = compiletime( createDummyBuffObject("Poison", "You have been poisoned by a spider", Icons.bTNCorrosiveBreath ))
 
 
-
 // ===========================================================================================================================
 // SETUP
 init
