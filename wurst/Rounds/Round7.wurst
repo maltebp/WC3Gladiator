@@ -16,16 +16,18 @@ import ClosureTimers
 import InstantDummyCaster
 import MyLibrary
 import Damage
+import DummyRecycler
+import TimerUtils
 
 // ===========================================================================================================================
 // SETTINGS
 
-let POISON_DMG = 30. // Per second
+let POISON_DMG = 1. // Per second
 let POISON_DIMINISH_DELAY = 3.
-let POISON_DIMINISH_RATE = 1. // time between each diminish
+let POISON_DIMINISH_RATE = 0.5 // time between each diminish
 let POISON_ATTACK_RANGE = 600.
 let POISON_SPEED = 600.
-let POISON_AOE = 200.
+let POISON_AOE = 150.
 let POISON_SPIT_DMG = 5.
 let POISON_SPIT_RATE = 2.
 
@@ -193,6 +195,7 @@ function createWebAbility()
     ..setDurationHero(1, WEB_DURATION)
     ..setDurationNormal(1, WEB_DURATION)
     ..setRequirements("")
+    ..setCooldown(1,0)
     ..setBuffs( 1, tempBuff2.toRawCode()+","+tempBuff1.toRawCode())
 
 function webOnCast()
@@ -244,6 +247,7 @@ function createPoisonAbility()
     ..setCastRange(1, POISON_ATTACK_RANGE)
     ..setNumberofTargetsHit(1, 1)
     ..setManaCost(1,0)
+    ..setCooldown(1,0)
 
 function onPoisonSpit()
     let caster = GetSpellAbilityUnit()
@@ -260,15 +264,24 @@ function onPoisonSpit()
 
 
 class PoisonedUnit extends Updater
+    private static let TEXTSIZE = 11.
+    private static let TEXT_Z_OFFSET = 160.
+    
     private static let instances = new IterableMap<unit, thistype>
 
     private effect sfx = null
 
     private unit theUnit = null
+    private unit damageSource = null
     private int stacks = 0
 
-    private CallbackPeriodic diminishCb
-    private CallbackSingle diminishDelayCb
+    private timer diminishTimer
+    private timer diminishDelayTimer = null
+
+    private CallbackPeriodic texttagUpdateCb = null
+
+    private texttag stackText = null
+
 
     construct( unit whichUnit )
         this.theUnit = whichUnit
@@ -277,34 +290,62 @@ class PoisonedUnit extends Updater
         updateFreq = 1. // update freq
         instances.put( whichUnit, this )
 
+        // Using damage source to ensure that damage is dealt even if the spider is dead
+        damageSource = DummyRecycler.get(vec2(0,0), angle(0))
+
+        stackText = CreateTextTag()
+        ..setPermanent(true)
+        ..setColor( 50,200,75, 255)
+    
+        texttagUpdateCb = doPeriodically(ANIMATION_PERIOD) cb ->
+            if theUnit != null and theUnit.isAliveTrick()
+                stackText.setPos(theUnit.getPos().withTerrainZ()+vec3(-20,0,TEXT_Z_OFFSET))
+            else
+                destroy this
+
+        // Timers
+        diminishDelayTimer = getTimer()..setData(this castTo int)
+        diminishTimer = getTimer()..setData(this castTo int)
+
         startUpdate()
 
 
     ondestroy
+        destroy texttagUpdateCb
+        stackText.destr()
+        diminishTimer.release()
+        diminishDelayTimer.release()
+
         if theUnit == null
             instances.removeValue(this, true)
         else
             instances.remove(theUnit)
             sfx.destr()
             theUnit.removeAbility(POISON_BUFF_ID.abilId)
+        
 
 
     override function update()
-        // Deal damage
+        damageSource.damageTargetPhysical(theUnit, POISON_DMG*stacks )
+
+
+    function startDiminish()
+        diminishTimer.startPeriodic(POISON_DIMINISH_RATE) () ->
+            GetExpiredTimer().getData() castTo thistype.applyStack(-1)
         
     
     function applyStack( int stacksToApply )
         this.stacks += stacksToApply
 
+        stackText.setText(stacks.toString(), TEXTSIZE)
+
         if stacksToApply > 0
-            // if diminishDelayCb == null
-            //     diminishDelayCb = doAfter( POISON_DIMINISH_DELAY) ->
-            //         if diminishCb == null
-            //             doPeriodically(POISON_DIMINISH_RATE) cb ->
-            //                 applyStack(-1)
+
+            diminishTimer.pause()
+
+            diminishDelayTimer.start(POISON_DIMINISH_DELAY) () ->
+                GetExpiredTimer().getData() castTo thistype.startDiminish()
                             
-
-
         else if stacks <= 0
             destroy this
     
