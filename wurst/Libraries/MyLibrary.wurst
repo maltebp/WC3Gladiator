@@ -58,3 +58,16 @@ public function unit.isEnemyOf(unit whichUnit) returns boolean
 
 public function unit.isAllyOf(unit whichUnit) returns boolean
     return this.getOwner().isAllyOf(whichUnit.getOwner())  
+
+
+
+interface GroupCallback
+    function callback(unit u)
+
+public function forEnemiesInRange(player sourcePlayer, vec2 pos, real range, GroupCallback cb )
+    let units = ENUM_GROUP..enumEnemyTargets( sourcePlayer, pos, range)
+
+    for u from units
+        cb.callback(u)
+
+    destroy cb

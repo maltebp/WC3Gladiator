@@ -10,6 +10,12 @@ import ClosureForGroups
 import DummyRecycler
 import MyLibrary
 import Damage
+import ObjectIdGenerator
+import AbilityObjEditing
+import AutoCastAbility
+import RegisterEvents
+import Projectile
+import GroupUtils
 
 
 let EXPLOSION_DAMAGE = 50. // Base
@@ -17,6 +23,13 @@ let EXPLOSION_COUNTDOWN = 3.
 let EXPLOSION_DELAY = 0.5
 let EXPLOSION_RANGE = 200 // BASE
 let EXPLOSION_MINDAMAGE = 0.5 // Percentage
+
+let MISSILES_DAMAGE_FACTOR = 1.5
+let MISSILES_RANGE = 2000.
+let MISSILES_COOLDOWN = 10.
+
+let MISSILES_ID = compiletime(ABIL_ID_GEN.next() )
+let MISSILES_SOUND = new SoundDefinition(Sounds.shimmeringPortalEntrance, false, true)
 
 
 init
@@ -80,6 +93,9 @@ init
     ..setSpawnEffect("Abilities\\Spells\\Undead\\DeathPact\\DeathPactTarget.mdl")
     ..setCodeOnSpawn(func)
     ..setSoundOnSpawn(Sounds.obsidianAvengerWhat2)
+
+    addAutoCastAbilityToUnitType('n008', new AutoCastAbilityType( MISSILES_ID, Orders.roar, TargetType.ENEMY_IMMEDIATE, MISSILES_RANGE, 5, MISSILES_COOLDOWN ))
+
 
 // ======================================================================================================================================
 // GROW
@@ -154,13 +170,12 @@ class ArcaneExplosion
 
         sfx[0] = addEffect( Units.wisp1, pos + vec3(0,0,30))
         ..setScale( 1 * (1. + growthCount/75.) )
-        ..setColorByPlayer( Player(19) )
+        ..setColorByPlayer( Player(3) )
         ..setColor(255, 100, 255)
 
         sfx[1] = addEffect( Units.wisp1, pos + vec3(0,0,30))
         ..setScale( 0.8 * (1. + growthCount/75.) )
         ..setColorByPlayer( Player(21) )
-        ..setColor(255, 255, 255)
 
         doAfter( EXPLOSION_COUNTDOWN ) ->
             this.explode()
@@ -200,7 +215,7 @@ class ArcaneExplosion
 
                     let distance = target.getPos().distanceTo(pos2)
                     let exactDamage = scaledDamage * (1 - (distance/scaledRange)*(1.-EXPLOSION_MINDAMAGE) )
-                    
+
                     source.damageTargetSpell(target, exactDamage)
             
 
@@ -211,6 +226,39 @@ class ArcaneExplosion
         
             
 
-            
+// ======================================================================================================================================
+// MISSILES
+
+@compiletime
+function createMissilesAbility()
+    
+    new AbilityDefinitionRoarcreep(MISSILES_ID)
+    ..setManaCost(1, 0)
+    ..setCooldown(1, 0)
+    ..setTargetsAllowed(1, "none")
+    ..setArtCaster("")
+    ..setAnimationNames("spell")
+
+init
+    registerSpellEffectEvent( MISSILES_ID) ->
+        let caster = GetSpellAbilityUnit()
+
+        let casterDamage = caster.getBaseDamage(1)*MISSILES_DAMAGE_FACTOR
+        MISSILES_SOUND.playOnPoint(caster.getPos3Real())
+        
+        forEnemiesInRange( ENEMYPLAYER, caster.getPos(), MISSILES_RANGE ) target ->
+            let projectile = new Projectile( caster.getPos().withTerrainZ(75), Abilities.druidoftheTalonMissile)
+            ..fireUnit(target, 50, true, 800, 0)
+            ..addActionOnFinish() ->
+                caster.damageTargetSpell(target, casterDamage)
+                target.addEffect( Abilities.blackKeeperMissile, "chest")
+                ..destr()            
+            projectile.getEffect().setScale(2)
 
             
+
+        doAfter(1) ->
+            let units = ENUM_GROUP..enumEnemyTargets(caster.getOwner(), caster.getPos(), 5000)
+            caster.issueTargetOrderById(Orders.attack, units.getNearestUnit(caster.getPos()) )
+            units.clear()
+        
