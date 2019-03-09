@@ -1,6 +1,6 @@
 # Gladiator - Warcraft 3 Custom Map :dragon:
 
-[Latest Release (v0.1.1a)](https://github.com/maltebp/WC3Gladiator/releases/download/v0.1.1a/Gladiator-v0.1.1a.w3x)
+[DOWNLOAD](https://github.com/maltebp/WC3Gladiator/releases/latest)
 
 [Hiveworkshop Post](https://www.hiveworkshop.com/threads/gladiator-alpha.310920/)
 
