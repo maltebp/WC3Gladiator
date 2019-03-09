@@ -57,6 +57,8 @@ init
     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
     ..setReward(30, 3)
     ..addItemRewards(ITEM_SPIDERBRACERS)
+    ..setCodeOnLastUnitDeath() r ->
+        PoisonedUnit.clearAll()
 
 
     // Hatchling 1
