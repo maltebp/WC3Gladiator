@@ -1,11 +1,21 @@
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
 package AbilityCasting
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+/*
+    A system which adds the mechanic of ordering a unit to cast a spell (or any other action),
+    at a certain point. It checks their movement, stop the order if the unit is interrupted
+    by being issued another ordered or the like.
+*/
+// ---------------------------------------------------------------------------------------------------------------------------------------------
 
 import RegisterEvents
 import Orders
-import Main
 import LinkedList
 import Updater
-import ActionAnimation
+
        
 
 public interface CastAction
@@ -98,7 +108,7 @@ class CastObserver extends Updater
         return null
         
         
-        
+/** Interrupts the unit's current casting order. If it has no order, nothing will happen.  */        
 function unit.interruptCasting( int orderId )
     let instance = CastObserver.getInstance(this)
     
@@ -109,20 +119,9 @@ function unit.interruptCasting( int orderId )
             destroy instance
         
 
-
-// public unit.castAbility( real castRange, boolean facingRequired, real facing deviation )
-
 function issuedOrder()
     GetOrderedUnit().interruptCasting( GetIssuedOrderId() )
 
 init
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function issuedOrder )
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, function issuedOrder )
-
-    registerPlayerEvent(EVENT_PLAYER_END_CINEMATIC) ->
-        HERO.cast(vec2(100,0),500, true) ->
-            HERO.animate(ANIM_SPELL, 1.5, true) ->
-                print("Spell!")
-            
-        
-let ANIM_SPELL = new Animation(6, 2.7, 2)

@@ -5,9 +5,18 @@ import HashMap
 
 let playerMousePositions = new HashMap<player, Coordinates>
 
+
+
+public function player.getMousePos() returns vec2
+    let coordinates = playerMousePositions.get(this)
+    return vec2(coordinates.x,coordinates.y)
+
+
+
 class Coordinates
     real x = 0
     real y = 0
+
 
 function updateMouse()
     let p = GetTriggerPlayer()
@@ -23,13 +32,6 @@ function updateMouse()
     coordinates.y = BlzGetTriggerPlayerMouseY()
     
     
-public function player.getMousePos() returns vec2
-    let coordinates = playerMousePositions.get(this)
-    return vec2(coordinates.x,coordinates.y)
-    
-
 init
-
-    playerMousePositions.put(Player(0), new Coordinates())
     registerPlayerEvent(EVENT_PLAYER_MOUSE_MOVE, function updateMouse)
     
