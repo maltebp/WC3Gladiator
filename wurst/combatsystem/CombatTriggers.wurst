@@ -1,0 +1,162 @@
+package CombatTriggers
+import LinkedList
+
+
+
+
+interface Action
+    function run()
+
+let onFumble = new LinkedList<Action>
+let onComboMove = new LinkedList<Action>
+let onAbilityMiss = new LinkedList<Action>
+let onAbility = new LinkedList<Action>
+let onNoTargetAbility = new LinkedList<Action>
+let onUnitTargetAbility = new LinkedList<Action>
+let onPosTargetAbility = new LinkedList<Action>
+
+
+
+// ============================================================================================================================================
+
+public function onFumble( Action action )
+    onFumble.add(action)
+
+public function onComboMove( Action action )
+    onComboMove.add(action)
+
+public function onAbilityMiss( Action action )
+    onAbilityMiss.add(action)
+
+public function onAbility( Action action )
+    onAbility.add(action)
+
+public function onNoTargetAbility( Action action )
+    onNoTargetAbility.add(action)
+
+public function onUnitTargetAbility( Action action )
+    onUnitTargetAbility.add(action)
+
+public function onPosTargetAbility( Action action )
+    onPosTargetAbility.add(action)
+
+    
+
+// =======================================================================================================
+
+unit castingUnit = null
+
+unit targetUnit = null
+
+vec2 targPos = vec2(0,0)
+
+boolean comboMove = false
+
+boolean directTarget = false
+
+boolean regularAttack = false
+
+function resetVariables()
+    castingUnit = null
+    targetUnit = null
+    targPos = vec2(0,0)
+    comboMove = false
+    directTarget = false
+    regularAttack = false
+
+public function getCastingUnit() returns unit
+    return castingUnit
+
+public function getTargetUnit() returns unit
+    return targetUnit
+
+public function isFriendlyTarget() returns boolean
+    if castingUnit != null and targetUnit != null
+        return castingUnit.getOwner().isEnemyOf(targetUnit.getOwner())
+    return false
+
+public function isEnemyTarget() returns boolean
+    return not isFriendlyTarget()
+
+public function getTargetPos() returns vec2
+    return targPos
+
+public function isComboMove() returns boolean
+    return comboMove
+
+public function isRegularAttack() returns boolean
+    return regularAttack
+
+
+
+// ============================================================================================================================================
+
+public function unit.triggerUnitTargetAbility( unit target, boolean isDirectTarget, boolean isRegularAttack )
+    castingUnit = this
+    targetUnit = target
+    directTarget = isDirectTarget
+    regularAttack = isRegularAttack
+
+    for action in onUnitTargetAbility
+        action.run()
+    for action in onAbility
+        action.run()
+
+    resetVariables()
+
+
+public function unit.triggerPosTargetAbility( vec2 targetPos, boolean isRegularAttack )
+    castingUnit = this
+    targPos = targetPos
+    regularAttack = isRegularAttack
+    
+    for action in onAbility
+        action.run()
+    for action in onPosTargetAbility
+        action.run()
+
+    resetVariables()
+
+
+public function unit.triggerNoTargetAbility( boolean isRegularAttack )
+    castingUnit = this
+    regularAttack = isRegularAttack
+    
+    for action in onAbility
+        action.run()
+    for action in onNoTargetAbility
+        action.run()
+
+    resetVariables()
+
+    
+public function unit.triggerAbilityMiss( vec2 targetPos, boolean isRegularAttack )
+    castingUnit = this
+    targPos = targetPos
+    regularAttack = isRegularAttack
+    
+    for action in onAbilityMiss
+        action.run()
+
+    resetVariables()
+
+
+public function unit.triggerAbilityFumble()
+    castingUnit = this
+
+    for action in onFumble
+        action.run()
+
+    resetVariables()
+
+ 
+public function unit.triggerComboMove()
+    castingUnit = this
+
+    for action in onComboMove
+        action.run()
+
+    resetVariables()
+
+
+// ============================================================================================================================================

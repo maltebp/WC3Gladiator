@@ -1,0 +1,76 @@
+package HoverAbilityCasting
+
+import initlater HoverAbility
+import AbilityCasting
+import PlayerMouse
+import ActionAnimation
+
+
+public function onCast()
+    let caster = GetSpellAbilityUnit()
+    let abilityId = GetSpellAbilityId()
+    let abilityDef = abilityId.getAbilityDefinition()
+    
+    if caster.interruptAnimation()
+        if abilityDef instanceof PointAbility
+            castPoint(caster, abilityDef castTo PointAbility)
+        else if abilityDef instanceof NoTargetAbility
+            castNoTarget(caster, abilityDef castTo NoTargetAbility)
+        else if abilityDef instanceof ImmediateAbility
+            castImmediate(caster, abilityDef castTo ImmediateAbility)
+
+            
+function castPoint( unit caster, PointAbility abil)
+    let targetPos = caster.getOwner().getMousePos()
+
+    if abil.evaluateCastCriteria(caster)
+
+        let adjustments = new AbilityAdjustments( abil.getCastRange(), abil.getEffectFreq(), abil.getDuration() )
+
+        if abil.getAdjustments() != null
+            abil.getAdjustments().run( caster, adjustments)
+
+        caster.cast( targetPos, adjustments.castRange, abil.facingRequired() ) ->
+
+            if abil.getOnCast() != null
+                abil.getOnCast().run(caster,targetPos)
+
+            if abil.isChannel()
+                let animation = caster.animateChannel(abil.getAnimation(), adjustments.channelFreq, adjustments.channelDuration, 1+adjustments.speed, abil.isInterruptible(), false) ->
+                    abil.getOnEffect().run(caster, targetPos)
+
+                if abil.getOnFinish() != null
+                    animation.addChannelEndAction() ->
+                        abil.getOnFinish().run(caster, targetPos)    
+
+            else
+                caster.animate( abil.getAnimation(), 1, false) ->
+                    abil.getOnEffect().run(caster, targetPos)
+
+
+    
+
+function castNoTarget( unit caster, NoTargetAbility abil)
+
+    if abil.evaluateCastCriteria(caster)
+
+        let adjustments = new AbilityAdjustments( 0,0,0 )
+        
+        if abil.getAdjustments() != null
+            abil.getAdjustments().run( caster, adjustments)
+
+        if abil.getOnCast() != null
+            abil.getOnCast().run(caster)
+
+        caster.animate( abil.getAnimation(), 1+adjustments.speed, false ) ->
+            abil.getOnEffect().run(caster)
+
+    
+    
+function castImmediate( unit caster, ImmediateAbility abil)
+
+    if abil.evaluateCastCriteria(caster)
+
+        abil.getOnEffect().run(caster)
+                
+         

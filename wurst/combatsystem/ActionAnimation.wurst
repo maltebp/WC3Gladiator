@@ -1,0 +1,218 @@
+
+// ==========================================================================================================================================
+
+package ActionAnimation
+
+// ------------------------------------------------------------------------------------------------------------------------------------------
+/*  
+    WHAT?
+    A small system to run unit animation's and set an action to run on the animation's "actionTime".
+    It allows for creating spell-like animations, which can be uninterruptible. It also allows you
+    to create looping animations out of all regular animations.
+
+*/
+// ------------------------------------------------------------------------------------------------------------------------------------------
+
+import RegisterEvents
+import LinkedList
+import ClosureTimers
+import ErrorHandling
+
+
+// ==========================================================================================================================================
+// ANIMATION ACTION
+public interface AnimationAction
+    function run()
+
+
+// ===============================================================================================================================================
+// Unit functions
+
+/** Issue an animation once. The delay of the action is defined by the Animation.actionTime variable.
+    speed: A time scale factor to increase the visual animation speed AND the reduce the action delay.
+    Return: True, if the animation was initiated, false if it unit was in the middle of an unintirruptible animation. */
+public function unit.animate( Animation animation,  real speed, boolean queueStandReady, AnimationAction action  ) returns boolean
+    if this.interruptAnimation()
+        new AnimationObserver(this, animation, action, false, speed, queueStandReady).animateOnce()
+        return true
+    return false
+
+/** Issue a looping channel animation. All animations can be used (even non-looping ones)
+    speed: A time scale factor to increase the visual.
+    Return: True, if the animation was initiated, false if it unit was in the middle of an unintirruptible animation. */
+public function unit.animateChannel( Animation animation, real actionFreq, real duration , real speed, boolean interruptible, boolean queueStandReady, AnimationAction action ) returns AnimationObserver
+    let instance = new AnimationObserver(this, animation, action, interruptible, speed, queueStandReady)
+    ..animateChannel(actionFreq, duration)  
+    return instance
+
+public function unit.isAnimating() returns boolean
+    return AnimationObserver.getInstance(this) != null
+
+/** Interrupts the unit's current animation.
+    Return: False if the unit's animation was unintirruptible. */
+public function unit.interruptAnimation() returns boolean
+    let instance = AnimationObserver.getInstance(this)
+    if instance == null 
+        return true
+    if instance.isInterruptible()
+        instance.stopAnimation()
+        return true
+    return false
+
+
+
+// ===============================================================================================================================================
+class AnimationObserver
+
+    /*  Keeps track of a specific unit's animation. */
+
+    private static let instances = new LinkedList<thistype>
+
+    private unit animationUnit
+
+    private int queuedOrderId = -1
+    private vec2 queuedOrderTarget
+    private boolean interruptible = false
+    private real speed 
+    private boolean queueStandReady = false
+
+    private AnimationAction action = null
+    private AnimationAction channelStartAction = null
+    private AnimationAction channelEndAction = null
+    private Animation animation = null
+
+    private CallbackPeriodic periodicActionCb = null
+    private CallbackPeriodic animationLoopCb = null
+    private CallbackSingle   animationDurationCb = null
+
+
+    construct( unit animationUnit, Animation animation, AnimationAction action, boolean interruptible, real speed, boolean queueStandReady )
+
+        this.animationUnit = animationUnit
+        this.action = action
+        this.animation = animation
+        this.interruptible = interruptible
+        this.speed = speed
+        this.queueStandReady = queueStandReady
+
+        animationUnit
+        ..issueImmediateOrder("stop")
+        ..setTimeScale(speed)
+
+        instances.add(this)
+
+
+    function animateOnce()
+        this.interruptible = interruptible
+        animationUnit.setAnimation( animation.getIndex() )
+        animationDurationCb = doAfter( animation.getActionTime() * (1/speed) ) ->
+            this.action.run()
+            destroy this
+
+
+    function animateChannel( real actionFreq, real duration )
+        this.interruptible = interruptible
+        
+        animationUnit.setAnimation( animation.getIndex() )
+
+        periodicActionCb = doPeriodically( actionFreq ) cb ->
+            this.action.run()
+
+        animationLoopCb = doPeriodically( animation.getLength()) cb ->
+            this.animationUnit.setAnimation(animation.getIndex())
+
+        if duration > 0
+            animationDurationCb = doAfter(duration) ->
+                destroy this
+
+    function addChannelEndAction( AnimationAction action)
+        channelEndAction = action
+        
+
+    function stopAnimation()
+        if animationDurationCb != null
+            destroy animationDurationCb
+        destroy this
+
+
+    ondestroy
+        if channelEndAction != null
+            channelEndAction.run()
+
+        if periodicActionCb != null
+            destroy periodicActionCb
+
+        if animationLoopCb != null
+            destroy animationLoopCb
+
+        animationUnit.setTimeScale(1)
+
+        instances.remove(this)
+        if queuedOrderId != -1
+            animationUnit.issuePointOrderById( queuedOrderId, queuedOrderTarget )
+        else if queueStandReady
+            animationUnit.setAnimation("stand ready")
+        else
+            animationUnit.setAnimation("stand")
+
+        print(animationUnit.getProperName() + " finished animating!")
+
+
+    function isInterruptible() returns boolean
+        return interruptible
+
+
+    function queueOrder( int queuedOrderId, vec2 queuedOrderTarget )
+        this.queuedOrderId = queuedOrderId
+        this.queuedOrderTarget = queuedOrderTarget
+
+
+    static function getInstance( unit animationUnit ) returns thistype
+        for instance in instances
+            if instance.animationUnit == animationUnit
+                return instance
+        return null
+
+
+// ==========================================================================================================================================
+// ANIMATION DEFINITION CLASS
+
+public class Animation
+    private int animationIndex
+    private real length // To be used for animation loops i.e.
+    private real actionTime // Delay before action when animation is initiated
+
+    construct( int animationIndex, real length, real actionTime ) 
+        this.animationIndex = animationIndex
+        this.actionTime = actionTime
+        this.length = length
+
+    function getIndex() returns int
+        return animationIndex
+
+    function getLength() returns real
+        return length
+
+    function getActionTime() returns real
+        return actionTime
+
+
+// ==========================================================================================================================================
+// ORDER STOPPER
+
+init
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER ) ->
+        let orderedUnit = GetOrderedUnit()
+        let order = GetIssuedOrderId()
+
+        if orderedUnit.isAnimating()
+            if not orderedUnit.interruptAnimation()
+                orderedUnit.queueOrder(order, vec2( GetOrderPointX(), GetOrderPointY() ))
+                doAfter(0.001) ->
+                    orderedUnit.issueImmediateOrder("stop")
+
+function unit.queueOrder(int order, vec2 pos)
+    if this.isAnimating()
+        AnimationObserver.getInstance(this).queueOrder(order, pos)
+    else
+        error("Unit isn't animation")

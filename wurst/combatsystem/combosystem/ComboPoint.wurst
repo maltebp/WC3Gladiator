@@ -1,0 +1,46 @@
+package ComboPoint
+import Doodads
+import LinkedList
+
+
+
+
+public class ComboPointType
+    string name
+    color col
+    string modelPath
+
+    construct( string name, color col, string modelPath )
+        this.name = name
+        this.col = col
+        this.modelPath = modelPath
+
+
+public class ComboPoint
+
+    protected effect sfx
+    protected ComboPointType comboType
+
+    construct( ComboPointType comboType )
+        sfx = addEffect( comboType.modelPath, vec2(0,0) )
+        ..setColor(comboType.col)
+        ..setTime(0.700)
+        ..setTimeScale(0)
+        ..setScale(0.6)
+        ..setRoll(1)
+
+
+        this.comboType = comboType
+
+    ondestroy
+        sfx.destr()
+
+    function getTypeName() returns string
+        return  comboType.name
+
+    function updatePos( vec3 pos )
+        sfx.setPos(pos)
+
+    function getType() returns ComboPointType
+        return comboType
+

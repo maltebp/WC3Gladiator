@@ -1,0 +1,138 @@
+package AbilityCreation
+import ObjectIdGenerator
+import AbilityObjEditing
+
+import public Icons
+import ObjectIds
+
+public function createQ( string icon, string name, string tooltip ) returns int
+
+    let id = ABIL_ID_GEN.next() 
+
+    new AbilityDefinitionBladeMasterWindWalk( id )
+    ..setName( name )
+    ..setHeroAbility(false)
+    ..setLevels(1)
+    ..setTooltipNormal( 1, name + " - Q")
+    ..setHotkeyNormal("Q")
+    ..setCooldown(1, 0)
+    ..setManaCost(1, 0)
+    ..setDurationHero(1, 0.001)
+    ..setDurationNormal(1, 0.001)
+    ..setEffectSound("")
+    ..setTransitionTime(1, 0.01)
+    ..setTooltipNormalExtended(1, tooltip)
+    ..setBackstabDamage(1, false)
+    ..setIconNormal(icon)
+    ..setButtonPositionNormalX(0)
+
+    return id
+
+
+public function createW( string icon, string name, string tooltip ) returns int
+
+    let id = ABIL_ID_GEN.next() 
+
+    new AbilityDefinitionManaShieldCreep( id )
+    ..setHotkeyNormal("W")
+    ..setName(name)
+    ..setTooltipNormal(1, name)
+    ..setTooltipNormalExtended(1, tooltip)
+    ..setDurationNormal(1, 0.001)
+    ..setDurationHero(1, 0.001)
+    ..setArtCaster("")
+    ..setManaCost(1, 0)
+    ..setCooldown(1, 0)
+    ..setEffectSound("")
+    ..setButtonPositionNormalX(0)
+    ..setIconNormal( icon )
+
+    return id
+
+    
+public function createE( string icon, string name, string tooltip) returns int
+    let id = ABIL_ID_GEN.next() 
+
+    new AbilityDefinitionBeserk( id )
+    ..setCooldown(1, 0)
+    ..setName(name)
+    ..setTooltipNormal(1, name + " - E")
+    ..setTooltipNormalExtended(1, tooltip )
+    ..setTargetsAllowed(1, "none")
+    ..setMovementSpeedIncrease(1, 0)
+    ..setIconNormal( icon )
+    ..setDurationHero(1, 0.01)
+    ..setDurationNormal(1, 0.01)
+    ..setManaCost(1, 0)
+    ..setHotkeyNormal("E")
+    ..setButtonPositionNormalX(2)
+
+    return id
+
+
+public function createComboMove( string name, string tooltip, string iconActive, string iconPassive ) returns comboMoveTuple
+    let useAbil = ABIL_ID_GEN.next() 
+
+    new AbilityDefinitionPaladinDivineShield(useAbil)
+    ..setName(name)
+    ..setTooltipNormal(1, name + " - E")
+    ..setTooltipNormalExtended(1, tooltip )
+    ..setCooldown(1, 0)
+    ..setLevels(1)
+    ..setIconNormal( iconActive )
+    ..setDurationHero(1, 0.01)
+    ..setDurationNormal(1, 0.01)
+    ..setManaCost(1, 0)
+    ..setHotkeyNormal("R")
+    ..setButtonPositionNormalX(3)
+
+    let listAbil = ABIL_ID_GEN.next() 
+
+    new AbilityDefinitionCriticalStrikecreep(listAbil)
+    ..setName(name + "(List Ability)")
+    ..setTooltipNormal(1, name)
+    ..setTooltipNormalExtended(1, tooltip )
+    ..setIconNormal( iconPassive )
+    ..setButtonPositionNormalX(0)
+    ..setButtonPositionNormalY(0)
+    ..setLevels(1)
+    ..setChancetoCriticalStrike(1, 0)
+    ..setChancetoEvade(1, 0)
+    
+    return comboMoveTuple(useAbil, listAbil)
+
+
+
+public tuple comboMoveTuple( int useAbil, int listAbil )
+
+public function compiletime(comboMoveTuple moveT) returns comboMoveTuple
+    return moveT
+
+public function createComboMoveList( vararg comboMoveTuple moves ) returns int
+    let id = ABIL_ID_GEN.next() 
+
+    var moveList = ""
+
+    for move in moves
+        moveList += toRawCode(move.listAbil)+","
+
+    moveList.substring(0, moveList.length()-1)
+
+    new AbilityDefinitionSpellBook(id)
+    ..setItemAbility(false)
+    ..setMinimumSpells(1, 1)
+    ..setMaximumSpells(1, 15)
+    ..setIconNormal(Icons.bTN3M3)
+    ..setName( "Combo Moves" )
+    ..setTooltipNormal(1, "Combo Moves" )
+    ..setTooltipNormalExtended(1, "The list of all your currently available combo moves." )
+    ..setButtonPositionNormalY(1)
+    ..setButtonPositionNormalX(2)
+    ..setSpellList(1, moveList)
+
+    return id
+
+
+
+
+    
