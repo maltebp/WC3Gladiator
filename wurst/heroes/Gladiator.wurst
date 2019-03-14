@@ -10,19 +10,10 @@ import          ErrorHandling
 import          HashMap
 
 
-
 // ================================================================================================================================
 // Other functions
 
-/** Checks if the unit is a Gladiator - meaning that it has connected to a Gladiator instance */
-public function unit.isGladiator() returns boolean
-    return Gladiator.isUnitGladiator(this)
 
-/** Gets the Gladiator instance of a certain unit. Returns null, if the unit doesn't have an instance */
-public function unit.getGladiatorInstance() returns Gladiator
-    if not this.isGladiator()
-        return null
-    return Gladiator.getInstance(this)
 
 
 
@@ -30,7 +21,8 @@ public function unit.getGladiatorInstance() returns Gladiator
 public class Gladiator
 
 
-    private static IterableMap<unit, Gladiator> instances = new IterableMap<unit, Gladiator>
+
+    private static LinkedList<thistype> instances = new LinkedList<thistype>
 
     private unit            gladiatorUnit
     private GladiatorType   gladiatorType
@@ -42,7 +34,7 @@ public class Gladiator
         gladiatorType = whichType
         gladiatorUnit = createUnit(owner, gladiatorType.getUnitType(), spawnPos, facing)
         
-        instances.put(gladiatorUnit, this)
+        instances.add(this)
 
 
     /** Releases an ability, adding it to the gladiator unit. The abilityNumber is the number in the list */
@@ -81,21 +73,27 @@ public class Gladiator
         return gladiatorType.getColor()
     
 
-    protected static function isUnitGladiator(unit whichUnit) returns boolean
-        return instances.has(whichUnit)
+    static function isUnitGladiator(unit whichUnit) returns boolean
+        return getInstance(whichUnit) != null
 
 
-    protected static function getInstance(unit  whichUnit) returns Gladiator
-        return instances.get(whichUnit)
+    static function getInstance(unit  whichUnit) returns Gladiator
+        for instance in instances
+            if instance.gladiatorUnit == whichUnit
+                return instance
+        return null
+
+    static function getInstance(player whichPlayer) returns Gladiator
+        for instance in instances
+            if instance.owner == whichPlayer
+                return instance
+        return null
 
 
 
 
 // ================================================================================================================================
 public class GladiatorType
-
-
-    static GladiatorType ORC = new GladiatorType()
 
     private static boolean hasBeenInitialized
 
@@ -110,6 +108,9 @@ public class GladiatorType
     private SoundDefinition snd_Spawn = null
     private SoundDefinition snd_Respawn = null
     private SoundDefinition snd_NewAbility = null
+
+
+
 
         
     function setUnitType(int unitType)
@@ -186,13 +187,7 @@ public class GladiatorType
     private static function initialize()
         hasBeenInitialized = true
 
-        ORC
-        ..setUnitType('O000')
-        ..setSoundOnSpawn(Sounds.gromWhat3)
-        ..setSoundOnRespawn(Sounds.gromYes3)
-        ..setSoundOnNewAbility(Sounds.strongholdWhat1)
-        ..addAbilities('A007','A005','A000','A006','A008')
-        ..setColor("|cff98e698")
+        
 
 
 

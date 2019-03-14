@@ -1,0 +1,22 @@
+package OrcGladiator
+import Gladiator
+import ComboUnit
+import AbilityCreation
+
+
+public let COMBOLIST = compiletime( createComboMoveList())
+
+public let GLADIATOR_ORC_ID = 'O000'
+
+public let GLADIATOR_ORC = new GladiatorType()
+
+public let COMBOUNIT_ORC = new ComboUnitDefinition(GLADIATOR_ORC_ID)
+
+
+init
+        GLADIATOR_ORC
+        ..setUnitType(GLADIATOR_ORC_ID)
+        ..setSoundOnSpawn(Sounds.gromWhat3)
+        ..setSoundOnRespawn(Sounds.gromYes3)
+        ..setSoundOnNewAbility(Sounds.strongholdWhat1)
+        ..setColor("|cff98e698")

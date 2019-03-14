@@ -1,0 +1,23 @@
+package GladiatorSystem
+
+import public Gladiator
+import public OrcGladiator
+
+
+public function player.newGladiator( GladiatorType gladType, vec2 spawnPos, angle facing ) returns Gladiator
+    return new Gladiator(gladType, this, spawnPos, facing)
+    
+
+/** Checks if the unit is a Gladiator - meaning that it has connected to a Gladiator instance */
+public function unit.isGladiator() returns boolean
+    return Gladiator.isUnitGladiator(this)
+
+/** Gets the Gladiator instance of a certain unit. Returns null, if the unit doesn't have an instance */
+public function player.getGladiator() returns Gladiator
+    return Gladiator.getInstance(this)
+
+/** Gets the Gladiator instance of a certain unit. Returns null, if the unit doesn't have an instance */
+public function unit.getGladiatorInstance() returns Gladiator
+    if not this.isGladiator()
+        return null
+    return Gladiator.getInstance(this)

@@ -11,6 +11,7 @@ import ChargeSystem
 import Gladiator
 import Dialog
 import Damage
+import GladiatorSystem
 
 constant boolean    SPAWNHEROINARENA        = false
 constant boolean    ARENACORNERSPAWN        = false
@@ -22,7 +23,7 @@ constant boolean    STARTATSPECIFICROUND    = true
 int        STARTINGROUND                    = 1
 public let                 FINALROUND       = 15
 constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
-constant boolean    PRINTALPHAINTRO         = true
+constant boolean    PRINTALPHAINTRO         = false
 
 
 let VERSION = "0.1.2a (Alpha)"
@@ -211,7 +212,7 @@ function fadeIn()
 function createHero()
 
 
-    gladiator = new Gladiator(GladiatorType.ORC, Player(0), spawnPosOnInit, angle(3*PIHALF))
+    gladiator = Player(0).newGladiator( GLADIATOR_ORC, spawnPosOnInit, angle(3*PIHALF))
 
     gladiator.releaseAbility(0)
 

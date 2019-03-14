@@ -5,7 +5,6 @@ import LinkedList
 import ComboMove
 import ClosureTimers
 import ErrorHandling
-import OnUnitEnterLeave
 
 let MAX_POINTS = 3
 
@@ -18,7 +17,7 @@ public class ComboUnitDefinition
     protected let unlockedMoves = new LinkedList<ComboMove>
     protected let lockedMoves = new LinkedList<ComboMove>
 
-    construct( int unitTypeId, int comboList )
+    construct( int unitTypeId )
         this.unitTypeId = unitTypeId 
         this.comboList = comboList
         definitions.add(this)
@@ -28,7 +27,7 @@ public class ComboUnitDefinition
         for definition in definitions
             if definition.unitTypeId == unitTypeId
                 return definition
-        return null
+        return null    
 
     function addComboMoves( vararg ComboMove comboMoves )
         for comboMove in comboMoves
