@@ -1,0 +1,46 @@
+package UpdateDamage
+
+public function unit.setAttackDamage(int permDamage, int tempDamage )
+    
+    this.setBaseDamage(permDamage, 1)
+
+    this.prepareAttackDamage()
+    
+    int remainingDamage = tempDamage
+
+    int dmg100 = 0
+
+    if(remainingDamage >= 100)
+        dmg100 += remainingDamage div 100
+        remainingDamage -= dmg100*100
+
+    int dmg10 = 0
+    if remainingDamage >= 10
+        dmg10 += remainingDamage div 10
+        remainingDamage -= dmg10*10
+
+
+    int dmg1 = 0
+    if remainingDamage > 0 
+        dmg1 += remainingDamage div 1
+
+    this.setAbilityLevel('A003', (dmg100+1))
+    this.setAbilityLevel('A001', (dmg10+1))   
+    this.setAbilityLevel('A002', (dmg1+1))
+
+
+/** Prepares the unit for the Attack Damage system, by giving it the attack damage abilities. This is crucial in order for it NOT to bug out. */
+function unit.prepareAttackDamage()
+    if this.getAbilityLevel('A004') == 0
+        this.addAbility('A004')
+    
+    while this.getAbilityLevel('A002') == 0 or this.getAbilityLevel('A001') == 0 or this.getAbilityLevel('A003') == 0
+        this.removeAbility('A004')
+        this.addAbility('A004')
+
+
+// Setup ===================================================================================================================
+init
+    // Makes spell book with attack damage abilities unavailable to the player
+    for i=0 to 12
+        Player(i).setAbilityAvailable('A004', false)

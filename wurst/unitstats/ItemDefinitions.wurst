@@ -1,0 +1,7 @@
+package ItemDefinitions
+import ItemStatsSystem
+
+init
+    'ratc'
+    ..setDamageFlat(10)
+    ..setAttackSpeed(0.1)

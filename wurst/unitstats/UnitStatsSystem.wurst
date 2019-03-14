@@ -1,0 +1,41 @@
+package UnitStatsSystem
+
+import UnitStats
+
+
+/** Get's the unit's attack speed in decimal percent (1 is normal attack speed, 0.8 is a reduced attack speed) */
+public function unit.getAttackSpeed() returns real
+    return UnitStats.getInstance(this).getAttackSpeed()
+
+/** Returns the cooldown between attacks, adjusted by the attack speed */
+public function unit.getAttackCooldown() returns real
+    return UnitStats.getInstance(this).getAttackSpeed()
+
+public function unit.getDamage() returns real
+    return UnitStats.getInstance(this).getDamage()
+
+public function unit.adjustDamageFlat( real damage ) 
+    UnitStats.getInstance(this).adjustDamageFlat( damage )
+
+public function unit.adjustDamagePerc( real damage ) 
+    UnitStats.getInstance(this).adjustDamagePerc( damage )
+
+public function unit.adjustAttackSpeed( real attackSpeed )
+    UnitStats.getInstance(this).adjustAttackSpeed( attackSpeed )
+
+public function unit.setBaseAttackCooldown( real cooldown )
+    UnitStats.getInstance(this).setBaseAttackCooldown(cooldown)
+
+public function unit.setBaseDamage( real damage )
+    UnitStats.getInstance(this).setBaseDamage(damage)
+
+
+
+// UNUSED SO FAR...
+
+// public function unit.setBaseHealth( real health )
+
+// public function unit.setBaseArmor( real armor )
+
+// public function unit.setBaseMoveSpeed( real moveSpeed )
+

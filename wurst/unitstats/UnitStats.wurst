@@ -1,0 +1,84 @@
+package UnitStats
+
+import LinkedList
+
+let DAMAGE_MIN = 2.
+let ATTACKCOOLDOWN_MIN = 0.3
+let ATTACKCOOLDOWN_MAX = 3.0 
+let ATTACKSPEED_MIN = 0.3
+let ATTACKSPEED_MAX = 4. // Percent wise attack speed (effects cooldown i.e.)
+let MOVESPEED_MAX = 450.
+let MOVESPEED_MIN = 150.
+let ARMOR_MIN = 0.
+
+public class UnitStats
+    private static let instances = new LinkedList<thistype>
+
+    private unit theUnit
+
+    private real baseDamage = 2. // The unit's "base damage" is 1, and can't be reduced below this
+    private real baseAttackCooldown = 1
+    
+    private real attackSpeed = 1
+    private real damageFlat = 0
+    private real damagePerc = 1
+
+    private construct( unit theUnit )
+        this.theUnit = theUnit
+        instances.add(this)
+
+    static function getInstance( unit whichUnit ) returns thistype
+        for instance in instances
+            if instance.theUnit == whichUnit
+                return instance
+        return new UnitStats(whichUnit)
+
+
+    private function update()
+        theUnit.setBaseDamage(getDamage().toInt()-1, 1)
+        theUnit.setMaxMana( (getAttackCooldown()*100).toInt() )
+
+
+// Base Settings ---------------------------------------------------------------------------
+
+    function setBaseDamage(real damage)
+        baseDamage = damage-1
+
+    function setBaseAttackCooldown(real cooldown)
+        baseAttackCooldown = cooldown
+
+
+// Adjusters ---------------------------------------------------------------------------
+
+    function adjustDamageFlat( real adjustment)
+        damageFlat += adjustment
+        update()
+
+    function adjustDamagePerc( real adjustment)
+        damagePerc += adjustment
+        update()
+
+    function adjustAttackSpeed( real adjustment )
+        attackSpeed += adjustment
+        update()
+
+
+// Getters ---------------------------------------------------------------------------
+        
+    function getAttackCooldown() returns real
+        return baseAttackCooldown * (1 / getAttackSpeed())
+
+    function getAttackSpeed() returns real
+        var actualSpeed = (attackSpeed >= ATTACKCOOLDOWN_MIN) ? attackSpeed : ATTACKCOOLDOWN_MIN
+        actualSpeed = (attackSpeed <= ATTACKCOOLDOWN_MAX ) ? attackSpeed : ATTACKCOOLDOWN_MAX
+        return actualSpeed
+
+    function getDamage() returns real
+        let adjustedDamage = (baseDamage + damageFlat) * damagePerc 
+        return (adjustedDamage >= DAMAGE_MIN) ? adjustedDamage : DAMAGE_MIN
+        
+    
+    
+
+
+        
