@@ -1,0 +1,7 @@
+package SoundDefinitions
+
+import SoundUtils
+import Sounds
+
+public let SND_METAL_SLICE_HEAVY_FLESH = [ new SoundDefinition(Sounds.metalHeavySliceFlesh1, false, true), new SoundDefinition(Sounds.metalHeavySliceFlesh2, false, true), new SoundDefinition(Sounds.metalHeavySliceFlesh3, false, true) ]
+public let SND_SORCERESS_MISSILE_DEATH = new SoundDefinition( Sounds.sorceressMissileHit3, false, true)

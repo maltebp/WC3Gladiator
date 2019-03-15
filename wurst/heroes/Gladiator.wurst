@@ -33,6 +33,9 @@ public class Gladiator
         this.owner = owner
         gladiatorType = whichType
         gladiatorUnit = createUnit(owner, gladiatorType.getUnitType(), spawnPos, facing)
+        ..addAbility(gladiatorType.QAbility)
+        ..addAbility(gladiatorType.WAbility)
+        ..addAbility(gladiatorType.EAbility)
         
         instances.add(this)
 
@@ -102,6 +105,10 @@ public class GladiatorType
     private string name
 
     private string color
+
+    protected int QAbility
+    protected int WAbility
+    protected int EAbility
 
     private LinkedList<int> abilities = new LinkedList<int>
 
@@ -174,6 +181,10 @@ public class GladiatorType
         checkInit()
         return color
 
+    function setBaseAbilities( int q, int w, int e)
+        QAbility = q
+        WAbility = w
+        EAbility = e
 
     private static function checkInit()
         if not hasBeenInitialized

@@ -1,0 +1,8 @@
+package OrcAnimations
+
+import ActionAnimation
+
+public let ANIM_ORC_STAB = new Animation(8, 1.134, 0.5)
+public let ANIM_ORC_CLEAVE = new Animation(2, 1.167, 0.5)
+public let ANIM_ORC_WHIRLE = new Animation(13, 0.433, 0.4)
+public let ANIM_ORC_RAISEWEAPON = new Animation(10, 1.5, 0.75)

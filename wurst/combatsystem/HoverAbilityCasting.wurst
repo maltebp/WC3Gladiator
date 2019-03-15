@@ -22,15 +22,14 @@ public function onCast()
             
 function castPoint( unit caster, PointAbility abil)
     let targetPos = caster.getOwner().getMousePos()
+    let adjustments = new AbilityAdjustments( abil.getCastRange(), abil.getEffectFreq(), abil.getDuration() )
 
-    if abil.evaluateCastCriteria(caster)
+    if abil.getAdjustments() != null
+        abil.getAdjustments().run( caster, adjustments)
 
-        let adjustments = new AbilityAdjustments( abil.getCastRange(), abil.getEffectFreq(), abil.getDuration() )
+    caster.cast( targetPos, adjustments.castRange, abil.facingRequired() ) ->
 
-        if abil.getAdjustments() != null
-            abil.getAdjustments().run( caster, adjustments)
-
-        caster.cast( targetPos, adjustments.castRange, abil.facingRequired() ) ->
+        if abil.evaluateCastCriteria(caster)
 
             if abil.getOnCast() != null
                 abil.getOnCast().run(caster,targetPos)
@@ -44,7 +43,7 @@ function castPoint( unit caster, PointAbility abil)
                         abil.getOnFinish().run(caster, targetPos)    
 
             else
-                caster.animate( abil.getAnimation(), 1, false) ->
+                caster.animate( abil.getAnimation(), 1, abil.shouldQueueStandReady()) ->
                     abil.getOnEffect().run(caster, targetPos)
 
 
@@ -62,7 +61,7 @@ function castNoTarget( unit caster, NoTargetAbility abil)
         if abil.getOnCast() != null
             abil.getOnCast().run(caster)
 
-        caster.animate( abil.getAnimation(), 1+adjustments.speed, false ) ->
+        caster.animate( abil.getAnimation(), 1+adjustments.speed, abil.shouldQueueStandReady() ) ->
             abil.getOnEffect().run(caster)
 
     

@@ -21,7 +21,8 @@ public let FUMBLE_SND_SWORD = new SoundDefinition(Sounds.sorceressMissileLaunch1
 public function unit.fumble( SoundDefinition snd )
     //this.triggerAbilityFumble() Might be ridicioules to use
     if not fumblingUnits.has(this)
-        standardTextTag(this.getPos()-vec2(20, 0), "fumble")
+        standardTextTag(this.getPos()-vec2(50, 0), "fumble")
+        ..setColor(150,150,150,200)
         snd.playOnPoint(this.getPos3Real())
         fumblingUnits.add(this)
         doAfter(FUMBLE_DELAY) ->

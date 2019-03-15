@@ -17,6 +17,7 @@ import RegisterEvents
 import LinkedList
 import ClosureTimers
 import ErrorHandling
+import AutoCastAbility
 
 
 // ==========================================================================================================================================
@@ -105,9 +106,14 @@ class AnimationObserver
     function animateOnce()
         this.interruptible = interruptible
         animationUnit.setAnimation( animation.getIndex() )
-        animationDurationCb = doAfter( animation.getActionTime() * (1/speed) ) ->
+        animationUnit.queueAnimation("stand")
+        real actionTime = animation.getActionTime() * (1/speed)
+        real animationTime = animation.getLength() * (1/speed) - actionTime
+        animationDurationCb = doAfter( actionTime ) ->
             this.action.run()
-            destroy this
+            this.interruptible = true
+            animationDurationCb = doAfter(animationTime) ->
+                destroy this
 
 
     function animateChannel( real actionFreq, real duration )
@@ -120,6 +126,7 @@ class AnimationObserver
 
         animationLoopCb = doPeriodically( animation.getLength()) cb ->
             this.animationUnit.setAnimation(animation.getIndex())
+            this.animationUnit.queueAnimation("stand")
 
         if duration > 0
             animationDurationCb = doAfter(duration) ->
@@ -148,14 +155,13 @@ class AnimationObserver
         animationUnit.setTimeScale(1)
 
         instances.remove(this)
+
         if queuedOrderId != -1
             animationUnit.issuePointOrderById( queuedOrderId, queuedOrderTarget )
         else if queueStandReady
             animationUnit.setAnimation("stand ready")
         else
             animationUnit.setAnimation("stand")
-
-        print(animationUnit.getProperName() + " finished animating!")
 
 
     function isInterruptible() returns boolean
@@ -200,16 +206,25 @@ public class Animation
 // ==========================================================================================================================================
 // ORDER STOPPER
 
-init
-    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER ) ->
-        let orderedUnit = GetOrderedUnit()
-        let order = GetIssuedOrderId()
+int counter = 0
 
+function issuedOrder()
+
+    let order = GetIssuedOrderId()
+
+    if order != Orders.stop
+
+        let orderedUnit = GetOrderedUnit()
         if orderedUnit.isAnimating()
             if not orderedUnit.interruptAnimation()
                 orderedUnit.queueOrder(order, vec2( GetOrderPointX(), GetOrderPointY() ))
                 doAfter(0.001) ->
                     orderedUnit.issueImmediateOrder("stop")
+
+init
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function issuedOrder )
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, function issuedOrder )
+        
 
 function unit.queueOrder(int order, vec2 pos)
     if this.isAnimating()

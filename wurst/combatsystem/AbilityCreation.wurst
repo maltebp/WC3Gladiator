@@ -44,7 +44,7 @@ public function createW( string icon, string name, string tooltip ) returns int
     ..setManaCost(1, 0)
     ..setCooldown(1, 0)
     ..setEffectSound("")
-    ..setButtonPositionNormalX(0)
+    ..setButtonPositionNormalX(1)
     ..setIconNormal( icon )
 
     return id

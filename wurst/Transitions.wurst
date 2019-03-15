@@ -1,6 +1,6 @@
 package Transitions
 
-import SoundUtils
+import Sounds
 import TimerUtils
 import Camera
 import FadeAndFilters

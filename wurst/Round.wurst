@@ -10,6 +10,7 @@ import Music
 import public Artifact
 import public ItemReward
 import ClosureTimers
+import Sounds
 
 public class Round
 

@@ -2,9 +2,12 @@ package OrcGladiator
 import Gladiator
 import ComboUnit
 import AbilityCreation
+import Strike
+import Cleave
+import Evade
 
 
-public let COMBOLIST = compiletime( createComboMoveList())
+// public let COMBOLIST = compiletime( createComboMoveList())
 
 public let GLADIATOR_ORC_ID = 'O000'
 
@@ -20,3 +23,4 @@ init
         ..setSoundOnRespawn(Sounds.gromYes3)
         ..setSoundOnNewAbility(Sounds.strongholdWhat1)
         ..setColor("|cff98e698")
+        ..setBaseAbilities( ORC_Q_ID, ORC_W_ID, ORC_E_ID )
