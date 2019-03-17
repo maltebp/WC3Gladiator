@@ -15,21 +15,49 @@ constant int        ANIMATIONINDEX_MAX  = 20
 
 // ================================================================================================
 
-int animationIndex = 0
 
-function playAnimation()
+function playAnimation( int animationIndex )
     group selectedUnits = GetUnitsSelectedAll(Player(0))
+    let u = selectedUnits.next()
 
-    print("Play animation "+animationIndex.toString()+" for:")
+    print("Play animation "+animationIndex.toString()+" for: "+u.getProperName() )
+    u.setAnimation(animationIndex)
 
-    for selectedUnit from selectedUnits
-        print(selectedUnit.getName())
-        selectedUnit.setAnimation(animationIndex)
+    
+
+function resetAnimationIndex()
+
+
+function getIndex(string s) returns int
+    let command = s.substring(0, 10)
+
+
+    if command == "-animation"
+        let index = s.substring(11, s.length())
         
-    animationIndex = (animationIndex >= ANIMATIONINDEX_MAX ) ? 0 : animationIndex+1
+        
+        let indexNum = index.toInt()
+
+        if indexNum >= 0
+            return indexNum
+
+    return -1
+
+
+function action()
+
+    let index = getIndex( GetEventPlayerChatString() )
+    
+    
+    if index >= 0
+        playAnimation(index)
+
+    else
+        print("Wrong index")
+        
 
 init
     if ENABLED
         CreateTrigger()
-        ..registerPlayerChatEvent(Player(0), "-animation", true)
-        ..addAction(function playAnimation)
+        ..registerPlayerChatEvent(Player(0), "-animation", false)
+        ..addAction(function action)
