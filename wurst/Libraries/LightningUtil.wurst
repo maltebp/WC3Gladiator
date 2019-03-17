@@ -15,7 +15,7 @@ package LightningUtil
         Use the getLightning() to get the lightning, and model it directly.
 
 ========================================================================================================================= */
-
+    
 import LinkedList
 import TimerUtils
 import ErrorHandling
@@ -166,3 +166,4 @@ public class Lightning
     /** Enables so that the lightning will be removed if the targetUnit or sourceUnit are dead or null */
     function setRemoveOnUnitDeath( boolean toggle)
         removeOnUnitDeath = toggle
+
