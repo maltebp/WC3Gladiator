@@ -6,6 +6,7 @@ import Strike
 import Cleave
 import Evade
 import Slam
+import GladiatorSystem
 
 
 public let COMBOLIST = compiletime( createComboMoveList(MOVE_DEF_SLAM))
@@ -25,10 +26,10 @@ init
         ..setSoundOnNewAbility(Sounds.strongholdWhat1)
         ..setColor("|cff98e698")
         ..setBaseAbilities( ORC_Q_ID, ORC_W_ID, ORC_E_ID )
+        ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED)
 
         COMBOUNIT_ORC
         ..addComboMoves(ORC_COMBO_SLAM)
-        //..unlockMove()
 
         CreateTrigger()
         ..registerPlayerChatEvent(Player(0), "release", true)

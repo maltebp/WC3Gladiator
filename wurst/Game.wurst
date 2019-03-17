@@ -23,6 +23,7 @@ constant boolean    LOCKCAMBOUNDS           = false
 constant boolean    MAKEMAPVISIBLE          = true
 constant boolean    CUSTOMROUNDSTART        = false
 constant boolean    STARTATSPECIFICROUND    = true
+constant boolean    SELECTHERO              = true
 int        STARTINGROUND                    = 1
 public let                 FINALROUND       = 15
 constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
@@ -69,6 +70,7 @@ public button array dialogButton_RoundPick
 
 
 init
+
     // Setting up variables
     MAPREGION = CreateRegion()..addRect(GetPlayableMapRect())
     
@@ -214,7 +216,7 @@ function fadeIn()
 
 function createHero()
 
-
+    
     gladiator = Player(0).newGladiator( GLADIATOR_ORC, spawnPosOnInit, angle(3*PIHALF))
 
     gladiator.releaseAbility(0)
@@ -222,18 +224,11 @@ function createHero()
     // Move all this stuff into Gladiator class
 
     hero = gladiator.getUnit()
-    ..suspendXp(true)
-    ..setColor(PLAYER_COLOR_WHEAT)
-    ..enableCharge()
     ..setInvulnerable(true)
     ..pause()
-    ..adjustDamageFlat(40)
 
-    EnergySystem.addUnit(hero)
-    
-    hero.addArtifactSlots()
     ARTIFACT_BLOODFEATHERSHEART.release()
-    
+
     ITEM_DULLBLADE.release()
     ITEM_LEATHERARMOR.release()
     ITEM_COMMONGEM.release()
@@ -241,8 +236,6 @@ function createHero()
     setDamageTestUnit(hero)
 
     setRound()
-
-    
     
     addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
     ..setDuration(3)

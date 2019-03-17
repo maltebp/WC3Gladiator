@@ -7,8 +7,6 @@ package Gladiator
 import          LinkedList
 import public   SoundUtils
 import          ErrorHandling
-import          HashMap
-import AbilityCreation
 import RegisterEvents
 import Orders
 import ClosureTimers
@@ -17,12 +15,9 @@ import ComboSystem
 import HoverAbility
 import HoverAbilityCasting
 import ClearPoints
-
-
-
-// ================================================================================================================================
-// Other functions
-
+import ChargeSystem
+import UnitStatsSystem
+import Artifact
 
 
 
@@ -39,12 +34,9 @@ public class Gladiator
     construct(GladiatorType whichType, player owner, vec2 spawnPos, angle facing )
         this.owner = owner
         gladiatorType = whichType
-        gladiatorUnit = createUnit(owner, gladiatorType.getUnitType(), spawnPos, facing)
-        ..addAbility(gladiatorType.QAbility)
-        ..addAbility(gladiatorType.WAbility)
-        ..addAbility(gladiatorType.EAbility)
-        ..addAbility(CLEAR_POINTS_ABIL_ID)
-        
+
+        gladiatorUnit = gladiatorType.newGladiatorUnit(owner, spawnPos, facing)
+
         let comboUnitDefinition = ComboUnitDefinition.getDefinition(gladiatorUnit)
 
         gladiatorUnit.addAbility(comboUnitDefinition.getListAbil())
@@ -117,6 +109,12 @@ public class GladiatorType
 
     private string color
 
+    private real damage = 0
+    private real armor = 0
+    private real moveSpeed = 0
+    private real attackCooldown = 0
+    private real health = 0
+
     protected int QAbility
     protected int WAbility
     protected int EAbility
@@ -127,9 +125,6 @@ public class GladiatorType
     private SoundDefinition snd_Respawn = null
     private SoundDefinition snd_NewAbility = null
 
-
-
-
         
     function setUnitType(int unitType)
         this.unitType = unitType
@@ -138,6 +133,12 @@ public class GladiatorType
         name = tempUnit.getName()
         tempUnit.remove()
 
+    function setBaseStats( real damage, real armor, real health, real attackCooldown, real moveSpeed  )
+        this.damage = damage
+        this.armor = armor
+        this.health = health
+        this.attackCooldown = attackCooldown
+        this.moveSpeed = moveSpeed
 
     function setSoundOnSpawn(string soundPath)
         snd_Spawn = new SoundDefinition(soundPath, false)
@@ -200,6 +201,27 @@ public class GladiatorType
     private static function checkInit()
         if not hasBeenInitialized
             initialize()
+
+    function newGladiatorUnit( player owner, vec2 spawnPos, angle facing) returns unit
+        unit gladiatorUnit = createUnit(owner, unitType, spawnPos, facing)
+        ..addAbility(QAbility)
+        ..addAbility(WAbility)
+        ..addAbility(EAbility)
+        ..addAbility(CLEAR_POINTS_ABIL_ID)
+        ..suspendXp(true)
+        ..enableCharge()
+        ..setBaseDamage(damage)
+        ..setBaseAttackCooldown(attackCooldown)
+        ..addArtifactSlots()
+        
+        
+        // These are not implemented in the unit stat system yet
+        gladiatorUnit
+        ..setArmor(armor)
+        ..setMoveSpeed(moveSpeed)
+        ..setMaxHP( health.toInt(), true)
+    
+        return gladiatorUnit
         
 
         

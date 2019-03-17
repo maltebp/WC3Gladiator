@@ -9,7 +9,7 @@ public function unit.getAttackSpeed() returns real
 
 /** Returns the cooldown between attacks, adjusted by the attack speed */
 public function unit.getAttackCooldown() returns real
-    return UnitStats.getInstance(this).getAttackSpeed()
+    return UnitStats.getInstance(this).getAttackCooldown()
 
 public function unit.getDamage() returns real
     return UnitStats.getInstance(this).getDamage()

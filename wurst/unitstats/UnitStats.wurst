@@ -42,10 +42,12 @@ public class UnitStats
 // Base Settings ---------------------------------------------------------------------------
 
     function setBaseDamage(real damage)
-        baseDamage = damage-1
+        baseDamage = damage
+        update()
 
     function setBaseAttackCooldown(real cooldown)
         baseAttackCooldown = cooldown
+        update()
 
 
 // Adjusters ---------------------------------------------------------------------------

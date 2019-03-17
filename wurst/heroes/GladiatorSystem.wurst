@@ -1,7 +1,13 @@
 package GladiatorSystem
 
 import public Gladiator
-import public OrcGladiator
+
+
+public let DEFAULT_ARMOR = 5.
+public let DEFAULT_MOVESPEED = 250.
+public let DEFAULT_DAMAGE = 15.
+public let DEFAULT_ATTACKCOOLDOWN = 2.
+public let DEFAULT_HEALTH = 400.
 
 
 public function player.newGladiator( GladiatorType gladType, vec2 spawnPos, angle facing ) returns Gladiator
