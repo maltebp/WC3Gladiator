@@ -217,7 +217,7 @@ function fadeIn()
 function createHero()
 
     
-    gladiator = Player(0).newGladiator( GLADIATOR_ORC, spawnPosOnInit, angle(3*PIHALF))
+    gladiator = Player(0).newGladiator( GLADIATOR_TROLL, spawnPosOnInit, angle(3*PIHALF))
 
     gladiator.releaseAbility(0)
 

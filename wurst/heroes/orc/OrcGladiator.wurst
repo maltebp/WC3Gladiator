@@ -15,7 +15,7 @@ public let GLADIATOR_ORC_ID = 'O000'
 
 public let GLADIATOR_ORC = new GladiatorType()
 
-public let COMBOUNIT_ORC = new ComboUnitDefinition(GLADIATOR_ORC_ID, COMBOLIST)
+let COMBOUNIT_ORC = new ComboUnitDefinition(GLADIATOR_ORC_ID, COMBOLIST)
 
 
 init
@@ -31,8 +31,4 @@ init
         COMBOUNIT_ORC
         ..addComboMoves(ORC_COMBO_SLAM)
 
-        CreateTrigger()
-        ..registerPlayerChatEvent(Player(0), "release", true)
-        ..addAction() ->
-                COMBOUNIT_ORC.unlockMove()
 

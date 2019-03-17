@@ -184,7 +184,7 @@ public class AbilityAdjustments
     real castRange
     real channelFreq
     real channelDuration
-    real speed = 0
+    real speed = 1
 
     construct( real castRange, real channelFreq, real channelDuration )
         this.castRange = castRange

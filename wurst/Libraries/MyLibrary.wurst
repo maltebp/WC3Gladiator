@@ -44,12 +44,25 @@ public function unit.isValidEnemyTarget(player enemy) returns boolean
     return this.getOwner().isEnemyOf(enemy) and this.isAliveTrick()
 
 
+public function unit.isFriendlyTarget(player ally) returns boolean
+    return not this.getOwner().isEnemyOf(ally) and this.isAliveTrick()
+
+
 public function group.enumEnemyTargets(player enemy, vec2 pos, real range)
     this.enumUnitsInRange(pos, range)
 
     if this.size() > 0
         for target in this
             if not target.isValidEnemyTarget(enemy)
+                this.removeUnit(target)
+
+
+public function group.enumFriendlyTargets(player ally, vec2 pos, real range)
+    this.enumUnitsInRange(pos, range)
+
+    if this.size() > 0
+        for target in this
+            if not target.isFriendlyTarget(ally)
                 this.removeUnit(target)
     
 

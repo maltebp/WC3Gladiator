@@ -39,7 +39,7 @@ function castPoint( unit caster, PointAbility abil)
                 abil.getOnCast().run(caster,targetPos)
 
             if abil.isChannel()
-                let animation = caster.animateChannel(abil.getAnimation(), adjustments.channelFreq, adjustments.channelDuration, 1+adjustments.speed, abil.isInterruptible(), false) ->
+                let animation = caster.animateChannel(abil.getAnimation(), adjustments.channelFreq, adjustments.channelDuration, adjustments.speed, abil.isInterruptible(), false) ->
                     abil.getOnEffect().run(caster, targetPos)
 
                 if abil.getOnFinish() != null
@@ -47,7 +47,7 @@ function castPoint( unit caster, PointAbility abil)
                         abil.getOnFinish().run(caster, targetPos)    
 
             else
-                caster.animate( abil.getAnimation(), 1, abil.shouldQueueStandReady()) ->
+                caster.animate( abil.getAnimation(), adjustments.speed, abil.shouldQueueStandReady()) ->
                     abil.getOnEffect().run(caster, targetPos)
 
 
@@ -65,7 +65,7 @@ function castNoTarget( unit caster, NoTargetAbility abil)
         if abil.getOnCast() != null
             abil.getOnCast().run(caster)
 
-        caster.animate( abil.getAnimation(), 1+adjustments.speed, abil.shouldQueueStandReady() ) ->
+        caster.animate( abil.getAnimation(), adjustments.speed, abil.shouldQueueStandReady() ) ->
             abil.getOnEffect().run(caster)
 
     

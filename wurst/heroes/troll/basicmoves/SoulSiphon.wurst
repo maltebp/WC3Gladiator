@@ -1,0 +1,70 @@
+package SoulSiphon
+
+import AbilityCreation
+import HoverAbility
+import SoundDefinitions
+import AttackCooldown
+import MyLibrary
+import UnitStatsSystem
+import DamageType
+import TrollAnimations
+import Projectile
+import Assets
+import GroupUtils
+import Miss
+import HeroDefaults
+import ComboSystem
+
+
+let RANGE = DEFAULT_CASTRANGE
+let DRAIN_FACTOR = 1.5 // Equilavent to damage factor
+let TRANSFER_FACTOR = 1. // Amount drained gained by the caster
+let AIMASSIST = 75.
+
+
+public let TROLL_SOULSIPHON_ID = compiletime( createW( Icons.bTNManaDrain, "Soul Siphon", "Strike an enemy dealing damage to it.")  )
+
+let ABIL_DEF = new PointAbility( TROLL_SOULSIPHON_ID, RANGE, ANIM_TROLL_ATTACK )
+
+
+init
+    ABIL_DEF
+    ..queueStandReady()
+
+    ABIL_DEF.setCastCritera() caster ->
+        return caster.attemptAttack( SND_SORCERESS_MISSILE_DEATH )
+
+    ABIL_DEF.onEffect() (caster, pos) ->
+
+        
+        SND_SACRIFICE.playOnPoint(pos.withTerrainZ())
+
+        caster.setHP(200)
+
+        let targets = ENUM_GROUP..enumEnemyTargets( caster.getOwner(), pos, AIMASSIST)
+        
+        let target = targets.getNearestUnit(pos)
+
+        if target != null
+
+            let damage = caster.getDamage() * DRAIN_FACTOR
+            let heal = damage*TRANSFER_FACTOR
+
+            dealCodeDamage( caster, target, damage)
+            caster.addComboPoint( COMBO_POINT_W )            
+
+            let projectile = new Projectile(target.getPos().withTerrainZ(60), Abilities.zigguratMissile)
+            ..fireUnit( caster, 60, true, 1000, 0)
+
+            projectile
+            ..addActionOnFinish() ->
+                if caster != null and caster.isAlive()
+                    caster.setHP( caster.getHP()+heal)
+                
+
+
+        else
+            SND_SPELL_MISS.playOnPoint(caster.getPos3Real())
+            caster.missAttack()
+
+        targets.clear()

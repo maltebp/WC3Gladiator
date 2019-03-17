@@ -37,7 +37,7 @@ public function unit.cancelCast()
 class CastObserver extends Updater
 
     static let instances = new LinkedList<thistype>
-    static let FACING_DEVIATION = 0.75
+    static let FACING_DEVIATION = 1.25
 
     unit caster
     vec2 targetPos

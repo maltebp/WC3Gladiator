@@ -2,6 +2,10 @@ package GladiatorSystem
 
 import public Gladiator
 
+// So that you may just import the Gladiator system
+import public initlater TrollGladiator
+import public initlater OrcGladiator
+
 
 public let DEFAULT_ARMOR = 5.
 public let DEFAULT_MOVESPEED = 250.

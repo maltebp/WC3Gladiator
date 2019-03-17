@@ -1,0 +1,34 @@
+package TrollGladiator
+
+import ComboUnit
+import AbilityCreation
+import Slam
+import GladiatorSystem
+import VoodooPotion
+import SoulSiphon
+import HealingSalve
+import FlamingPotion
+
+
+public let GLADIATOR_TROLL = new GladiatorType()
+
+let COMBOLIST = compiletime( createComboMoveList(FLAMINGPOTION_ID))
+let UNIT_ID = 'O005'
+
+public let COMBOUNIT = new ComboUnitDefinition(UNIT_ID, COMBOLIST)
+
+
+init
+        GLADIATOR_TROLL
+        ..setUnitType(UNIT_ID)
+        ..setSoundOnSpawn(Sounds.headHunterWarcry1)
+        ..setSoundOnRespawn(Sounds.rokhanReady1)
+        ..setSoundOnNewAbility(Sounds.spiritLodgeWhat1)
+        ..setColor("|cff714ea8")
+        ..setBaseAbilities( TROLL_VOODOOPOTION_ID, TROLL_SOULSIPHON_ID, TROLL_HEALINGSALVE_ID )
+        ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED)
+
+        COMBOUNIT
+        ..addComboMoves(COMBO_FLAMINGPOTION)
+
+        COMBOUNIT.unlockMove()

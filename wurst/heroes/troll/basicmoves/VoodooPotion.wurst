@@ -1,0 +1,67 @@
+package VoodooPotion
+
+import AbilityCreation
+import HoverAbility
+import OrcAnimations
+import SoundDefinitions
+import AttackCooldown
+import MyLibrary
+import GroupUtils
+import Miss
+import UnitStatsSystem
+import DamageType
+import TrollAnimations
+import Projectile
+import Assets
+import HeroDefaults
+import ComboSystem
+import FlamingPotion
+
+
+let RANGE = DEFAULT_CASTRANGE
+let DAMAGE_FACTOR = 0.5
+let AOE = 200.
+
+
+public let TROLL_VOODOOPOTION_ID = compiletime( createQ( Icons.bTNAcidBomb, "Voodoo Potion", "Strike an enemy dealing damage to it.")  )
+
+let ABIL_DEF = new PointAbility( TROLL_VOODOOPOTION_ID, RANGE, ANIM_TROLL_ATTACK )
+
+
+init
+    ABIL_DEF
+    ..queueStandReady()
+
+    ABIL_DEF.setCastCritera() caster ->
+        return caster.attemptAttack( SND_SORCERESS_MISSILE_DEATH )
+
+    ABIL_DEF.onEffect() (caster, pos) ->
+
+        if caster.hasFlamingPotionBuff()
+            // FLAMING POTION
+            caster.castFlamingPotion(pos)
+
+        else
+            caster.addComboPoint( COMBO_POINT_Q )
+
+            let projectile = new Projectile(caster.getPos().withTerrainZ(60), Abilities.bottleMissile)
+            ..firePoint(pos.withTerrainZ(), 700, 0.4)
+
+            projectile
+            ..addActionOnFinish() ->
+
+                projectile.getEffect()
+                ..setScale(0.05)
+        
+                // Additional purple effect
+                addEffect( Abilities.annihilationMissile, pos)
+                ..setScale(1.5)
+                ..destr()
+                
+                let damage = caster.getDamage() * DAMAGE_FACTOR
+
+                // Effect
+                forEnemiesInRange( caster.getOwner(), pos, AOE ) target ->
+                    dealCodeDamage( caster, target, damage)
+                    target.addEffect( Abilities.deathandDecayDamage,  "origin" )
+                    ..destr()

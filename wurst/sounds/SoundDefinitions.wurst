@@ -1,7 +1,11 @@
 package SoundDefinitions
 
 import SoundUtils
-import Sounds
 
 public let SND_METAL_SLICE_HEAVY_FLESH = [ new SoundDefinition(Sounds.metalHeavySliceFlesh1, false, true), new SoundDefinition(Sounds.metalHeavySliceFlesh2, false, true), new SoundDefinition(Sounds.metalHeavySliceFlesh3, false, true) ]
 public let SND_SORCERESS_MISSILE_DEATH = new SoundDefinition( Sounds.sorceressMissileHit3, false, true)
+public let SND_ACID_BOMB_EXPLODE = new SoundDefinition( Sounds.alchemistAcidBurnMissileDeath1, false, true)
+public let SND_FIREBALL_LAUNCH = [ new SoundDefinition( Sounds.fireBallMissileLaunch1, false, true), new SoundDefinition( Sounds.fireBallMissileLaunch2, false, true), new SoundDefinition( Sounds.fireBallMissileLaunch3, false, true)]
+public let SND_UNDEAD_DISSIPATE2 = new SoundDefinition(Sounds.undeadDissipate2, false, true)
+public let SND_LICH_CAST = [ new SoundDefinition( Sounds.lichAttackEffort1, false, true), new SoundDefinition( Sounds.lichAttackEffort2, false, true), new SoundDefinition( Sounds.lichAttackEffort3, false, true)]
+public let SND_SACRIFICE = new SoundDefinition(Sounds.sacrificeUnit, false, true)

@@ -1,0 +1,133 @@
+package HealingSalve
+
+import AbilityCreation
+import HoverAbility
+import SoundDefinitions
+import AttackCooldown
+import MyLibrary
+import UnitStatsSystem
+import DamageType
+import TrollAnimations
+import Projectile
+import Assets
+import GroupUtils
+import Miss
+import HeroDefaults
+import Updater
+import BuffObjEditing
+import LinkedList
+import ClosureTimers
+import TimedSpecialEffects
+import ComboSystem
+
+// ==================================================================================================================================
+
+let HEAL_FACTOR = 0.5
+let DURATION = 10.
+let HEAL_FREQ = 1.
+
+let RANGE = DEFAULT_CASTRANGE
+let AIMASSIST = DEFAULT_AIMASSIST
+
+// ==================================================================================================================================
+
+public let TROLL_HEALINGSALVE_ID = compiletime( createE( Icons.bTNHealingSalve, "Healing Salve", "Strike an enemy dealing damage to it.")  )
+
+let ABIL_DEF = new PointAbility( TROLL_HEALINGSALVE_ID, RANGE, ANIM_TROLL_VICTORY )
+
+
+init
+    ABIL_DEF
+    ..queueStandReady()
+
+    ABIL_DEF.setCastCritera() caster ->
+        return caster.attemptAttack( SND_SORCERESS_MISSILE_DEATH )
+
+    ABIL_DEF.addAdjustments() (caster, adjustments) ->
+        adjustments.speed = caster.getAttackSpeed() * 1.4
+
+    ABIL_DEF.onEffect() (caster, pos) ->
+
+        
+
+        let targets = ENUM_GROUP..enumFriendlyTargets( caster.getOwner(), pos, AIMASSIST)
+        
+        let target = targets.getNearestUnit(pos)
+
+        if target != null
+
+            let heal = caster.getDamage() * HEAL_FACTOR
+
+            target.addEffect(Abilities.healTarget, "origin")
+            ..setDuration(3)
+            
+            caster.applyHealingSalve(target, heal, HEAL_FREQ, DURATION)
+            caster.addComboPoint( COMBO_POINT_E )
+                
+        else
+            SND_SPELL_MISS.playOnPoint(caster.getPos3Real())
+            caster.missAttack()
+
+        targets.clear()
+
+
+let healingSalveBuff = compiletime( createDummyBuffObject("Healing Salve", "You're being healed over time.", Icons.bTNHealingSalve, Abilities.healingSalveTarget, "origin") )
+
+public function unit.applyHealingSalve( unit target, real healAmount, real healFreq, real duration  ) 
+    let instance = HealingSalveBuff.getInstance(target, this)
+    if instance != null
+        destroy instance
+    new HealingSalveBuff( target, this, healAmount, healFreq, duration)
+
+
+class HealingSalveBuff extends Updater
+
+    private static let instances = new LinkedList<thistype>
+
+    private unit buffUnit
+    private unit source
+    private real healAmount
+    private CallbackSingle durationCb = null
+
+    construct( unit buffUnit, unit source, real healAmount, real updateFreq, real duration )
+        this.source = source
+        this.buffUnit = buffUnit
+        this.healAmount = healAmount
+
+        buffUnit.addAbility(healingSalveBuff.abilId)
+
+        this.updateFreq = updateFreq
+        startUpdate()
+
+        durationCb = doAfter( duration+0.1 ) ->
+            this.durationCb = null
+            destroy this
+
+        instances.add(this)
+
+
+    ondestroy
+        if durationCb != null
+            destroy durationCb
+
+        if buffUnit != null and buffUnit.isAliveTrick()
+            buffUnit.removeAbility(healingSalveBuff.abilId)
+
+        instances.remove(this)
+
+
+    override function update()
+        if buffUnit.isAliveTrick()
+            let hpAfterHeal = buffUnit.getHP() + healAmount
+            let finalHp = (buffUnit.getMaxHP() <= hpAfterHeal ) ? buffUnit.getMaxHP() : hpAfterHeal
+            buffUnit.setHP(finalHp)
+
+        else
+            destroy this
+
+
+    static function getInstance( unit buffUnit, unit source ) returns thistype
+        for instance in instances
+            if instance.buffUnit == buffUnit and instance.source == source
+                return instance
+        return null

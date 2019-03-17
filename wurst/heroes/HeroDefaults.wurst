@@ -1,0 +1,9 @@
+package HeroDefaults
+import SoundUtils
+
+
+public let DEFAULT_CASTRANGE = 600.
+public let DEFAULT_MELEERANGE = 125.
+public let DEFAULT_AIMASSIST = 60.
+
+public let SND_SPELL_MISS = new SoundDefinition( Sounds.etherealMediumHit1, false, true)
