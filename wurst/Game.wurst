@@ -14,6 +14,7 @@ import Damage
 import GladiatorSystem
 import Sounds
 import UnitStatsSystem
+import OrcGladiator
 
 constant boolean    SPAWNHEROINARENA        = true
 constant boolean    ARENACORNERSPAWN        = false

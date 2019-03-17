@@ -1,0 +1,44 @@
+package Slam
+import AbilityCreation
+import ComboSystem
+import HoverAbility
+import OrcAnimations
+import MyLibrary
+import GroupUtils
+import Miss
+import SoundDefinitions
+import UnitStatsSystem
+import DamageType
+
+let AIMASSIST = 60.
+let DAMAGE_FACTOR  = 2.
+
+
+
+public let MOVE_DEF_SLAM = compiletime( createComboMove("Slam", "Do a slam dunk!", Icons.bTNCriticalStrike, Icons.pASBTNCriticalStrike))
+public let ORC_COMBO_SLAM = new ComboMove( MOVE_DEF_SLAM, COMBO_POINT_W, COMBO_POINT_E, null )
+let MOVE_ABIL = new PointAbility(MOVE_DEF_SLAM.useAbil, 100, ANIM_ORC_SLAM)
+
+init
+    
+    MOVE_ABIL
+    ..queueStandReady()
+    ..addAdjustments() (caster, adjustments) ->
+        adjustments.speed = 1.5
+        return adjustments
+    
+    MOVE_ABIL
+    ..onEffect() (caster, targetPos) ->
+        let targets = ENUM_GROUP..enumEnemyTargets( caster.getOwner(), targetPos, AIMASSIST)
+        
+        let target = targets.getNearestUnit(targetPos)
+
+        if target != null
+            SND_METAL_SLICE_HEAVY_FLESH[GetRandomInt(0, 2)].playOnPoint(targetPos.withTerrainZ())
+            dealCodeDamage(caster, target, caster.getDamage()*DAMAGE_FACTOR )
+        else
+            caster.missAttack()
+
+        targets.clear()
+
+        caster.clearCombo()

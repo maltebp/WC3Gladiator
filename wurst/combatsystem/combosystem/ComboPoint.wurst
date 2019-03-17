@@ -5,11 +5,13 @@ public class ComboPointType
     string name
     color col
     string modelPath
+    player playercol
 
-    construct( string name, color col, string modelPath )
+    construct( string name, player playercol,  color col, string modelPath )
         this.name = name
         this.col = col
         this.modelPath = modelPath
+        this.playercol = playercol
 
 
 public class ComboPoint
@@ -20,10 +22,9 @@ public class ComboPoint
     construct( ComboPointType comboType )
         sfx = addEffect( comboType.modelPath, vec2(0,0) )
         ..setColor(comboType.col)
-        ..setTime(0.700)
-        ..setTimeScale(0)
-        ..setScale(0.6)
-        ..setRoll(1)
+        ..setColorByPlayer(comboType.playercol)
+        ..setTimeScale(0.5)
+        ..setScale(0.5)
 
 
         this.comboType = comboType

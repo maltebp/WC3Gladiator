@@ -15,7 +15,6 @@ public class ComboMove
 
         let currentDesc = BlzGetAbilityExtendedTooltip(moveIds.listAbil, 1)
         
-        
         var comboDesc  = "Combo: "
 
         combo.add(combo1)

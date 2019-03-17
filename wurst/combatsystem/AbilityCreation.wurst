@@ -4,6 +4,8 @@ import AbilityObjEditing
 
 import public Icons
 import ObjectIds
+import BuffObjEditing
+import Assets
 
 public function createQ( string icon, string name, string tooltip ) returns int
 
@@ -70,21 +72,60 @@ public function createE( string icon, string name, string tooltip) returns int
     return id
 
 
+public function createF( string icon, string name, string tooltip) returns int
+    let id = ABIL_ID_GEN.next()
+    
+    let buffId = BUFF_ID_GEN.next()
+    new BuffDefinition(buffId, 'BEim' )
+    ..setIcon(icon)
+    ..setTooltipNormal(1, " ")
+    ..setTooltipNormalExtended(1, " ")
+    ..setArtTarget(1, " ")
+    ..setArtSpecial(1, " ")
+
+
+    new AbilityDefinitionImmolationcreep( id )
+    ..setCooldown(1, 0)
+    ..setName(name)
+    ..setTooltipNormal(1, name + " - R")
+    ..setTooltipNormalExtended(1, tooltip )
+    ..setTooltipTurnOff(1, name + " R")
+    ..setTooltipTurnOffExtended(1, tooltip)
+    ..setTargetsAllowed(1, "none")
+    ..setIconNormal( icon )
+    ..setIconTurnOff(icon)
+    ..setDurationHero(1, 0.01)
+    ..setDurationNormal(1, 0.01)
+    ..setManaDrainedperSecond(1, 0)
+    ..setBuffs(1, buffId.toRawCode())
+    ..setManaCost(1, 0)
+    ..setBufferManaRequired(1, 0)
+    ..setHotkeyNormal("F")
+    ..setButtonPositionNormalX(3)
+    ..setButtonPositionNormalY(1)
+
+    return id
+
+
 public function createComboMove( string name, string tooltip, string iconActive, string iconPassive ) returns comboMoveTuple
     let useAbil = ABIL_ID_GEN.next() 
 
-    new AbilityDefinitionPaladinDivineShield(useAbil)
+    new AbilityDefinitionDefend(useAbil)
     ..setName(name)
-    ..setTooltipNormal(1, name + " - E")
+    ..setTooltipNormal(1, name + " - R")
     ..setTooltipNormalExtended(1, tooltip )
+    ..setTooltipTurnOff(1, name + " - R")
+    ..setTooltipTurnOffExtended(1, tooltip )
     ..setCooldown(1, 0)
-    ..setLevels(1)
+    ..setArtCaster("")
     ..setIconNormal( iconActive )
-    ..setDurationHero(1, 0.01)
-    ..setDurationNormal(1, 0.01)
-    ..setManaCost(1, 0)
+    ..setIconTurnOff( iconActive )
     ..setHotkeyNormal("R")
+    ..setHotkeyTurnOff("R")
     ..setButtonPositionNormalX(3)
+    ..setRequirements("")
+    ..setMovementSpeedFactor(1, 0)
+    ..setAttackSpeedFactor(1, 0)
 
     let listAbil = ABIL_ID_GEN.next() 
 

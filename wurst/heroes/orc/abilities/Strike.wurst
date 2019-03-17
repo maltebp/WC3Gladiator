@@ -13,6 +13,7 @@ import GroupUtils
 import AttackCooldown
 import Miss
 import UnitStatsSystem
+import ComboSystem
 
 
 
@@ -41,6 +42,7 @@ init
         if target != null
             SND_METAL_SLICE_HEAVY_FLESH[GetRandomInt(0, 2)].playOnPoint(pos.withTerrainZ())
             dealCodeDamage(caster, target, caster.getDamage()*DAMAGE_FACTOR )
+            caster.addComboPoint(COMBO_POINT_W)
         else
             caster.missAttack()
 

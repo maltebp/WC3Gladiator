@@ -13,6 +13,7 @@ import BuffObjEditing
 import DamageType
 import DamageDetection
 import StandardTextTags
+import ComboSystem
 
 public let ORC_E_ID = compiletime( createE( Icons.bTNMirrorImage, "Evade", "Strike an enemy dealing damage to it.")  )
 public let EVADE_BUFF = compiletime( createDummyBuffObject("Evade", "You'll evade incoming attacks", Icons.bTNMirrorImage ) )
@@ -28,6 +29,7 @@ init
             c.addEffect( Abilities.mirrorImageCaster, "origin")
             ..setDuration( 3 )
             EvadeBuff.applyBuff(c, 2, 5)
+            c.addComboPoint(COMBO_POINT_E)
 
   
         

@@ -1,0 +1,73 @@
+package OrderTracker
+
+import UnitIndexer
+import Orders
+import ClosureTimers
+
+let pointOrderTrg = CreateTrigger()
+let targetOrderTrg = CreateTrigger()
+let immediateOrderTrg = CreateTrigger()
+
+MoveOrder array orders 
+
+public function unit.issuePreviousOrder()
+    let index = this.getIndex()
+    doAfter(0.001) ->
+        if orders[index] != null
+            orders[index].issue(this)
+        else
+            this.issueImmediateOrderById(Orders.stop)
+
+class MoveOrder
+    vec2 targetPos = vec2(1337,1337)
+    unit targetUnit = null
+    int orderId = 0
+
+    construct( int orderId, unit targetUnit )
+        this.orderId = orderId
+        this.targetUnit = targetUnit
+
+    construct( int orderId, vec2 targetPos )
+        this.orderId = orderId
+        this.targetPos = targetPos
+
+    function issue(unit orderUnit)
+        if targetUnit == null
+            orderUnit.issuePointOrderById(orderId, targetPos)
+        else
+            orderUnit.issueTargetOrderById(orderId, targetUnit)
+
+
+public function unit.trackOrders()
+    targetOrderTrg.registerUnitEvent(this, EVENT_UNIT_ISSUED_POINT_ORDER)
+    targetOrderTrg.registerUnitEvent(this, EVENT_UNIT_ISSUED_TARGET_ORDER)
+    targetOrderTrg.registerUnitEvent(this, EVENT_UNIT_ISSUED_ORDER)   
+
+
+function unit.setOrder( MoveOrder order )
+    let index = this.getIndex()
+    if orders[index] != null
+        destroy orders[index]
+    orders[index] = order
+    
+
+init 
+    pointOrderTrg
+    ..addAction() ->
+        let orderId = GetIssuedOrderId()
+        if orderId == Orders.smart or orderId == Orders.move
+            GetOrderedUnit().setOrder( new MoveOrder( orderId, vec2(GetOrderPointX(), GetOrderPointY()) ))
+        else
+            GetOrderedUnit().setOrder( null )
+
+    targetOrderTrg
+    ..addAction() ->
+        let orderId = GetIssuedOrderId()
+        if orderId == Orders.smart
+            GetOrderedUnit().setOrder( new MoveOrder( orderId, GetOrderTargetUnit() ))
+        else
+        GetOrderedUnit().setOrder( null)
+
+    immediateOrderTrg
+    ..addAction() ->
+        GetOrderedUnit().setOrder( null)

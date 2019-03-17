@@ -208,11 +208,17 @@ public class Animation
 
 int counter = 0
 
+int array orderExceptions = [Orders.unimmolation] // REMEMBER TO INCREASE EXCEPTION LOOP
+
 function issuedOrder()
 
     let order = GetIssuedOrderId()
 
     if order != Orders.stop
+
+        for i = 0 to 0
+            if order == orderExceptions[i]
+                return
 
         let orderedUnit = GetOrderedUnit()
         if orderedUnit.isAnimating()
@@ -220,6 +226,9 @@ function issuedOrder()
                 orderedUnit.queueOrder(order, vec2( GetOrderPointX(), GetOrderPointY() ))
                 doAfter(0.001) ->
                     orderedUnit.issueImmediateOrder("stop")
+
+
+
 
 init
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function issuedOrder )

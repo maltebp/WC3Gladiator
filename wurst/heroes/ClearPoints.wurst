@@ -1,0 +1,22 @@
+package ClearPoints
+import AbilityCreation
+import RegisterEvents
+import ClosureTimers
+import AutoCastAbility
+import LastOrder
+import ComboSystem
+
+public let CLEAR_POINTS_ABIL_ID = compiletime(createF(Icons.bTNCancel, "Remove Combos", "Remove all current combo points"))
+
+init
+    registerSpellEffectEvent( CLEAR_POINTS_ABIL_ID) ->
+        let caster = GetSpellAbilityUnit()
+        doAfter(0.001) ->
+            caster.issueImmediateOrderById(Orders.unimmolation)
+            // doAfter(0.001) ->
+            //     let order = caster.getLastOrder()
+            //     if order != null
+            //         order.finished = false
+            //         order.issue()
+                    
+            caster.clearCombo()

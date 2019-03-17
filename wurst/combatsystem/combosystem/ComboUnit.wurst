@@ -8,16 +8,15 @@ import ErrorHandling
 
 let MAX_POINTS = 3
 
-
 public class ComboUnitDefinition
     static let definitions = new LinkedList<thistype>
 
     protected int unitTypeId
-    protected int comboList
+    protected int comboList = 0
     protected let unlockedMoves = new LinkedList<ComboMove>
     protected let lockedMoves = new LinkedList<ComboMove>
 
-    construct( int unitTypeId )
+    construct( int unitTypeId, int comboList )
         this.unitTypeId = unitTypeId 
         this.comboList = comboList
         definitions.add(this)
@@ -29,18 +28,34 @@ public class ComboUnitDefinition
                 return definition
         return null    
 
+
+    /** Make the combo move available to this combo unit. It need to be unlocked with unlockMove()
+        before it may be used though.
+        This has no effect on whether or not the combo move is in the list ability (spell book). */
     function addComboMoves( vararg ComboMove comboMoves )
         for comboMove in comboMoves
             this.lockedMoves.add(comboMove)
+            for i=0 to 5
+                Player(i).setAbilityAvailable(comboMove.getAbilityId(), false)
+                Player(i).setAbilityAvailable(comboMove.getListId(), false)
 
+    /** Unlocks the next comboMove in the list */
     function unlockMove() returns ComboMove
         if lockedMoves.size() > 0
             let move = lockedMoves.removeAt(0)
             unlockedMoves.add(move)
+            for i=0 to 5
+                Player(i).setAbilityAvailable(move.getAbilityId(), true)
+                Player(i).setAbilityAvailable(move.getListId(), true)
             return move
         else    
             error("No more moves to unlock")
             return null
+
+    function getListAbil() returns int
+        if comboList == 0
+            error("No combo list")
+        return comboList
         
 
 
@@ -60,7 +75,7 @@ public class ComboUnit
 
     private let WIDTH_PER_POINT = 50.
     private let WIDTH_TOTAL = WIDTH_PER_POINT * (MAX_POINTS-1)
-    private let POINT_Z_OFFSET = 270.
+    private let POINT_Z_OFFSET = 220.
 
 
     construct( unit comboUnit )
@@ -86,7 +101,6 @@ public class ComboUnit
     
     
     function update()
-       
         if comboUnit == null or not comboUnit.isAlive() or currentCombo.size() == 0
             destroy this
 
@@ -98,27 +112,30 @@ public class ComboUnit
                 pointPos += vec2(WIDTH_PER_POINT, 0)        
         
 
+    /** Checks if the unit has the combo for a combo move, and removes all moves he doesn't have the combo for */
     function updateMoves()
-        
+        // Remove all current moves
+        clearMoves()
+
+        // Search all unlocked moves for a match with current combo points
         for comboMove in definition.unlockedMoves
 
             if comboMove.getSize() == currentCombo.size()
                 boolean comboMatch = true
 
                 for i = 0 to comboMove.getSize()-1 
-
                     if currentCombo.get(i).getType() != comboMove.getComboPointType(i)
                         comboMatch = false
                         
                 if comboMatch
                     clearMoves()
                     comboUnit.addAbility( comboMove.getAbilityId() )
+                    currentMove = comboMove
 
-            else if comboUnit.hasAbility(comboMove.getAbilityId())
-                comboUnit.removeAbility(comboMove.getAbilityId())
-        
-
+    
+    /** Clears the unit's current move. Should only be 1 move */
     function clearMoves()
+        currentMove = null
         for comboMove in definition.unlockedMoves
             if comboUnit.hasAbility(comboMove.getAbilityId())
                 comboUnit.removeAbility(comboMove.getAbilityId())
@@ -147,6 +164,10 @@ public class ComboUnit
         if currentCombo.size() > 0
             destroy currentCombo.removeAt(0)
             updateMoves()
+
+
+    function getCurrentMove() returns ComboMove
+        return currentMove
 
         
     static function getInstance( unit whichUnit ) returns thistype  

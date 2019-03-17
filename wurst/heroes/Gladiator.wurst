@@ -8,6 +8,16 @@ import          LinkedList
 import public   SoundUtils
 import          ErrorHandling
 import          HashMap
+import AbilityCreation
+import RegisterEvents
+import Orders
+import ClosureTimers
+import LastOrder
+import ComboSystem
+import HoverAbility
+import HoverAbilityCasting
+import ClearPoints
+
 
 
 // ================================================================================================================================
@@ -19,9 +29,6 @@ import          HashMap
 
 // ================================================================================================================================
 public class Gladiator
-
-
-
     private static LinkedList<thistype> instances = new LinkedList<thistype>
 
     private unit            gladiatorUnit
@@ -36,6 +43,11 @@ public class Gladiator
         ..addAbility(gladiatorType.QAbility)
         ..addAbility(gladiatorType.WAbility)
         ..addAbility(gladiatorType.EAbility)
+        ..addAbility(CLEAR_POINTS_ABIL_ID)
+        
+        let comboUnitDefinition = ComboUnitDefinition.getDefinition(gladiatorUnit)
+
+        gladiatorUnit.addAbility(comboUnitDefinition.getListAbil())
         
         instances.add(this)
 
@@ -78,7 +90,6 @@ public class Gladiator
 
     static function isUnitGladiator(unit whichUnit) returns boolean
         return getInstance(whichUnit) != null
-
 
     static function getInstance(unit  whichUnit) returns Gladiator
         for instance in instances
@@ -198,6 +209,31 @@ public class GladiatorType
     private static function initialize()
         hasBeenInitialized = true
 
+init
+    
+    registerPlayerUnitEvent( EVENT_PLAYER_UNIT_ISSUED_ORDER ) ->
+        // An order exception has been made in AbilityCasting and ActionAmination
+        let orderId = GetIssuedOrderId()
+
+        if orderId == Orders.defend
+            let orderedUnit  = GetOrderedUnit()
+            doAfter(0.001) ->
+                orderedUnit.issueImmediateOrderById(Orders.undefend)
+                doAfter(0.001) ->
+                    let order = orderedUnit.getLastOrder()
+                    if order != null
+                        order.finished = false
+                        order.issue()
+                    let comboMove = orderedUnit.getComboMove()
+                    if comboMove != null
+                        let abilDef = AbilityDef.getInstance(comboMove.getAbilityId())
+            
+                        if abilDef != null
+                            onCastCaster( orderedUnit, abilDef )
+                    
+    
+
+    
         
 
 

@@ -5,15 +5,16 @@ import AbilityCreation
 import Strike
 import Cleave
 import Evade
+import Slam
 
 
-// public let COMBOLIST = compiletime( createComboMoveList())
+public let COMBOLIST = compiletime( createComboMoveList(MOVE_DEF_SLAM))
 
 public let GLADIATOR_ORC_ID = 'O000'
 
 public let GLADIATOR_ORC = new GladiatorType()
 
-public let COMBOUNIT_ORC = new ComboUnitDefinition(GLADIATOR_ORC_ID)
+public let COMBOUNIT_ORC = new ComboUnitDefinition(GLADIATOR_ORC_ID, COMBOLIST)
 
 
 init
@@ -24,3 +25,13 @@ init
         ..setSoundOnNewAbility(Sounds.strongholdWhat1)
         ..setColor("|cff98e698")
         ..setBaseAbilities( ORC_Q_ID, ORC_W_ID, ORC_E_ID )
+
+        COMBOUNIT_ORC
+        ..addComboMoves(ORC_COMBO_SLAM)
+        //..unlockMove()
+
+        CreateTrigger()
+        ..registerPlayerChatEvent(Player(0), "release", true)
+        ..addAction() ->
+                COMBOUNIT_ORC.unlockMove()
+

@@ -11,6 +11,10 @@ public function onCast()
     let abilityId = GetSpellAbilityId()
     let abilityDef = abilityId.getAbilityDefinition()
     
+    onCastCaster(caster, abilityDef)
+
+
+public function onCastCaster( unit caster, AbilityDef abilityDef )
     if caster.interruptAnimation()
         if abilityDef instanceof PointAbility
             castPoint(caster, abilityDef castTo PointAbility)
@@ -18,7 +22,7 @@ public function onCast()
             castNoTarget(caster, abilityDef castTo NoTargetAbility)
         else if abilityDef instanceof ImmediateAbility
             castImmediate(caster, abilityDef castTo ImmediateAbility)
-
+    
             
 function castPoint( unit caster, PointAbility abil)
     let targetPos = caster.getOwner().getMousePos()

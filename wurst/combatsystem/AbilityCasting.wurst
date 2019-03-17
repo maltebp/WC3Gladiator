@@ -119,8 +119,14 @@ function unit.interruptCasting( int orderId )
             destroy instance
         
 
+int array orderExceptions = [Orders.unimmolation] // REMEMBER TO INCREASE EXCEPTION LOOP
+
 function issuedOrder()
-    GetOrderedUnit().interruptCasting( GetIssuedOrderId() )
+    let orderId = GetIssuedOrderId()
+    for i = 0 to 0
+        if orderId == orderExceptions[i]
+            return
+    GetOrderedUnit().interruptCasting( orderId )
 
 init
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function issuedOrder )

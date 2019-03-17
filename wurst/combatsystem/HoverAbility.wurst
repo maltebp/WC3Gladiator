@@ -8,7 +8,7 @@ import RegisterEvents
 import HashMap
 import ErrorHandling
 
-abstract class AbilityDef
+public abstract class AbilityDef
 
     private static let instances = new IterableMap<int, thistype>
     
