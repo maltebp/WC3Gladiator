@@ -1,0 +1,76 @@
+package VoodooLink
+
+import HeroDefaults
+import ComboSystem
+import HoverAbility
+import TrollAnimations
+import AbilityCreation
+import BuffObjEditing
+import Assets
+import Game
+import ClosureTimers
+import Projectile
+import TimedSpecialEffects
+import UnitStatsSystem
+import MyLibrary
+import DamageType
+import SoundDefinitions
+import GroundEffect
+import LightningBounce
+import GroupUtils
+import Miss
+
+// =========================================================================================================
+
+let RANGE = DEFAULT_CASTRANGE
+let BOUNCE_RANGE = 200.
+let AIMASSIST = DEFAULT_AIMASSIST
+
+let BOUNCE_COUNT = 4
+
+
+// =========================================================================================================
+
+
+public let VOODOOLINK_ID  = compiletime( createComboMove("Voodoo Link", "Do a slam dunk!", Icons.bTNShadowPact1, Icons.pASBTNLiquidFire))
+let ABIL_DEF = new PointAbility( VOODOOLINK_ID.useAbil, RANGE, ANIM_TROLL_SPELL)
+public let COMBO_VOODOOLINK = new ComboMove( VOODOOLINK_ID, COMBO_POINT_W, COMBO_POINT_W, null )
+
+init
+    ABIL_DEF
+    ..onEffect() ( caster, pos ) ->
+        let targets = ENUM_GROUP..enumFriendlyTargets( caster.getOwner(), pos, AIMASSIST)
+        
+        let target = targets.getNearestUnit(pos)
+
+        if target != null
+            new VoodooLink(caster, target)
+
+        else
+            caster.missAttack()
+
+        caster.clearCombo()
+
+
+
+class VoodooLink extends LightningBounce
+
+    private unit caster
+
+    construct( unit caster, unit target )
+        super(caster, target, BOUNCE_COUNT)
+        this.caster = caster
+
+        range = BOUNCE_RANGE
+        lightningType = LIGHTNING_MANA_BURN
+        lightningColor = colorA(100, 0, 150, 255)
+
+    override function targetFilter( unit target) returns boolean
+        return target.isValidEnemyTarget(caster.getOwner())
+
+    override function onHit( unit target )
+        
+        target.addEffect( Abilities.orbDarkness, "chest")
+        ..destr()
+
+
