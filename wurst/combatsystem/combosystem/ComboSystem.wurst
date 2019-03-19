@@ -34,12 +34,6 @@ public function unit.clearCombo()
         instance.clearMoves()
         instance.removeAllComboPoints()
 
-public function unit.addComboMove( ComboMove move )
-    if not this.hasComboMove(move)
-        this.addAbility(move.getAbilityId())
-    else
-        error("Unit already has combo moving")
-
 public function unit.getComboMove() returns ComboMove
     let instance = ComboUnit.getInstance(this)
     if instance != null

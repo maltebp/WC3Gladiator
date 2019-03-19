@@ -9,6 +9,7 @@ import MyLibrary
 import GroupUtils
 import Miss
 import UnitStatsSystem
+import DamageDetection
 import DamageType
 import TrollAnimations
 import Projectile
@@ -16,6 +17,7 @@ import Assets
 import HeroDefaults
 import ComboSystem
 import FlamingPotion
+import Damage
 
 
 let RANGE = DEFAULT_CASTRANGE
@@ -62,6 +64,6 @@ init
 
                 // Effect
                 forEnemiesInRange( caster.getOwner(), pos, AOE ) target ->
-                    dealCodeDamage( caster, target, damage)
+                    caster.damageTargetSpell( target, damage )
                     target.addEffect( Abilities.deathandDecayDamage,  "origin" )
                     ..destr()

@@ -6,6 +6,7 @@ import SoundDefinitions
 import AttackCooldown
 import MyLibrary
 import UnitStatsSystem
+import DamageDetection
 import DamageType
 import TrollAnimations
 import Projectile
@@ -14,6 +15,7 @@ import GroupUtils
 import Miss
 import HeroDefaults
 import ComboSystem
+import Damage
 
 
 let RANGE = DEFAULT_CASTRANGE
@@ -37,7 +39,7 @@ init
     ABIL_DEF.onEffect() (caster, pos) ->
 
         
-        SND_SACRIFICE.playOnPoint(pos.withTerrainZ())
+        
 
         caster.setHP(200)
 
@@ -50,7 +52,7 @@ init
             let damage = caster.getDamage() * DRAIN_FACTOR
             let heal = damage*TRANSFER_FACTOR
 
-            dealCodeDamage( caster, target, damage)
+            caster.damageTargetSpell( target, damage )
             caster.addComboPoint( COMBO_POINT_W )            
 
             let projectile = new Projectile(target.getPos().withTerrainZ(60), Abilities.zigguratMissile)
@@ -62,7 +64,7 @@ init
                     caster.setHP( caster.getHP()+heal)
                 
 
-
+            SND_POSSESSION.playOnPoint(pos.withTerrainZ())
         else
             SND_SPELL_MISS.playOnPoint(caster.getPos3Real())
             caster.missAttack()

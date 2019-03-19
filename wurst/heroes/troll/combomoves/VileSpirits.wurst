@@ -1,0 +1,6 @@
+package VileSpirits
+
+
+
+let NUMBER_OF_SPIRITS = 3
+let DAMAGE_FACTOR = 0.2

@@ -18,6 +18,9 @@ import ClearPoints
 import ChargeSystem
 import UnitStatsSystem
 import Artifact
+import DebugMsg
+import UnitIndexer
+import initlater GladiatorSystem
 
 
 
@@ -239,19 +242,24 @@ init
 
         if orderId == Orders.defend
             let orderedUnit  = GetOrderedUnit()
-            doAfter(0.001) ->
-                orderedUnit.issueImmediateOrderById(Orders.undefend)
+
+            if orderedUnit.isGladiator()
+                debugMsg("Issued unit: "+orderedUnit.getName()+" "+orderedUnit.getIndex().toString() )
                 doAfter(0.001) ->
-                    let order = orderedUnit.getLastOrder()
-                    if order != null
-                        order.finished = false
-                        order.issue()
-                    let comboMove = orderedUnit.getComboMove()
-                    if comboMove != null
-                        let abilDef = AbilityDef.getInstance(comboMove.getAbilityId())
-            
-                        if abilDef != null
-                            onCastCaster( orderedUnit, abilDef )
+                    debugMsg("Issued unit: "+orderedUnit.getName()+" "+orderedUnit.getIndex().toString() )
+                    orderedUnit.issueImmediateOrderById(Orders.undefend)
+                    doAfter(0.001) ->
+                        debugMsg("Issued unit: "+orderedUnit.getName()+" "+orderedUnit.getIndex().toString() )
+                        let order = orderedUnit.getLastOrder()
+                        if order != null
+                            order.finished = false
+                            order.issue()
+                        let comboMove = orderedUnit.getComboMove()
+                        if comboMove != null
+                            let abilDef = AbilityDef.getInstance(comboMove.getAbilityId())
+                
+                            if abilDef != null
+                                onCastCaster( orderedUnit, abilDef )
                     
     
 

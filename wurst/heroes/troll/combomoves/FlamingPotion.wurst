@@ -12,6 +12,7 @@ import Projectile
 import TimedSpecialEffects
 import UnitStatsSystem
 import MyLibrary
+import DamageDetection
 import DamageType
 import SoundDefinitions
 import GroundEffect
@@ -143,9 +144,12 @@ class Flames extends GroundEffect
         this.sourceUnit = sourceUnit
         this.damage = damage
 
+        baseSfxScale = 1.5
+
+
         addLayer(20, 1)
         addLayer(70, 4)
-        addLayer(100, 7)
+        addLayer(100, 5)
 
         setFrequency( freq )
         addDuration( duration )

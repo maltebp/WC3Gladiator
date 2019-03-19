@@ -10,8 +10,8 @@ import AttackCooldown
 import LinkedList
 import ClosureTimers
 import BuffObjEditing
-import DamageType
 import DamageDetection
+import DamageType
 import StandardTextTags
 import ComboSystem
 

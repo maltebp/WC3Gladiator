@@ -5,6 +5,7 @@ import LinkedList
 import ComboMove
 import ClosureTimers
 import ErrorHandling
+import UnitIndexer
 
 let MAX_POINTS = 3
 
@@ -80,7 +81,12 @@ public class ComboUnit
 
     construct( unit comboUnit )
         this.comboUnit = comboUnit
-        definition = ComboUnitDefinition.getDefinition(comboUnit)
+        
+        let definition = ComboUnitDefinition.getDefinition(comboUnit)
+        if definition == null
+            error("Definition is null for "+comboUnit.getName()+" "+comboUnit.getIndex().toString())
+        else
+            this.definition = definition 
 
         instances.add(this)
 
@@ -91,12 +97,14 @@ public class ComboUnit
         
 
     ondestroy
-        clearMoves()
-        removeAllComboPoints()
-
         instances.remove(this)
         if instances.size() == 0
             destroy updateCb
+
+        clearMoves()
+        removeAllComboPoints()
+
+        
         
     
     
@@ -129,6 +137,8 @@ public class ComboUnit
                         
                 if comboMatch
                     clearMoves()
+                    
+                    print(comboUnit.getName()+ " " + comboUnit.getIndex().toString() +" has been given "+GetAbilityName(comboMove.getAbilityId()) )
                     comboUnit.addAbility( comboMove.getAbilityId() )
                     currentMove = comboMove
 

@@ -9,3 +9,4 @@ public let SND_FIREBALL_LAUNCH = [ new SoundDefinition( Sounds.fireBallMissileLa
 public let SND_UNDEAD_DISSIPATE2 = new SoundDefinition(Sounds.undeadDissipate2, false, true)
 public let SND_LICH_CAST = [ new SoundDefinition( Sounds.lichAttackEffort1, false, true), new SoundDefinition( Sounds.lichAttackEffort2, false, true), new SoundDefinition( Sounds.lichAttackEffort3, false, true)]
 public let SND_SACRIFICE = new SoundDefinition(Sounds.sacrificeUnit, false, true)
+public let SND_POSSESSION = new SoundDefinition( Sounds.possessionMissileLaunch1, false, true )
