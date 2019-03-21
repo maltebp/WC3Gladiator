@@ -18,6 +18,7 @@ import HeroDefaults
 import ComboSystem
 import FlamingPotion
 import Damage
+import MojoPotion
 
 
 let RANGE = DEFAULT_CASTRANGE
@@ -39,12 +40,17 @@ init
 
     ABIL_DEF.onEffect() (caster, pos) ->
 
+        caster.addComboPoint( COMBO_POINT_Q )
+
         if caster.hasFlamingPotionBuff()
             // FLAMING POTION
             caster.castFlamingPotion(pos)
 
+        else if caster.hasMojoPotionBuff()
+            caster.castMojoPotion(pos)
+
         else
-            caster.addComboPoint( COMBO_POINT_Q )
+            
 
             let projectile = new Projectile(caster.getPos().withTerrainZ(60), Abilities.bottleMissile)
             ..firePoint(pos.withTerrainZ(), 700, 0.4)

@@ -16,16 +16,17 @@ import DamageDetection
 import DamageType
 import SoundDefinitions
 import GroundEffect
+import MojoPotion
 
 // =========================================================================================================
 
-let DAMAGE_FACTOR = 1.
+let DAMAGE_FACTOR = 0.75
 let RADIUS = 150.
-let BUFF_DURATION = 8.
+let BUFF_DURATION = 5.
 
 let BURN_RADIUS = 125.
-let BURN_DAMAGE_FACTOR = 0.3
-let BURN_DURATION = 8.
+let BURN_DAMAGE_FACTOR = 0.4
+let BURN_DURATION = 6.
 let BURN_DAMAGE_FREQ = 1.
 
 // =========================================================================================================
@@ -39,6 +40,7 @@ init
     ABIL_DEF
     ..onEffect() ( caster ) ->
         caster.clearCombo()
+        caster.removeMojoPotionBuff()
         caster.applyFlamingPotionBuff(BUFF_DURATION)
         SND_FIREBALL_LAUNCH[GetRandomInt(0,2)].playOnPoint(caster.getPos3Real())
 
@@ -82,10 +84,13 @@ public function unit.castFlamingPotion( vec2 pos )
 
 
 
+public function unit.removeFlamingPotionBuff()
+    let instance = FlamingPotionBuff.getInstance(this)
+    if instance != null
+        destroy instance
 
 
-
-let flamingPotionBuff = compiletime( createDummyBuffObject("Flaming Potion", "You're next Voodoo Potion wil be enchanted will liquid fire", Icons.bTNLiquidFire, Abilities.incinerateBuff, "hand,left,right") )
+let flamingPotionBuff = compiletime( createDummyBuffObject("Flaming Potion", "You're next Voodoo Potion wil be enchanted will liquid fire", Icons.bTNLiquidFire, Abilities.incinerateBuff, "weapon") )
 
 public function unit.applyFlamingPotionBuff( real duration  ) 
     let instance = FlamingPotionBuff.getInstance(this)
@@ -144,7 +149,7 @@ class Flames extends GroundEffect
         this.sourceUnit = sourceUnit
         this.damage = damage
 
-        baseSfxScale = 1.5
+        baseSfxScale = 1
 
 
         addLayer(20, 1)

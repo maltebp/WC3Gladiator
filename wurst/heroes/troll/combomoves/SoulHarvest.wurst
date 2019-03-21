@@ -1,0 +1,71 @@
+package SoulHarvest
+import AbilityCreation
+import HoverAbility
+import ComboMove
+import ComboSystem
+import TrollAnimations
+import MyLibrary
+import UnitStatsSystem
+import Projectile
+import Abilities
+import Damage
+import Assets
+import TimedSpecialEffects
+import ClosureTimers
+import SoundDefinitions
+
+init
+    
+// =========================================================================================================
+
+let DAMAGE_FACTOR = 0.75
+let RADIUS = 500.
+let DRAIN_FACTOR = 0.5
+let TARGETS = 10.
+
+// =========================================================================================================
+
+
+public let SOULHARVEST_ID  = compiletime( createComboMove("Soul Harvest", "Do a slam dunk!", Icons.bTNPossession, Icons.pASBTNLiquidFire))
+let ABIL_DEF = new NoTargetAbility( SOULHARVEST_ID.useAbil, ANIM_TROLL_SPELL )
+public let COMBO_SOULHARVEST = new ComboMove( SOULHARVEST_ID, COMBO_POINT_W, COMBO_POINT_W, COMBO_POINT_W )
+
+init
+    ABIL_DEF
+    ..onEffect() ( caster ) ->
+        let casterPos = caster.getPos().withTerrainZ(60)
+
+        let damage = caster.getDamage() * DAMAGE_FACTOR
+        let drain = damage * DRAIN_FACTOR
+        
+        let sfx = addEffect( Units.wispExplode, casterPos.toVec2().withTerrainZ(-60) )
+        ..setTime(2.750)
+        ..setTimeScale(-1)
+        
+        doAfter(0.8) ->
+            sfx.setPos(vec2(-1600,2500))
+            sfx.destr()    
+
+        SND_SACRIFICE.playOnPoint(casterPos)
+
+        var counter = 0
+
+        let targets = ENUM_GROUP..enumEnemyTargets( caster.getOwner(), casterPos.toVec2(), RADIUS )
+
+        while targets.hasNext() and counter < TARGETS
+            let currentTarget = targets.next()
+
+            caster.damageTargetSpell( currentTarget, damage )
+        
+            let projectile = new Projectile( currentTarget.getPos().withTerrainZ(60), Abilities.zigguratMissile )
+            projectile.getEffect().setScale(0.5)
+
+            projectile
+            ..addActionOnFinish() ->
+                if caster != null and caster.isAlive()
+                    caster.setHP( caster.getHP()+drain)
+
+            projectile.fireUnit( caster, 60, true, 800, 0)
+        
+        caster.clearCombo()
+

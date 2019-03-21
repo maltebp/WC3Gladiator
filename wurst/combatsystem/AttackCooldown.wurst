@@ -8,7 +8,7 @@ import UnitStatsSystem
 
 
 let MANABAR_ENABLED = true
-let FUMBLE_ENABLED = true
+let FUMBLE_ENABLED = false
 let FUMBLE_DELAY = 0.30 // Only the text
 
 

@@ -244,12 +244,9 @@ init
             let orderedUnit  = GetOrderedUnit()
 
             if orderedUnit.isGladiator()
-                debugMsg("Issued unit: "+orderedUnit.getName()+" "+orderedUnit.getIndex().toString() )
                 doAfter(0.001) ->
-                    debugMsg("Issued unit: "+orderedUnit.getName()+" "+orderedUnit.getIndex().toString() )
                     orderedUnit.issueImmediateOrderById(Orders.undefend)
                     doAfter(0.001) ->
-                        debugMsg("Issued unit: "+orderedUnit.getName()+" "+orderedUnit.getIndex().toString() )
                         let order = orderedUnit.getLastOrder()
                         if order != null
                             order.finished = false

@@ -137,8 +137,6 @@ public class ComboUnit
                         
                 if comboMatch
                     clearMoves()
-                    
-                    print(comboUnit.getName()+ " " + comboUnit.getIndex().toString() +" has been given "+GetAbilityName(comboMove.getAbilityId()) )
                     comboUnit.addAbility( comboMove.getAbilityId() )
                     currentMove = comboMove
 

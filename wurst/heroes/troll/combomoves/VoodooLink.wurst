@@ -23,12 +23,12 @@ import DamageType
 // =========================================================================================================
 
 let RANGE = DEFAULT_CASTRANGE
-let BOUNCE_RANGE = 200.
+let BOUNCE_RANGE = 400.
 let AIMASSIST = DEFAULT_AIMASSIST
 
-let BOUNCE_COUNT = 3
-let DURATION = 10.
-let DAMAGE_FACTOR = 1.
+let BOUNCE_COUNT = 4
+let DURATION = 12.
+let DAMAGE_FACTOR = 0.5
 
 
 // =========================================================================================================
@@ -36,7 +36,8 @@ let DAMAGE_FACTOR = 1.
 
 public let VOODOOLINK_ID  = compiletime( createComboMove("Voodoo Link", "Do a slam dunk!", Icons.bTNShadowPact1, Icons.pASBTNLiquidFire))
 let ABIL_DEF = new PointAbility( VOODOOLINK_ID.useAbil, RANGE, ANIM_TROLL_SPELL)
-public let COMBO_VOODOOLINK = new ComboMove( VOODOOLINK_ID, COMBO_POINT_W, COMBO_POINT_W, null )
+public let COMBO_VOODOOLINK = new ComboMove( VOODOOLINK_ID, COMBO_POINT_W, null, null )
+
 
 init
     ABIL_DEF
@@ -80,9 +81,8 @@ class VoodooLink extends LightningBounce
 
     override function onHit( unit target )
         caster.castLink(target, DURATION, DAMAGE_FACTOR)
-        target.addEffect( Abilities.orbDarkness, "chest")
+        target.addEffect( Abilities.shadowStrikeMissile, "chest")
         ..destr()
-        print("Finished hit")
 
         
 
@@ -171,7 +171,7 @@ class VoodooLinkBuff
         this.buffUnit = buffUnit
         this.damageFactor = damageFactor
 
-        sfx = buffUnit.addEffect(Abilities.curseTarget, "origin")
+        sfx = buffUnit.addEffect(Abilities.howlTarget, "origin")
 
         durationTimer = getTimer()..setData(this castTo int)
 

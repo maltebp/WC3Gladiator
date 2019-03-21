@@ -38,10 +38,6 @@ init
 
     ABIL_DEF.onEffect() (caster, pos) ->
 
-        
-        
-
-        caster.setHP(200)
 
         let targets = ENUM_GROUP..enumEnemyTargets( caster.getOwner(), pos, AIMASSIST)
         
