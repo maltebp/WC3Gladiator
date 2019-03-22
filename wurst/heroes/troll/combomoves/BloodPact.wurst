@@ -46,7 +46,7 @@ init
 
 let buffObject = compiletime( createDummyBuffObject("Blood Pact", "You're next Voodoo Potion will be enhanced with mojo.", Icons.bTNBerserkForTrolls) )
 
-public function unit.hasBloodPact() returns boolean
+public function unit.hasBlooldPact() returns boolean
     return BloodPactBuff.getInstance(this) != null
 
 public function unit.activateBloodPact()

@@ -52,7 +52,7 @@ init
 
         let targets = ENUM_GROUP..enumEnemyTargets( caster.getOwner(), casterPos.toVec2(), RADIUS )
 
-        while targets.hasNext() and counter < TARGETS
+        while targets.hasNext()  and counter < TARGETS
             let currentTarget = targets.next()
 
             caster.damageTargetSpell( currentTarget, damage )

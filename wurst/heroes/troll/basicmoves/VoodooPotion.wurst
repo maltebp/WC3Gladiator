@@ -20,6 +20,7 @@ import FlamingPotion
 import Damage
 import MojoPotion
 import BloodPact
+import LivingPlague
 
 
 let RANGE = DEFAULT_CASTRANGE
@@ -50,6 +51,9 @@ init
 
         else if caster.hasMojoPotionBuff()
             caster.castMojoPotion(pos)
+
+        else if caster.hasLivingPlagueBuff()
+            caster.castLivingPlaguePotion(pos)
 
         else
             
