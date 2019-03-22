@@ -163,13 +163,14 @@ class MojoTargetBuff
 
         if not hasBuff
             buffUnit.addAbility(mojoBuff.abilId)
+            hasBuff = true
 
         if durationCb != null
             destroy durationCb
 
         
         if this.attackSpeed != 0
-            buffUnit.adjustAttackSpeed(-attackSpeed)
+            buffUnit.adjustAttackSpeed(-this.attackSpeed)
         
         this.attackSpeed = attackSpeed
         buffUnit.adjustAttackSpeed(attackSpeed)
@@ -194,19 +195,18 @@ class MojoTargetBuff
                 doPeriodically(0.25) cb ->
                     if buffUnit != null and buffUnit.isAliveTrick() and not buffUnit.isPaused()
                         buffUnit.removeAbility(mojoBuff.abilId)
+                        destroy cb
             else
                 buffUnit.removeAbility(mojoBuff.abilId)
-
-        else
-            destroy this
 
     ondestroy
         if durationCb != null
             destroy durationCb
         
-        
         if buffUnit != null
             buffUnit.adjustAttackSpeed(-attackSpeed)
+
+        removeBuff()
 
         instances.remove(this)
 

@@ -16,6 +16,7 @@ import Miss
 import HeroDefaults
 import ComboSystem
 import Damage
+import BloodPact
 
 
 let RANGE = DEFAULT_CASTRANGE
@@ -37,6 +38,8 @@ init
         return caster.attemptAttack( SND_SORCERESS_MISSILE_DEATH )
 
     ABIL_DEF.onEffect() (caster, pos) ->
+    
+        caster.activateBloodPact()
 
 
         let targets = ENUM_GROUP..enumEnemyTargets( caster.getOwner(), pos, AIMASSIST)

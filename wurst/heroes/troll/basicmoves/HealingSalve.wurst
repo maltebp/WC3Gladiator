@@ -19,6 +19,7 @@ import LinkedList
 import ClosureTimers
 import TimedSpecialEffects
 import ComboSystem
+import BloodPact
 
 // ==================================================================================================================================
 
@@ -47,8 +48,9 @@ init
         adjustments.speed = caster.getAttackSpeed() * 1.4
 
     ABIL_DEF.onEffect() (caster, pos) ->
-
-        
+    
+        caster.activateBloodPact()  
+                    
 
         let targets = ENUM_GROUP..enumFriendlyTargets( caster.getOwner(), pos, AIMASSIST)
         
@@ -64,6 +66,7 @@ init
             caster.applyHealingSalve(target, heal, HEAL_FREQ, DURATION)
             caster.addComboPoint( COMBO_POINT_E )
                 
+            SND_PRIESTCAST.playOnPoint(target.getPos3Real())
         else
             SND_SPELL_MISS.playOnPoint(caster.getPos3Real())
             caster.missAttack()

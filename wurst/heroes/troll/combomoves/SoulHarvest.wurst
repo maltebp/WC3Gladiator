@@ -66,6 +66,8 @@ init
                     caster.setHP( caster.getHP()+drain)
 
             projectile.fireUnit( caster, 60, true, 800, 0)
+
+            counter++
         
         caster.clearCombo()
 

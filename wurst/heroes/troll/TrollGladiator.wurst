@@ -13,6 +13,8 @@ import VileSpirits
 import SoulHarvest
 import DeathCurse
 import MojoPotion
+import BloodPact
+import CursingWard
 
 public let GLADIATOR_TROLL = new GladiatorType()
 
@@ -21,7 +23,9 @@ let COMBOLIST = compiletime( createComboMoveList(FLAMINGPOTION_ID,
                                                  VILESPIRITS_ID,
                                                  SOULHARVEST_ID,
                                                  DEATHCURSE_ID,
-                                                 MOJOPOTION_ID
+                                                 MOJOPOTION_ID,
+                                                 BLOODPACT_ID,
+                                                 CURSINGWARD_ID                                
                                                  ))
 let UNIT_ID = 'O005'
 
@@ -39,8 +43,17 @@ init
         ..setBaseStats( 40, DEFAULT_ARMOR, DEFAULT_HEALTH, 1.5, DEFAULT_MOVESPEED)
 
         COMBOUNIT
-        ..addComboMoves(COMBO_FLAMINGPOTION, COMBO_VOODOOLINK, COMBO_VILESPIRITS, COMBO_SOULHARVEST, COMBO_DEATHCURSE, COMBO_MOJOPOTION)
+        ..addComboMoves(COMBO_FLAMINGPOTION,
+                        COMBO_VOODOOLINK,
+                        COMBO_VILESPIRITS,
+                        COMBO_SOULHARVEST,
+                        COMBO_DEATHCURSE,
+                        COMBO_MOJOPOTION,
+                        COMBO_BLOODPACT,
+                        COMBO_CURSINGWARD)
 
+        COMBOUNIT.unlockMove()
+        COMBOUNIT.unlockMove()
         COMBOUNIT.unlockMove()
         COMBOUNIT.unlockMove()
         COMBOUNIT.unlockMove()

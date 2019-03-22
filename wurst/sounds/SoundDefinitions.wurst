@@ -14,3 +14,5 @@ public let SND_BANISHCASTER = new SoundDefinition( Sounds.banishCaster, false, t
 public let SND_BIGBADVOODOO = new SoundDefinition( Sounds.bigBadVoodooSpellBirth1, false, true)
 public let SND_ANCESTRALSPIRIT = new SoundDefinition( Sounds.ancestralSpirit, false, true)
 public let SND_PRIESTCAST       = new SoundDefinition( Sounds.priestCastAttack1, false, true)
+public let SND_BERSERK          = new SoundDefinition( Sounds.berserkerCaster, false, true)
+public let SND_UNSUMMONLOOP     = new SoundDefinition( Sounds.cityscapeCrystalShield1, true, true)

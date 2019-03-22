@@ -1,3 +1,148 @@
 package BloodPact
 
-// Increases his power, but consumes health everytime he uses an ability - long duration
+// Increases his power, but consumes health everytime he uses an ability - long durationpackage SoulHarvest
+import AbilityCreation
+import HoverAbility
+import ComboMove
+import ComboSystem
+import TrollAnimations
+import MyLibrary
+import UnitStatsSystem
+import Projectile
+import Abilities
+import Damage
+import Assets
+import TimedSpecialEffects
+import ClosureTimers
+import SoundDefinitions
+import LinkedList
+import BuffObjEditing
+
+init
+    
+// =========================================================================================================
+
+let DAMAGE_INC = 0.4
+let HEALTH_DRAIN = 0.05
+let DURATION = 40.
+
+// =========================================================================================================
+
+
+public let BLOODPACT_ID  = compiletime( createComboMove("Blood Pact", "Do a slam dunk!", Icons.bTNBerserkForTrolls, Icons.pASBTNLiquidFire))
+let ABIL_DEF = new NoTargetAbility( BLOODPACT_ID.useAbil, ANIM_TROLL_SPELL )
+public let COMBO_BLOODPACT = new ComboMove( BLOODPACT_ID, COMBO_POINT_W, COMBO_POINT_Q, COMBO_POINT_E )
+
+init
+    ABIL_DEF
+    ..onEffect() ( caster ) ->
+        let casterPos = caster.getPos().withTerrainZ(60)
+        
+        caster.applyBuff( DAMAGE_INC, DURATION)
+        caster.addEffect(Abilities.trollBeserkerTarget, "chest").destr()
+
+        SND_BERSERK.playOnPoint(casterPos)
+        caster.clearCombo()
+
+let buffObject = compiletime( createDummyBuffObject("Blood Pact", "You're next Voodoo Potion will be enhanced with mojo.", Icons.bTNBerserkForTrolls) )
+
+public function unit.hasBloodPact() returns boolean
+    return BloodPactBuff.getInstance(this) != null
+
+public function unit.activateBloodPact()
+    if BloodPactBuff.getInstance(this) != null
+        let drain = this.getMaxHP()*HEALTH_DRAIN
+        this.addEffect( Objects.critterBloodAlbatross, "chest").destr()
+        if this.getHP() < drain
+            this.kill()
+        else
+            this.setHP( this.getHP() - drain)
+
+
+function unit.applyBuff( real damageInc, real duration )
+    var instance = BloodPactBuff.getInstance(this)
+    if instance == null
+        instance = new BloodPactBuff(this)
+    instance.start(duration, damageInc)
+
+
+class BloodPactBuff
+
+    private static let instances = new LinkedList<thistype>
+
+    private unit buffUnit
+    real damageInc = 0
+    private CallbackSingle durationCb = null
+    private boolean hasBuff = false
+    private effect array[2] sfx
+
+
+
+    construct( unit buffUnit )
+        this.buffUnit = buffUnit
+        sfx[0] = buffUnit.addEffect(Abilities.bloodLustTarget, "hand right")
+        sfx[1] = buffUnit.addEffect(Abilities.bloodLustTarget, "hand left")
+        instances.add(this)
+
+
+    function start( real duration, real damageInc )
+
+        if not hasBuff
+            buffUnit.addAbility(buffObject.abilId)
+            hasBuff = true
+
+        if durationCb != null
+            destroy durationCb
+
+        
+        if this.damageInc != 0
+            buffUnit.adjustDamagePerc(-this.damageInc)
+        
+        this.damageInc = damageInc
+        buffUnit.adjustDamagePerc(damageInc)
+
+        durationCb = doAfter( duration - 2 ) ->
+            removeBuff()
+            durationCb = doAfter(2) ->
+                this.durationCb = null
+                destroy this
+        
+
+    function removeBuff()
+
+        hasBuff = false
+
+        if buffUnit != null and buffUnit.isAliveTrick()
+
+            // Sometimes the buff isnt removed if the unit is paused
+            if buffUnit.isPaused()
+                doPeriodically(0.25) cb ->
+                    if buffUnit != null and buffUnit.isAliveTrick() and not buffUnit.isPaused()
+                        buffUnit.removeAbility(buffObject.abilId)
+                        destroy cb
+            else
+                buffUnit.removeAbility(buffObject.abilId)
+
+        else
+            destroy this
+
+
+
+    ondestroy
+        if durationCb != null
+            destroy durationCb
+
+        buffUnit.adjustDamagePerc(-damageInc )
+        removeBuff()
+
+        sfx[0].destr()
+        sfx[1].destr()
+
+        instances.remove(this)
+
+
+    static function getInstance( unit buffUnit ) returns thistype
+        for instance in instances
+            if instance.buffUnit == buffUnit
+                return instance
+        return null

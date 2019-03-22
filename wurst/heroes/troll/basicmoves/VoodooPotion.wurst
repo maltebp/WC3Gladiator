@@ -19,6 +19,7 @@ import ComboSystem
 import FlamingPotion
 import Damage
 import MojoPotion
+import BloodPact
 
 
 let RANGE = DEFAULT_CASTRANGE
@@ -41,6 +42,7 @@ init
     ABIL_DEF.onEffect() (caster, pos) ->
 
         caster.addComboPoint( COMBO_POINT_Q )
+        caster.activateBloodPact()
 
         if caster.hasFlamingPotionBuff()
             // FLAMING POTION
