@@ -16,6 +16,7 @@ import MojoPotion
 import BloodPact
 import CursingWard
 import LivingPlague
+import HealingPotion
 
 public let GLADIATOR_TROLL = new GladiatorType()
 
@@ -27,7 +28,8 @@ let COMBOLIST = compiletime( createComboMoveList(FLAMINGPOTION_ID,
                                                  MOJOPOTION_ID,
                                                  BLOODPACT_ID,
                                                  CURSINGWARD_ID,
-                                                 LIVINGPLAGUE_ID                                
+                                                 LIVINGPLAGUE_ID,
+                                                 HEALINGPOTION_ID                                
                                                  ))
 let UNIT_ID = 'O005'
 
@@ -53,7 +55,8 @@ init
                         COMBO_MOJOPOTION,
                         COMBO_BLOODPACT,
                         COMBO_CURSINGWARD,
-                        COMBO_LIVINGPLAGUE)
+                        COMBO_LIVINGPLAGUE,
+                        COMBO_HEALINGPOTION)
 
         COMBOUNIT.unlockMove()
         COMBOUNIT.unlockMove()
@@ -64,3 +67,11 @@ init
         COMBOUNIT.unlockMove()
         COMBOUNIT.unlockMove()
         COMBOUNIT.unlockMove()
+        COMBOUNIT.unlockMove()
+
+public function unit.removePotionBuffs()
+        // This removes all the potion buffs from the hero
+        this.removeMojoPotionBuff()
+        this.removeHealingPotionBuff()
+        this.removeLivingPlagueBuff()
+        this.removeFlamingPotionBuff()

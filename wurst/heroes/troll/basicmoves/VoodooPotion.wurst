@@ -21,6 +21,7 @@ import Damage
 import MojoPotion
 import BloodPact
 import LivingPlague
+import HealingPotion
 
 
 let RANGE = DEFAULT_CASTRANGE
@@ -55,6 +56,9 @@ init
         else if caster.hasLivingPlagueBuff()
             caster.castLivingPlaguePotion(pos)
 
+        else if caster.hasHealingPotionBuff()
+            caster.castHealingPotion(pos)
+
         else
             
 
@@ -79,3 +83,4 @@ init
                     caster.damageTargetSpell( target, damage )
                     target.addEffect( Abilities.deathandDecayDamage,  "origin" )
                     ..destr()
+

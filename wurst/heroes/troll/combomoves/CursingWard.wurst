@@ -90,6 +90,7 @@ class CurseWard
         ..queueAnimation("stand")
 
         snd = SND_UNSUMMONLOOP.playOnPoint( caster.getPos().withTerrainZ()).snd
+        ..setVolume(50)
 
         instances.add(this)
 

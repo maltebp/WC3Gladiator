@@ -16,6 +16,7 @@ import ClosureTimers
 import RandomAngle
 import Updater
 import UnitStatsSystem
+import SoundDefinitions
 
 // =========================================================================================================
 
@@ -29,7 +30,7 @@ let DURATION =  15.
 
 let SPIRIT_MOVESPEED = 300.
 let SPIRIT_ATTACKSPEED = 1.5
-let SPIRIT_DAMAGEFACTOR = 0.3
+let SPIRIT_DAMAGEFACTOR = 0.4
 
 
 // =========================================================================================================
@@ -53,6 +54,8 @@ init
                 casterInstance.removeSpirits()
             
             casterInstance = new VileSpiritsCaster(caster)
+
+            SND_SPIRITWOLF_BIRTH.playOnPoint(pos.withTerrainZ())
                 
             var angle = randomAngle()
         

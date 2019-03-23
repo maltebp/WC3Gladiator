@@ -16,3 +16,7 @@ public let SND_ANCESTRALSPIRIT = new SoundDefinition( Sounds.ancestralSpirit, fa
 public let SND_PRIESTCAST       = new SoundDefinition( Sounds.priestCastAttack1, false, true)
 public let SND_BERSERK          = new SoundDefinition( Sounds.berserkerCaster, false, true)
 public let SND_UNSUMMONLOOP     = new SoundDefinition( Sounds.cityscapeCrystalShield1, true, true)
+public let SND_CORROSIVEBREATH_TARGET = new SoundDefinition( Sounds.corrosiveBreathMissileTarget1, false, true )
+public let SND_GRAVEYARDWHAT    = new SoundDefinition( Sounds.graveYardWhat1, false, true )
+public let SND_SPIRITWOLF_BIRTH = new SoundDefinition( Sounds.spiritWolfBirth1,  false, true)
+public let SND_HEALINGSPRAY_HIT = new SoundDefinition( Sounds.healingSprayDeath1, false, true)

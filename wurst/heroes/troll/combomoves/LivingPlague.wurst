@@ -7,19 +7,18 @@ import GroupUtils
 import Projectile
 import Damage
 import UnitStatsSystem
-import Abilities
 import BuffObjEditing
 import Assets
 import AbilityCreation
 import HoverAbility
 import TrollAnimations
 import ComboSystem
-import FlamingPotion
-import MojoPotion
-import DebugMsg
+import SoundDefinitions
+import TimedSpecialEffects
+import initlater TrollGladiator
 
 
-let CASTERBUFF_DURATION = 6.
+let CASTERBUFF_DURATION = 5.
 let DURATION = 10.
 let EXPLODE_RADIUS = 100.
 let SPREAD_FREQ = 3.
@@ -33,19 +32,19 @@ let SPREAD_RADIUS = 150.
 // CASTER BUFF
 
 
-
 public let LIVINGPLAGUE_ID  = compiletime( createComboMove("Flaming Potion", "Do a slam dunk!", Icons.bTNPlagueCloud, Icons.pASBTNPlagueCloud))
-let ABIL_DEF = new NoTargetAbility( LIVINGPLAGUE_ID.useAbil, ANIM_TROLL_ATTACK )
+let ABIL_DEF = new NoTargetAbility( LIVINGPLAGUE_ID.useAbil, ANIM_TROLL_VICTORY )
 public let COMBO_LIVINGPLAGUE = new ComboMove( LIVINGPLAGUE_ID, COMBO_POINT_Q, COMBO_POINT_W, COMBO_POINT_W )
+
 
 init
     ABIL_DEF
     ..onEffect() ( caster ) ->
-        caster.clearCombo()
-        caster.removeMojoPotionBuff()
-        caster.removeFlamingPotionBuff()
-        caster.applyCasterBuff(CASTERBUFF_DURATION)
 
+        caster.removePotionBuffs()
+
+        caster.applyCasterBuff(CASTERBUFF_DURATION)
+        SND_CORROSIVEBREATH_TARGET.playOnPoint(caster.getPos3Real())
 
 
 function unit.applyCasterBuff( real duration )
@@ -54,12 +53,19 @@ function unit.applyCasterBuff( real duration )
         instance = new LivingPlagueBuff(this)
     instance.start(duration)
 
+
 public function unit.hasLivingPlagueBuff() returns bool
     return LivingPlagueBuff.getInstance(this) != null
 
 
+public function unit.removeLivingPlagueBuff()
+    let instance = LivingPlagueBuff.getInstance(this)
+    if instance != null
+        destroy instance
+    
 
 let casterBuff = compiletime( createDummyBuffObject("Plague Potion", "Your next Voodoo Potion will be enhanced with mojo.", Icons.bTNPlagueCloud, Units.plagueCloudTarget, "weapon") )
+
 
 class LivingPlagueBuff
     
@@ -67,13 +73,12 @@ class LivingPlagueBuff
     private unit buffUnit
     private CallbackSingle durationCb = null
     private effect sfx
+    
 
 
     construct( unit buffUnit )
         this.buffUnit = buffUnit
-
         sfx = buffUnit.addEffect( Units.plagueCloudTarget, "weapon")
-
         instances.add(this)
 
 
@@ -136,7 +141,11 @@ public function unit.castLivingPlaguePotion( vec2 pos )
         
         let targets = CreateGroup()..enumEnemyTargets( this.getOwner(), pos, EXPLODE_RADIUS )
         
-        debugMsg("\nflaskhit")
+        SND_GRAVEYARDWHAT.playOnPoint(pos.withTerrainZ())
+
+        addEffect(Abilities.plagueCloudCaster, pos.withTerrainZ(-50))
+        ..setScale(1.2)
+        ..setDuration(3.)
 
         for target in targets
             if target.isPlaguedByCaster(this)
@@ -148,12 +157,10 @@ public function unit.castLivingPlaguePotion( vec2 pos )
                 LivingPlague plague = new LivingPlague(this, this.getDamage() * DAMAGE_FACTOR, DURATION, SPREAD_RADIUS, SPREAD_COUNT, SPREAD_FREQ )
             
                 for target in targets
-                    debugMsg("find target")
-                    let target = targets.next()
                     new PlaguedUnit( target, plague).applyBuff()
 
             /* Doing it with a minimal delay between each new plague to ensure that
-                they won't try to spread the plague to the same targets.  */
+                they won't try  to spread the plague to the same targets.  */
 
     
 
@@ -208,7 +215,6 @@ public function unit.isPlaguedByCaster( unit caster ) returns boolean
         if casterInstance.caster == caster
             for targetInstance in casterInstance.plaguedUnits
                 if targetInstance.buffUnit == this
-                    debugMsg("checking target")
                     return true
                     
     return false            

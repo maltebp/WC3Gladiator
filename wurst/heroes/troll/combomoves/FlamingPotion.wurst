@@ -9,14 +9,12 @@ import Assets
 import Game
 import ClosureTimers
 import Projectile
-import TimedSpecialEffects
 import UnitStatsSystem
 import MyLibrary
-import DamageDetection
 import DamageType
 import SoundDefinitions
 import GroundEffect
-import MojoPotion
+import initlater TrollGladiator
 
 // =========================================================================================================
 
@@ -39,8 +37,9 @@ public let COMBO_FLAMINGPOTION = new ComboMove( FLAMINGPOTION_ID, COMBO_POINT_Q,
 init
     ABIL_DEF
     ..onEffect() ( caster ) ->
+        caster.removePotionBuffs()
+
         caster.clearCombo()
-        caster.removeMojoPotionBuff()
         caster.applyFlamingPotionBuff(BUFF_DURATION)
         SND_FIREBALL_LAUNCH[GetRandomInt(0,2)].playOnPoint(caster.getPos3Real())
 

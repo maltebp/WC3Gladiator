@@ -1,6 +1,5 @@
 package MojoPotion
 
-import HeroDefaults
 import ComboSystem
 import HoverAbility
 import TrollAnimations
@@ -13,11 +12,8 @@ import Projectile
 import TimedSpecialEffects
 import UnitStatsSystem
 import MyLibrary
-import DamageDetection
-import DamageType
 import SoundDefinitions
-import GroundEffect
-import initlater FlamingPotion
+import initlater TrollGladiator
 
 // =========================================================================================================
 
@@ -32,17 +28,17 @@ let MOJO_ATTACKSPEED_INC = 0.3
 
 
 public let MOJOPOTION_ID  = compiletime( createComboMove("Mojo Potion", "Do a slam dunk!", Icons.bTNGreaterInvulneralbility, Icons.pASBTNLiquidFire))
-let ABIL_DEF = new NoTargetAbility( MOJOPOTION_ID.useAbil, ANIM_TROLL_SPELL )
+let ABIL_DEF = new NoTargetAbility( MOJOPOTION_ID.useAbil, ANIM_TROLL_VICTORY )
 public let COMBO_MOJOPOTION = new ComboMove( MOJOPOTION_ID, COMBO_POINT_E, COMBO_POINT_Q, null )
 
 init
     ABIL_DEF
     ..onEffect() ( caster ) ->
         
-        caster.removeFlamingPotionBuff()
+        caster.removePotionBuffs()
+
         caster.applyBuff(CASTERBUFF_DURATION)
         SND_ANCESTRALSPIRIT.playOnPoint(caster.getPos3Zero())
-
         caster.clearCombo()
 
 public function unit.removeMojoPotionBuff()
