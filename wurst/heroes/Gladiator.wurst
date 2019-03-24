@@ -227,16 +227,18 @@ public class GladiatorType
         ..setBaseAttackCooldown(attackCooldown)
         ..addArtifactSlots()
 
+         // These are not implemented in the unit stat system yet
+        gladiatorUnit
+        ..setArmor(armor)
+        ..setMoveSpeed(moveSpeed)
+        ..setMaxHP( health.toInt(), true)
+
         if actions_OnSpawn != null
             for action in actions_OnSpawn
                 action.run(gladiatorUnit)
         
         
-        // These are not implemented in the unit stat system yet
-        gladiatorUnit
-        ..setArmor(armor)
-        ..setMoveSpeed(moveSpeed)
-        ..setMaxHP( health.toInt(), true)
+       
     
         return gladiatorUnit
         

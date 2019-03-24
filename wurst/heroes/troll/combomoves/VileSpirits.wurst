@@ -27,7 +27,7 @@ let NUMBER_OF_SPIRITS = 2
 let RANGE = 1000.
 let AIMASSIST = DEFAULT_AIMASSIST
 
-let DURATION =  15.
+let DURATION =  20.
 
 let SPIRIT_MOVESPEED = 300.
 let SPIRIT_ATTACKSPEED = 1.5
@@ -39,7 +39,7 @@ let SPIRIT_DAMAGEFACTOR = 0.4
 
 public let VILESPIRITS_ID  = compiletime( createComboMove("Vile Spirits", "Do a slam dunk!", Icons.bTNCannibalize, Icons.bTNCannibalize,9))
 let ABIL_DEF = new PointAbility( VILESPIRITS_ID.useAbil, RANGE, ANIM_TROLL_SPELL)
-public let COMBO_VILESPIRITS = new ComboMove( VILESPIRITS_ID, COMBO_POINT_W, COMBO_POINT_W, null )
+public let COMBO_VILESPIRITS = new ComboMove( VILESPIRITS_ID, COMBO_POINT_W, COMBO_POINT_Q, COMBO_POINT_Q )
 
 init
     ABIL_DEF

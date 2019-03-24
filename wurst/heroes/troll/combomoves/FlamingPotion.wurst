@@ -15,10 +15,12 @@ import SoundDefinitions
 import GroundEffect
 import initlater TrollGladiator
 import SoulDrainData
+import initlater VoodooPotion
 
 // =========================================================================================================
 
 let DAMAGE_FACTOR = 0.5
+let DAMAGE_FACTOR_VOODOO = 0.7
 let RADIUS = 150.
 let BUFF_DURATION = 5.
 
@@ -56,6 +58,7 @@ public function unit.castFlamingPotion( vec2 pos )
 
     projectile
     ..addActionOnFinish() ->
+        //SND_ACID_BOMB_EXPLODE.playOnPoint(pos.withTerrainZ())
 
         addEffect( Abilities.fireLordDeathExplode, pos.withTerrainZ(100))
         ..setScale(1)
@@ -65,20 +68,19 @@ public function unit.castFlamingPotion( vec2 pos )
         ..setScale(1)
         ..setTime(0.5)
         ..setTimeScale(2.)
+
+        let casterDamage = this.getDamage()
         
         /* Note: Apparently it bugs out if you create a new instance of class
             withing this function. Therefor I created this doAfter thingy. */
         doAfter(0.01) ->
-            new Flames( this, pos, this.getDamage() * BURN_DAMAGE_FACTOR, BURN_DURATION, BURN_DAMAGE_FREQ)
-
-
-        SND_ACID_BOMB_EXPLODE.playOnPoint(pos.withTerrainZ())
+            new Flames( this, pos, casterDamage * BURN_DAMAGE_FACTOR, BURN_DURATION, BURN_DAMAGE_FREQ)
         
-        let damage = this.getDamage() * DAMAGE_FACTOR
 
         // Effect
         forEnemiesInRange( this.getOwner(), pos, RADIUS ) target ->
-            dealCodeDamage( this, target, damage)
+            let damageFactor = (target.consumeVoodoo(this)) ? DAMAGE_FACTOR_VOODOO : DAMAGE_FACTOR
+            dealCodeDamage( this, target, casterDamage * damageFactor)
             target.addEffect( Abilities.incinerateBuff,  "chest" )
             ..destr()
 

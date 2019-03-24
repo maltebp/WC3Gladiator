@@ -17,7 +17,7 @@ public function unit.getDamage() returns real
 public function unit.adjustDamageFlat( real damage ) 
     UnitStats.getInstance(this).adjustDamageFlat( damage )
 
-public function unit.adjustDamagePerc( real damage ) 
+public function unit.adjustDamagePerc( real damage )
     UnitStats.getInstance(this).adjustDamagePerc( damage )
 
 public function unit.adjustAttackSpeed( real attackSpeed )

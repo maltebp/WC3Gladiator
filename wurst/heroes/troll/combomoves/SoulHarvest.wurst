@@ -12,12 +12,14 @@ import Assets
 import ClosureTimers
 import SoundDefinitions
 import SoulDrainData
+import VoodooPotion
 
 init
     
 // =========================================================================================================
 
 let DAMAGE_FACTOR = 0.75
+let DAMAGE_FACTOR_VOODOO = 1.
 let RADIUS = 500.
 let DRAIN_FACTOR = 0.5
 let TARGETS = 10.
@@ -36,8 +38,8 @@ init
     ..onEffect() ( caster ) ->
         let casterPos = caster.getPos().withTerrainZ(60)
 
-        let damage = caster.getDamage() * DAMAGE_FACTOR
-        let drain = damage * DRAIN_FACTOR
+        let casterDamage = caster.getDamage()
+        
         
         let sfx = addEffect( Units.wispExplode, casterPos.toVec2().withTerrainZ(-60) )
         ..setTime(2.750)
@@ -56,20 +58,18 @@ init
         while targets.hasNext()  and counter < TARGETS
             let currentTarget = targets.next()
 
+            let damage = (currentTarget.consumeVoodoo(caster)) ? DAMAGE_FACTOR_VOODOO : DAMAGE_FACTOR
+            let drain = damage * DRAIN_FACTOR
             caster.damageTargetSpell( currentTarget, damage )
         
             let projectile = new Projectile( currentTarget.getPos().withTerrainZ(60), Abilities.zigguratMissile )
             projectile.getEffect().setScale(0.5)
-
-            projectile
-            ..addActionOnFinish() ->
+            projectile.fireUnit( caster, 60, true, 800, 0)
+            projectile.addActionOnFinish() ->
                 if caster != null and caster.isAlive()
                     caster.setHP( caster.getHP()+drain)
-
-            projectile.fireUnit( caster, 60, true, 800, 0)
-
+                    
             caster.addCharge(CHARGE)
-
             counter++
         
         caster.clearCombo()

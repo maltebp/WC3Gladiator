@@ -12,6 +12,7 @@ import SoundDefinitions
 import LinkedList
 import BuffObjEditing
 import SoulDrainData
+import initlater VoodooPotion
 
 init
     
@@ -19,7 +20,8 @@ init
 
 let DAMAGE_INC = 0.4
 let HEALTH_DRAIN = 0.05
-let DURATION = 40.
+let DURATION = 30.
+let DURATION_VOODOO = 45.
 
 // =========================================================================================================
 
@@ -33,7 +35,9 @@ init
     ..onEffect() ( caster ) ->
         let casterPos = caster.getPos().withTerrainZ(60)
         
-        caster.applyBuff( DAMAGE_INC, DURATION)
+        let duration = (caster.consumeVoodoo(caster)) ? DURATION_VOODOO : DURATION 
+
+        caster.applyBuff( DAMAGE_INC, duration)
         caster.addEffect(Abilities.trollBeserkerTarget, "chest").destr()
 
         caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_3)

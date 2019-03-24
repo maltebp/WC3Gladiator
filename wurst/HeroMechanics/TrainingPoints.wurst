@@ -1,6 +1,7 @@
 package TrainingPoints
 
 import HashMap
+import UnitStatsSystem
 
 constant real ARMOR_PER_POINT = 1
 constant int    HEALTH_PER_POINT = 15
@@ -63,15 +64,14 @@ class HeroTrainingPoints
         
 
     protected function adjustPower(int adjustAmount)
-        hero.setBaseDamage(hero.getBaseDamage(1)+adjustAmount, 1)
+        hero.adjustDamageFlat(adjustAmount.toReal())
         power += adjustAmount
         
 
     protected function adjustAttackSpeed(real adjustAmount)
         //Resetting attack speed
-        hero.setAttackCooldown(hero.getAttackCooldown(1)/(1/(1+attackSpeed)), 1)
+        hero.adjustAttackSpeed(adjustAmount)
         attackSpeed += adjustAmount
-        hero.setAttackCooldown(hero.getAttackCooldown(1)*(1/(1+attackSpeed)), 1)
         
     /** Gets the instances containing information about training points for
         a speficic unit. If that doesn't exists, it will create one, and
@@ -90,40 +90,43 @@ class HeroTrainingPoints
         thistype instance = getUnitInstance(unitToTrain)
         integer whatToTrain = GetSoldItem().getTypeId()
 
-        if whatToTrain == TRAINID_HEALTH
-            instance.pointsTrained++
-            instance.adjustHealth(HEALTH_PER_POINT)
 
-        else if whatToTrain == TRAINID_HEALTH5
-            instance.pointsTrained += 5
-            instance.adjustHealth(HEALTH_PER_POINT*5)
+        switch whatToTrain
+            
+            case TRAINID_HEALTH
+                instance.pointsTrained++
+                instance.adjustHealth(HEALTH_PER_POINT)
 
-        else if whatToTrain == TRAINID_ARMOR
-            instance.pointsTrained++
-            instance.adjustArmor(ARMOR_PER_POINT)
+            case TRAINID_HEALTH5
+                instance.pointsTrained += 5
+                instance.adjustHealth(HEALTH_PER_POINT*5)
 
-        else if whatToTrain == TRAINID_ARMOR5
-            instance.pointsTrained += 5
-            instance.adjustArmor(ARMOR_PER_POINT*5)
+            case TRAINID_ARMOR
+                instance.pointsTrained++
+                instance.adjustArmor(ARMOR_PER_POINT)
 
-        else if whatToTrain == TRAINID_ATTACKSPEED
-            instance.pointsTrained++
-            instance.adjustAttackSpeed(ATTACKSPEED_PER_POINT)
+            case TRAINID_ARMOR5
+                instance.pointsTrained += 5
+                instance.adjustArmor(ARMOR_PER_POINT*5)
 
-        else if whatToTrain == TRAINID_ATTACKSPEED5
-            instance.pointsTrained += 5
-            instance.adjustAttackSpeed(ATTACKSPEED_PER_POINT*5)
+            case TRAINID_ATTACKSPEED
+                instance.pointsTrained++
+                instance.adjustAttackSpeed(ATTACKSPEED_PER_POINT)
 
-        else if whatToTrain == TRAINID_POWER
-            instance.pointsTrained++
-            instance.adjustPower(POWER_PER_POINT) 
+            case TRAINID_ATTACKSPEED5
+                instance.pointsTrained += 5
+                instance.adjustAttackSpeed(ATTACKSPEED_PER_POINT*5)
 
-        else if whatToTrain == TRAINID_POWER5
-            instance.pointsTrained += 5
-            instance.adjustPower(POWER_PER_POINT*5) 
+            case TRAINID_POWER
+                instance.pointsTrained++
+                instance.adjustPower(POWER_PER_POINT) 
 
-        else if whatToTrain == TRAINID_RESET
-            instance.resetPoints()
+            case TRAINID_POWER5
+                instance.pointsTrained += 5
+                instance.adjustPower(POWER_PER_POINT*5) 
+
+            case TRAINID_RESET
+                instance.resetPoints()
 
 
 

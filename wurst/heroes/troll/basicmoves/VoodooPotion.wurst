@@ -21,12 +21,14 @@ import SoulDrainData
 import LinkedList
 import ClosureTimers
 import RegisterEvents
+import ClosureForGroups
+import Updater
 
 
 let RANGE = DEFAULT_CASTRANGE
 let DAMAGE_FACTOR = 0.5
 let AOE = 200.
-let BUFF_DURATION = 6.
+let BUFF_DURATION = 10.
 
 
 public let TROLL_VOODOOPOTION_ID = compiletime( createQ( Icons.bTNAcidBomb, "Voodoo Potion", "Strike an enemy dealing damage to it.")  )
@@ -74,18 +76,16 @@ init
         
                 // Additional purple effect
                 addEffect( Abilities.annihilationMissile, pos)
-                ..setScale(1.5)
+                ..setScale(1.5) 
                 ..destr()
-                
-                let damage = caster.getDamage() * DAMAGE_FACTOR
 
-                // Effect
-                forEnemiesInRange( caster.getOwner(), pos, AOE ) target ->
-                    caster.damageTargetSpell( target, damage )
-                    target.applyVoodoBuff( caster, BUFF_DURATION)
+                forUnitsInRange(pos, AOE) target ->
+                    if target.isAlive()
+                        doAfter(ANIMATION_PERIOD) ->
+                            target.applyVoodoBuff( caster, BUFF_DURATION)
 
 
-class VoodooBuff
+class VoodooBuff extends Updater
     
     static let instances = new LinkedList<thistype>
 
@@ -94,7 +94,6 @@ class VoodooBuff
     unit buffUnit
     unit source
 
-    effect sfx
     CallbackSingle durationCb = null
     
     construct(unit buffUnit, unit source)
@@ -102,18 +101,17 @@ class VoodooBuff
         this.buffUnit = buffUnit
         this.source = source
 
-        sfx = buffUnit.addEffect( Abilities.deathandDecayTarget,"origin")
-
         instances.add(this)
         instancesAvailable = true
+
+        update()
+        updateFreq = 1
+        startUpdate()
 
 
     ondestroy
         if durationCb != null
             destroy durationCb
-
-        if buffUnit != null
-            sfx.destr()
 
         instances.remove(this)
         if instances.size() == 0
@@ -127,6 +125,12 @@ class VoodooBuff
             durationCb = null
             destroy this
 
+    override function update()
+        if buffUnit == null or not buffUnit.isAlive()
+            destroy this
+        else
+            buffUnit.addEffect(Abilities.deathandDecayDamage, "chest")
+            ..destr()
 
     static function getInstance(unit buffUnit, unit source) returns thistype
         for instance in instances
@@ -146,17 +150,9 @@ public function unit.applyVoodoBuff( unit source, real duration )
         instance = new VoodooBuff(this, source)
     instance.startDuration(duration)
 
-public function unit.consumeVoodoBuff( unit source ) returns boolean
+public function unit.consumeVoodoo( unit source ) returns boolean
     let instance = VoodooBuff.getInstance(this, source)
     if instance != null
         destroy instance
         return true
     return false
-
-
-
-init
-    registerPlayerUnitEvent( EVENT_PLAYER_UNIT_DEATH) ->
-        if VoodooBuff.instancesAvailable
-            VoodooBuff.destroyUnitInstances( GetDyingUnit() )
-            

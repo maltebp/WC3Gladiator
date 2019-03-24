@@ -16,6 +16,7 @@ import Updater
 import UnitStatsSystem
 import SoundDefinitions
 import SoulDrainData
+import VoodooPotion
 
 
 // =========================================================================================================
@@ -23,8 +24,9 @@ import SoulDrainData
 let RANGE = DEFAULT_CASTRANGE
 let AIMASSIST = DEFAULT_AIMASSIST
 
-let DAMAGE_FACTOR = 2.5
+let DAMAGE_FACTOR = 2.
 let DELAY = 8.
+let DELAY_VOODOO = 5.
 let STACKS = 2
 
 
@@ -44,7 +46,10 @@ init
 
         if target != null
             target.addEffect( Abilities.aIilTarget, "origin")
-            caster.castBuff(target, DELAY, caster.getDamage() * DAMAGE_FACTOR)   
+            
+            let delay = (target.consumeVoodoo(caster)) ? DELAY_VOODOO : DELAY
+
+            caster.castBuff(target, delay, caster.getDamage() * DAMAGE_FACTOR)   
             SND_BANISHCASTER.playOnPoint(target.getPos().withTerrainZ())     
 
             caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_2)

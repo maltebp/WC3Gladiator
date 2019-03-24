@@ -1,89 +1,89 @@
-package CleaveOLD
+// package CleaveOLD
 
-import RegisterEvents
-import SoundUtils
-import AttackDamage
-import TimedSpecialEffects
-import Damage
-import ChargeSystem
-import Enrage
-import Artifact
-import BloodOfMannoroth
-import Frenzy
+// import RegisterEvents
+// import SoundUtils
+// import AttackDamage
+// import TimedSpecialEffects
+// import Damage
+// import ChargeSystem
+// import Enrage
+// import Artifact
+// import BloodOfMannoroth
+// import Frenzy
 
-//=========================================================================================================================================================
+// //=========================================================================================================================================================
 
-//  Settings
+// //  Settings
 
-constant real   RANGE = 175
-constant real   BASEDAMAGE = 5
-constant real   DAMAGEFACTOR = 1.5
-constant int    CHARGE    = 10
-constant real   COOLDOWN = 4
-constant int    BLOODFEATHERSHEART_ENERGYBONUS    = 5
-constant real   BLOODFEATHERSHEART_COOLDOWNREDUC  = 2
-constant real   ORCISHCLEAVER_RANGEINC = 0.4 // Percent
-constant real   ENRAGE_DAMAGEINC = 0.01 // Pr enrage charge consumed
+// constant real   RANGE = 175
+// constant real   BASEDAMAGE = 5
+// constant real   DAMAGEFACTOR = 1.5
+// constant int    CHARGE    = 10
+// constant real   COOLDOWN = 4
+// constant int    BLOODFEATHERSHEART_ENERGYBONUS    = 5
+// constant real   BLOODFEATHERSHEART_COOLDOWNREDUC  = 2
+// constant real   ORCISHCLEAVER_RANGEINC = 0.4 // Percent
+// constant real   ENRAGE_DAMAGEINC = 0.01 // Pr enrage charge consumed
 
-constant int ABILITYID  = 'A007'
+// constant int ABILITYID  = 'A007'
 
-//=========================================================================================================================================================
+// //=========================================================================================================================================================
 
-constant string array snd_OnAttack_File = [ Sounds.metalMediumSliceFlesh1, Sounds.metalMediumSliceFlesh2, Sounds.metalMediumSliceFlesh3,
-                                            Sounds.metalHeavySliceFlesh3, Sounds.metalHeavySliceFlesh1, Sounds.metalHeavySliceFlesh2]
-SoundDefinition array snd_OnAttack 
-
-
-
-//---------------------------------------------------------------------------------------------------------------------------------------
-//  Creation and management functions
-
-function onCast()
-
-    if snd_OnAttack[0] == null
-        for i=0 to 5
-            snd_OnAttack[i] = new SoundDefinition(snd_OnAttack_File[i], false, true)
-
-    unit mainTarget = GetSpellTargetUnit()
-    unit caster = GetSpellAbilityUnit()
-    real range = (caster.hasArtifact(ARTIFACT_ORCISHCLEAVER)) ? RANGE*(1+ORCISHCLEAVER_RANGEINC) : RANGE
-    group targets = ENUM_GROUP..enumUnitsInRange(mainTarget.getPos(), range)
+// constant string array snd_OnAttack_File = [ Sounds.metalMediumSliceFlesh1, Sounds.metalMediumSliceFlesh2, Sounds.metalMediumSliceFlesh3,
+//                                             Sounds.metalHeavySliceFlesh3, Sounds.metalHeavySliceFlesh1, Sounds.metalHeavySliceFlesh2]
+// SoundDefinition array snd_OnAttack 
 
 
-    int charge = (caster.hasFrenzy() and caster.hasArtifact(ARTIFACT_BLOODOFMANNOROTH)) ? R2I(CHARGE * (1+BLOODOFMANNOROTH_CHARGEINC)) : CHARGE
-    caster.addCharge(charge)
+
+// //---------------------------------------------------------------------------------------------------------------------------------------
+// //  Creation and management functions
+
+// function onCast()
+
+//     if snd_OnAttack[0] == null
+//         for i=0 to 5
+//             snd_OnAttack[i] = new SoundDefinition(snd_OnAttack_File[i], false, true)
+
+//     unit mainTarget = GetSpellTargetUnit()
+//     unit caster = GetSpellAbilityUnit()
+//     real range = (caster.hasArtifact(ARTIFACT_ORCISHCLEAVER)) ? RANGE*(1+ORCISHCLEAVER_RANGEINC) : RANGE
+//     group targets = ENUM_GROUP..enumUnitsInRange(mainTarget.getPos(), range)
 
 
-    boolean hasBloodFeathers = caster.hasArtifact(ARTIFACT_BLOODFEATHERSHEART)
-    real cooldown = (hasBloodFeathers) ? COOLDOWN - BLOODFEATHERSHEART_COOLDOWNREDUC : COOLDOWN
-    cooldown *= (caster.getFrenzyCooldownReduction())
+//     int charge = (caster.hasFrenzy() and caster.hasArtifact(ARTIFACT_BLOODOFMANNOROTH)) ? R2I(CHARGE * (1+BLOODOFMANNOROTH_CHARGEINC)) : CHARGE
+//     caster.addCharge(charge)
 
-    caster.setAbilityCooldown(ABILITYID, 1, cooldown)
+
+//     boolean hasBloodFeathers = caster.hasArtifact(ARTIFACT_BLOODFEATHERSHEART)
+//     real cooldown = (hasBloodFeathers) ? COOLDOWN - BLOODFEATHERSHEART_COOLDOWNREDUC : COOLDOWN
+//     cooldown *= (caster.getFrenzyCooldownReduction())
+
+//     caster.setAbilityCooldown(ABILITYID, 1, cooldown)
     
-    if hasBloodFeathers
-        caster.addCharge(BLOODFEATHERSHEART_ENERGYBONUS)
+//     if hasBloodFeathers
+//         caster.addCharge(BLOODFEATHERSHEART_ENERGYBONUS)
 
-    for target in targets
-        if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAliveTrick() 
-            targets.removeUnit(target)
+//     for target in targets
+//         if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAliveTrick() 
+//             targets.removeUnit(target)
 
             
-    real enrageFactor = 1 + caster.consumeEnrage()*ENRAGE_DAMAGEINC
-    for target from targets
+//     real enrageFactor = 1 + caster.consumeEnrage()*ENRAGE_DAMAGEINC
+//     for target from targets
         
-        caster.damageTargetPhysical(target, (BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)*enrageFactor )
-        target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl","chest")
-        ..setDuration(3)
-        target.addEffect("Abilities\\Weapons\\SentinelMissile\\SentinelMissile.mdl", "origin")
-        ..destr()
+//         caster.damageTargetPhysical(target, (BASEDAMAGE+I2R(caster.getTotalAttackDamage())*DAMAGEFACTOR)*enrageFactor )
+//         target.addEffect("Objects\\Spawnmodels\\Critters\\Albatross\\CritterBloodAlbatross.mdl","chest")
+//         ..setDuration(3)
+//         target.addEffect("Abilities\\Weapons\\SentinelMissile\\SentinelMissile.mdl", "origin")
+//         ..destr()
 
-        if enrageFactor > 1
-            snd_OnAttack[GetRandomInt(3, 5)].playOnPoint(target.getPos3Fly())
-            target.addEffect("Abilities\\Spells\\Human\\SpellSteal\\SpellStealMissile.mdl","chest")
-            ..destr()
-        else
-            snd_OnAttack[GetRandomInt(0, 2)].playOnPoint(target.getPos3Fly())
+//         if enrageFactor > 1
+//             snd_OnAttack[GetRandomInt(3, 5)].playOnPoint(target.getPos3Fly())
+//             target.addEffect("Abilities\\Spells\\Human\\SpellSteal\\SpellStealMissile.mdl","chest")
+//             ..destr()
+//         else
+//             snd_OnAttack[GetRandomInt(0, 2)].playOnPoint(target.getPos3Fly())
 
 
-init 
-    registerSpellEffectEvent( ABILITYID, function onCast)
+// init 
+//     registerSpellEffectEvent( ABILITYID, function onCast)

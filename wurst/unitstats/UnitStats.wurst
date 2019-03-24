@@ -16,12 +16,12 @@ public class UnitStats
 
     private unit theUnit
 
-    private real baseDamage = 2. // The unit's "base damage" is 1, and can't be reduced below this
+    private real baseDamage = 1
     private real baseAttackCooldown = 1
     
     private real attackSpeed = 1
     private real damageFlat = 0
-    private real damagePerc = 1
+    private int damagePerc = 1000 // = 100.0 % - to ensure that we don't get far off decimal problems
 
     private construct( unit theUnit )
         this.theUnit = theUnit
@@ -34,9 +34,12 @@ public class UnitStats
         return new UnitStats(whichUnit)
 
 
-    private function update()
-        theUnit.setBaseDamage(getDamage().toInt()-1, 1)
+    private function update()   
+        var damage = getDamage().toInt()
+        let adjustedDamage = damage <= 2 ? 1 : damage-1 // Damage can't be reduced below 1
+        theUnit.setBaseDamage( adjustedDamage, 1)
         theUnit.setMaxMana( (getAttackCooldown()*100).toInt() )
+        //print(damage.toString() + ", "+adjustedDamage.toString() + ", "+damagePerc.toString(10))
 
 
 // Base Settings ---------------------------------------------------------------------------
@@ -56,9 +59,15 @@ public class UnitStats
         damageFlat += adjustment
         update()
 
+   
     function adjustDamagePerc( real adjustment)
-        damagePerc += adjustment
+        /* Adjusting the adjustment (lol) such that it only counts in the 1 decimal
+            of the percentage (2.55 - > 2.5) i.e.
+            It rounds to the closest int (VERY IMPORTANT!). */
+        let actualAdjustment = (adjustment * 1000).round()
+        damagePerc += actualAdjustment
         update()
+
 
     function adjustAttackSpeed( real adjustment )
         attackSpeed += adjustment
@@ -76,7 +85,7 @@ public class UnitStats
         return actualSpeed
 
     function getDamage() returns real
-        let adjustedDamage = (baseDamage + damageFlat) * damagePerc 
+        let adjustedDamage = (baseDamage + damageFlat) * (damagePerc/1000)
         return (adjustedDamage >= DAMAGE_MIN) ? adjustedDamage : DAMAGE_MIN
         
     

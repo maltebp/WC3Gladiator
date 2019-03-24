@@ -15,6 +15,7 @@ import MyLibrary
 import SoundDefinitions
 import initlater TrollGladiator
 import SoulDrainData
+import initlater VoodooPotion
 
 // =========================================================================================================
 
@@ -23,6 +24,7 @@ let RADIUS = 250.
 let CASTERBUFF_DURATION = 5.
 
 let MOJO_DURATION = 18.
+let MOJO_DURATION_VOODOO = 25.
 let MOJO_ATTACKSPEED_INC = 0.3
 
 // =========================================================================================================
@@ -128,7 +130,9 @@ public function unit.castMojoPotion( vec2 pos )
         let targets = ENUM_GROUP..enumFriendlyTargets( this.getOwner(), pos, RADIUS)
     
         for target from targets
-            this.castBuff(target, MOJO_ATTACKSPEED_INC, MOJO_DURATION)
+            let hasVoodoo = target.consumeVoodoo( this )
+            let duration = (hasVoodoo) ? MOJO_DURATION_VOODOO : MOJO_DURATION 
+            this.castBuff(target, MOJO_ATTACKSPEED_INC, duration)
 
 
 // ==============================================================================================================================================

@@ -17,7 +17,7 @@ import UnitStatsSystem
 import OrcGladiator
 import LinkedList
 
-constant boolean    SPAWNHEROINARENA        = true
+constant boolean    SPAWNHEROINARENA        = false
 constant boolean    ARENACORNERSPAWN        = false
 constant boolean    PREPAREHERO             = false
 constant boolean    LOCKCAMBOUNDS           = false

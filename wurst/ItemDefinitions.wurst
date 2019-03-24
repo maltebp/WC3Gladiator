@@ -1,0 +1,31 @@
+package ItemDefinitions
+import ItemStatsSystem
+
+init
+    
+
+    'I000'.setDamageFlat(4) // Dull Blade
+
+    // Enchanted Sword
+    'I00L'
+    ..setDamageFlat(10) 
+    ..setAttackSpeed(0.25)
+
+    'I01G'.setDamageFlat(10) // Lava Tempered Boots 
+    'I00J'.setDamageFlat(8) // Magic Gem
+    'I00T'.setDamageFlat(14) // Demon Figurine
+    'I009'.setDamageFlat(10) // Demon Figurine
+    'I01R'.setDamageFlat(25) // Fel Stone
+    'I01T'.setDamageFlat(15) // Trident
+
+    
+    'I01F' // Bone gloves
+    ..setAttackSpeed(0.20)
+
+    'I01U'
+    ..setDamageFlat(5) // Spider BRacers
+    ..setAttackSpeed(0.20)
+
+    // Editor's Items
+    'I00S'.setDamageFlat(30)
+    'I00P'.setDamageFlat(80)

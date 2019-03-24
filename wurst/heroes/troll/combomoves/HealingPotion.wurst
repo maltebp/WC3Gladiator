@@ -15,10 +15,12 @@ import SoundDefinitions
 import initlater TrollGladiator
 import SoulDrainData
 import LinkedList
+import initlater VoodooPotion
 
 // =========================================================================================================
 
 let HEALING_FACTOR = 0.75
+let HEALING_FACTOR_VOODOO = 1.
 let RADIUS = 250.
 let CASTERBUFF_DURATION = 5.
 
@@ -113,7 +115,7 @@ public function unit.castHealingPotion( vec2 pos )
     let originPos = this.getPos().withTerrainZ(60)
     
     // Extra projectile only for visual effect
-    let sfxProjectile = new Projectile( originPos - vec3(0,0,160), Abilities.healingSalveTarget)
+    new Projectile( originPos - vec3(0,0,160), Abilities.healingSalveTarget)
     ..firePoint(pos.withTerrainZ(-100), 700, 0.4)
 
     let projectile = new Projectile( originPos, Abilities.goldBottleMissile )
@@ -130,10 +132,12 @@ public function unit.castHealingPotion( vec2 pos )
 
         let targets = ENUM_GROUP..enumFriendlyTargets( this.getOwner(), pos, RADIUS)
 
-        let healAmount = this.getDamage() * HEALING_FACTOR
+        
+        let casterDmg = this.getDamage()
         
         for target from targets
-            target.addHP(healAmount)
+            let healFactor = (target.consumeVoodoo(this)) ? HEALING_FACTOR_VOODOO : HEALING_FACTOR
+            target.addHP( casterDmg * healFactor)
             flashEffect(Abilities.healBottleMissile, target, "chest" )
             
 

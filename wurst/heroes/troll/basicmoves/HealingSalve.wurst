@@ -19,16 +19,20 @@ import ComboSystem
 import BloodPact
 import LinkedList
 import SoulDrainData
+import VoodooPotion
+
 
 // ==================================================================================================================================
 
 let HEAL_FACTOR = 0.20
+let INITIAL_HEAL_FACTOR = 0.8 // Only if voodoo is active
 let DURATION = 8.
 let HEAL_FREQ = 1.
 let STACK_MAX = 2
 
 let RANGE = DEFAULT_CASTRANGE
 let AIMASSIST = DEFAULT_AIMASSIST
+
 
 // ==================================================================================================================================
 
@@ -57,6 +61,9 @@ init
         let target = targets.getNearestUnit(pos)
 
         if target != null
+
+            if target.consumeVoodoo(caster)
+                target.addHP( caster.getDamage() * INITIAL_HEAL_FACTOR )
 
             let heal = caster.getDamage() * HEAL_FACTOR
 

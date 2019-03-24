@@ -17,12 +17,14 @@ import SoundDefinitions
 import TimedSpecialEffects
 import initlater TrollGladiator
 import SoulDrainData
+import initlater VoodooPotion
 
 
 let CASTERBUFF_DURATION = 5.
 let DURATION = 12.
 let EXPLODE_RADIUS = 100.
 let SPREAD_FREQ = 3.
+let INITIAL_DAMAGE_FACTOR = 0.8
 let DAMAGE_FACTOR = 0.2
 let DAMAGE_FREQ = 1.
 let SPREAD_COUNT = 2 // Number of units it spreads to each time
@@ -146,9 +148,13 @@ public function unit.castLivingPlaguePotion( vec2 pos )
         if targets.size() > 0
 
             doAfter(0.01) ->
-                LivingPlague plague = new LivingPlague(this, this.getDamage() * DAMAGE_FACTOR, DURATION, SPREAD_RADIUS, SPREAD_COUNT, SPREAD_FREQ )
+                let casterDamage = this.getDamage()
+
+                LivingPlague plague = new LivingPlague(this, casterDamage * DAMAGE_FACTOR, DURATION, SPREAD_RADIUS, SPREAD_COUNT, SPREAD_FREQ )
             
                 for target in targets
+                    if target.consumeVoodoo(this)
+                        this.damageTargetSpell(target, casterDamage * INITIAL_DAMAGE_FACTOR )
                     new PlaguedUnit( target, plague).applyBuff()
 
             /* Doing it with a minimal delay between each new plague to ensure that

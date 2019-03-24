@@ -19,10 +19,12 @@ import Damage
 import BloodPact
 import SoulDrainData
 import ClosureTimers
+import VoodooPotion
 
 
 let RANGE = DEFAULT_CASTRANGE
-let DRAIN_FACTOR = 1.5 // Equilavent to damage factor
+let DRAIN_FACTOR = 1. // Equilavent to damage factor
+let DRAIN_FACTOR_VOODOO = 1.5
 let TRANSFER_FACTOR = 1. // Amount drained gained by the caster
 let AIMASSIST = 75.
 let CHARGE = 25.
@@ -51,7 +53,8 @@ init
 
         if target != null
 
-            let damage = caster.getDamage() * DRAIN_FACTOR
+            let drainFactor = (target.consumeVoodoo(caster)) ?  DRAIN_FACTOR_VOODOO : DRAIN_FACTOR
+            let damage =  caster.getDamage() * drainFactor
             let heal = damage*TRANSFER_FACTOR
 
             caster.damageTargetSpell( target, damage )
