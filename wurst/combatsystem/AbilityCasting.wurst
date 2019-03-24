@@ -93,11 +93,12 @@ class CastObserver extends Updater
             let actualDirection = casterPos.angleTo(targetPos).radians()
             let adjustedDirection = (actualDirection < 0 ? PI2+actualDirection : actualDirection) + 4
 
+            caster.setFacing(angle(actualDirection))
+
             if not facingRequired or (adjustedFacing >= (adjustedDirection-FACING_DEVIATION) and adjustedFacing <= (adjustedDirection+FACING_DEVIATION))
                 success = true
                 destroy this
-            else
-                caster.setFacing(angle(actualDirection))
+                
             
 
         

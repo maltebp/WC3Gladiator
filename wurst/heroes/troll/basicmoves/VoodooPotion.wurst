@@ -2,15 +2,10 @@ package VoodooPotion
 
 import AbilityCreation
 import HoverAbility
-import OrcAnimations
 import SoundDefinitions
 import AttackCooldown
 import MyLibrary
-import GroupUtils
-import Miss
 import UnitStatsSystem
-import DamageDetection
-import DamageType
 import TrollAnimations
 import Projectile
 import Assets
@@ -22,11 +17,16 @@ import MojoPotion
 import BloodPact
 import LivingPlague
 import HealingPotion
+import SoulDrainData
+import LinkedList
+import ClosureTimers
+import RegisterEvents
 
 
 let RANGE = DEFAULT_CASTRANGE
 let DAMAGE_FACTOR = 0.5
 let AOE = 200.
+let BUFF_DURATION = 6.
 
 
 public let TROLL_VOODOOPOTION_ID = compiletime( createQ( Icons.bTNAcidBomb, "Voodoo Potion", "Strike an enemy dealing damage to it.")  )
@@ -46,6 +46,8 @@ init
         caster.addComboPoint( COMBO_POINT_Q )
         caster.activateBloodPact()
 
+        caster.reduceCharge( SOUL_DRAIN_REGULARMOVE)
+
         if caster.hasFlamingPotionBuff()
             // FLAMING POTION
             caster.castFlamingPotion(pos)
@@ -61,7 +63,6 @@ init
 
         else
             
-
             let projectile = new Projectile(caster.getPos().withTerrainZ(60), Abilities.bottleMissile)
             ..firePoint(pos.withTerrainZ(), 700, 0.4)
 
@@ -81,6 +82,81 @@ init
                 // Effect
                 forEnemiesInRange( caster.getOwner(), pos, AOE ) target ->
                     caster.damageTargetSpell( target, damage )
-                    target.addEffect( Abilities.deathandDecayDamage,  "origin" )
-                    ..destr()
+                    target.applyVoodoBuff( caster, BUFF_DURATION)
 
+
+class VoodooBuff
+    
+    static let instances = new LinkedList<thistype>
+
+    static var instancesAvailable = false
+
+    unit buffUnit
+    unit source
+
+    effect sfx
+    CallbackSingle durationCb = null
+    
+    construct(unit buffUnit, unit source)
+
+        this.buffUnit = buffUnit
+        this.source = source
+
+        sfx = buffUnit.addEffect( Abilities.deathandDecayTarget,"origin")
+
+        instances.add(this)
+        instancesAvailable = true
+
+
+    ondestroy
+        if durationCb != null
+            destroy durationCb
+
+        if buffUnit != null
+            sfx.destr()
+
+        instances.remove(this)
+        if instances.size() == 0
+            instancesAvailable = false
+
+
+    function startDuration(real duration)
+        if durationCb != null
+            destroy durationCb
+        durationCb = doAfter(duration) ->
+            durationCb = null
+            destroy this
+
+
+    static function getInstance(unit buffUnit, unit source) returns thistype
+        for instance in instances
+            if instance.buffUnit == buffUnit and instance.source == source
+                return instance
+        return null
+
+    static function destroyUnitInstances(unit buffUnit)
+        for instance in instances
+            if instance.buffUnit == buffUnit
+                destroy instance
+        
+
+public function unit.applyVoodoBuff( unit source, real duration )
+    var instance = VoodooBuff.getInstance(this, source)
+    if instance == null
+        instance = new VoodooBuff(this, source)
+    instance.startDuration(duration)
+
+public function unit.consumeVoodoBuff( unit source ) returns boolean
+    let instance = VoodooBuff.getInstance(this, source)
+    if instance != null
+        destroy instance
+        return true
+    return false
+
+
+
+init
+    registerPlayerUnitEvent( EVENT_PLAYER_UNIT_DEATH) ->
+        if VoodooBuff.instancesAvailable
+            VoodooBuff.destroyUnitInstances( GetDyingUnit() )
+            

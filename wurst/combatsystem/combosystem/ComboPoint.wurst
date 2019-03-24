@@ -4,14 +4,16 @@ package ComboPoint
 public class ComboPointType
     string name
     color col
+    color textCol
     string modelPath
     player playercol
 
-    construct( string name, player playercol,  color col, string modelPath )
+    construct( string name, player playercol,  color col, color textCol, string modelPath  )
         this.name = name
         this.col = col
         this.modelPath = modelPath
         this.playercol = playercol
+        this.textCol = textCol
 
 
 public class ComboPoint
@@ -30,6 +32,7 @@ public class ComboPoint
         this.comboType = comboType
 
     ondestroy
+        sfx.setTimeScale(3)
         sfx.destr()
 
     function getTypeName() returns string

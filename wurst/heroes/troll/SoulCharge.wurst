@@ -1,0 +1,66 @@
+package SoulCharge
+import TrollGladiator
+import public ChargeSystem
+import Assets
+import Stun
+import SoundDefinitions
+import LinkedList
+import UnitStatsSystem
+
+
+let SOULTORRENT_DURATION = 5.
+
+
+
+init
+    GLADIATOR_TROLL.addActionOnSpawn() gladiator ->
+        gladiator.addActionOnFullCharge() chargeUnit ->
+            soulTorrent(chargeUnit)
+
+    GLADIATOR_TROLL.addActionOnSpawn() gladiator ->
+        gladiator.addActionOnChargeUpdate() chargeUnit ->
+            DamageData.updateDmg(chargeUnit)
+
+
+
+let DMG_PER_CHARGE = 0.004 
+
+class DamageData
+    static let instances = new LinkedList<thistype>
+    unit dmgUnit
+    real adjustment = 0
+
+    construct( unit dmgUnit )
+        this.dmgUnit = dmgUnit 
+        instances.add(this)
+
+    function update()
+        if adjustment != 0
+            dmgUnit.adjustDamagePerc(-adjustment)
+        adjustment = dmgUnit.getCharge() * DMG_PER_CHARGE
+        dmgUnit.adjustDamagePerc(adjustment)
+
+
+    static function updateDmg(unit gladiator)
+        for instance in instances
+            if instance.dmgUnit == gladiator
+                instance.update()
+                return
+        new DamageData(gladiator).update()
+            
+                
+            
+function soulTorrent(unit gladiator)
+    gladiator.setCharge(0)
+    
+    addEffect( Objects.undeadDissipate, gladiator.getPos3Real())
+    ..setTimeScale(1.5)
+    ..destr()
+
+    addEffect( Abilities.zigguratMissile, gladiator.getPos().withTerrainZ(60))
+    ..setScale(1.5)
+    ..destr()
+
+    gladiator.stun(SOULTORRENT_DURATION)
+
+    SND_UNDEAD_BUILDING_DEATH_LARGE.playOnPoint(gladiator.getPos3Real())

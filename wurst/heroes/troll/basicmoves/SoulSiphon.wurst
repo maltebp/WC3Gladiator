@@ -17,12 +17,15 @@ import HeroDefaults
 import ComboSystem
 import Damage
 import BloodPact
+import SoulDrainData
+import ClosureTimers
 
 
 let RANGE = DEFAULT_CASTRANGE
 let DRAIN_FACTOR = 1.5 // Equilavent to damage factor
 let TRANSFER_FACTOR = 1. // Amount drained gained by the caster
 let AIMASSIST = 75.
+let CHARGE = 25.
 
 
 public let TROLL_SOULSIPHON_ID = compiletime( createW( Icons.bTNManaDrain, "Soul Siphon", "Strike an enemy dealing damage to it.")  )
@@ -61,6 +64,8 @@ init
             ..addActionOnFinish() ->
                 if caster != null and caster.isAlive()
                     caster.setHP( caster.getHP()+heal)
+                    doAfter(0.01) ->
+                        caster.addCharge(30)
                 
 
             SND_POSSESSION.playOnPoint(pos.withTerrainZ())

@@ -6,6 +6,7 @@ import ComboMove
 import ClosureTimers
 import ErrorHandling
 import UnitIndexer
+import DebugMsg
 
 let MAX_POINTS = 3
 
@@ -37,7 +38,6 @@ public class ComboUnitDefinition
         for comboMove in comboMoves
             this.lockedMoves.add(comboMove)
             for i=0 to 5
-                Player(i).setAbilityAvailable(comboMove.getAbilityId(), false)
                 Player(i).setAbilityAvailable(comboMove.getListId(), false)
 
     /** Unlocks the next comboMove in the list */
@@ -46,8 +46,8 @@ public class ComboUnitDefinition
             let move = lockedMoves.removeAt(0)
             unlockedMoves.add(move)
             for i=0 to 5
-                Player(i).setAbilityAvailable(move.getAbilityId(), true)
                 Player(i).setAbilityAvailable(move.getListId(), true)
+                //debugMsg("Unlocked "+GetAbilityName(move.getAbilityId()) + " for Player " +i.toString() )
             return move
         else    
             error("No more moves to unlock")

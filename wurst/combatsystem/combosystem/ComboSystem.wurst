@@ -7,9 +7,9 @@ import Assets
 import ErrorHandling
 
 
-public let COMBO_POINT_Q = new ComboPointType( "Q", Player(5), color(150,0,0), Units.wisp1 )
-public let COMBO_POINT_W = new ComboPointType( "W", Player(9), color(7, 46, 90), Units.wisp1)
-public let COMBO_POINT_E = new ComboPointType( "E", Player(6), color(123, 202, 32), Units.wisp1)
+public let COMBO_POINT_Q = new ComboPointType( "Q", Player(5), color(150,0,0), color(255,75,25), Units.wisp1 )
+public let COMBO_POINT_W = new ComboPointType( "W", Player(9), color(7, 46, 90), color(200,200,255), Units.wisp1)
+public let COMBO_POINT_E = new ComboPointType( "E", Player(10), color(123, 202, 32), color(100,150,30), Units.wisp1)
 
 public function unit.addComboPoint( ComboPointType comboType ) returns boolean
     let definition = ComboUnitDefinition.getDefinition(this) 

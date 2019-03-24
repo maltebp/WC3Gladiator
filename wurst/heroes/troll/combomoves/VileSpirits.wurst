@@ -17,6 +17,7 @@ import RandomAngle
 import Updater
 import UnitStatsSystem
 import SoundDefinitions
+import SoulDrainData
 
 // =========================================================================================================
 
@@ -36,7 +37,7 @@ let SPIRIT_DAMAGEFACTOR = 0.4
 // =========================================================================================================
 
 
-public let VILESPIRITS_ID  = compiletime( createComboMove("Vile Spirits", "Do a slam dunk!", Icons.bTNCannibalize, Icons.bTNCannibalize))
+public let VILESPIRITS_ID  = compiletime( createComboMove("Vile Spirits", "Do a slam dunk!", Icons.bTNCannibalize, Icons.bTNCannibalize,9))
 let ABIL_DEF = new PointAbility( VILESPIRITS_ID.useAbil, RANGE, ANIM_TROLL_SPELL)
 public let COMBO_VILESPIRITS = new ComboMove( VILESPIRITS_ID, COMBO_POINT_W, COMBO_POINT_W, null )
 
@@ -67,6 +68,7 @@ init
                 ..setBaseDamage( (caster.getDamage() * SPIRIT_DAMAGEFACTOR).toInt(), 1)
                 angle += angle(2)
             
+            caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_2)
 
         else
             caster.missAttack()

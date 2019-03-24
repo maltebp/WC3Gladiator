@@ -13,6 +13,8 @@ import UnitStatsSystem
 import MyLibrary
 import SoundDefinitions
 import initlater TrollGladiator
+import SoulDrainData
+import LinkedList
 
 // =========================================================================================================
 
@@ -22,7 +24,7 @@ let CASTERBUFF_DURATION = 5.
 
 // =========================================================================================================
 
-public let HEALINGPOTION_ID  = compiletime( createComboMove("Healing Potion", "Do a slam dunk!", Icons.bTNPotionOfRestoration, Icons.bTNPotionOfRestoration))
+public let HEALINGPOTION_ID  = compiletime( createComboMove("Healing Potion", "Do a slam dunk!", Icons.bTNPotionOfRestoration, Icons.bTNPotionOfRestoration,2))
 let ABIL_DEF = new NoTargetAbility( HEALINGPOTION_ID.useAbil, ANIM_TROLL_VICTORY )
 public let COMBO_HEALINGPOTION = new ComboMove( HEALINGPOTION_ID, COMBO_POINT_Q, COMBO_POINT_E,  COMBO_POINT_E )
 
@@ -34,6 +36,8 @@ init
 
         caster.applyBuff(CASTERBUFF_DURATION)
         SND_ANCESTRALSPIRIT.playOnPoint(caster.getPos3Zero())
+        
+        caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_3)
 
         caster.clearCombo()
 

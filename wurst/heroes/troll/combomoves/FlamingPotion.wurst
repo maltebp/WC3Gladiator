@@ -1,12 +1,11 @@
 package FlamingPotion
-import HeroDefaults
 import ComboSystem
 import HoverAbility
 import TrollAnimations
 import AbilityCreation
 import BuffObjEditing
 import Assets
-import Game
+import LinkedList
 import ClosureTimers
 import Projectile
 import UnitStatsSystem
@@ -15,22 +14,23 @@ import DamageType
 import SoundDefinitions
 import GroundEffect
 import initlater TrollGladiator
+import SoulDrainData
 
 // =========================================================================================================
 
-let DAMAGE_FACTOR = 0.75
+let DAMAGE_FACTOR = 0.5
 let RADIUS = 150.
 let BUFF_DURATION = 5.
 
 let BURN_RADIUS = 125.
-let BURN_DAMAGE_FACTOR = 0.4
-let BURN_DURATION = 6.
+let BURN_DAMAGE_FACTOR = 0.5
+let BURN_DURATION = 5.
 let BURN_DAMAGE_FREQ = 1.
 
 // =========================================================================================================
 
 
-public let FLAMINGPOTION_ID  = compiletime( createComboMove("Flaming Potion", "Do a slam dunk!", Icons.bTNLiquidFire, Icons.pASBTNLiquidFire))
+public let FLAMINGPOTION_ID  = compiletime( createComboMove("Flaming Potion", "Do a slam dunk!", Icons.bTNLiquidFire, Icons.pASBTNLiquidFire, 1))
 let ABIL_DEF = new NoTargetAbility( FLAMINGPOTION_ID.useAbil, ANIM_TROLL_SPELL)
 public let COMBO_FLAMINGPOTION = new ComboMove( FLAMINGPOTION_ID, COMBO_POINT_Q, COMBO_POINT_W, null )
 
@@ -42,6 +42,8 @@ init
         caster.clearCombo()
         caster.applyFlamingPotionBuff(BUFF_DURATION)
         SND_FIREBALL_LAUNCH[GetRandomInt(0,2)].playOnPoint(caster.getPos3Real())
+        
+        caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_2)
 
 
 

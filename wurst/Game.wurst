@@ -15,6 +15,7 @@ import GladiatorSystem
 import Sounds
 import UnitStatsSystem
 import OrcGladiator
+import LinkedList
 
 constant boolean    SPAWNHEROINARENA        = true
 constant boolean    ARENACORNERSPAWN        = false
@@ -70,6 +71,8 @@ public button array dialogButton_RoundPick
 
 
 init
+
+    CameraSetSmoothingFactor(50)
 
     // Setting up variables
     MAPREGION = CreateRegion()..addRect(GetPlayableMapRect())

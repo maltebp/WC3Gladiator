@@ -20,3 +20,4 @@ public let SND_CORROSIVEBREATH_TARGET = new SoundDefinition( Sounds.corrosiveBre
 public let SND_GRAVEYARDWHAT    = new SoundDefinition( Sounds.graveYardWhat1, false, true )
 public let SND_SPIRITWOLF_BIRTH = new SoundDefinition( Sounds.spiritWolfBirth1,  false, true)
 public let SND_HEALINGSPRAY_HIT = new SoundDefinition( Sounds.healingSprayDeath1, false, true)
+public let SND_UNDEAD_BUILDING_DEATH_LARGE = new SoundDefinition( Sounds.undeadBuildingDeathLarge1, false, true)

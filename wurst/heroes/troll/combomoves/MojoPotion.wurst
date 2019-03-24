@@ -6,7 +6,7 @@ import TrollAnimations
 import AbilityCreation
 import BuffObjEditing
 import Assets
-import Game
+import LinkedList
 import ClosureTimers
 import Projectile
 import TimedSpecialEffects
@@ -14,6 +14,7 @@ import UnitStatsSystem
 import MyLibrary
 import SoundDefinitions
 import initlater TrollGladiator
+import SoulDrainData
 
 // =========================================================================================================
 
@@ -27,7 +28,7 @@ let MOJO_ATTACKSPEED_INC = 0.3
 // =========================================================================================================
 
 
-public let MOJOPOTION_ID  = compiletime( createComboMove("Mojo Potion", "Do a slam dunk!", Icons.bTNGreaterInvulneralbility, Icons.pASBTNLiquidFire))
+public let MOJOPOTION_ID  = compiletime( createComboMove("Mojo Potion", "Do a slam dunk!", Icons.bTNGreaterInvulneralbility, Icons.bTNGreaterInvulneralbility,7))
 let ABIL_DEF = new NoTargetAbility( MOJOPOTION_ID.useAbil, ANIM_TROLL_VICTORY )
 public let COMBO_MOJOPOTION = new ComboMove( MOJOPOTION_ID, COMBO_POINT_E, COMBO_POINT_Q, null )
 
@@ -40,6 +41,8 @@ init
         caster.applyBuff(CASTERBUFF_DURATION)
         SND_ANCESTRALSPIRIT.playOnPoint(caster.getPos3Zero())
         caster.clearCombo()
+
+        caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_2)
 
 public function unit.removeMojoPotionBuff()
     let instance = MojoPotionCaster.getInstance(this)

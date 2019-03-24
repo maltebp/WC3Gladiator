@@ -2,11 +2,12 @@ package TrollGladiator
 
 import ComboUnit
 import AbilityCreation
-import Slam
 import GladiatorSystem
+
 import VoodooPotion
 import SoulSiphon
 import HealingSalve
+
 import FlamingPotion
 import VoodooLink
 import VileSpirits
@@ -17,6 +18,7 @@ import BloodPact
 import CursingWard
 import LivingPlague
 import HealingPotion
+
 
 public let GLADIATOR_TROLL = new GladiatorType()
 
@@ -33,6 +35,7 @@ let COMBOLIST = compiletime( createComboMoveList(FLAMINGPOTION_ID,
                                                  ))
 let UNIT_ID = 'O005'
 
+
 public let COMBOUNIT = new ComboUnitDefinition(UNIT_ID, COMBOLIST)
 
 
@@ -45,6 +48,8 @@ init
         ..setColor("|cff714ea8")
         ..setBaseAbilities( TROLL_VOODOOPOTION_ID, TROLL_SOULSIPHON_ID, TROLL_HEALINGSALVE_ID )
         ..setBaseStats( 40, DEFAULT_ARMOR, DEFAULT_HEALTH, 1.5, DEFAULT_MOVESPEED)
+        
+
 
         COMBOUNIT
         ..addComboMoves(COMBO_FLAMINGPOTION,
@@ -58,16 +63,13 @@ init
                         COMBO_LIVINGPLAGUE,
                         COMBO_HEALINGPOTION)
 
-        COMBOUNIT.unlockMove()
-        COMBOUNIT.unlockMove()
-        COMBOUNIT.unlockMove()
-        COMBOUNIT.unlockMove()
-        COMBOUNIT.unlockMove()
-        COMBOUNIT.unlockMove()
-        COMBOUNIT.unlockMove()
-        COMBOUNIT.unlockMove()
-        COMBOUNIT.unlockMove()
-        COMBOUNIT.unlockMove()
+
+        for i=1 to 10
+                COMBOUNIT.unlockMove()
+
+                
+
+
 
 public function unit.removePotionBuffs()
         // This removes all the potion buffs from the hero
@@ -75,3 +77,5 @@ public function unit.removePotionBuffs()
         this.removeHealingPotionBuff()
         this.removeLivingPlagueBuff()
         this.removeFlamingPotionBuff()
+
+

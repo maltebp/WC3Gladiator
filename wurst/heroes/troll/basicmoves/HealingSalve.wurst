@@ -6,26 +6,26 @@ import SoundDefinitions
 import AttackCooldown
 import MyLibrary
 import UnitStatsSystem
-import DamageType
 import TrollAnimations
-import Projectile
 import Assets
 import GroupUtils
 import Miss
 import HeroDefaults
 import Updater
 import BuffObjEditing
-import LinkedList
 import ClosureTimers
 import TimedSpecialEffects
 import ComboSystem
 import BloodPact
+import LinkedList
+import SoulDrainData
 
 // ==================================================================================================================================
 
-let HEAL_FACTOR = 0.5
-let DURATION = 10.
+let HEAL_FACTOR = 0.20
+let DURATION = 8.
 let HEAL_FREQ = 1.
+let STACK_MAX = 2
 
 let RANGE = DEFAULT_CASTRANGE
 let AIMASSIST = DEFAULT_AIMASSIST
@@ -63,10 +63,13 @@ init
             target.addEffect(Abilities.healTarget, "origin")
             ..setDuration(3)
             
-            caster.applyHealingSalve(target, heal, HEAL_FREQ, DURATION)
+            caster.applyHealingSalve(target, heal, DURATION)
             caster.addComboPoint( COMBO_POINT_E )
-                
+            
             SND_PRIESTCAST.playOnPoint(target.getPos3Real())
+
+            caster.reduceCharge( SOUL_DRAIN_REGULARMOVE )
+
         else
             SND_SPELL_MISS.playOnPoint(caster.getPos3Real())
             caster.missAttack()
@@ -76,11 +79,13 @@ init
 
 let healingSalveBuff = compiletime( createDummyBuffObject("Healing Salve", "You're being healed over time.", Icons.bTNHealingSalve, Abilities.healingSalveTarget, "origin") )
 
-public function unit.applyHealingSalve( unit target, real healAmount, real healFreq, real duration  ) 
-    let instance = HealingSalveBuff.getInstance(target, this)
-    if instance != null
-        destroy instance
-    new HealingSalveBuff( target, this, healAmount, healFreq, duration)
+public function unit.applyHealingSalve( unit target, real healAmount, real duration  ) 
+    var instance = HealingSalveBuff.getInstance(target, this)
+    if instance == null
+        instance = new HealingSalveBuff( target, this )
+    instance.applyStack(healAmount, duration)
+
+    
 
 
 class HealingSalveBuff extends Updater
@@ -89,25 +94,20 @@ class HealingSalveBuff extends Updater
 
     private unit buffUnit
     private unit source
-    private real healAmount
+    private real healAmount = 0
+    private int stacks = 0
     private CallbackSingle durationCb = null
 
-    construct( unit buffUnit, unit source, real healAmount, real updateFreq, real duration )
+    construct( unit buffUnit, unit source )
         this.source = source
         this.buffUnit = buffUnit
-        this.healAmount = healAmount
 
         buffUnit.addAbility(healingSalveBuff.abilId)
 
-        this.updateFreq = updateFreq
+        this.updateFreq = HEAL_FREQ
         startUpdate()
 
-        durationCb = doAfter( duration+0.1 ) ->
-            this.durationCb = null
-            destroy this
-
         instances.add(this)
-
 
     ondestroy
         if durationCb != null
@@ -119,8 +119,22 @@ class HealingSalveBuff extends Updater
         instances.remove(this)
 
 
+    function applyStack( real healAmount, real duration)
+
+        if stacks < STACK_MAX
+            this.healAmount += healAmount
+            stacks++
+
+        if durationCb != null
+            destroy durationCb
+
+        durationCb = doAfter( duration+0.1 ) ->
+            this.durationCb = null
+            destroy this
+
+
     override function update()
-        if buffUnit.isAliveTrick()
+        if buffUnit != null and buffUnit.isAliveTrick()
             let hpAfterHeal = buffUnit.getHP() + healAmount
             let finalHp = (buffUnit.getMaxHP() <= hpAfterHeal ) ? buffUnit.getMaxHP() : hpAfterHeal
             buffUnit.setHP(finalHp)
@@ -134,3 +148,4 @@ class HealingSalveBuff extends Updater
             if instance.buffUnit == buffUnit and instance.source == source
                 return instance
         return null
+

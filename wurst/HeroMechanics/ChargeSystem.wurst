@@ -36,7 +36,7 @@ import ErrorHandling
 // Settings
 
 constant real   DEGENERATION_BASE = 2 // Per second
-constant real   DEGENERATION_FREQ = 0.25
+constant real   DEGENERATION_FREQ = 0.3
 
 constant int    MAXCHARGE  = 100 // Should be adjusted with game constants
 
@@ -99,6 +99,20 @@ public function unit.getCharge() returns int
     return GetHeroXP(this)
 
 
+/** Add some code to run when the unit is charged to full */
+public function unit.addActionOnFullCharge(ChargeAction action)
+    UnitCharge.getUnitInstance(this)
+    ..addActionOnFullCharge(action)
+
+/** Add some code which is run every time the Unit's charge is changed */
+public function unit.addActionOnChargeUpdate(ChargeAction action)
+    UnitCharge.getUnitInstance(this)
+    ..addActionOnChargeUpdate(action)
+
+
+interface ChargeAction
+    function run(unit chargeUnit)
+
 /* TODO: Implement this 
 public function unit.stopChargeDegeneration()
     this.stopChargeDegeneration(0)
@@ -118,6 +132,8 @@ class UnitCharge
     private static timer updateTimer
     
     private LinkedList<ChargeAdjustment> adjustments = new LinkedList<ChargeAdjustment>
+    private LinkedList<ChargeAction> actions_OnFullCharge = null
+    private LinkedList<ChargeAction> actions_OnChargeUpdate = null
 
     private real baseDegeneration
 
@@ -171,12 +187,19 @@ class UnitCharge
             if currentCharge == MAXCHARGE and finalCharge < MAXCHARGE
                 UnitStripHeroLevel(chargeUnit, 1)
                 chargeUnit.addXp(finalCharge,false)
-
             else
                 chargeUnit.addXp(finalCharge-currentCharge, false)
 
             if xpIsSuspended
                 chargeUnit.suspendXp(true)
+
+            if finalCharge == MAXCHARGE and actions_OnFullCharge != null
+                for action in actions_OnFullCharge
+                    action.run(chargeUnit)
+
+            if actions_OnChargeUpdate != null
+                for action in actions_OnChargeUpdate
+                    action.run(chargeUnit)
 
         
     /** Adjusts the charge (addition or subtraction) */
@@ -220,6 +243,18 @@ class UnitCharge
     function adjustDegeneration( int degenerationFlatAdjust, real degenerationPercAdjust )
         this.degenerationFlatAdjust += degenerationFlatAdjust
         this.degenerationPercAdjust += degenerationPercAdjust
+
+    
+    function addActionOnFullCharge( ChargeAction action )
+        if actions_OnFullCharge == null
+            actions_OnFullCharge = new LinkedList<ChargeAction>
+        actions_OnFullCharge.add(action)     
+        
+
+    function addActionOnChargeUpdate( ChargeAction action )
+        if actions_OnChargeUpdate == null
+            actions_OnChargeUpdate = new LinkedList<ChargeAction>
+        actions_OnChargeUpdate.add(action)
         
 
     /** Gets the UnitCharge instance for the unit. Creates one if it doesn't exist */
@@ -254,7 +289,6 @@ class ChargeAdjustment
         It's designed so you can clear the adjustment, before it's supposed
         to end, without the code breaking.
     */
-    
 
     private UnitCharge chargeInstance
 

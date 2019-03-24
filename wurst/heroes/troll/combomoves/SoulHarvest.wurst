@@ -1,18 +1,17 @@
 package SoulHarvest
+
 import AbilityCreation
 import HoverAbility
-import ComboMove
 import ComboSystem
 import TrollAnimations
 import MyLibrary
 import UnitStatsSystem
 import Projectile
-import Abilities
 import Damage
 import Assets
-import TimedSpecialEffects
 import ClosureTimers
 import SoundDefinitions
+import SoulDrainData
 
 init
     
@@ -23,12 +22,14 @@ let RADIUS = 500.
 let DRAIN_FACTOR = 0.5
 let TARGETS = 10.
 
+let CHARGE = 6 // Per target
+
 // =========================================================================================================
 
 
-public let SOULHARVEST_ID  = compiletime( createComboMove("Soul Harvest", "Do a slam dunk!", Icons.bTNPossession, Icons.pASBTNLiquidFire))
+public let SOULHARVEST_ID  = compiletime( createComboMove("Soul Harvest", "Do a slam dunk!", Icons.bTNPossession, Icons.bTNPossession,8))
 let ABIL_DEF = new NoTargetAbility( SOULHARVEST_ID.useAbil, ANIM_TROLL_SPELL )
-public let COMBO_SOULHARVEST = new ComboMove( SOULHARVEST_ID, COMBO_POINT_W, COMBO_POINT_W, COMBO_POINT_W )
+public let COMBO_SOULHARVEST = new ComboMove( SOULHARVEST_ID, COMBO_POINT_W, null, null )
 
 init
     ABIL_DEF
@@ -66,6 +67,8 @@ init
                     caster.setHP( caster.getHP()+drain)
 
             projectile.fireUnit( caster, 60, true, 800, 0)
+
+            caster.addCharge(CHARGE)
 
             counter++
         

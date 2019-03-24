@@ -16,13 +16,14 @@ import ComboSystem
 import SoundDefinitions
 import TimedSpecialEffects
 import initlater TrollGladiator
+import SoulDrainData
 
 
 let CASTERBUFF_DURATION = 5.
-let DURATION = 10.
+let DURATION = 12.
 let EXPLODE_RADIUS = 100.
 let SPREAD_FREQ = 3.
-let DAMAGE_FACTOR = 0.5
+let DAMAGE_FACTOR = 0.2
 let DAMAGE_FREQ = 1.
 let SPREAD_COUNT = 2 // Number of units it spreads to each time
 let SPREAD_RADIUS = 150.
@@ -32,7 +33,7 @@ let SPREAD_RADIUS = 150.
 // CASTER BUFF
 
 
-public let LIVINGPLAGUE_ID  = compiletime( createComboMove("Flaming Potion", "Do a slam dunk!", Icons.bTNPlagueCloud, Icons.pASBTNPlagueCloud))
+public let LIVINGPLAGUE_ID  = compiletime( createComboMove("Living Plague", "Do a slam dunk!", Icons.bTNPlagueCloud, Icons.pASBTNPlagueCloud,6))
 let ABIL_DEF = new NoTargetAbility( LIVINGPLAGUE_ID.useAbil, ANIM_TROLL_VICTORY )
 public let COMBO_LIVINGPLAGUE = new ComboMove( LIVINGPLAGUE_ID, COMBO_POINT_Q, COMBO_POINT_W, COMBO_POINT_W )
 
@@ -45,6 +46,9 @@ init
 
         caster.applyCasterBuff(CASTERBUFF_DURATION)
         SND_CORROSIVEBREATH_TARGET.playOnPoint(caster.getPos3Real())
+        caster.clearCombo()
+
+        caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_3)
 
 
 function unit.applyCasterBuff( real duration )
@@ -90,18 +94,6 @@ class LivingPlagueBuff
         durationCb = doAfter(duration) ->
             durationCb = null
             destroy this
-
-
-    // function removeBuff()
-    //     if buffUnit != null and buffUnit.isAliveTrick()
-
-    //         // Sometimes the buff isnt removed if the unit is paused
-    //         if buffUnit.isPaused()
-    //             doPeriodically(0.5) cb ->
-    //                 if buffUnit != null and buffUnit.isAliveTrick() and not buffUnit.isPaused()
-    //                     buffUnit.removeAbility(mojoPotionBuff.abilId)
-    //         else
-    //             buffUnit.removeAbility(mojoPotionBuff.abilId)
 
     ondestroy
         if durationCb != null

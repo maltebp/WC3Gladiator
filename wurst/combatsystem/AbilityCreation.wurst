@@ -6,6 +6,7 @@ import public Icons
 import ObjectIds
 import BuffObjEditing
 import Assets
+import ClosureTimers
 
 public function createQ( string icon, string name, string tooltip ) returns int
 
@@ -106,8 +107,9 @@ public function createF( string icon, string name, string tooltip) returns int
 
     return id
 
+int COMBOMOVECOUNT = 0
 
-public function createComboMove( string name, string tooltip, string iconActive, string iconPassive ) returns comboMoveTuple
+public function createComboMove( string name, string tooltip, string iconActive, string iconPassive, int number ) returns comboMoveTuple
     let useAbil = ABIL_ID_GEN.next() 
 
     new AbilityDefinitionDefend(useAbil)
@@ -129,17 +131,20 @@ public function createComboMove( string name, string tooltip, string iconActive,
 
     let listAbil = ABIL_ID_GEN.next() 
 
+
     new AbilityDefinitionCriticalStrikecreep(listAbil)
     ..setName(name + "(List Ability)")
     ..setTooltipNormal(1, name)
     ..setTooltipNormalExtended(1, tooltip )
     ..setIconNormal( iconPassive )
-    ..setButtonPositionNormalX(0)
-    ..setButtonPositionNormalY(0)
+    ..setButtonPositionNormalX(0)// (number-1) mod 4)
+    ..setButtonPositionNormalY(0)// (number-1) div 4)
     ..setLevels(1)
     ..setChancetoCriticalStrike(1, 0)
     ..setChancetoEvade(1, 0)
     
+    COMBOMOVECOUNT++
+
     return comboMoveTuple(useAbil, listAbil)
 
 
@@ -148,6 +153,7 @@ public tuple comboMoveTuple( int useAbil, int listAbil )
 
 public function compiletime(comboMoveTuple moveT) returns comboMoveTuple
     return moveT
+
 
 public function createComboMoveList( vararg comboMoveTuple moves ) returns int
     let id = ABIL_ID_GEN.next() 
@@ -161,8 +167,8 @@ public function createComboMoveList( vararg comboMoveTuple moves ) returns int
 
     new AbilityDefinitionSpellBook(id)
     ..setItemAbility(false)
-    ..setMinimumSpells(1, 1)
-    ..setMaximumSpells(1, 15)
+    ..setMinimumSpells(1, 11)
+    ..setMaximumSpells(1, 11)
     ..setIconNormal(Icons.bTN3M3)
     ..setName( "Combo Moves" )
     ..setTooltipNormal(1, "Combo Moves" )

@@ -24,7 +24,6 @@ import initlater GladiatorSystem
 
 
 
-
 // ================================================================================================================================
 public class Gladiator
     private static LinkedList<thistype> instances = new LinkedList<thistype>
@@ -102,6 +101,9 @@ public class Gladiator
 
 
 // ================================================================================================================================
+interface GladiatorAction
+    function run(unit gladiator)
+
 public class GladiatorType
 
     private static boolean hasBeenInitialized
@@ -127,8 +129,10 @@ public class GladiatorType
     private SoundDefinition snd_Spawn = null
     private SoundDefinition snd_Respawn = null
     private SoundDefinition snd_NewAbility = null
+    
+    private LinkedList<GladiatorAction> actions_OnSpawn = null
 
-        
+    
     function setUnitType(int unitType)
         this.unitType = unitType
 
@@ -201,6 +205,12 @@ public class GladiatorType
         WAbility = w
         EAbility = e
 
+
+    function addActionOnSpawn( GladiatorAction action )
+        if actions_OnSpawn == null
+            actions_OnSpawn = new LinkedList<GladiatorAction>
+        actions_OnSpawn.add(action)
+
     private static function checkInit()
         if not hasBeenInitialized
             initialize()
@@ -216,6 +226,10 @@ public class GladiatorType
         ..setBaseDamage(damage)
         ..setBaseAttackCooldown(attackCooldown)
         ..addArtifactSlots()
+
+        if actions_OnSpawn != null
+            for action in actions_OnSpawn
+                action.run(gladiatorUnit)
         
         
         // These are not implemented in the unit stat system yet

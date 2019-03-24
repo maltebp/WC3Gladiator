@@ -9,6 +9,7 @@ import GroupUtils
 import TimedSpecialEffects
 import AutoCastAbility
 import Damage
+import LinkedList
 
 LinkedList<Flame> flames = new LinkedList<Flame>
 

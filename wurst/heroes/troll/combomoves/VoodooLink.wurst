@@ -6,19 +6,17 @@ import HoverAbility
 import TrollAnimations
 import AbilityCreation
 import Assets
-import Game
 import MyLibrary
 import DamageDetection
 import LightningBounce
 import GroupUtils
 import Miss
-
-import DebugMsg
-import UnitIndexer
+import LinkedList
 import FadeAndFilters
 import Damage
 import ErrorHandling
 import DamageType
+import SoulDrainData
 
 // =========================================================================================================
 
@@ -34,7 +32,7 @@ let DAMAGE_FACTOR = 0.5
 // =========================================================================================================
 
 
-public let VOODOOLINK_ID  = compiletime( createComboMove("Voodoo Link", "Do a slam dunk!", Icons.bTNShadowPact1, Icons.pASBTNLiquidFire))
+public let VOODOOLINK_ID  = compiletime( createComboMove("Voodoo Link", "Do a slam dunk!", Icons.bTNShadowPact1, Icons.bTNShadowPact1,10))
 let ABIL_DEF = new PointAbility( VOODOOLINK_ID.useAbil, RANGE, ANIM_TROLL_SPELL)
 public let COMBO_VOODOOLINK = new ComboMove( VOODOOLINK_ID, COMBO_POINT_W, null, null )
 
@@ -48,6 +46,8 @@ init
 
         if target != null
             new VoodooLink(caster, target)
+
+            caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_3)
 
         else
             caster.missAttack()

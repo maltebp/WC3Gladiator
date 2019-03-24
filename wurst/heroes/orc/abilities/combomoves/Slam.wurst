@@ -15,7 +15,7 @@ let DAMAGE_FACTOR  = 2.
 
 
 
-public let MOVE_DEF_SLAM = compiletime( createComboMove("Slam", "Do a slam dunk!", Icons.bTNCriticalStrike, Icons.pASBTNCriticalStrike))
+public let MOVE_DEF_SLAM = compiletime( createComboMove("Slam", "Do a slam dunk!", Icons.bTNCriticalStrike, Icons.pASBTNCriticalStrike,1))
 public let ORC_COMBO_SLAM = new ComboMove( MOVE_DEF_SLAM, COMBO_POINT_W, COMBO_POINT_E, null )
 let MOVE_ABIL = new PointAbility(MOVE_DEF_SLAM.useAbil, 100, ANIM_ORC_SLAM)
 

@@ -15,6 +15,7 @@ import BuffObjEditing
 import Updater
 import UnitStatsSystem
 import SoundDefinitions
+import SoulDrainData
 
 
 // =========================================================================================================
@@ -30,7 +31,7 @@ let STACKS = 2
 // =========================================================================================================
 
 
-public let DEATHCURSE_ID  = compiletime( createComboMove("Death Curse", "Do a slam dunk!", Icons.bTNDoom, Icons.bTNDoom))
+public let DEATHCURSE_ID  = compiletime( createComboMove("Death Curse", "Do a slam dunk!", Icons.bTNDoom, Icons.bTNDoom,3))
 let ABIL_DEF = new PointAbility( DEATHCURSE_ID.useAbil, RANGE, ANIM_TROLL_SPELL)
 public let COMBO_DEATHCURSE = new ComboMove( DEATHCURSE_ID, COMBO_POINT_Q, COMBO_POINT_Q, null )
 
@@ -45,6 +46,8 @@ init
             target.addEffect( Abilities.aIilTarget, "origin")
             caster.castBuff(target, DELAY, caster.getDamage() * DAMAGE_FACTOR)   
             SND_BANISHCASTER.playOnPoint(target.getPos().withTerrainZ())     
+
+            caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_2)
 
         else
             caster.missAttack()

@@ -3,20 +3,15 @@ package BloodPact
 // Increases his power, but consumes health everytime he uses an ability - long durationpackage SoulHarvest
 import AbilityCreation
 import HoverAbility
-import ComboMove
 import ComboSystem
 import TrollAnimations
-import MyLibrary
 import UnitStatsSystem
-import Projectile
-import Abilities
-import Damage
 import Assets
-import TimedSpecialEffects
 import ClosureTimers
 import SoundDefinitions
 import LinkedList
 import BuffObjEditing
+import SoulDrainData
 
 init
     
@@ -29,7 +24,7 @@ let DURATION = 40.
 // =========================================================================================================
 
 
-public let BLOODPACT_ID  = compiletime( createComboMove("Blood Pact", "Do a slam dunk!", Icons.bTNBerserkForTrolls, Icons.pASBTNLiquidFire))
+public let BLOODPACT_ID  = compiletime( createComboMove("Blood Pact", "Do a slam dunk!", Icons.bTNBerserkForTrolls, Icons.bTNBerserkForTrolls,5))
 let ABIL_DEF = new NoTargetAbility( BLOODPACT_ID.useAbil, ANIM_TROLL_SPELL )
 public let COMBO_BLOODPACT = new ComboMove( BLOODPACT_ID, COMBO_POINT_W, COMBO_POINT_Q, COMBO_POINT_E )
 
@@ -40,6 +35,8 @@ init
         
         caster.applyBuff( DAMAGE_INC, DURATION)
         caster.addEffect(Abilities.trollBeserkerTarget, "chest").destr()
+
+        caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_3)
 
         SND_BERSERK.playOnPoint(casterPos)
         caster.clearCombo()

@@ -18,13 +18,13 @@ public class ComboMove
         var comboDesc  = "Combo: "
 
         combo.add(combo1)
-        comboDesc +=  combo1.col.toColorString() + combo1.name + "|r" 
+        comboDesc +=  combo1.textCol.toColorString() + combo1.name + "|r" 
         if combo2 != null
             combo.add(combo2)
-            comboDesc +=  " "+combo2.col.toColorString() + combo1.name + "|r" 
+            comboDesc +=  " "+combo2.textCol.toColorString() + combo2.name + "|r" 
         if combo3 != null
             combo.add(combo3)
-            comboDesc +=  " "+combo1.col.toColorString() + combo1.name + "|r" 
+            comboDesc +=  " "+combo3.textCol.toColorString() + combo3.name + "|r" 
 
         comboDesc += "|n"
 

@@ -1,0 +1,8 @@
+package SoulDrainData
+
+import public ChargeSystem
+
+public let SOUL_DRAIN_REGULARMOVE = 10
+public let SOUL_DRAIN_COMBOMOVE_1 = 15
+public let SOUL_DRAIN_COMBOMOVE_2 = 25
+public let SOUL_DRAIN_COMBOMOVE_3 = 30
