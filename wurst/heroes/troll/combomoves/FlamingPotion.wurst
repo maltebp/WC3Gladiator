@@ -19,7 +19,7 @@ import initlater VoodooPotion
 
 // =========================================================================================================
 
-let DAMAGE_FACTOR = 0.5
+let DAMAGE_FACTOR = 1.
 let DAMAGE_FACTOR_VOODOO = 0.7
 let RADIUS = 150.
 let BUFF_DURATION = 5.

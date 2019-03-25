@@ -27,7 +27,7 @@ import Updater
 
 let RANGE = DEFAULT_CASTRANGE
 let DAMAGE_FACTOR = 0.5
-let AOE = 200.
+let RADIUS = 200.
 let BUFF_DURATION = 10.
 
 
@@ -79,10 +79,18 @@ init
                 ..setScale(1.5) 
                 ..destr()
 
-                forUnitsInRange(pos, AOE) target ->
-                    if target.isAlive()
-                        doAfter(ANIMATION_PERIOD) ->
-                            target.applyVoodoBuff( caster, BUFF_DURATION)
+                forEnemiesInRange(caster.getOwner(), pos, RADIUS) target ->
+                    target.addEffect( Abilities.deathandDecayDamage, "chest")
+                    ..destr()
+                    caster.damageTargetSpell( target, caster.getDamage()*DAMAGE_FACTOR)
+
+
+
+                // OLD CODE FOR VOODOO BUFF
+                // forUnitsInRange(pos, AOE) target ->
+                //     if target.isAlive()
+                //         doAfter(ANIMATION_PERIOD) ->
+                //             target.applyVoodoBuff( caster, BUFF_DURATION)
 
 
 class VoodooBuff extends Updater

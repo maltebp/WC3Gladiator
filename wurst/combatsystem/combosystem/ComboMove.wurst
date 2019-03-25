@@ -3,7 +3,6 @@ package ComboMove
 import LinkedList
 import ComboPoint
 import AbilityCreation
-import Colors
 
 public class ComboMove
     private static let all = new LinkedList<thistype>
@@ -46,4 +45,6 @@ public class ComboMove
 
     function getComboPointType(int index) returns ComboPointType
         return combo.get(index)
+
+
 

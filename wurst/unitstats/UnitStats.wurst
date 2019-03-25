@@ -38,7 +38,7 @@ public class UnitStats
         var damage = getDamage().toInt()
         let adjustedDamage = damage <= 2 ? 1 : damage-1 // Damage can't be reduced below 1
         theUnit.setBaseDamage( adjustedDamage, 1)
-        theUnit.setMaxMana( (getAttackCooldown()*100).toInt() )
+        theUnit.setMaxMana( (getAttackCooldown()*100).round() )
         //print(damage.toString() + ", "+adjustedDamage.toString() + ", "+damagePerc.toString(10))
 
 

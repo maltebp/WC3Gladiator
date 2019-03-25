@@ -14,8 +14,8 @@ import Damage
 import GladiatorSystem
 import Sounds
 import UnitStatsSystem
-import OrcGladiator
 import LinkedList
+import ClosureTimers
 
 constant boolean    SPAWNHEROINARENA        = false
 constant boolean    ARENACORNERSPAWN        = false
@@ -230,7 +230,13 @@ function createHero()
     ..setInvulnerable(true)
     ..pause()
 
-    ARTIFACT_BLOODFEATHERSHEART.release()
+    doAfter(0.01) ->
+        
+        for gladiatorType in GladiatorType.getAllTypes()
+            gladiatorType.releaseNextArtifact()
+            for i=1 to 4
+                COMBOUNIT.unlockMove()
+
 
     ITEM_DULLBLADE.release()
     ITEM_LEATHERARMOR.release()

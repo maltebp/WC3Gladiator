@@ -13,6 +13,8 @@ import ClosureTimers
 import SoundDefinitions
 import SoulDrainData
 import VoodooPotion
+import Artifact
+import initlater TrollGladiator
 
 init
     
@@ -21,7 +23,8 @@ init
 let DAMAGE_FACTOR = 0.75
 let DAMAGE_FACTOR_VOODOO = 1.
 let RADIUS = 500.
-let DRAIN_FACTOR = 0.5
+let DRAIN_FACTOR = 0.75
+let SS_BONUS_DRAIN = 0.25
 let TARGETS = 10.
 
 let CHARGE = 6 // Per target
@@ -59,6 +62,7 @@ init
             let currentTarget = targets.next()
 
             let damage = (currentTarget.consumeVoodoo(caster)) ? DAMAGE_FACTOR_VOODOO : DAMAGE_FACTOR
+            let drainFactor = (caster.hasArtifact(ARTIFACT_TROLL_SPIRITSTAFF)) ? DRAIN_FACTOR+SS_BONUS_DRAIN: DRAIN_FACTOR 
             let drain = damage * DRAIN_FACTOR
             caster.damageTargetSpell( currentTarget, damage )
         

@@ -27,6 +27,12 @@ public function unit.isComboUnit() returns boolean
 
 public function unit.hasComboMove( ComboMove move ) returns boolean
     return this.hasAbility(move.getAbilityId())
+
+public function unit.getNumberOfComboPoints() returns int
+    let instance = ComboUnit.getInstance(this)
+    if instance != null
+        return instance.currentCombo.size()
+    return 0
     
 public function unit.clearCombo()
     let instance = ComboUnit.getInstance(this)

@@ -17,7 +17,7 @@ public function unit.increaseEnergyRegen( real percentIncrease)
 /** Increases the units energy regeneration by flatIncrease
     per second */
 public function unit.increaseEnergyRegen( int flatIncrease )
-
+    
 /** Restores a flat amount of energy for the unit once */
 public function unit.restoreEnergy(real energyToRestore)
     if EnergySystem.containsUnit(this)

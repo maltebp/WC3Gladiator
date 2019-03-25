@@ -18,8 +18,6 @@ constant int REMOVEARTIFACTSMASK = 'I00X'
 
 constant SoundDefinition snd_Error = new SoundDefinition(Sounds.error, false)
 
-public unit array SHOP_ORC
-
 public constant int MAXITEMSINSHOP = 11
 
 // ==========================================================================================
@@ -193,7 +191,7 @@ public class Artifact
     private int itemId
     private int maskId
     private string name
-
+    private boolean released = false
 
     construct(int itemId, int maskId, int raceType)
         this.itemId = itemId
@@ -212,8 +210,12 @@ public class Artifact
         ArtifactShop readyShop = ArtifactShop.getReadyShop(raceType)
         if readyShop != null
             readyShop.addItem(maskId)
+            released = true
         else
             error("null shop")
+
+    function isReleased() returns boolean
+        return released
 
         
     /** Find the id of the artifact item matching the maskId */
@@ -239,19 +241,3 @@ public class Artifact
 //==============================================================================================================================
 // ARTIFACTS
 
-
-public constant Artifact ARTIFACT_BLOODFEATHERSHEART    = new Artifact('I011','I012', 'O000')
-public constant Artifact ARTIFACT_ORCISHCLEAVER         = new Artifact('I00Z', 'I010', 'O000')
-public constant Artifact ARTIFACT_KILMAIM               = new Artifact('I014', 'I019', 'O000')
-public constant Artifact ARTIFACT_TOOTHOFTHEWARCHIEF    = new Artifact('I015', 'I01B', 'O000')
-public constant Artifact ARTIFACT_TOKENOFSAMURO         = new Artifact('I017', 'I01C', 'O000')
-public constant Artifact ARTIFACT_GIFTOFTHETAUREN       = new Artifact('I018', 'I01D', 'O000')
-public constant Artifact ARTIFACT_BLOODOFMANNOROTH      = new Artifact('I013', 'I01E', 'O000')
-public constant Artifact ARTIFACT_MEMOIROFTHEPAST       = new Artifact('I01J','I01K','O000')
-public constant Artifact ARTIFACT_WARBLADEOFSAMURO          = new Artifact('I01A','I01Q','O000')
-public constant Artifact ARTIFACT_STANDARDOFTHEORCS               = new Artifact('I016','I01P', 'O000')
-public constant Artifact ARTIFACT_WARDRUM                = new Artifact('I01L','I01O', 'O000')
-// public constant Artifact ARTIFACT_HELMOFTHEWARLORD                = new Artifact('I01L','I01O', 'O000')
-
-
-public constant ArtifactShop ARTIFACTSHOP = new ArtifactShop(gg_unit_n00K_0002, 'O000')

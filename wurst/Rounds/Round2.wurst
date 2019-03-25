@@ -19,7 +19,7 @@ init
 
     round = new Round
     ..setReward(30, 3)
-    ..addArtifactRewards(ARTIFACT_KILMAIM)
+    ..addArtifactRewards(1)
     ..addAbilityReward(1)
     ..addItemRewards(ITEM_BONEGLOVES)
 

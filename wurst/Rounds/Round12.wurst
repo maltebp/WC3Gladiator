@@ -64,7 +64,7 @@ init
 
     round = new Round()
     ..setReward(30, 3)
-    ..addArtifactRewards(ARTIFACT_MEMOIROFTHEPAST)
+    ..addArtifactRewards(1)
     ..addItemRewards(ITEM_FELSTONE)
     ..setTitle("Fel Orcs")
     ..setDescription("Don't let them pin you down, or they'll burn you.")

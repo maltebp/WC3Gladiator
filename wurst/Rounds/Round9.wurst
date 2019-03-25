@@ -51,7 +51,7 @@ init
 
     round = new Round()
     ..setReward(30, 3)
-    ..addArtifactRewards(ARTIFACT_GIFTOFTHETAUREN)
+    ..addArtifactRewards(1)
     ..addItemRewards(ITEM_DEMONICFIGURINE)
     ..addAbilityReward(3)
     ..setTitle("Warlocks")

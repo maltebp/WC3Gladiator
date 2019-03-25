@@ -14,6 +14,7 @@ import TrollAnimations
 import ComboSystem
 import SoundDefinitions
 import SoundUtils
+
 import SoulDrainData
 
 let DAMAGE_RED = 0.25
@@ -26,7 +27,7 @@ let RANGE = DEFAULT_CASTRANGE
 
 public let CURSINGWARD_ID  = compiletime( createComboMove("Cursing Ward", "Do a slam dunk!", Icons.bTNBigBadVoodooSpell, Icons.bTNBigBadVoodooSpell,4))
 let ABIL_DEF = new PointAbility( CURSINGWARD_ID.useAbil, RANGE, ANIM_TROLL_ATTACK)
-public let COMBO_CURSINGWARD = new ComboMove( CURSINGWARD_ID, COMBO_POINT_W, COMBO_POINT_Q, null )
+public let COMBO_CURSINGWARD = new ComboMove( CURSINGWARD_ID,  COMBO_POINT_Q, COMBO_POINT_E, null )
 
 
 init

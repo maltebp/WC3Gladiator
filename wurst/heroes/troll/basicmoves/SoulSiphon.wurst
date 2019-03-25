@@ -20,12 +20,15 @@ import BloodPact
 import SoulDrainData
 import ClosureTimers
 import VoodooPotion
+import Artifact
+import initlater TrollGladiator
 
 
 let RANGE = DEFAULT_CASTRANGE
-let DRAIN_FACTOR = 1. // Equilavent to damage factor
-let DRAIN_FACTOR_VOODOO = 1.5
-let TRANSFER_FACTOR = 1. // Amount drained gained by the caster
+let DRAIN_FACTOR = 1.5 // Equilavent to damage factor
+let DRAIN_FACTOR_VOODOO = 2.
+let TRANSFER_FACTOR = 0.75 // Amount drained gained by the caster
+let SS_BONUS_TRANSFER = 0.25 // Spirit Staff
 let AIMASSIST = 75.
 let CHARGE = 25.
 
@@ -55,7 +58,8 @@ init
 
             let drainFactor = (target.consumeVoodoo(caster)) ?  DRAIN_FACTOR_VOODOO : DRAIN_FACTOR
             let damage =  caster.getDamage() * drainFactor
-            let heal = damage*TRANSFER_FACTOR
+            let transferFactor = (caster.hasArtifact(ARTIFACT_TROLL_SPIRITSTAFF)) ? TRANSFER_FACTOR+SS_BONUS_TRANSFER: TRANSFER_FACTOR 
+            let heal = (damage*transferFactor)
 
             caster.damageTargetSpell( target, damage )
             caster.addComboPoint( COMBO_POINT_W )            

@@ -7,20 +7,11 @@ package Gladiator
 import          LinkedList
 import public   SoundUtils
 import          ErrorHandling
-import RegisterEvents
-import Orders
-import ClosureTimers
-import LastOrder
 import ComboSystem
-import HoverAbility
-import HoverAbilityCasting
 import ClearPoints
 import ChargeSystem
 import UnitStatsSystem
-import Artifact
-import DebugMsg
-import UnitIndexer
-import initlater GladiatorSystem
+import initlater Artifact
 
 
 
@@ -80,6 +71,9 @@ public class Gladiator
 
     function getColor() returns string
         return gladiatorType.getColor()
+
+    function getGladiatorType() returns GladiatorType
+        return gladiatorType
     
 
     static function isUnitGladiator(unit whichUnit) returns boolean
@@ -106,6 +100,8 @@ interface GladiatorAction
 
 public class GladiatorType
 
+    private static let allTypes = new LinkedList<thistype>
+
     private static boolean hasBeenInitialized
 
     private int unitType
@@ -124,13 +120,17 @@ public class GladiatorType
     protected int WAbility
     protected int EAbility
 
-    private LinkedList<int> abilities = new LinkedList<int>
+    private let abilities = new LinkedList<int>
+    private let artifacts = new LinkedList<Artifact>
 
     private SoundDefinition snd_Spawn = null
     private SoundDefinition snd_Respawn = null
     private SoundDefinition snd_NewAbility = null
     
     private LinkedList<GladiatorAction> actions_OnSpawn = null
+
+    construct()
+        allTypes.add(this)
 
     
     function setUnitType(int unitType)
@@ -139,6 +139,7 @@ public class GladiatorType
         unit tempUnit = createUnit(Player(PLAYER_NEUTRAL_PASSIVE), unitType, vec2(0,0),angle(0))
         name = tempUnit.getName()
         tempUnit.remove()
+
 
     function setBaseStats( real damage, real armor, real health, real attackCooldown, real moveSpeed  )
         this.damage = damage
@@ -225,6 +226,7 @@ public class GladiatorType
         ..enableCharge()
         ..setBaseDamage(damage)
         ..setBaseAttackCooldown(attackCooldown)
+        ..setMana(attackCooldown*100)
         ..addArtifactSlots()
 
          // These are not implemented in the unit stat system yet
@@ -236,13 +238,25 @@ public class GladiatorType
         if actions_OnSpawn != null
             for action in actions_OnSpawn
                 action.run(gladiatorUnit)
-        
-        
-       
     
         return gladiatorUnit
-        
 
+        
+    function getName() returns string
+        return name
+
+    function addArtifact( Artifact artifact)
+        artifacts.add(artifact)
+
+    function releaseNextArtifact() returns Artifact
+        for artifact in artifacts
+            if not artifact.isReleased()
+                artifact.release()
+                return artifact
+        return null
+
+    static function getAllTypes() returns LinkedList<thistype>
+        return allTypes
         
 // ================================================================================================================================
 // GLADIATOR TYPE SETUP
@@ -250,29 +264,6 @@ public class GladiatorType
     private static function initialize()
         hasBeenInitialized = true
 
-init
-    
-    registerPlayerUnitEvent( EVENT_PLAYER_UNIT_ISSUED_ORDER ) ->
-        // An order exception has been made in AbilityCasting and ActionAmination
-        let orderId = GetIssuedOrderId()
-
-        if orderId == Orders.defend
-            let orderedUnit  = GetOrderedUnit()
-
-            if orderedUnit.isGladiator()
-                doAfter(0.001) ->
-                    orderedUnit.issueImmediateOrderById(Orders.undefend)
-                    doAfter(0.001) ->
-                        let order = orderedUnit.getLastOrder()
-                        if order != null
-                            order.finished = false
-                            order.issue()
-                        let comboMove = orderedUnit.getComboMove()
-                        if comboMove != null
-                            let abilDef = AbilityDef.getInstance(comboMove.getAbilityId())
-                
-                            if abilDef != null
-                                onCastCaster( orderedUnit, abilDef )
                     
     
 

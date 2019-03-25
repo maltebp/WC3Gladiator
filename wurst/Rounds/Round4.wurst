@@ -16,7 +16,7 @@ init
 
     round = new Round
     ..setReward(30, 3)
-    ..addArtifactRewards(ARTIFACT_TOOTHOFTHEWARCHIEF)
+    ..addArtifactRewards(1)
     ..addItemRewards(ITEM_ENCHANTEDSWORD, ITEM_FOOTMANSHELM)
     ..setTitle("Human Battalion")
     ..setDescription("Trained soldiers, specialized in fighting together. Don't let them overrun you.")

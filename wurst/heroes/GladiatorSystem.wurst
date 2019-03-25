@@ -3,15 +3,15 @@ package GladiatorSystem
 import public Gladiator
 
 // So that you may just import the Gladiator system
-import public initlater TrollGladiator
-import public initlater OrcGladiator
+import public TrollGladiator
+import RegisterEvents
+import Orders
+import ClosureTimers
+import LastOrder
+import ComboSystem
+import HoverAbility
+import HoverAbilityCasting
 
-
-public let DEFAULT_ARMOR = 5.
-public let DEFAULT_MOVESPEED = 250.
-public let DEFAULT_DAMAGE = 15.
-public let DEFAULT_ATTACKCOOLDOWN = 2.
-public let DEFAULT_HEALTH = 400.
 
 
 public function player.newGladiator( GladiatorType gladType, vec2 spawnPos, angle facing ) returns Gladiator
@@ -26,8 +26,41 @@ public function unit.isGladiator() returns boolean
 public function player.getGladiator() returns Gladiator
     return Gladiator.getInstance(this)
 
+public function unit.getGladiatorType() returns GladiatorType
+    return this.getGladiatorInstance().getGladiatorType()
+
 /** Gets the Gladiator instance of a certain unit. Returns null, if the unit doesn't have an instance */
 public function unit.getGladiatorInstance() returns Gladiator
     if not this.isGladiator()
         return null
     return Gladiator.getInstance(this)
+
+
+/*
+    It allows the defend ability to become an useable ability
+
+COULDN'T PUT THIS ANYWHERE ELSE*/
+init
+    registerPlayerUnitEvent( EVENT_PLAYER_UNIT_ISSUED_ORDER ) ->
+        // An order exception has been made in AbilityCasting and ActionAmination
+        let orderId = GetIssuedOrderId()
+
+        if orderId == Orders.defend
+            let orderedUnit  = GetOrderedUnit()
+
+            if orderedUnit.isGladiator()
+                doAfter(0.001) ->
+                    orderedUnit.issueImmediateOrderById(Orders.undefend)
+                    doAfter(0.001) ->
+                        let order = orderedUnit.getLastOrder()
+                        if order != null
+                            order.finished = false
+                            order.issue()
+                        let comboMove = orderedUnit.getComboMove()
+                        if comboMove != null
+                            let abilDef = AbilityDef.getInstance(comboMove.getAbilityId())
+                
+                            if abilDef != null
+                                onCastCaster( orderedUnit, abilDef )
+    
+    

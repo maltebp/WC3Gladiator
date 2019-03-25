@@ -12,6 +12,7 @@ import public ItemReward
 import ClosureTimers
 import Sounds
 import LinkedList
+import GladiatorSystem
 
 public class Round
 
@@ -45,6 +46,8 @@ public class Round
 
     
 
+    
+
     private static boolean aRoundIsRunning = false
     static unit bossUnit = null
 
@@ -67,6 +70,7 @@ public class Round
     private boolean bossRound = false
     private unit boss = null
     private string music = Sounds.orcVictory
+    private  int artifactsToRelease = 0 
 
 
     Round_RemoteFunction codeOnClear = null
@@ -154,9 +158,8 @@ public class Round
         
 
     /** Adds one or more artifacts as a reward, when winning the round */
-    function addArtifactRewards(vararg Artifact artifacts)
-        for artifact in artifacts
-            artifactReward.add(artifact)
+    function addArtifactRewards(int numberOfArtifacts)
+        this.artifactsToRelease = numberOfArtifacts
 
     /** Adds one or more artifacts as a reward, when winning the round */
     function addItemRewards(vararg ItemReward items)
@@ -297,9 +300,8 @@ public class Round
 
     /** Rewards items, including artifacts */
     private function rewardItems() returns boolean
-        int numberOfArtifacts = artifactReward.size()
         int numberOfItems = itemRewards.size()
-        int numberOfRewards = numberOfArtifacts + numberOfItems
+        int numberOfRewards = artifactsToRelease + numberOfItems
 
         if numberOfRewards > 0
             
@@ -323,17 +325,17 @@ public class Round
                     itemReward.release() 
 
 
-            if numberOfArtifacts > 0 
-                for artifact in artifactReward
-
-                    text += TEXTCOLOR_ARTIFACT+artifact.getName()+" (Artifact)|r"
-
+            if artifactsToRelease > 0
+                for artifactNum = 1 to artifactsToRelease
+                    
+                    for gladiatorType in GladiatorType.getAllTypes()
+                        let artifact = gladiatorType.releaseNextArtifact()
+                        text += TEXTCOLOR_ARTIFACT+artifact.getName()+" (Artifact)|r"
+                    
                     i++
 
                     if i < numberOfRewards
                         text += ", "
-
-                    artifact.release()
 
             printTimed(text, 8)
             return true

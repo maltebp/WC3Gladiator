@@ -42,6 +42,29 @@ public function unit.attemptAttack(real attackCooldown, SoundDefinition fumbleSo
         return false
 
 
+
+/** Reduces the unit's remaining cooldown by a flat amount */
+public function unit.reduceCooldownFlat( real seconds )
+        
+    if this.getMana() < this.getMaxMana()
+        this.addMana(seconds * 100)
+
+
+/** Reducing the unit's remaining cooldown by a percentage.
+    ofTotal = true: it will be a percentage of the total cooldown (not the remaining) */
+public function unit.reduceCooldownPerc( real percentage, boolean ofTotal )
+    /* Currently it fixed by adjusting mana. For future this should be independant
+        of the unit's mana. */
+    let maxMana = this.getMaxMana()
+    let currentMana = this.getMana()
+    
+    if currentMana < maxMana
+        var manaToAdjust = (ofTotal) ? maxMana * percentage : (maxMana-currentMana)*percentage
+        this.addMana(manaToAdjust)
+
+    
+
+
 /** Attempts an attack by the unit, restarting the attack cooldown time. If the attack is not ready, it returns false. */
 public function unit.attemptAttack( SoundDefinition fumbleSound ) returns boolean
     let attackCooldown = this.getAttackCooldown() // Fix this to the unit's actual cooldown
@@ -88,6 +111,7 @@ class AttackCooldown extends Updater
 
     function restart()
         start(currentCooldown)
+        
 
     static function getUnitInstance( unit whichUnit ) returns thistype
         for instance in instances

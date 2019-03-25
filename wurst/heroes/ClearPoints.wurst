@@ -13,10 +13,9 @@ init
         let caster = GetSpellAbilityUnit()
         doAfter(0.001) ->
             caster.issueImmediateOrderById(Orders.unimmolation)
-            // doAfter(0.001) ->
-            //     let order = caster.getLastOrder()
-            //     if order != null
-            //         order.finished = false
-            //         order.issue()
-                    
+            
+            let numberOfPoints = caster.getNumberOfComboPoints()
+    
             caster.clearCombo()
+
+            

@@ -1,9 +1,12 @@
 package HeroDefaults
 import SoundUtils
 
-
-public let DEFAULT_CASTRANGE = 600.
-public let DEFAULT_MELEERANGE = 125.
+public let DEFAULT_ARMOR = 5.
+public let DEFAULT_MOVESPEED = 250.
+public let DEFAULT_DAMAGE = 20.
+public let DEFAULT_ATTACKCOOLDOWN = 1.5
+public let DEFAULT_HEALTH = 500.
 public let DEFAULT_AIMASSIST = 80.
+public let DEFAULT_CASTRANGE = 700.
 
 public let SND_SPELL_MISS = new SoundDefinition( Sounds.etherealMediumHit1, false, true)
