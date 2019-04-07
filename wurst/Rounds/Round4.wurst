@@ -16,8 +16,8 @@ init
 
     round = new Round
     ..setReward(30, 3)
-    ..addArtifactRewards(1)
     ..addItemRewards(ITEM_ENCHANTEDSWORD, ITEM_FOOTMANSHELM)
+    ..addAbilityReward(1)
     ..setTitle("Human Battalion")
     ..setDescription("Trained soldiers, specialized in fighting together. Don't let them overrun you.")
     ..setHealthOrbSpawn(100, 50, 0.1, 25, 0.02)

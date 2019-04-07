@@ -24,7 +24,6 @@ init
     ..addArtifactRewards(1)
     ..addItemRewards(ITEM_SOULSTONE)
 
-
     ..setTitle("Ghosts 'n' Stuff")
     ..setDescription("It seems like somebody's watching you.")
     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)

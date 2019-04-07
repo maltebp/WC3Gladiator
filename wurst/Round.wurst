@@ -330,7 +330,8 @@ public class Round
                     
                     for gladiatorType in GladiatorType.getAllTypes()
                         let artifact = gladiatorType.releaseNextArtifact()
-                        text += TEXTCOLOR_ARTIFACT+artifact.getName()+" (Artifact)|r"
+                        if artifact != null
+                            text += TEXTCOLOR_ARTIFACT+artifact.getName()+" (Artifact)|r"
                     
                     i++
 
@@ -344,13 +345,14 @@ public class Round
 
     function giveAbilityReward() returns boolean
 
+     
         if abilityReward > -1
 
             printTimed(" ", 6)
 
             string text = "New ability: "
-            text += gladiator.getColor()+gladiator.releaseAbility(abilityReward)+"|r"
-
+            text += gladiator.getColor()+gladiator.getGladiatorType().unlockComboMove()+"|r"
+ 
             printTimed(text, 6)
 
             gladiator.getSoundOnNewAbility().playForPlayer(gladiator.getOwner())
@@ -359,6 +361,7 @@ public class Round
 
         else
             return false
+            
         
 
     static function giveReward()
@@ -370,14 +373,18 @@ public class Round
     function giveRewardNotFancy()
         Player(0).addGold(goldReward)
         Player(0).addLumber(trainingPointsReward)
-        for artifact in artifactReward
-            artifact.release()
+    
+        for i=1 to artifactsToRelease    
+            for gladiatorType in GladiatorType.getAllTypes()
+                gladiatorType.releaseNextArtifact()
+
+        for i=1 to abilityReward    
+            for gladiatorType in GladiatorType.getAllTypes()
+                gladiatorType.unlockComboMove()
 
         for itemReward in itemRewards
             itemReward.release()
 
-        if abilityReward > -1
-            gladiator.releaseAbility(abilityReward)
 
     static function wonRound()
         

@@ -25,10 +25,10 @@ import initlater TrollGladiator
 
 
 let RANGE = DEFAULT_CASTRANGE
-let DRAIN_FACTOR = 1.5 // Equilavent to damage factor
+let DRAIN_FACTOR = 2. // Equilavent to damage factor
 let DRAIN_FACTOR_VOODOO = 2.
-let TRANSFER_FACTOR = 0.75 // Amount drained gained by the caster
-let SS_BONUS_TRANSFER = 0.25 // Spirit Staff
+let TRANSFER_FACTOR = 0.5 // Amount drained gained by the caster
+let SS_COOLDOWN_REDUC = 0.5 // Percent of total cooldown
 let AIMASSIST = 75.
 let CHARGE = 25.
 
@@ -58,7 +58,7 @@ init
 
             let drainFactor = (target.consumeVoodoo(caster)) ?  DRAIN_FACTOR_VOODOO : DRAIN_FACTOR
             let damage =  caster.getDamage() * drainFactor
-            let transferFactor = (caster.hasArtifact(ARTIFACT_TROLL_SPIRITSTAFF)) ? TRANSFER_FACTOR+SS_BONUS_TRANSFER: TRANSFER_FACTOR 
+            let transferFactor = TRANSFER_FACTOR 
             let heal = (damage*transferFactor)
 
             caster.damageTargetSpell( target, damage )
@@ -71,8 +71,13 @@ init
             ..addActionOnFinish() ->
                 if caster != null and caster.isAlive()
                     caster.setHP( caster.getHP()+heal)
+
+                    if caster.hasArtifact( ARTIFACT_TROLL_SPIRITSTAFF )
+                        caster.reduceCooldownPerc(0.5, true)
+
                     doAfter(0.01) ->
                         caster.addCharge(30)
+
                 
 
             SND_POSSESSION.playOnPoint(pos.withTerrainZ())

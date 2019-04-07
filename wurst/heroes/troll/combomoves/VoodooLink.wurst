@@ -18,6 +18,9 @@ import ErrorHandling
 import DamageType
 import SoulDrainData
 import VoodooPotion
+import Artifact
+import initlater TrollGladiator
+import Updater
 
 // =========================================================================================================
 
@@ -29,6 +32,9 @@ let BOUNCE_COUNT = 4
 let DURATION = 12.
 let DURATION_VOODOO = 15.
 let DAMAGE_FACTOR = 0.5
+
+let SCROLLOFVOODOO_BOUNCECOUNT = BOUNCE_COUNT + 3
+let SCROLLOFVOODOO_BOUNCERADIUS = BOUNCE_RANGE * 2
 
 
 // =========================================================================================================
@@ -63,10 +69,10 @@ class VoodooLink extends LightningBounce
     private unit caster
 
     construct( unit caster, unit target )
-        super(caster, target, BOUNCE_COUNT)
+        super(caster, target, caster.hasArtifact(ARTIFACT_TROLL_SCROLLOFVOODOO) ? SCROLLOFVOODOO_BOUNCECOUNT : BOUNCE_COUNT)
         this.caster = caster
 
-        range = BOUNCE_RANGE
+        range =  caster.hasArtifact(ARTIFACT_TROLL_SCROLLOFVOODOO) ? SCROLLOFVOODOO_BOUNCERADIUS : BOUNCE_RANGE
         lightningType = LIGHTNING_SPIRIT_LINK
         lightningColor = colorA(80, 40, 130, 255)
 
@@ -154,7 +160,7 @@ public function unit.applyLink( real damageFactor, real duration ) returns Voodo
     
 
 
-class VoodooLinkBuff
+class VoodooLinkBuff extends Updater
 
     private static let instances = new LinkedList<thistype>
 
@@ -179,6 +185,9 @@ class VoodooLinkBuff
         durationTimer = getTimer()..setData(this castTo int)
 
         instances.add(this)
+
+        updateFreq = 0.5
+        startUpdate()
         
     ondestroy
         durationTimer.release()
@@ -197,6 +206,9 @@ class VoodooLinkBuff
             casterInstance.splitDamage(this, damage)
             
 
+    override function update()
+        if buffUnit == null or not buffUnit.isAlive()
+            destroy this
 
     static function getInstance(unit whichUnit) returns thistype
         for instance in instances

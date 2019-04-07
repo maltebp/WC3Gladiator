@@ -16,18 +16,21 @@ import GroundEffect
 import initlater TrollGladiator
 import SoulDrainData
 import initlater VoodooPotion
+import Artifact
 
 // =========================================================================================================
 
 let DAMAGE_FACTOR = 1.
 let DAMAGE_FACTOR_VOODOO = 0.7
 let RADIUS = 150.
-let BUFF_DURATION = 5.
+let CASTERBUFF_DURATION = 5.
 
 let BURN_RADIUS = 125.
 let BURN_DAMAGE_FACTOR = 0.5
 let BURN_DURATION = 5.
 let BURN_DAMAGE_FREQ = 1.
+
+let SHRINKHEAD_DURATION = CASTERBUFF_DURATION * 2
 
 // =========================================================================================================
 
@@ -41,8 +44,10 @@ init
     ..onEffect() ( caster ) ->
         caster.removePotionBuffs()
 
+        let duration = caster.hasArtifact(ARTIFACT_TROLL_SHRINKHEAD) ? SHRINKHEAD_DURATION : CASTERBUFF_DURATION
+
         caster.clearCombo()
-        caster.applyFlamingPotionBuff(BUFF_DURATION)
+        caster.applyFlamingPotionBuff(duration)
         SND_FIREBALL_LAUNCH[GetRandomInt(0,2)].playOnPoint(caster.getPos3Real())
         
         caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_2)

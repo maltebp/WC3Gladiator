@@ -25,9 +25,9 @@ import LinkedList
 
 let POISON_DMG = 1. // Per second
 let POISON_DIMINISH_DELAY = 2.
-let POISON_DIMINISH_RATE = 0.5 // time between each diminish
+let POISON_DIMINISH_RATE = 0.2 // time between each diminish
 let POISON_ATTACK_RANGE = 600.
-let POISON_SPEED = 600.
+let POISON_SPEED = 500.
 let POISON_AOE = 150.
 let POISON_SPIT_DMG = 5.
 let POISON_SPIT_RATE = 2.
@@ -57,6 +57,7 @@ init
     ..setDescription("They're everywhere!")
     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.02)
     ..setReward(30, 3)
+    ..addArtifactRewards(1)
     ..addItemRewards(ITEM_SPIDERBRACERS)
     ..setCodeOnLastUnitDeath() r ->
         PoisonedUnit.clearAll()
@@ -120,12 +121,12 @@ init
     ..setSoundOnSpawn( Sounds.arachnathidWhat1)
 
     // Spitter 2
-    round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 6))
+    round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 10))
     ..setStartDelay(50)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(10)
+    ..setSpawnCount(6)
 
 
     // ..setSpawnEffect( Abilities.orbVenomMissile )

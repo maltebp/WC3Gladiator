@@ -23,7 +23,7 @@ init
 
 
 
-let DMG_PER_CHARGE = 0.004 
+let DMG_PER_CHARGE = 0.003 
 
 class DamageData
     static let instances = new LinkedList<thistype>

@@ -25,25 +25,33 @@ import Artifact
 public let GLADIATOR_TROLL = new GladiatorType()
 
 let COMBOLIST = compiletime(createComboMoveList(FLAMINGPOTION_ID,
-                                                BLOODPACT_ID,
                                                 VILESPIRITS_ID,
+                                                VOODOOLINK_ID,
                                                 CURSINGWARD_ID,
-                                                 VOODOOLINK_ID,
-                                                 DEATHCURSE_ID,
-                                                 SOULHARVEST_ID,
-                                                 MOJOPOTION_ID,
-                                                 LIVINGPLAGUE_ID,
-                                                 HEALINGPOTION_ID                                
-                                                 ))
+                                                SOULHARVEST_ID,
+                                                BLOODPACT_ID,
+                                                DEATHCURSE_ID,
+                                                MOJOPOTION_ID,
+                                                LIVINGPLAGUE_ID,
+                                                HEALINGPOTION_ID                                
+                                                ))
 let UNIT_ID = 'O005'
 
 
 public let COMBOUNIT = new ComboUnitDefinition(UNIT_ID, COMBOLIST)
 
-
 public constant ArtifactShop ARTIFACTSHOP = new ArtifactShop(gg_unit_n00K_0002, UNIT_ID)
 
-public constant Artifact ARTIFACT_TROLL_SPIRITSTAFF     = new Artifact('I01V','I01W', UNIT_ID)
+public constant Artifact ARTIFACT_TROLL_SPIRITSTAFF     = new Artifact('I01W','I01V', UNIT_ID)
+public constant Artifact ARTIFACT_TROLL_SHIMMERWEED     = new Artifact('I01Y','I025', UNIT_ID)
+public constant Artifact ARTIFACT_TROLL_DEATHCHIMES     = new Artifact('I01Z','I026', UNIT_ID)
+public constant Artifact ARTIFACT_TROLL_DOCTORSMASK     = new Artifact('I020','I02A', UNIT_ID)
+public constant Artifact ARTIFACT_TROLL_SCROLLOFVOODOO     = new Artifact('I022','I02B', UNIT_ID)
+public constant Artifact ARTIFACT_TROLL_CARRIONCHARM     = new Artifact('I024','I02C', UNIT_ID)
+public constant Artifact ARTIFACT_TROLL_BLOODCHARM      = new Artifact('I023','I029', UNIT_ID)
+public constant Artifact ARTIFACT_TROLL_SENJINSSTAFF     = new Artifact('I021','I028', UNIT_ID)
+public constant Artifact ARTIFACT_TROLL_SHRINKHEAD      = new Artifact('I027','I02D', UNIT_ID)
+
 
 
 init
@@ -56,22 +64,27 @@ init
         ..setBaseAbilities( TROLL_VOODOOPOTION_ID, TROLL_SOULSIPHON_ID, TROLL_HEALINGSALVE_ID )
         ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED)
         ..addArtifact(ARTIFACT_TROLL_SPIRITSTAFF)
+        ..addArtifact(ARTIFACT_TROLL_SHIMMERWEED)
+        ..addArtifact(ARTIFACT_TROLL_DEATHCHIMES)
+        ..addArtifact(ARTIFACT_TROLL_DOCTORSMASK)
+        ..addArtifact(ARTIFACT_TROLL_SCROLLOFVOODOO)
+        ..addArtifact(ARTIFACT_TROLL_CARRIONCHARM)
+        ..addArtifact(ARTIFACT_TROLL_BLOODCHARM)
+        ..addArtifact(ARTIFACT_TROLL_SHRINKHEAD)
+        ..addArtifact(ARTIFACT_TROLL_SENJINSSTAFF)
 
 
         COMBOUNIT
         ..addComboMoves(COMBO_FLAMINGPOTION,
                         COMBO_VILESPIRITS,
-                        COMBO_CURSINGWARD,
                         COMBO_VOODOOLINK,
+                        COMBO_CURSINGWARD,
                         COMBO_SOULHARVEST,
                         COMBO_BLOODPACT,
                         COMBO_DEATHCURSE,
                         COMBO_MOJOPOTION,
                         COMBO_LIVINGPLAGUE,
                         COMBO_HEALINGPOTION)
-
-        
-
 
 
 public function unit.removePotionBuffs()

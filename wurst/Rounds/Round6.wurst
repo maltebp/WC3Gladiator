@@ -24,8 +24,7 @@ init
     round = new Round
     ..setReward(30, 3)
     ..addItemRewards(ITEM_CLOAKOFFLAME, ITEM_LAVATEMPEREDBOOTS)
-
-
+    ..addAbilityReward(1)
     ..setTitle("Through the Fire and Flames")
     ..setDescription("Should you stand in the fire?")
     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.02)

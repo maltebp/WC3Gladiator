@@ -14,14 +14,16 @@ import SoundDefinitions
 import initlater TrollGladiator
 import SoulDrainData
 import LinkedList
-import initlater VoodooPotion
+import Artifact
 
 // =========================================================================================================
 
 let HEALING_FACTOR = 0.75
-let HEALING_FACTOR_VOODOO = 1.
+let SHIMMERWEED_INC = 1.5
 let RADIUS = 250.
 let CASTERBUFF_DURATION = 5.
+
+let SHRINKHEAD_DURATION = CASTERBUFF_DURATION * 2
 
 // =========================================================================================================
 
@@ -35,7 +37,9 @@ init
         
         caster.removePotionBuffs()
 
-        caster.applyBuff(CASTERBUFF_DURATION)
+        let duration = caster.hasArtifact(ARTIFACT_TROLL_SHRINKHEAD) ? SHRINKHEAD_DURATION : CASTERBUFF_DURATION
+
+        caster.applyBuff(duration)
         SND_ANCESTRALSPIRIT.playOnPoint(caster.getPos3Zero())
         
         caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_3)
@@ -131,12 +135,12 @@ public function unit.castHealingPotion( vec2 pos )
 
         let targets = ENUM_GROUP..enumFriendlyTargets( this.getOwner(), pos, RADIUS)
 
-        
-        let casterDmg = this.getDamage()
-        
+    
+        var healAmount = this.getDamage() * HEALING_FACTOR
+        healAmount = (this.hasArtifact(ARTIFACT_TROLL_SHIMMERWEED)) ? healAmount * SHIMMERWEED_INC : healAmount
+
         for target from targets
-            let healFactor = (target.consumeVoodoo(this)) ? HEALING_FACTOR_VOODOO : HEALING_FACTOR
-            target.addHP( casterDmg * healFactor)
+            target.addHP( healAmount)
             flashEffect(Abilities.healBottleMissile, target, "chest" )
             
 

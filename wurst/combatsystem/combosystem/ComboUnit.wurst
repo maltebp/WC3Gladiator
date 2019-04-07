@@ -24,11 +24,13 @@ public class ComboUnitDefinition
         definitions.add(this)
 
     static function getDefinition( unit whichUnit ) returns thistype
-        let unitTypeId = whichUnit.getTypeId()
+        return getDefinition(whichUnit.getTypeId())
+    
+    static function getDefinition( int unitTypeId ) returns thistype
         for definition in definitions
             if definition.unitTypeId == unitTypeId
                 return definition
-        return null    
+        return null
 
 
     /** Make the combo move available to this combo unit. It need to be unlocked with unlockMove()

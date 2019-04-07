@@ -15,17 +15,19 @@ import MyLibrary
 import SoundDefinitions
 import initlater TrollGladiator
 import SoulDrainData
-import initlater VoodooPotion
+import Artifact
 
 // =========================================================================================================
 
-let DAMAGE_FACTOR = 0.75
 let RADIUS = 250.
 let CASTERBUFF_DURATION = 5.
 
-let MOJO_DURATION = 18.
+let MOJO_DURATION = 25.
 let MOJO_DURATION_VOODOO = 25.
 let MOJO_ATTACKSPEED_INC = 0.3
+
+let DOCTORSMASK_DURATION = 2 * MOJO_DURATION
+let SHRINKHEAD_DURATION = CASTERBUFF_DURATION * 2
 
 // =========================================================================================================
 
@@ -39,8 +41,9 @@ init
     ..onEffect() ( caster ) ->
         
         caster.removePotionBuffs()
+        let duration = caster.hasArtifact(ARTIFACT_TROLL_SHRINKHEAD) ? SHRINKHEAD_DURATION : CASTERBUFF_DURATION
 
-        caster.applyBuff(CASTERBUFF_DURATION)
+        caster.applyBuff(duration)
         SND_ANCESTRALSPIRIT.playOnPoint(caster.getPos3Zero())
         caster.clearCombo()
 
@@ -129,9 +132,9 @@ public function unit.castMojoPotion( vec2 pos )
 
         let targets = ENUM_GROUP..enumFriendlyTargets( this.getOwner(), pos, RADIUS)
     
+        let duration = (this.hasArtifact(ARTIFACT_TROLL_DOCTORSMASK)) ? DOCTORSMASK_DURATION : MOJO_DURATION 
+        
         for target from targets
-            let hasVoodoo = target.consumeVoodoo( this )
-            let duration = (hasVoodoo) ? MOJO_DURATION_VOODOO : MOJO_DURATION 
             this.castBuff(target, MOJO_ATTACKSPEED_INC, duration)
 
 

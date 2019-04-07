@@ -255,6 +255,9 @@ public class GladiatorType
                 return artifact
         return null
 
+    function unlockComboMove() returns string
+        return ComboUnitDefinition.getDefinition(unitType).unlockMove().getName()
+
     static function getAllTypes() returns LinkedList<thistype>
         return allTypes
         

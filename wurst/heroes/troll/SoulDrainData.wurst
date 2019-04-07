@@ -2,7 +2,7 @@ package SoulDrainData
 
 import public ChargeSystem
 
-public let SOUL_DRAIN_REGULARMOVE = 10
-public let SOUL_DRAIN_COMBOMOVE_1 = 15
-public let SOUL_DRAIN_COMBOMOVE_2 = 25
-public let SOUL_DRAIN_COMBOMOVE_3 = 30
+public let SOUL_DRAIN_REGULARMOVE = 2
+public let SOUL_DRAIN_COMBOMOVE_1 = 5
+public let SOUL_DRAIN_COMBOMOVE_2 = 8
+public let SOUL_DRAIN_COMBOMOVE_3 = 10

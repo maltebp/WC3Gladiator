@@ -18,6 +18,8 @@ import Updater
 import UnitStatsSystem
 import SoundDefinitions
 import SoulDrainData
+import Artifact
+import initlater TrollGladiator
 
 // =========================================================================================================
 
@@ -31,7 +33,8 @@ let DURATION =  20.
 
 let SPIRIT_MOVESPEED = 300.
 let SPIRIT_ATTACKSPEED = 1.5
-let SPIRIT_DAMAGEFACTOR = 0.4
+let SPIRIT_DAMAGEFACTOR = 0.6
+let DEATHCHIMES_DMGINC = 1.5
 
 
 // =========================================================================================================
@@ -59,13 +62,16 @@ init
             SND_SPIRITWOLF_BIRTH.playOnPoint(pos.withTerrainZ())
                 
             var angle = randomAngle()
+
+            var damage = caster.getDamage() * SPIRIT_DAMAGEFACTOR
+            damage = caster.hasArtifact(ARTIFACT_TROLL_DEATHCHIMES) ? damage * DEATHCHIMES_DMGINC : damage
         
             for i=1 to NUMBER_OF_SPIRITS
                 let spawnPos = caster.getPos().polarOffset( angle, 125)
                 casterInstance.newSpirit(target, spawnPos, DURATION).spirit
                 ..setAttackCooldown( SPIRIT_ATTACKSPEED, 1)
                 ..setMoveSpeed( SPIRIT_MOVESPEED)
-                ..setBaseDamage( (caster.getDamage() * SPIRIT_DAMAGEFACTOR).toInt(), 1)
+                ..setBaseDamage( damage.toInt(), 1)
                 angle += angle(2)
             
             caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_2)

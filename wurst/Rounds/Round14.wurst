@@ -96,6 +96,7 @@ init
     ..setReward(30, 3)
     ..setTitle("Dragons")
     ..setDescription("...")
+    ..addAbilityReward(1)
     ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
 
     round.setCodeOnPrepare() r ->

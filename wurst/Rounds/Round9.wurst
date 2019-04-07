@@ -53,7 +53,6 @@ init
     ..setReward(30, 3)
     ..addArtifactRewards(1)
     ..addItemRewards(ITEM_DEMONICFIGURINE)
-    ..addAbilityReward(3)
     ..setTitle("Warlocks")
     ..setDescription("They are ready to kill their own minions for their own benefit.")
     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.02)

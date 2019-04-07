@@ -32,9 +32,6 @@ init
             c.addComboPoint(COMBO_POINT_E)
 
   
-        
-
-
 class EvadeBuff
     protected static var SHOULDDETECT = false // To stop it from checking all instances at every damage event
     private static let instances = new LinkedList<thistype>

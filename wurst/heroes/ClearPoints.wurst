@@ -5,8 +5,12 @@ import ClosureTimers
 import AutoCastAbility
 import LastOrder
 import ComboSystem
+import AttackCooldown
 
 public let CLEAR_POINTS_ABIL_ID = compiletime(createF(Icons.bTNCancel, "Remove Combos", "Remove all current combo points"))
+
+public let COOLDOWN_REDUCTION_PER_POINT = 0.2
+
 
 init
     registerSpellEffectEvent( CLEAR_POINTS_ABIL_ID) ->
@@ -15,7 +19,8 @@ init
             caster.issueImmediateOrderById(Orders.unimmolation)
             
             let numberOfPoints = caster.getNumberOfComboPoints()
-    
-            caster.clearCombo()
+            if numberOfPoints > 0
+                caster.clearCombo()
+                caster.reduceCooldownFlat( COOLDOWN_REDUCTION_PER_POINT * numberOfPoints )
 
             

@@ -57,6 +57,7 @@ public function unit.reduceCooldownPerc( real percentage, boolean ofTotal )
         of the unit's mana. */
     let maxMana = this.getMaxMana()
     let currentMana = this.getMana()
+
     
     if currentMana < maxMana
         var manaToAdjust = (ofTotal) ? maxMana * percentage : (maxMana-currentMana)*percentage

@@ -13,14 +13,16 @@ import LinkedList
 import BuffObjEditing
 import SoulDrainData
 import initlater VoodooPotion
+import Artifact
+import initlater TrollGladiator
 
 init
     
 // =========================================================================================================
 
-let DAMAGE_INC = 0.4
+let DAMAGE_INC = 0.3
 let HEALTH_DRAIN = 0.05
-let DURATION = 30.
+let DURATION = 45.
 let DURATION_VOODOO = 45.
 
 // =========================================================================================================
@@ -51,7 +53,7 @@ public function unit.hasBlooldPact() returns boolean
     return BloodPactBuff.getInstance(this) != null
 
 public function unit.activateBloodPact()
-    if BloodPactBuff.getInstance(this) != null
+    if BloodPactBuff.getInstance(this) != null and not this.hasArtifact(ARTIFACT_TROLL_BLOODCHARM)
         let drain = this.getMaxHP()*HEALTH_DRAIN
         this.addEffect( Objects.critterBloodAlbatross, "chest").destr()
         if this.getHP() < drain

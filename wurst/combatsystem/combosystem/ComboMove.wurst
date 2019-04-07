@@ -8,12 +8,15 @@ public class ComboMove
     private static let all = new LinkedList<thistype>
     private let combo = new LinkedList<ComboPointType>
     private comboMoveTuple moveIds 
+    private string name
 
     construct( comboMoveTuple moveIds, ComboPointType combo1, ComboPointType combo2, ComboPointType combo3 )
         this.moveIds = moveIds
 
         let currentDesc = BlzGetAbilityExtendedTooltip(moveIds.listAbil, 1)
         
+        name = GetAbilityName(moveIds.useAbil)
+
         var comboDesc  = "Combo: "
 
         combo.add(combo1)
@@ -45,6 +48,9 @@ public class ComboMove
 
     function getComboPointType(int index) returns ComboPointType
         return combo.get(index)
+
+    function getName() returns string
+        return name
 
 
 

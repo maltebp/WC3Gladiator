@@ -1,4 +1,5 @@
-package Slam
+package WoundingStrike
+
 import AbilityCreation
 import ComboSystem
 import HoverAbility
@@ -9,25 +10,23 @@ import Miss
 import SoundDefinitions
 import UnitStatsSystem
 import DamageType
+import HeroDefaults
 
-let AIMASSIST = 60.
+let AIMASSIST = DEFAULT_AIMASSIST
 let DAMAGE_FACTOR  = 2.
 
-
-
-public let MOVE_DEF_SLAM = compiletime( createComboMove("Slam", "Do a slam dunk!", Icons.bTNCriticalStrike, Icons.pASBTNCriticalStrike,1))
-public let ORC_COMBO_SLAM = new ComboMove( MOVE_DEF_SLAM, COMBO_POINT_W, COMBO_POINT_E, null )
-let MOVE_ABIL = new PointAbility(MOVE_DEF_SLAM.useAbil, 100, ANIM_ORC_SLAM)
-
+public let WOUNDINGSTRIKE_ID = compiletime( createComboMove("Wounding Strike", "Do a slam dunk!", Icons.bTNCriticalStrike, Icons.pASBTNCriticalStrike,1))
+public let COMBO_WOUNDINGSTRIKE = new ComboMove( WOUNDINGSTRIKE_ID, COMBO_POINT_W, COMBO_POINT_E, null )
+let ABIL_DEF = new PointAbility(WOUNDINGSTRIKE_ID.useAbil, 100, ANIM_ORC_SLAM)
 init
-    
-    MOVE_ABIL
+
+    ABIL_DEF
     ..queueStandReady()
     ..addAdjustments() (caster, adjustments) ->
         adjustments.speed = 1.5
         return adjustments
     
-    MOVE_ABIL
+    ABIL_DEF
     ..onEffect() (caster, targetPos) ->
         let targets = ENUM_GROUP..enumEnemyTargets( caster.getOwner(), targetPos, AIMASSIST)
         
@@ -42,3 +41,5 @@ init
         targets.clear()
 
         caster.clearCombo()
+
+    

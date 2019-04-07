@@ -146,6 +146,7 @@ public constant ItemShop    SHOP_LEGENDSGEAR            = new ItemShop(gg_unit_n
 public constant let  ITEM_COMMONGEM          = new ItemReward( 'I00A' )
 public constant let  ITEM_DULLBLADE          = new ItemReward( 'I000' )
 public constant let  ITEM_LEATHERARMOR       = new ItemReward( 'I006' )
+public constant let  ITEM_AMULET             = new ItemReward( 'I02E')
 public constant let  ITEM_GNOLLSOLDBOOTS     = new ItemReward( 'I007' )
 public constant let  ITEM_BONEGLOVES         = new ItemReward( 'I01F' )
 public constant let  ITEM_MAGICTALISMAN      = new ItemReward( 'I00I' )

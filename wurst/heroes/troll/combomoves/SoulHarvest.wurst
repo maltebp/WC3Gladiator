@@ -15,6 +15,7 @@ import SoulDrainData
 import VoodooPotion
 import Artifact
 import initlater TrollGladiator
+import AttackCooldown
 
 init
     
@@ -43,7 +44,6 @@ init
 
         let casterDamage = caster.getDamage()
         
-        
         let sfx = addEffect( Units.wispExplode, casterPos.toVec2().withTerrainZ(-60) )
         ..setTime(2.750)
         ..setTimeScale(-1)
@@ -58,6 +58,9 @@ init
 
         let targets = ENUM_GROUP..enumEnemyTargets( caster.getOwner(), casterPos.toVec2(), RADIUS )
 
+        if caster.hasArtifact( ARTIFACT_TROLL_SPIRITSTAFF )
+            caster.reduceCooldownPerc(0.5, true)
+
         while targets.hasNext()  and counter < TARGETS
             let currentTarget = targets.next()
 
@@ -69,6 +72,7 @@ init
             let projectile = new Projectile( currentTarget.getPos().withTerrainZ(60), Abilities.zigguratMissile )
             projectile.getEffect().setScale(0.5)
             projectile.fireUnit( caster, 60, true, 800, 0)
+
             projectile.addActionOnFinish() ->
                 if caster != null and caster.isAlive()
                     caster.setHP( caster.getHP()+drain)

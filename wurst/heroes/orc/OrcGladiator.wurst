@@ -1,26 +1,30 @@
-// package OrcGladiator
-// import Gladiator
-// import ComboUnit
-// import AbilityCreation
-// import Strike
-// import Cleave
-// import Evade
-// import Slam
-// import GladiatorSystem
+package OrcGladiator
+import Gladiator
+import ComboUnit
+import AbilityCreation
+import HeroDefaults
+
+import Strike
+import Cleave
+import Evade
+
+import WoundingStrike
+import WhirlingStrike
 
 
-// public let COMBOLIST = compiletime( createComboMoveList(MOVE_DEF_SLAM))
 
-// public let GLADIATOR_ORC_ID = 'O000'
 
 // public let GLADIATOR_ORC = new GladiatorType()
 
-// let COMBOUNIT_ORC = new ComboUnitDefinition(GLADIATOR_ORC_ID, COMBOLIST)
+// public let UNIT_ID = 'O000'
+
+// public let COMBOLIST = compiletime( createComboMoveList(WOUNDINGSTRIKE_ID, WHIRLINGSTRIKE_ID))
+// let COMBOUNIT_ORC = new ComboUnitDefinition(UNIT_ID, COMBOLIST)
 
 
 // init
 //         GLADIATOR_ORC
-//         ..setUnitType(GLADIATOR_ORC_ID)
+//         ..setUnitType(UNIT_ID)
 //         ..setSoundOnSpawn(Sounds.gromWhat3)
 //         ..setSoundOnRespawn(Sounds.gromYes3)
 //         ..setSoundOnNewAbility(Sounds.strongholdWhat1)
@@ -29,10 +33,12 @@
 //         ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED)
 
 //         COMBOUNIT_ORC
-//         ..addComboMoves(ORC_COMBO_SLAM)
+//         ..addComboMoves(COMBO_WOUNDINGSTRIKE,
+//                         COMBO_WHIRLINGSTRIKE)
 
 
-// Old orc artifacts
+
+
 // public constant Artifact ARTIFACT_BLOODFEATHERSHEART    = new Artifact('I011','I012', 'O000')
 // public constant Artifact ARTIFACT_ORCISHCLEAVER         = new Artifact('I00Z', 'I010', 'O000')
 // public constant Artifact ARTIFACT_KILMAIM               = new Artifact('I014', 'I019', 'O000')

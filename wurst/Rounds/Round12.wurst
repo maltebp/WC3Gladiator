@@ -64,9 +64,9 @@ init
 
     round = new Round()
     ..setReward(30, 3)
-    ..addArtifactRewards(1)
     ..addItemRewards(ITEM_FELSTONE)
     ..setTitle("Fel Orcs")
+    ..addAbilityReward(1)
     ..setDescription("Don't let them pin you down, or they'll burn you.")
     ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
     ..setCodeOnLastUnitDeath() r ->

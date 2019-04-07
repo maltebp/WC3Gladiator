@@ -18,6 +18,7 @@ import TimedSpecialEffects
 import initlater TrollGladiator
 import SoulDrainData
 import initlater VoodooPotion
+import Artifact
 
 
 let CASTERBUFF_DURATION = 5.
@@ -29,6 +30,11 @@ let DAMAGE_FACTOR = 0.2
 let DAMAGE_FREQ = 1.
 let SPREAD_COUNT = 2 // Number of units it spreads to each time
 let SPREAD_RADIUS = 150.
+
+let CARRIONCHARM_SPREADFREQ = 1.
+let CARRIONCHARM_SPREADRADIUS = 2 * SPREAD_RADIUS
+
+let SHRINKHEAD_DURATION = CASTERBUFF_DURATION * 2
 
 
 // ============================================================================================================================================
@@ -46,7 +52,9 @@ init
 
         caster.removePotionBuffs()
 
-        caster.applyCasterBuff(CASTERBUFF_DURATION)
+        let duration = caster.hasArtifact(ARTIFACT_TROLL_SHRINKHEAD) ? SHRINKHEAD_DURATION : CASTERBUFF_DURATION
+
+        caster.applyCasterBuff(duration)
         SND_CORROSIVEBREATH_TARGET.playOnPoint(caster.getPos3Real())
         caster.clearCombo()
 
@@ -150,7 +158,11 @@ public function unit.castLivingPlaguePotion( vec2 pos )
             doAfter(0.01) ->
                 let casterDamage = this.getDamage()
 
-                LivingPlague plague = new LivingPlague(this, casterDamage * DAMAGE_FACTOR, DURATION, SPREAD_RADIUS, SPREAD_COUNT, SPREAD_FREQ )
+                let hasCarrionCharm = this.hasArtifact(ARTIFACT_TROLL_CARRIONCHARM)
+                let spreadFreq = hasCarrionCharm ? CARRIONCHARM_SPREADFREQ : SPREAD_FREQ
+                let spreadRadius = hasCarrionCharm ? CARRIONCHARM_SPREADRADIUS : SPREAD_RADIUS
+
+                LivingPlague plague = new LivingPlague(this, casterDamage * DAMAGE_FACTOR, DURATION, spreadRadius, SPREAD_COUNT, spreadFreq )
             
                 for target in targets
                     if target.consumeVoodoo(this)

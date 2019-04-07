@@ -2,18 +2,12 @@ package Game
 
 import public Round
 import FadeAndFilters
-import Camera
-import EnergySystem
 import Music
 import TimedSpecialEffects
 import Preloader
-import ChargeSystem
-import Gladiator
 import Dialog
 import Damage
 import GladiatorSystem
-import Sounds
-import UnitStatsSystem
 import LinkedList
 import ClosureTimers
 
@@ -22,10 +16,10 @@ constant boolean    ARENACORNERSPAWN        = false
 constant boolean    PREPAREHERO             = false
 constant boolean    LOCKCAMBOUNDS           = false
 constant boolean    MAKEMAPVISIBLE          = true
-constant boolean    CUSTOMROUNDSTART        = false
+constant boolean    CUSTOMROUNDSTART        = true
 constant boolean    STARTATSPECIFICROUND    = true
 constant boolean    SELECTHERO              = true
-int        STARTINGROUND                    = 1
+int        STARTINGROUND                    = 2
 public let                 FINALROUND       = 15
 constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
 constant boolean    PRINTALPHAINTRO         = false
@@ -51,6 +45,7 @@ let SND_ENTEREDROUNDNUMBER = new SoundDefinition(Sounds.questNew, false)
 
 public unit         hero
 public Gladiator    gladiator
+public let gladiatorTypes = new LinkedList<GladiatorType>
 
 
 public region MAPREGION
@@ -84,8 +79,7 @@ init
     Player(0)
     ..setLumber(START_TRAININGPOINTS)
     ..setGold(START_GOLD)
-    
-    
+
 
     if SPAWNHEROINARENA
         Player(0).setCameraPosition(gg_rct_Arena_CamBounds.getCenter())
@@ -224,23 +218,21 @@ function createHero()
 
     gladiator.releaseAbility(0)
 
-    // Move all this stuff into Gladiator class
-
     hero = gladiator.getUnit()
     ..setInvulnerable(true)
     ..pause()
 
     doAfter(0.01) ->
-        
         for gladiatorType in GladiatorType.getAllTypes()
             gladiatorType.releaseNextArtifact()
             for i=1 to 4
-                COMBOUNIT.unlockMove()
+                gladiatorType.unlockComboMove()
 
 
     ITEM_DULLBLADE.release()
     ITEM_LEATHERARMOR.release()
     ITEM_COMMONGEM.release()
+    ITEM_AMULET.release()
 
     setDamageTestUnit(hero)
 

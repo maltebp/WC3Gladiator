@@ -19,10 +19,8 @@ init
 
     round = new Round
     ..setReward(30, 3)
-    ..addArtifactRewards(1)
     ..addAbilityReward(1)
     ..addItemRewards(ITEM_BONEGLOVES)
-
     ..setTitle("Necromancers")
     ..setDescription("If you think they stand alone, it will cost you dearly")
 
@@ -78,7 +76,7 @@ enum SkeletonType
     ARCHER
 
 class SummonSkeletons
-    private static real SUMMON_FREQ = 20
+    private static real SUMMON_FREQ = 22
     private static real SUMMON_STARTDELAY = 3
     private static real SUMMON_FREQDEVIATION = 1
     private static int SUMMONAMOUNT_ARCHER = 1
@@ -111,7 +109,7 @@ class SummonSkeletons
     
     private function summon()
 
-        if caster != null and caster.isAliveTrick()
+        if caster != null and caster.isAlive()
             caster.setAnimation("attack")
 
             unit skeleton

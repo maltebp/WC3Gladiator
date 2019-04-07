@@ -20,6 +20,8 @@ import BloodPact
 import LinkedList
 import SoulDrainData
 import VoodooPotion
+import Artifact
+import initlater TrollGladiator
 
 
 // ==================================================================================================================================
@@ -29,6 +31,9 @@ let INITIAL_HEAL_FACTOR = 0.8 // Only if voodoo is active
 let DURATION = 8.
 let HEAL_FREQ = 1.
 let STACK_MAX = 2
+
+let SHIMMERWEED_HEALINC = 1.5
+let DOCTORSMASK_DURATION = 2. * DURATION
 
 let RANGE = DEFAULT_CASTRANGE
 let AIMASSIST = DEFAULT_AIMASSIST
@@ -65,12 +70,13 @@ init
             if target.consumeVoodoo(caster)
                 target.addHP( caster.getDamage() * INITIAL_HEAL_FACTOR )
 
-            let heal = caster.getDamage() * HEAL_FACTOR
+            var heal = caster.getDamage() * HEAL_FACTOR
+            heal = (caster.hasArtifact(ARTIFACT_TROLL_SHIMMERWEED)) ? heal * SHIMMERWEED_HEALINC : heal 
 
             target.addEffect(Abilities.healTarget, "origin")
             ..setDuration(3)
             
-            caster.applyHealingSalve(target, heal, DURATION)
+            caster.applyHealingSalve(target, heal, caster.hasArtifact(ARTIFACT_TROLL_DOCTORSMASK) ? DOCTORSMASK_DURATION : DURATION)
             caster.addComboPoint( COMBO_POINT_E )
             
             SND_PRIESTCAST.playOnPoint(target.getPos3Real())

@@ -20,14 +20,12 @@ import HealingPotion
 import SoulDrainData
 import LinkedList
 import ClosureTimers
-import RegisterEvents
-import ClosureForGroups
 import Updater
 
 
 let RANGE = DEFAULT_CASTRANGE
-let DAMAGE_FACTOR = 0.5
-let RADIUS = 200.
+let DAMAGE_FACTOR = 0.75
+let RADIUS = 150.
 let BUFF_DURATION = 10.
 
 

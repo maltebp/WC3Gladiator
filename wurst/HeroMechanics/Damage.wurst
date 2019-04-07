@@ -1,6 +1,6 @@
 package Damage
 
-constant boolean TESTMODE = false
+constant boolean TESTMODE = true
 
 
 
