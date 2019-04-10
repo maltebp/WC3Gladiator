@@ -85,7 +85,6 @@ public class EnergySystem
         return null
         
         
-        
     /** Checks if a unit is in the system already*/
     protected static function containsUnit( unit whichUnit ) returns boolean
         return units.has(whichUnit)

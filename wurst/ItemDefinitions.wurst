@@ -3,13 +3,35 @@ import ItemStatsSystem
 
 init
     
+    // Dull Blade
+    'I000'
+    ..setDamageFlat(4)
 
-    'I000'.setDamageFlat(4) // Dull Blade
+    //Amulet
+    'I02E'
+    ..setResistance(0.15)
+
+    //Common Gem
+    'I00A'
+    ..setHealthFlat(75)
+    
+    // Leather Armor
+    'I006'
+    ..setArmor(4)
 
     // Enchanted Sword
     'I00L'
     ..setDamageFlat(10) 
     ..setAttackSpeed(0.25)
+
+    //Magic Talisman
+    'I00I'
+    ..setHealthFlat(75)
+    ..setResistance(0.25)
+
+    
+
+
 
     'I01G'.setDamageFlat(10) // Lava Tempered Boots 
     'I00J'.setDamageFlat(8) // Magic Gem
@@ -18,9 +40,10 @@ init
     'I01R'.setDamageFlat(25) // Fel Stone
     'I01T'.setDamageFlat(15) // Trident
 
-    
-    'I01F' // Bone gloves
+    // Bone gloves
+    'I01F' 
     ..setAttackSpeed(0.20)
+    ..setArmor(4)
 
     'I01U'
     ..setDamageFlat(5) // Spider BRacers

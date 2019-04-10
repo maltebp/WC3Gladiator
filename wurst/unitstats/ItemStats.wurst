@@ -14,6 +14,10 @@ public class ItemStats
     private real damagePerc = 0
     private int damageFlat = 0
     private real attackSpeed = 0
+    private real armor = 0
+    private real resistance = 0
+    private real health = 0
+    private real moveSpeed
     
     construct( int itemId )
         this.itemId = itemId
@@ -34,12 +38,28 @@ public class ItemStats
     function setAttackSpeed( real attackSpeed )
         this.attackSpeed = attackSpeed
 
+    function setArmorFlat(real armor)
+        this.armor = armor
+
+    function setResistance(real resistance)
+        this.resistance = resistance
+
+    function setHealthFlat(real health)
+        this.health = health
+
+    function setMoveSpeedFlat(real moveSpeed)
+        this.moveSpeed = moveSpeed
+
     function updateUnit( unit whichUnit, boolean acquired )
         let factor = acquired ? 1 : -1
 
         whichUnit.adjustDamagePerc( damagePerc * factor )
         whichUnit.adjustDamageFlat( (damageFlat * factor).toReal() )
         whichUnit.adjustAttackSpeed( attackSpeed * factor)
+        whichUnit.adjustArmorFlat( armor * factor )
+        whichUnit.adjustHealthFlat( health * factor )
+        whichUnit.adjustMoveSpeedFlat( moveSpeed * factor)
+        whichUnit.adjustResistance( -resistance * factor)
 
 
 function itemAcquired()

@@ -12,6 +12,7 @@ import ClearPoints
 import ChargeSystem
 import UnitStatsSystem
 import initlater Artifact
+import UnitTypeStats
 
 
 
@@ -142,11 +143,12 @@ public class GladiatorType
 
 
     function setBaseStats( real damage, real armor, real health, real attackCooldown, real moveSpeed  )
-        this.damage = damage
-        this.armor = armor
-        this.health = health
-        this.attackCooldown = attackCooldown
-        this.moveSpeed = moveSpeed
+        unitType
+        ..defineDamage(damage.toInt())
+        ..defineArmor(armor)
+        ..defineHealth(health)
+        ..defineAttackCooldown(attackCooldown)
+        ..defineMoveSpeed(moveSpeed)
 
     function setSoundOnSpawn(string soundPath)
         snd_Spawn = new SoundDefinition(soundPath, false)
@@ -224,17 +226,8 @@ public class GladiatorType
         ..addAbility(CLEAR_POINTS_ABIL_ID)
         ..suspendXp(true)
         ..enableCharge()
-        ..setBaseDamage(damage)
-        ..setBaseAttackCooldown(attackCooldown)
-        ..setMana(attackCooldown*100)
         ..addArtifactSlots()
-
-         // These are not implemented in the unit stat system yet
-        gladiatorUnit
-        ..setArmor(armor)
-        ..setMoveSpeed(moveSpeed)
-        ..setMaxHP( health.toInt(), true)
-
+        
         if actions_OnSpawn != null
             for action in actions_OnSpawn
                 action.run(gladiatorUnit)

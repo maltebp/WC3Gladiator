@@ -55,11 +55,11 @@ class HeroTrainingPoints
 
     /** Can be negative */
     protected function adjustHealth(int adjustAmount)
-        hero.setMaxHP(R2I(hero.getMaxHP())+adjustAmount, true)
+        hero.adjustHealthFlat(adjustAmount.toReal())
         health += adjustAmount
 
     protected function adjustArmor(real adjustAmount)
-        hero.setArmor(hero.getArmor()+adjustAmount)
+        hero.adjustArmorFlat(adjustAmount)
         armor += adjustAmount
         
 

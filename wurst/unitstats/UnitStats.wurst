@@ -1,6 +1,9 @@
 package UnitStats
 
-import LinkedList
+import UnitIndexer
+import OnUnitEnterLeave
+import UnitTypeStats
+import MyLibrary
 
 let DAMAGE_MIN = 2.
 let ATTACKCOOLDOWN_MIN = 0.3
@@ -8,37 +11,105 @@ let ATTACKCOOLDOWN_MAX = 3.0
 let ATTACKSPEED_MIN = 0.3
 let ATTACKSPEED_MAX = 4. // Percent wise attack speed (effects cooldown i.e.)
 let MOVESPEED_MAX = 450.
-let MOVESPEED_MIN = 150.
+let MOVESPEED_MIN = 100.
 let ARMOR_MIN = 0.
+let RESISTANCE_MAX = 10
+let RESISTANCE_MIN = 0.5
+let HEALTH_MIN = 1
 
 public class UnitStats
-    private static let instances = new LinkedList<thistype>
+    private static thistype array units
 
     private unit theUnit
 
     private real baseDamage = 1
     private real baseAttackCooldown = 1
-    
+    private real baseHealth
+    private real baseMoveSpeed
+    private real baseArmor
+
     private real attackSpeed = 1
     private real damageFlat = 0
     private int damagePerc = 1000 // = 100.0 % - to ensure that we don't get far off decimal problems
+    private real resistance = 1 // Percentage bonus damage taken
+
+    private real healthPerc = 1000
+    private real healthFlat = 0 
+
+    private real moveSpeedPerc = 1000
+    private real moveSpeedFlat = 0
+
+    private real armorPerc = 1
+    private real armorFlat = 0
 
     private construct( unit theUnit )
         this.theUnit = theUnit
-        instances.add(this)
+        
+        let unitTypeStats = UnitTypeStats.getInstance(theUnit.getTypeId())
+
+        if unitTypeStats == null
+            baseDamage = theUnit.getBaseDamage(1).toReal()
+            baseAttackCooldown = theUnit.getAttackCooldown(1)
+            baseMoveSpeed = theUnit.getMoveSpeed()
+            baseHealth = theUnit.getMaxHP()
+            baseArmor = theUnit.getArmor()
+            
+        else
+            if unitTypeStats.getDamage() > 1
+                baseDamage = unitTypeStats.getDamage().toReal()
+            else
+                baseDamage = theUnit.getBaseDamage(1).toReal()
+
+            if unitTypeStats.getAttackCooldown() > 0
+                baseAttackCooldown = unitTypeStats.getAttackCooldown()
+            else
+                baseAttackCooldown = theUnit.getAttackCooldown(1)
+
+            if unitTypeStats.getResistance() != 9999
+                resistance = unitTypeStats.getResistance()
+
+            if unitTypeStats.getArmor() != 9999
+                baseArmor = unitTypeStats.getArmor()
+            else
+                baseArmor = theUnit.getArmor()
+
+            if unitTypeStats.getHealth() > -1
+                baseHealth = unitTypeStats.getHealth()
+            else
+                baseHealth = theUnit.getMaxHP()
+            
+            if unitTypeStats.getMoveSpeed() > -1
+                baseMoveSpeed = unitTypeStats.getMoveSpeed()
+            else
+                baseMoveSpeed = theUnit.getMoveSpeed()
+
 
     static function getInstance( unit whichUnit ) returns thistype
-        for instance in instances
-            if instance.theUnit == whichUnit
-                return instance
-        return new UnitStats(whichUnit)
+        let index = whichUnit.getIndex()
+        if units[index] == null
+            units[index] = new UnitStats(whichUnit)            
+        else if units[index].theUnit != whichUnit
+            destroy units[index]
+            units[index] = new UnitStats(whichUnit)
+        return units[index]
 
 
-    private function update()   
+    function update()   
         var damage = getDamage().toInt()
         let adjustedDamage = damage <= 2 ? 1 : damage-1 // Damage can't be reduced below 1
         theUnit.setBaseDamage( adjustedDamage, 1)
-        theUnit.setMaxMana( (getAttackCooldown()*100).round() )
+
+        if IsHeroUnitId(theUnit.getTypeId())
+            theUnit.setMaxMana( (getAttackCooldown()*100).round(), true )
+
+        theUnit.setAttackCooldown( getAttackCooldown(), 1)
+
+        theUnit.setMaxHP( getHealth(), true)
+
+        theUnit.setMoveSpeed( getMoveSpeed() )
+
+        theUnit.setArmor( getArmor() )
+        
         //print(damage.toString() + ", "+adjustedDamage.toString() + ", "+damagePerc.toString(10))
 
 
@@ -73,6 +144,33 @@ public class UnitStats
         attackSpeed += adjustment
         update()
 
+    function adjustMoveSpeedFlat( real adjustment)
+        moveSpeedFlat += adjustment
+        update()
+
+    function adjustMoveSpeedPerc( real adjustment)
+        let actualAdjustment = (adjustment * 1000).round()
+        moveSpeedPerc += actualAdjustment
+        update()
+
+    function adjustHealthFlat(real adjustment)
+        healthFlat += adjustment
+        update()
+
+    function adjustHealthPerc(real adjustment)
+        let actualAdjustment = (adjustment * 1000).round()
+        healthPerc += actualAdjustment
+        update()
+
+    function adjustArmorFlat( real adjustment )
+        armorFlat += adjustment
+
+    function adjustArmorPerc( real adjustment )
+        armorPerc += adjustment
+
+    function adjustResistance(real adjustment)
+        resistance += adjustment
+
 
 // Getters ---------------------------------------------------------------------------
         
@@ -81,14 +179,62 @@ public class UnitStats
 
     function getAttackSpeed() returns real
         var actualSpeed = (attackSpeed >= ATTACKCOOLDOWN_MIN) ? attackSpeed : ATTACKCOOLDOWN_MIN
-        actualSpeed = (attackSpeed <= ATTACKCOOLDOWN_MAX ) ? attackSpeed : ATTACKCOOLDOWN_MAX
+        actualSpeed = (actualSpeed <= ATTACKCOOLDOWN_MAX ) ? actualSpeed : ATTACKCOOLDOWN_MAX
         return actualSpeed
 
     function getDamage() returns real
         let adjustedDamage = (baseDamage + damageFlat) * (damagePerc/1000)
         return (adjustedDamage >= DAMAGE_MIN) ? adjustedDamage : DAMAGE_MIN
+
+    function getHealth() returns int
+        let adjustedHealth = ((baseHealth + healthFlat) * (healthPerc/1000)).round()
+        return (adjustedHealth >= HEALTH_MIN) ? adjustedHealth : HEALTH_MIN
+
+    function getMoveSpeed() returns real
+        var adjustedMoveSpeed = (baseMoveSpeed + moveSpeedFlat) * (moveSpeedPerc/1000)
+        adjustedMoveSpeed = (adjustedMoveSpeed >= MOVESPEED_MIN) ? adjustedMoveSpeed : MOVESPEED_MIN
+        adjustedMoveSpeed = (adjustedMoveSpeed <= MOVESPEED_MAX) ? adjustedMoveSpeed : MOVESPEED_MAX
+        return adjustedMoveSpeed
+
+    function getArmor() returns real
+        var adjustedArmor = (baseArmor + armorFlat) * armorPerc
+        return (adjustedArmor >= ARMOR_MIN) ? adjustedArmor : ARMOR_MIN
+
+    function getResistance() returns real
+        return resistance
+
+
+
+    function toString() returns string
+        return "Unit Stats for " + theUnit.getIndex().toString() +
+                    "\nDMG: "+getDamage().toString(1) +
+                    "\nAS: "+getAttackCooldown().toString(2) +
+                    "\nHP: "+getHealth().toString() + 
+                    "\nMove Speed: "+getMoveSpeed().toString(0) +
+                    "\nArmor: "+getArmor().toString(1) +
+                    "\nResistance: "+getResistance().toString(1)
+
+function isTrue() returns boolean
+    return true
+
+init
+
+    onChatCommand("stats") ->
+        ENUM_GROUP..enumUnitsSelected(Player(0), Filter(function isTrue) )
+
+        if ENUM_GROUP.size() > 0
+            let u = ENUM_GROUP.next()
+            print(UnitStats.getInstance(u).toString())
+
+        ENUM_GROUP.clear()
+
+    onEnter() ->
+        UnitStats.getInstance(GetEnteringUnit()).update()
+
         
-    
+        
+        
+
     
 
 

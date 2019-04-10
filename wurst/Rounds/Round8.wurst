@@ -12,7 +12,7 @@ import TimedSpecialEffects
 import UnitVisualsUtils
 import ErrorHandling
 import HomingRockets
-import Damage
+import UnitTypeStats
 
 
 int BOSSID = 'n00H'
@@ -47,6 +47,8 @@ SoundDefinition snd_BossDeath = new SoundDefinition(Sounds.tinkerDeathAlt1, fals
 
 init
 
+    BOSSID
+    ..defineResistance(0.1)
     
 
     round = new Round()
@@ -67,7 +69,6 @@ init
     roundFunction = (Round round) -> begin
         Round.setBossUnit(createUnit(ENEMYPLAYER, BOSSID, vec2(14,1000), angle(PIHALF+PI)))
         Round.bossUnit.pause()
-        setDamageTestUnit(Round.bossUnit)
     end
 
     round.codeOnPrepare = roundFunction

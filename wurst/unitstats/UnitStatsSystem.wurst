@@ -1,6 +1,8 @@
 package UnitStatsSystem
 
 import UnitStats
+import UnitTypeStats
+import OnUnitEnterLeave
 
 
 /** Get's the unit's attack speed in decimal percent (1 is normal attack speed, 0.8 is a reduced attack speed) */
@@ -14,6 +16,12 @@ public function unit.getAttackCooldown() returns real
 public function unit.getDamage() returns real
     return UnitStats.getInstance(this).getDamage()
 
+public function unit.getResistance() returns real
+    return UnitStats.getInstance(this).getResistance()
+
+
+
+
 public function unit.adjustDamageFlat( real damage ) 
     UnitStats.getInstance(this).adjustDamageFlat( damage )
 
@@ -23,12 +31,36 @@ public function unit.adjustDamagePerc( real damage )
 public function unit.adjustAttackSpeed( real attackSpeed )
     UnitStats.getInstance(this).adjustAttackSpeed( attackSpeed )
 
+public function unit.adjustMoveSpeedPerc( real adjustment )
+    UnitStats.getInstance(this).adjustMoveSpeedPerc(adjustment)
+
+public function unit.adjustMoveSpeedFlat( real adjustment )
+    UnitStats.getInstance(this).adjustMoveSpeedFlat(adjustment)
+
+public function unit.adjustResistance( real adjustment )
+    UnitStats.getInstance(this).adjustResistance(adjustment)
+
+public function unit.adjustHealthPerc( real adjustment )
+    UnitStats.getInstance(this).adjustHealthPerc(adjustment)
+
+public function unit.adjustHealthFlat( real adjustment )
+    UnitStats.getInstance(this).adjustHealthFlat(adjustment)
+
+public function unit.adjustArmorFlat( real adjustment )
+    UnitStats.getInstance(this).adjustArmorFlat(adjustment)
+
+public function unit.adjustArmorPerc( real adjustment )
+    UnitStats.getInstance(this).adjustArmorPerc(adjustment)
+
+
+
+
 public function unit.setBaseAttackCooldown( real cooldown )
     UnitStats.getInstance(this).setBaseAttackCooldown(cooldown)
 
 public function unit.setBaseDamage( real damage )
     UnitStats.getInstance(this).setBaseDamage(damage)
-
+        
 
 
 // UNUSED SO FAR...
@@ -39,3 +71,10 @@ public function unit.setBaseDamage( real damage )
 
 // public function unit.setBaseMoveSpeed( real moveSpeed )
 
+
+
+/*
+
+    public function int.setType 
+
+*/

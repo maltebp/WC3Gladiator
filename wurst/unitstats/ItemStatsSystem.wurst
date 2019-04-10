@@ -12,6 +12,18 @@ public function int.setDamagePerc(real damage)
 public function int.setAttackSpeed(real speed)
     this.getStatInstance().setAttackSpeed(speed)    
 
+public function int.setMoveSpeedFlat(real speed)
+    this.getStatInstance().setMoveSpeedFlat(speed)    
+
+public function int.setResistance(real resistance)
+    this.getStatInstance().setResistance(resistance)   
+
+public function int.setHealthFlat(real health)
+    this.getStatInstance().setHealthFlat(health)
+    
+public function int.setArmor(real armor)
+    this.getStatInstance().setArmorFlat(armor)
+
 
 /*  Using this rather than the regular one in the instance
     since that one doesn't create a new instance if it doesn't exist

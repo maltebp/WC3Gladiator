@@ -3,6 +3,7 @@ package Round1
 import public Game
 
 import public Round
+import UnitTypeStats
 
 public Round round
 
@@ -85,6 +86,10 @@ init
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(1)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+
+    
+    'n005'
+    ..defineResistance(0.1)
 
     
 
