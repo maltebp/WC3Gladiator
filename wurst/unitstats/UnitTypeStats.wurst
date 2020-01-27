@@ -53,7 +53,7 @@ class UnitTypeStats
 
     /** Creates new instance if null. For defining the type stats    */
     static function getInstanceNotNull(int unitTypeId) returns thistype
-        var instance = typeMap.get(unitTypeId)
+        let instance = typeMap.get(unitTypeId)
         return (instance == null) ? new UnitTypeStats(unitTypeId) : instance
 
     function getDamage() returns int

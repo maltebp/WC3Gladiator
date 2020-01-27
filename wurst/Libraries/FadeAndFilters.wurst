@@ -49,7 +49,7 @@ public class Fade
 
 // End Fade
     private static function endFade()
-        thistype instance = GetExpiredTimer().getData() castTo thistype
+        let instance = GetExpiredTimer().getData() castTo thistype
 
         if not instance.stayFadedOut
             DisplayCineFilter(false)
@@ -62,7 +62,7 @@ public class Fade
     
 // Fade IN
     private static function OnFadeIn()
-        thistype instance = GetExpiredTimer().getData() castTo thistype  
+        let instance = GetExpiredTimer().getData() castTo thistype  
         
 
         if codeOnFadeIn != null
@@ -78,7 +78,7 @@ public class Fade
 
 
     private static function fadeIn()
-        thistype instance = GetExpiredTimer().getData() castTo thistype    
+        let instance = GetExpiredTimer().getData() castTo thistype    
        
         // Sets it to start with cinematic mode
         if not instance.cinematicMode
@@ -104,7 +104,7 @@ public class Fade
     
 // Fade OUT
     private static function OnFadeOut()
-        thistype instance = GetExpiredTimer().getData() castTo thistype    
+        let instance = GetExpiredTimer().getData() castTo thistype    
 
     
         if codeOnFadeOut != null
@@ -116,7 +116,7 @@ public class Fade
             instance.t1.start( instance.midDelay, function endFade ) 
 
     private static function fadeOut() 
-        thistype instance = GetExpiredTimer().getData() castTo thistype    
+        let instance = GetExpiredTimer().getData() castTo thistype    
 
         if not instance.cinematicMode
             ShowInterface(false, 0.01)

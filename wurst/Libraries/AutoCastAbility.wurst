@@ -40,7 +40,6 @@ import TimerUtils
 import GroupUtils
 import RegisterEvents
 import ErrorHandling
-import ClosureForGroups
 
 
 
@@ -93,19 +92,17 @@ public function addAutoCastAbilityToUnitType( int unitType, AutoCastAbilityType 
 /** Function which checks if an unit entering the map, is one of the unit types with an autocast ability attached */
 function unitEntersMap() returns boolean
 
-    unit enteringUnit = GetFilterUnit()
+    let enteringUnit = GetFilterUnit()
 
     if unitTypes.has(enteringUnit.getTypeId())
-        
-        LinkedList<AutoCastAbilityType> abilityTypes = unitTypes.get(enteringUnit.getTypeId())
-
+        let abilityTypes = unitTypes.get(enteringUnit.getTypeId())
         for abilityType in abilityTypes
             enteringUnit.addAutoCastAbility(abilityType)
 
     return false
 
 init
-    region map = CreateRegion()..addRect(GetPlayableMapRect())
+    let map = CreateRegion()..addRect(GetPlayableMapRect())
     CreateTrigger()
     ..registerEnterRegion(map, Condition(function unitEntersMap ))
 
@@ -191,7 +188,7 @@ public class AutoCastAbilityType
 
                         else
 
-                            unit finalTarget = ENUM_GROUP.getNearestUnit(caster.getPos())
+                            let finalTarget = ENUM_GROUP.getNearestUnit(caster.getPos())
 
                             if targetType == TargetType.FRIENDLY_UNIT or targetType == TargetType.ENEMY_UNIT
                                 caster.issueTargetOrderById(orderId, finalTarget)
@@ -310,7 +307,7 @@ class AutoCastUnit
                 caster.addAbility(whichAbilityType.abilityId)
 
             // Adding to registered autocast abilities
-            if not registeredAbilityTypes.contains(whichAbilityType.abilityId)
+            if not registeredAbilityTypes.has(whichAbilityType.abilityId)
                 registeredAbilityTypes.add(whichAbilityType.abilityId)
                 registerSpellEffectEvent(whichAbilityType.abilityId, function checkIfAutoAbility)
 
@@ -389,13 +386,13 @@ class AutoCastUnit
 
     /** Checks if the ability being cast is connected to any instances of AutoCastUnit */
     private static function checkIfAutoAbility()
-        unit caster = GetSpellAbilityUnit()
+        let caster = GetSpellAbilityUnit()
 
         // Find the AutoCastUnit
         for instance in instances
             if instance.caster == caster
                 
-                int abilityId = GetSpellAbilityId()
+                let abilityId = GetSpellAbilityId()
 
                 // Finds the ability, and starts the cooldown
                 for autoAbility in instance.abilities
@@ -431,8 +428,7 @@ public class AutoCastOnUnitType extends AutoCastAbilityType
 
 
     override function findTarget(unit caster) returns boolean
-
-        group targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
+        let targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
                 
         if targets.size() > 0
             
@@ -479,7 +475,7 @@ public class AutoCastHeal extends AutoCastAbilityType
             
     override function findTarget(unit caster) returns boolean
 
-        group targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
+        let targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
                 
         if targets.size() > 0
             
@@ -518,7 +514,7 @@ public class AutoCastBuff extends AutoCastAbilityType
 
     override function findTarget(unit caster) returns boolean
 
-        group targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
+        let targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
                 
         if targets.size() > 0
             
@@ -556,7 +552,7 @@ public class AutoCastAoePoint extends AutoCastAbilityType
 
     override function findTarget(unit caster) returns boolean
 
-        group targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
+        let targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
                 
         if targets.size() > 0
             
@@ -609,7 +605,7 @@ public class AutoCastWard extends AutoCastAbilityType
 
     override function findTarget(unit caster) returns boolean
 
-        group targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
+        let targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
                 
         if targets.size() > 0
             
@@ -627,8 +623,7 @@ public class AutoCastWard extends AutoCastAbilityType
 
 
         if targets.size() > 0
-            vec2 pos = caster.getPos().moveTowards(targets.getNearestUnit(caster.getPos()).getPos(), 300)
-            
+            let pos = caster.getPos().moveTowards(targets.getNearestUnit(caster.getPos()).getPos(), 300)
             caster.issuePointOrderById(orderId, pos)
             targets.clear()
         

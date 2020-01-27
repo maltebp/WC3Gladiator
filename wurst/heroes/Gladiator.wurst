@@ -10,7 +10,6 @@ import          ErrorHandling
 import ComboSystem
 import ClearPoints
 import ChargeSystem
-import UnitStatsSystem
 import initlater Artifact
 import UnitTypeStats
 
@@ -18,7 +17,7 @@ import UnitTypeStats
 
 // ================================================================================================================================
 public class Gladiator
-    private static LinkedList<thistype> instances = new LinkedList<thistype>
+    private static let instances = new LinkedList<thistype>
 
     private unit            gladiatorUnit
     private GladiatorType   gladiatorType
@@ -40,7 +39,7 @@ public class Gladiator
 
     /** Releases an ability, adding it to the gladiator unit. The abilityNumber is the number in the list */
     function releaseAbility(int abilityNumber) returns string
-        int abilityId = gladiatorType.getAbility(abilityNumber)
+        let abilityId = gladiatorType.getAbility(abilityNumber)
         
         if gladiatorUnit.getAbilityLevel(abilityId) > 0
             error(gladiatorUnit.getProperName()+" already has that ability")
@@ -111,12 +110,6 @@ public class GladiatorType
 
     private string color
 
-    private real damage = 0
-    private real armor = 0
-    private real moveSpeed = 0
-    private real attackCooldown = 0
-    private real health = 0
-
     protected int QAbility
     protected int WAbility
     protected int EAbility
@@ -137,7 +130,7 @@ public class GladiatorType
     function setUnitType(int unitType)
         this.unitType = unitType
 
-        unit tempUnit = createUnit(Player(PLAYER_NEUTRAL_PASSIVE), unitType, vec2(0,0),angle(0))
+        let tempUnit = createUnit(Player(PLAYER_NEUTRAL_PASSIVE), unitType, vec2(0,0),angle(0))
         name = tempUnit.getName()
         tempUnit.remove()
 
@@ -219,7 +212,7 @@ public class GladiatorType
             initialize()
 
     function newGladiatorUnit( player owner, vec2 spawnPos, angle facing) returns unit
-        unit gladiatorUnit = createUnit(owner, unitType, spawnPos, facing)
+        let gladiatorUnit = createUnit(owner, unitType, spawnPos, facing)
         ..addAbility(QAbility)
         ..addAbility(WAbility)
         ..addAbility(EAbility)

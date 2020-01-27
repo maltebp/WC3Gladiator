@@ -70,7 +70,7 @@ init
     ..addAction() ->
         Player(0).removeLife()
 
-     CreateTrigger()
+    CreateTrigger()
     ..registerPlayerChatEvent(Player(0), "add life", false)
     ..addAction() ->
         Player(0).addLife()

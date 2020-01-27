@@ -8,9 +8,9 @@ import UnitVisualsUtils
 
 
 
-constant int SKELETONWARRIOR = 'u001'
-constant int SKELETONARCHER = 'n007'
-constant int NECROMANCER = 'u000'
+let SKELETONWARRIOR = 'u001'
+let SKELETONARCHER = 'n007'
+let NECROMANCER = 'u000'
 
 
 init
@@ -101,7 +101,7 @@ class SummonSkeletons
 
     /** Starts the instance's timer with deviation*/
     private function startTimer(boolean firstStart)
-        real spawnTime = (firstStart) ? GetRandomReal(SUMMON_STARTDELAY-SUMMON_FREQDEVIATION, SUMMON_STARTDELAY+SUMMON_FREQDEVIATION) : GetRandomReal(SUMMON_FREQ-SUMMON_FREQDEVIATION, SUMMON_FREQ+SUMMON_FREQDEVIATION)
+        let spawnTime = (firstStart) ? GetRandomReal(SUMMON_STARTDELAY-SUMMON_FREQDEVIATION, SUMMON_STARTDELAY+SUMMON_FREQDEVIATION) : GetRandomReal(SUMMON_FREQ-SUMMON_FREQDEVIATION, SUMMON_FREQ+SUMMON_FREQDEVIATION)
         timer_Summon.start(spawnTime, function timerExpires)
     
     private static function timerExpires()
@@ -113,7 +113,7 @@ class SummonSkeletons
             caster.setAnimation("attack")
 
             unit skeleton
-            vec2 spawnPos = caster.getPos().polarOffset(angle(GetRandomReal(0, 2*PI)), 100)
+            let spawnPos = caster.getPos().polarOffset(angle(GetRandomReal(0, 2*PI)), 100)
 
             for int i = 0 to SUMMONAMOUNT_ARCHER-1
                 skeleton = Skeleton.spawn(SkeletonType.ARCHER, spawnPos)
@@ -139,7 +139,7 @@ class Skeleton
 
     construct(SkeletonType whichType, vec2 whichPos)
         vec2 pos = whichPos
-        int unitId = (whichType == SkeletonType.WARRIOR) ? 'u001' : 'n007'
+        let unitId = (whichType == SkeletonType.WARRIOR) ? 'u001' : 'n007'
         skeleton = createUnit(ENEMYPLAYER, unitId, pos, angle(GetRandomReal(0, 2*PI)))
         ..pause()
         ..setAnimation("birth")
@@ -157,11 +157,11 @@ class Skeleton
 
 
     protected static function spawn( SkeletonType whichType, vec2 pos) returns unit
-        thistype instance = new Skeleton(whichType, pos)
+        let instance = new Skeleton(whichType, pos)
         return instance.skeleton
 
     private static function unpause()
-        thistype instance = GetExpiredTimer().getData() castTo thistype
+        let instance = GetExpiredTimer().getData() castTo thistype
         if instance.skeleton != null and instance.skeleton.isAliveTrick()
             instance.skeleton.unpause()
             instance.skeleton.issueTargetOrder("attack", instance.skeleton.getNearestEnemyTargetInRect(gg_rct_Arena_Visibility))

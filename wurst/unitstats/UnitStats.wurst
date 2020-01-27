@@ -95,7 +95,7 @@ public class UnitStats
 
 
     function update()   
-        var damage = getDamage().toInt()
+        let damage = getDamage().toInt()
         let adjustedDamage = damage <= 2 ? 1 : damage-1 // Damage can't be reduced below 1
         
         theUnit.setBaseDamage( adjustedDamage, 1)
@@ -198,7 +198,7 @@ public class UnitStats
         return adjustedMoveSpeed
 
     function getArmor() returns real
-        var adjustedArmor = (baseArmor + armorFlat) * armorPerc
+        let adjustedArmor = (baseArmor + armorFlat) * armorPerc
         return (adjustedArmor >= ARMOR_MIN) ? adjustedArmor : ARMOR_MIN
 
 

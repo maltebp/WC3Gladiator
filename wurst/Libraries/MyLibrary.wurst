@@ -2,9 +2,9 @@ package MyLibrary
 
 /** Gets the unit nearest the spawnedUnit from the spawner's targetRect.*/
 public function unit.getNearestEnemyTargetInRect(rect whichRect) returns unit 
-    group targets = ENUM_GROUP
+    let targets = ENUM_GROUP
     targets.enumUnitsInRect(whichRect)
-    player owner = this.getOwner()
+    let owner = this.getOwner()
 
     // Removing the units not to be hit
     for u in targets
@@ -14,9 +14,9 @@ public function unit.getNearestEnemyTargetInRect(rect whichRect) returns unit
     // Finding nearest target
     real shortestDist = 999999
     unit target = null
-    vec2 originPos = this.getPos()
+    let originPos = this.getPos()
     for u from targets
-        real distance = u.getPos().distanceTo(originPos)
+        let distance = u.getPos().distanceTo(originPos)
         if distance < shortestDist
             shortestDist = distance
             target = u
@@ -72,11 +72,11 @@ public function group.enumFriendlyTargets(player ally, vec2 pos, real range)
                 this.removeUnit(target)
     
 
-public function unit.isEnemyOf(unit whichUnit) returns boolean
-    return this.getOwner().isEnemyOf(whichUnit.getOwner())
+// public function unit.isEnemyOf(unit whichUnit) returns boolean
+//     return this.getOwner().isEnemyOf(whichUnit.getOwner())
 
-public function unit.isAllyOf(unit whichUnit) returns boolean
-    return this.getOwner().isAllyOf(whichUnit.getOwner())  
+// public function unit.isAllyOf(unit whichUnit) returns boolean
+//     return this.getOwner().isAllyOf(whichUnit.getOwner())  
 
 
 

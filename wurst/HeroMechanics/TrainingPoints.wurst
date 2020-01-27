@@ -86,9 +86,9 @@ class HeroTrainingPoints
 
     protected static function train()
         
-        unit unitToTrain = GetBuyingUnit()
-        thistype instance = getUnitInstance(unitToTrain)
-        integer whatToTrain = GetSoldItem().getTypeId()
+        let unitToTrain = GetBuyingUnit()
+        let instance = getUnitInstance(unitToTrain)
+        let whatToTrain = GetSoldItem().getTypeId()
 
 
         switch whatToTrain
@@ -132,7 +132,7 @@ class HeroTrainingPoints
 
 
 function itemBoughtFilter() returns boolean
-    integer itemId = GetSoldItem().getTypeId()
+    let itemId = GetSoldItem().getTypeId()
     return itemId == TRAINID_HEALTH or itemId == TRAINID_ARMOR or itemId == TRAINID_ATTACKSPEED or itemId == TRAINID_POWER or itemId == TRAINID_HEALTH5 or itemId == TRAINID_ARMOR5 or itemId == TRAINID_ATTACKSPEED5 or itemId == TRAINID_POWER5 or itemId == TRAINID_RESET
 
 init 

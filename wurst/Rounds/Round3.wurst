@@ -1,7 +1,6 @@
 package Round3
 
 import public Round2
-import TimerUtils
 import Updater
 import ClosureTimers
 import Assets
@@ -102,13 +101,13 @@ init
 
 class Grow extends Updater
     
-    private static constant real    GROWTH_DURATION = 30
-    private static constant real    GROWTH_SCALE = 0.75                  // Final scale increase in %
-    private static constant real    GROWTH_DMG = 3                    // Final DMG increase in %
+    private static let GROWTH_DURATION = 30
+    private static let GROWTH_SCALE = 0.75                  // Final scale increase in %
+    private static let GROWTH_DMG = 3                    // Final DMG increase in %
 
-    private static constant real    GROWTH_FREQ = 0.5
+    private static let GROWTH_FREQ = 0.5
 
-    private static constant integer GROWTH_MAXCOUNT = R2I(GROWTH_DURATION/GROWTH_FREQ)
+    private static let GROWTH_MAXCOUNT = R2I(GROWTH_DURATION/GROWTH_FREQ)
 
     private int startDamage
     private real startScale

@@ -16,15 +16,11 @@ package Round9
 
 import public Round8
 
-import TimerUtils
 import RegisterEvents
 import AutoCastAbility
 import GroupUtils
-import TimedSpecialEffects
 import UnitVisualsUtils
-import InstantDummyCaster
 import ChannelOnUnit
-import Orders
 import HashMap
 import ErrorHandling
 
@@ -121,7 +117,7 @@ public class DrainLife extends ChannelOnUnit
         
         real drainedLife
 
-        real targetCurrentHP = target.getHP()
+        let targetCurrentHP = target.getHP()
 
 
         if targetCurrentHP > lifeToDrain
@@ -132,15 +128,15 @@ public class DrainLife extends ChannelOnUnit
             drainedLife = targetCurrentHP
             target.kill()
 
-        real casterCurrentHP = caster.getHP()
-        real casterMaxHP = caster.getMaxHP()
+        let casterCurrentHP = caster.getHP()
+        let casterMaxHP = caster.getMaxHP()
 
         if casterMaxHP != casterCurrentHP
             if drainedLife > 0
                 
                 drainedLife *= drainRatio
 
-                real casterNewHP = casterCurrentHP + drainedLife
+                let casterNewHP = casterCurrentHP + drainedLife
                 
                 if casterNewHP < casterMaxHP
                     caster.setHP(casterNewHP)
@@ -209,7 +205,7 @@ public class AutoCast_CheckDrainLife extends AutoCastAbilityType
 
                         else
 
-                            unit finalTarget = ENUM_GROUP.getNearestUnit(caster.getPos())
+                            let finalTarget = ENUM_GROUP.getNearestUnit(caster.getPos())
 
                             if targetType == TargetType.FRIENDLY_UNIT or targetType == TargetType.ENEMY_UNIT
                                 caster.issueTargetOrderById(orderId, finalTarget)
@@ -254,7 +250,7 @@ public class AutoCastDrainLife extends AutoCastAbilityType
 
     override function findTarget(unit caster) returns boolean
         
-        real casterCurrentHp = caster.getHP()/caster.getMaxHP() 
+        let casterCurrentHp = caster.getHP()/caster.getMaxHP() 
 
         if casterCurrentHp <= LIFEDRAIN_TRIGGERHP
             if caster.getCurrentOrder() != Orders.drain
@@ -272,7 +268,7 @@ public class AutoCastDrainLife extends AutoCastAbilityType
                     if ENUM_GROUP.size() > 0
 
                         
-                        unit target = ENUM_GROUP.getHighestHpUnit()
+                        let target = ENUM_GROUP.getHighestHpUnit()
                         
                         if target.getHP() == target.getMaxHP()
                             target.setHP(target.getHP()-1)
@@ -301,14 +297,14 @@ function unit.summonDemon()
 
     if not instances.has(this)
         
-        vec2 spawnPos = this.getPos().polarOffset(angle(GetRandomReal(0, 2*PI)), 100)
+        let spawnPos = this.getPos().polarOffset(angle(GetRandomReal(0, 2*PI)), 100)
 
-        rect rectBound = gg_rct_Arena_Spawn1
+        let rectBound = gg_rct_Arena_Spawn1
 
         while not rectBound.contains(spawnPos)
             spawnPos.moveTowards(rectBound.getCenter(), 50)
 
-        unit demon = createUnit(ENEMYPLAYER, 'n00G', spawnPos, angle(GetRandomReal(0, 2*PI)))
+        let demon = createUnit(ENEMYPLAYER, 'n00G', spawnPos, angle(GetRandomReal(0, 2*PI)))
         this.getSpawner().addSummonedUnit(demon)
         addEffect("Abilities\\Spells\\Demon\\DarkPortal\\DarkPortalTarget.mdl", spawnPos)
 
@@ -346,7 +342,7 @@ function unit.hasDemon() returns boolean
         
 
 function unitDies()
-    unit dyingUnit = GetDyingUnit()
+    let dyingUnit = GetDyingUnit()
 
     if dyingUnit.getTypeId() == 'n00F' or dyingUnit.getTypeId() == 'n00G'
         if dyingUnit.hasDemon() or dyingUnit.isDemonFromSummoner()

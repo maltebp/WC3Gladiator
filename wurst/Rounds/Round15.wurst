@@ -15,11 +15,12 @@ import InstantDummyCaster
 import Damage
 
 
-constant real LIGHTNINGWARD_DAMAGE = 40
+let LIGHTNINGWARD_DAMAGE = 40.
 
-constant real LIGHTNINGCHARGE_DAMAGE = 225
-constant real LIGHTNINGCHARGE_RANGE = 350
-constant real LIGHTNINGCHARGE_DURATION = 8
+let LIGHTNINGCHARGE_DAMAGE = 225.
+let LIGHTNINGCHARGE_RANGE = 350.
+let LIGHTNINGCHARGE_DURATION = 8.
+
 
 init
     //=========================================================================================================================================================
@@ -64,8 +65,8 @@ public class DelayedBloodlustCast
 
 
     private static function castBloodLust()
-        timer t = GetExpiredTimer()
-        thistype instance = t.getData() castTo thistype
+        let t = GetExpiredTimer()
+        let instance = t.getData() castTo thistype
 
         InstantDummyCaster.castTarget(instance.target.getOwner(), 'A015', 1, Orders.bloodlust, instance.target)
 
@@ -76,7 +77,7 @@ public class DelayedBloodlustCast
 function lightningChargeCast()
 
     
-    unit caster = GetSpellAbilityUnit()
+    let caster = GetSpellAbilityUnit()
     
     new DelayedBloodlustCast(caster, 0.25)
     
@@ -85,8 +86,6 @@ function lightningChargeCast()
 
 
 function entersMap() returns boolean
-    unit enteringUnit = GetFilterUnit()       
-       
     return false
 
 
@@ -98,7 +97,7 @@ init
     addAutoCastAbilityToUnitType('n00E', new AutoCastBoundWard( 1000, 6, 18, gg_rct_Arena_Spawn1 ))
 
 
-    region map = CreateRegion()..addRect(GetPlayableMapRect())
+    let map = CreateRegion()..addRect(GetPlayableMapRect())
 
     CreateTrigger()
     ..registerEnterRegion(map, Condition(function entersMap))
@@ -123,7 +122,7 @@ public class AutoCastBoundWard extends AutoCastAbilityType
             
     override function findTarget(unit caster) returns boolean
 
-        group targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
+        let targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
                 
         if targets.size() > 0
             
@@ -136,16 +135,11 @@ public class AutoCastBoundWard extends AutoCastAbilityType
 
         if targets.size() > 0
 
-            vec2 casterPos = caster.getPos()
-
-
-            angle casterFacing = caster.getFacingAngle()
-
-            real angleDirection = (GetRandomInt(0,2) == 1) ? -1 : 1
-
-            angle direction = casterFacing.op_plus(angle(GetRandomReal(PIHALF*0.75, PIHALF*1.25)*angleDirection))
-            
-            vec2 targetPos = casterPos.polarOffset(direction, 400)
+            let casterPos = caster.getPos()
+            let casterFacing = caster.getFacingAngle()
+            let angleDirection = (GetRandomInt(0,2) == 1) ? -1 : 1
+            let direction = casterFacing.op_plus(angle(GetRandomReal(PIHALF*0.75, PIHALF*1.25)*angleDirection))
+            let targetPos = casterPos.polarOffset(direction, 400)
             
             while not rectBound.contains(targetPos)
                 targetPos.moveTowards(rectBound.getCenter(), 50)
@@ -164,10 +158,8 @@ public class AutoCastBoundWard extends AutoCastAbilityType
 public class SummonLightningWard
 
     static function onCast()
-
-        unit caster = GetSpellAbilityUnit()
-        
-        unit ward = createUnit( caster.getOwner(), 'h003', vec2(GetSpellTargetX(), GetSpellTargetY()), angle(GetRandomReal(0, PI2)) )
+        let caster = GetSpellAbilityUnit()
+        let ward = createUnit( caster.getOwner(), 'h003', vec2(GetSpellTargetX(), GetSpellTargetY()), angle(GetRandomReal(0, PI2)) )
 
         new LightningWard(ward, 75, 2, 4000, LIGHTNINGWARD_DAMAGE)
 
@@ -233,7 +225,7 @@ public class LightningWard
     /** Finds the the target for the effect */
     protected function findTarget() returns unit
 
-        group targets = ENUM_GROUP..enumUnitsInRange(ward.getPos(), range)
+        let targets = ENUM_GROUP..enumUnitsInRange(ward.getPos(), range)
         
         for target in targets
             if not target.getOwner().isEnemyOf(ward.getOwner()) or not target.isAlive()
@@ -255,7 +247,7 @@ public class LightningWard
     protected function startEffect()
 
         if isAlive()
-            unit target = findTarget()
+            let target = findTarget()
 
             if target != null
                 damage(target)

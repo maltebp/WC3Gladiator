@@ -1,13 +1,12 @@
 package Round4
 
 import public Round3
-import TimerUtils
 
 import UnitVisualsUtils
 
-constant int FOOTMAN = 'h000'
-constant int MEDIC = 'n00A'
-constant int WIZARD ='n009'
+let FOOTMAN = 'h000'
+let MEDIC = 'n00A'
+let WIZARD ='n009'
 
 init
     //=========================================================================================================================================================

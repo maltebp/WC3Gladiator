@@ -170,7 +170,7 @@ class UnitCharge
     /** Sets the charge for a unit */
     function setCharge(int charge)
 
-        int currentCharge = GetHeroXP(chargeUnit)
+        let currentCharge = GetHeroXP(chargeUnit)
 
         if charge != currentCharge
 
@@ -178,7 +178,7 @@ class UnitCharge
             int finalCharge = (charge > MAXCHARGE) ? MAXCHARGE : charge
             finalCharge = (finalCharge < 0 ) ? 0 : finalCharge
 
-            boolean xpIsSuspended = chargeUnit.isSuspendedXp()
+            let xpIsSuspended = chargeUnit.isSuspendedXp()
 
             if xpIsSuspended
                 chargeUnit.suspendXp(false)
@@ -219,12 +219,12 @@ class UnitCharge
 
         else
 
-            real percentAdjust = (degenerationPercAdjust < -1) ? 0 : 1+degenerationPercAdjust
-            real chargeAdjust = (baseDegeneration + degenerationFlatAdjust)*percentAdjust
+            let percentAdjust = (degenerationPercAdjust < -1) ? 0 : 1+degenerationPercAdjust
+            let chargeAdjust = (baseDegeneration + degenerationFlatAdjust)*percentAdjust
 
             chargeToAdjust += chargeAdjust / DEGENERATION_TIMESPERSEC
 
-            int chargeToAdjustInt = R2I(chargeToAdjust)
+            let chargeToAdjustInt = R2I(chargeToAdjust)
 
             if chargeToAdjustInt > 0
                 adjustCharge(-chargeToAdjustInt)
@@ -369,11 +369,11 @@ public function setTestUnit(unit whichUnit)
 
 function addCharge()
 
-    string input = GetEventPlayerChatString()
+    let input = GetEventPlayerChatString()
     
     if input.length() > 10
         
-        int numberInput = input.ltrim("addcharge ").toInt()
+        let numberInput = input.ltrim("addcharge ").toInt()
     
         testUnit.addCharge(numberInput)
 
@@ -386,11 +386,11 @@ function addCharge()
 
 function adjustChargePerc()
 
-    string input = GetEventPlayerChatString()
+    let input = GetEventPlayerChatString()
     
     if input.length() > 10
         
-        real numberInput = input.ltrim("adjustCharge perc ").toReal()
+        let numberInput = input.ltrim("adjustCharge perc ").toReal()
     
         print("Input: "+numberInput.toString())
 
@@ -403,11 +403,11 @@ function adjustChargePerc()
 
 function adjustChargeFlat()
 
-    string input = GetEventPlayerChatString()
+    let input = GetEventPlayerChatString()
     
     if input.length() > 10
         
-        int numberInput = input.ltrim("adjustCharge flat ").toInt()
+        let numberInput = input.ltrim("adjustCharge flat ").toInt()
     
         testUnit.increaseChargeDegeneration(numberInput, 10)
 

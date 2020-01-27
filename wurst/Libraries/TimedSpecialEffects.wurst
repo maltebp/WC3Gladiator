@@ -18,8 +18,8 @@ class TimedSpecialEffect
         ..start(duration, function destroyEffect)
 
     private static function destroyEffect()
-        timer t = GetExpiredTimer()
-        thistype instance = t.getData() castTo thistype
+        let t = GetExpiredTimer()
+        let instance = t.getData() castTo thistype
         instance.sfx.destr()
         t.release()
         destroy instance

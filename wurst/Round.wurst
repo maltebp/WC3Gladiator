@@ -10,7 +10,6 @@ import Music
 import public Artifact
 import public ItemReward
 import ClosureTimers
-import Sounds
 import LinkedList
 import GladiatorSystem
 
@@ -20,14 +19,13 @@ public class Round
 
 //  Settings 
 
-    private static constant real HEALTHORB_SPAWNFREQ = 25 
-    private static constant real HEALTHORB_DURATION  = 8
-    private static constant real HEALTHORB_SPAWNDURATION = 200
+    private static let HEALTHORB_SPAWNFREQ = 25.
+    private static let HEALTHORB_DURATION  = 8.
 
-    private static constant string TEXTCOLOR_GOLD = "|cffffcc00"
-    private static constant string TEXTCOLOR_TRAINPOINT = "|cff00FA9A"
-    private static constant string TEXTCOLOR_ARTIFACT = "|cffb3b3ff"
-    private static constant string TEXTCOLOR_ITEM = "|cffd9b38c"
+    private static let TEXTCOLOR_GOLD = "|cffffcc00"
+    private static let TEXTCOLOR_TRAINPOINT = "|cff00FA9A"
+    private static let TEXTCOLOR_ARTIFACT = "|cffb3b3ff"
+    private static let TEXTCOLOR_ITEM = "|cffd9b38c"
     
 
 //=========================================================================================================================================================
@@ -36,7 +34,6 @@ public class Round
 
     private static LinkedList<Round> rounds = new LinkedList<Round>
     
-    private static int nextRoundNumber = 1
     private static int totalNumberOfRounds = 0
     private static int currentRoundNumber = 0
     private static boolean roundWon = false
@@ -51,12 +48,11 @@ public class Round
     private static boolean aRoundIsRunning = false
     static unit bossUnit = null
 
-    private LinkedList<UnitSpawner> spawners = new LinkedList<UnitSpawner>
+    private let spawners = new LinkedList<UnitSpawner>
     private int number
     private int goldReward
     private int trainingPointsReward
-    private LinkedList<Artifact> artifactReward = new LinkedList<Artifact>
-    private LinkedList<ItemReward> itemRewards = new LinkedList<ItemReward>
+    private let itemRewards = new LinkedList<ItemReward>
     private int abilityReward = -1 // Number
     private real healthOrb_FlatToHealInstant
     private real healthOrb_PercToHealInstant
@@ -67,8 +63,6 @@ public class Round
     private timer timer_HealthOrbSpawn
     private string title
     private string description
-    private boolean bossRound = false
-    private unit boss = null
     private string music = Sounds.orcVictory
     private  int artifactsToRelease = 0 
 
@@ -264,9 +258,8 @@ public class Round
 
 
     private static function spawnHealthOrb()
-        thistype round = GetExpiredTimer().getData() castTo thistype
-
-        vec2 spawnPos = gg_rct_Arena_Spawn1.randomPoint()
+        let round = GetExpiredTimer().getData() castTo thistype
+        let spawnPos = gg_rct_Arena_Spawn1.randomPoint()
 
         new HealthOrb(spawnPos)
         ..setHealInstant(round.healthOrb_FlatToHealInstant, round.healthOrb_PercToHealInstant )
@@ -275,14 +268,14 @@ public class Round
         
 
     private static function stopHealthOrbSpawn()
-        thistype round = GetExpiredTimer().getData() castTo thistype
+        let round = GetExpiredTimer().getData() castTo thistype
         round.timer_HealthOrbSpawn.pause()
 
         
 
     private static function wasLastUnit() returns boolean
         if hero.isAliveTrick()
-            Round round = rounds.get(currentRoundNumber-1)
+            let round = rounds.get(currentRoundNumber-1)
             for spawner in round.spawners
                 if not spawner.isFinished() or not spawner.allUnitsAreDead()
                     return false
@@ -300,8 +293,8 @@ public class Round
 
     /** Rewards items, including artifacts */
     private function rewardItems() returns boolean
-        int numberOfItems = itemRewards.size()
-        int numberOfRewards = artifactsToRelease + numberOfItems
+        let numberOfItems = itemRewards.size()
+        let numberOfRewards = artifactsToRelease + numberOfItems
 
         if numberOfRewards > 0
             
@@ -436,7 +429,7 @@ public class Round
 
     protected static function anyUnitDies()
         if aRoundIsRunning and not roundWon
-            unit dying = GetDyingUnit()
+            let dying = GetDyingUnit()
             
             if dying == hero
                 roundLost()

@@ -1,13 +1,11 @@
 package Orb
 
 import TimerUtils
-import SoundUtils
 import LinkedList
 import TimedSpecialEffects
 import HashMap
-import Sounds
 
-class Orb
+abstract class Orb
 
     protected static constant LinkedList<Orb> orbs = new LinkedList<Orb>
     protected static constant real ACTIVATION_RANGE = 125
@@ -58,7 +56,7 @@ class Orb
     private static function update()
         
         for orb in orbs
-            group unitsInRange = ENUM_GROUP
+            let unitsInRange = ENUM_GROUP
             unitsInRange.enumUnitsInRange(orb.pos, ACTIVATION_RANGE)
             
             // Checking if any units are in range
@@ -72,15 +70,15 @@ class Orb
                 // Sorting activationUnits
                 if orb.activationUnits != null
                     for unitInRange in unitsInRange
-                        if not orb.activationUnits.contains(unitInRange)
+                        if not orb.activationUnits.has(unitInRange)
                             unitsInRange.removeUnit(unitInRange)
                 
                 // Finding the nearest Unit
                 if unitsInRange.size() > 1
                     unit nearestUnit = null
-                    real distanceToNearestUnit = 99999
+                    var distanceToNearestUnit = 99999.
                     for unitInRange from unitsInRange
-                        real distanceToUnitInRange = unitInRange.getPos().distanceTo(orb.pos)
+                        let distanceToUnitInRange = unitInRange.getPos().distanceTo(orb.pos)
                         if distanceToUnitInRange < distanceToNearestUnit
                             nearestUnit = unitInRange
                             distanceToNearestUnit = distanceToUnitInRange
@@ -101,13 +99,11 @@ class Orb
         for orb in orbs
             destroy orb
     
-    function consume(unit whichUnit)
+    abstract function consume(unit whichUnit)
         
 
 
 public class HealthOrb extends Orb
-
-    private static SoundDefinition snd_OnConsume = new SoundDefinition(Sounds.healTarget1, false, true)
     
     private real healOverTimePerc
     private real healOverTimeFlat
@@ -143,7 +139,7 @@ public class HealthOrb extends Orb
         ..setDuration(3)
 
         // Heal instant
-        real soulStoneFactor = (whichUnit.hasItemById('I01H')) ? 1.25 : 1        
+        let soulStoneFactor = (whichUnit.hasItemById('I01H')) ? 1.25 : 1        
         if whichUnit.getHP() != whichUnit.getMaxHP() and healInstantPerc>0
             whichUnit.setHP(whichUnit.getHP()+whichUnit.getMaxHP()*healInstantPerc*soulStoneFactor )
         if whichUnit.getHP() != whichUnit.getMaxHP() and healInstantFlat>0 
@@ -188,12 +184,10 @@ class RegenerateOverTime
 
 
     private static function stop()
-        thistype instance = GetExpiredTimer().getData() castTo thistype
-        destroy instance
+        destroy GetExpiredTimer().getData() castTo thistype
 
     private static function callRegen()
-        thistype instance = GetExpiredTimer().getData() castTo thistype
-        instance.regen()
+        GetExpiredTimer().getData() castTo thistype.regen()
 
         
     private function regen()

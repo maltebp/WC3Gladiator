@@ -64,11 +64,11 @@ public abstract class GroundEffect
     protected function addLayer(real distanceFromCenter, int numberOfSfx, real sfxBaseSize )
         
         if numberOfSfx > 0
-            real angleOffset = PI2 / numberOfSfx
+            let angleOffset = PI2 / numberOfSfx
             for i=0 to numberOfSfx
-                angle sfxAngle = angle(angleOffset*i * GetRandomReal((1-sfxAngleDeviation), (1+sfxAngleDeviation)))
-                vec2 sfxPos = this.pos.polarOffset(sfxAngle, distanceFromCenter)
-                effect sfx = addEffect(sfxModel, sfxPos)
+                let sfxAngle = angle(angleOffset*i * GetRandomReal((1-sfxAngleDeviation), (1+sfxAngleDeviation)))
+                let sfxPos = this.pos.polarOffset(sfxAngle, distanceFromCenter)
+                let sfx = addEffect(sfxModel, sfxPos)
                 ..setScale(sfxBaseSize*GetRandomReal((1-sfxSizeDeviation), (1+sfxSizeDeviation)))
 
                 this.sfx.add(sfx)

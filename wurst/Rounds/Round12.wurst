@@ -9,18 +9,11 @@ import public Round11
 import RegisterEvents
 import AutoCastAbility
 import UnitVisualsUtils
-import OnUnitTypeEnter
-import DeathSpawn
-import Shockwave
-import ClosureTimers
-import EarthquakeNoChannel
 import Preloader
 import AbilityObjEditing
 import ObjectIdGenerator
 import BuffObjEditing
-import Icons
 import ObjectIds
-import Damage
 import Assets
 import Ensnare
 
@@ -146,7 +139,7 @@ init
 
 
 function berserk_OnCast()
-    unit caster = GetSpellAbilityUnit()
+    let caster = GetSpellAbilityUnit()
     BERSERK_SND.playOnPoint(caster.getPos3with(100))
     caster.addAbility('A023')
     caster.setAbilityLevel('A023', BERSERK_DAMAGEINC)
@@ -208,7 +201,7 @@ function createAbilities()
 // ENSNARE
 
 
-    int tempBuff = BUFF_ID_GEN.next()
+    let tempBuff = BUFF_ID_GEN.next()
 
     new BuffDefinition(ENSNARE_BUFFID,'Beng')
     ..setTooltipNormal(1, "Ensnare")

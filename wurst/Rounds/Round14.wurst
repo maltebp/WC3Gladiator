@@ -13,13 +13,9 @@ import FadeAndFilters
 import HashMap
 import RegisterEvents
 import ErrorHandling
-import ChannelOnUnit
 import AutoCastAbility
-import Game
 import RandomAngle
 import LightningUtil
-import Abilities
-import TimerUnitData
 import LinkedList
 import AbilityObjEditing
 import ObjectIdGenerator
@@ -29,7 +25,6 @@ import BuffObjEditing
 import Assets
 import Damage
 import ClosureForGroups
-import MyLibrary
 import InstantDummyCaster
 import TimedSpecialEffects
 import Updater
@@ -92,7 +87,7 @@ init
     eggSpawner = new UnitSpawner(EGG_ID, ENEMYPLAYER, vec2(-639,1025), 0)
 
     // Round Setup
-    Round round = new Round()
+    let round = new Round()
     ..setReward(30, 3)
     ..setTitle("Dragons")
     ..setDescription("...")
@@ -205,9 +200,8 @@ class DragonEgg
     
     private vec2 pos
 
-    private int timeToHatch = EGG_HATCHTIME
-    private boolean hatchEnabled = false
-    private boolean hasHatched = false
+    private var timeToHatch = EGG_HATCHTIME
+    private var hatchEnabled = false
 
 
     construct(vec2 pos)
@@ -320,7 +314,7 @@ class DragonEgg
 
 
 function unitDies()
-    unit dyingUnit = GetDyingUnit()
+    let dyingUnit = GetDyingUnit()
 
     if dyingUnit.getTypeId() == EGG_ID
         let egg = DragonEgg.getInstance(dyingUnit)
@@ -330,7 +324,7 @@ function unitDies()
 
 
 function unit.isTargetOfBrood() returns boolean
-    return Brood.targets.contains(this)
+    return Brood.targets.has(this)
 
 
 
@@ -520,7 +514,7 @@ class DragonStrikeDebuff
             destroy this
             
         else
-            unit damageSource = null
+            unit damageSource
             if source == null
                 damageSource = createUnit(sourcePlayer, 'h00B', target.getPos(), angle(0))
                 ..setTimedLife(1)

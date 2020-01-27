@@ -1,11 +1,7 @@
 package Transitions
 
-import Sounds
-import TimerUtils
-import Camera
 import FadeAndFilters
 import initlater Game
-import initlater Round
 import Music
 import TimedSpecialEffects
 import PlayerFunctions
@@ -127,7 +123,7 @@ function toShop_Reward()
     
 
 function toShop_RewardItems()
-    boolean anyItemsToReward = Round.giveItemReward()
+    let anyItemsToReward = Round.giveItemReward()
     if anyItemsToReward
         GetExpiredTimer().start(6, function toShop_RewardAbilities )
     else
@@ -135,7 +131,7 @@ function toShop_RewardItems()
 
 
 function toShop_RewardAbilities()
-    boolean anyAbilitiesToReward = Round.getCurrentRound().giveAbilityReward()
+    let anyAbilitiesToReward = Round.getCurrentRound().giveAbilityReward()
 
     if anyAbilitiesToReward
         GetExpiredTimer().start(6, function toShop_NextRound )

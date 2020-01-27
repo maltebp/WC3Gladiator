@@ -41,9 +41,8 @@ unit testUnit
 
 
 function damage(DmgType damageType, real damage)
-    real startHp = testUnit.getHP()
-    
-    unit dummy = createUnit(Player(2), 'h002', testUnit.getPos(), angle(0))
+    let startHp = testUnit.getHP()
+    let dummy = createUnit(Player(2), 'h002', testUnit.getPos(), angle(0))
 
     if damageType == DmgType.SPELL
         UnitDamageTarget(dummy, testUnit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, WEAPON_TYPE_WHOKNOWS)
@@ -61,11 +60,11 @@ function damage(DmgType damageType, real damage)
     
 
 function damagePhysical()
-    string input = GetEventPlayerChatString()
+    let input = GetEventPlayerChatString()
 
     if input.length() > 16
         
-        real numberInput = input.ltrim("damage physical ").toReal()
+        let numberInput = input.ltrim("damage physical ").toReal()
     
         damage(DmgType.PHYSICAL, numberInput)
 
@@ -73,11 +72,11 @@ function damagePhysical()
         print("wrong input")
 
 function damageSpell()
-    string input = GetEventPlayerChatString()
+    let input = GetEventPlayerChatString()
 
     if input.length() > 12
         
-        real numberInput = input.ltrim("damage spell ").toReal()
+        let numberInput = input.ltrim("damage spell ").toReal()
     
         damage(DmgType.SPELL, numberInput)
 
@@ -86,11 +85,11 @@ function damageSpell()
     
         
 function damageUniversal()
-    string input = GetEventPlayerChatString()
+    let input = GetEventPlayerChatString()
 
     if input.length() > 17
-        
-        real numberInput = input.ltrim("damage universal ").toReal()
+    
+        let numberInput = input.ltrim("damage universal ").toReal()
     
         damage(DmgType.UNIVERSAL, numberInput)
 

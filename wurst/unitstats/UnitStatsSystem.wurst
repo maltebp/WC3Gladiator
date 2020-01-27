@@ -1,8 +1,6 @@
 package UnitStatsSystem
 
 import UnitStats
-import UnitTypeStats
-import OnUnitEnterLeave
 
 
 /** Get's the unit's attack speed in decimal percent (1 is normal attack speed, 0.8 is a reduced attack speed) */

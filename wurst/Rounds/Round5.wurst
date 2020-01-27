@@ -5,11 +5,9 @@ import TimerUtils
 import Orders
 import UnitVisualsUtils
 
-constant int GARGOYLE = 'u002'
-
-
-constant real STONEFORM_HPACTIVATE = 0.25 // % Percent
-constant real STONEFORM_HPDEACTIVATE = 0.90 // % Percent
+let GARGOYLE = 'u002'
+let STONEFORM_HPACTIVATE = 0.25 // % Percent
+let STONEFORM_HPDEACTIVATE = 0.90 // % Percent
 
 init
     //=========================================================================================================================================================
@@ -93,7 +91,7 @@ public class StoneForm
         stoneform = true
 
     private function checkHp()
-        real currentHp = gargoyle.getHP()
+        let currentHp = gargoyle.getHP()
         if not stoneform and currentHp <= gargoyle.getMaxHP() * STONEFORM_HPACTIVATE
             cast()
         else if stoneform and currentHp >= gargoyle.getMaxHP() * STONEFORM_HPDEACTIVATE

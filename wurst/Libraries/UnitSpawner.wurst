@@ -2,7 +2,6 @@ package UnitSpawner
 
 import TimerUtils
 import public SoundUtils
-import Orders
 import LinkedList
 
 
@@ -274,22 +273,20 @@ public class UnitSpawner
         of the owner of the spawner. It returns null if no unit is found.*/
     private function getRandomTargetInRect() returns unit
         
-        group targets = ENUM_GROUP
-        targets.enumUnitsInRect(targetRect)
+        let targets = ENUM_GROUP..enumUnitsInRect(targetRect)
 
         // Removing the units not to be hit
         for u in targets
             if( not u.isAlive() or u.getOwner().isAllyOf(owner) )
                 targets.removeUnit(u)
 
-        unit target = targets.getRandomUnit()
+        let target = targets.getRandomUnit()
         targets.clear()
         return target
 
     /** Gets the unit nearest the spawnedUnit from the spawner's targetRect.*/
     private function getNearestTargetInRect(unit spawnedUnit) returns unit 
-        group targets = ENUM_GROUP
-        targets.enumUnitsInRect(targetRect)
+        let targets = ENUM_GROUP..enumUnitsInRect(targetRect)
 
         // Removing the units not to be hit
         for u in targets
@@ -299,9 +296,9 @@ public class UnitSpawner
         // Finding nearest target
         real shortestDist = 999999
         unit target = null
-        vec2 spawnedUnitPos = spawnedUnit.getPos()
+        let spawnedUnitPos = spawnedUnit.getPos()
         for u from targets
-            real distance = u.getPos().distanceTo(spawnedUnitPos)
+            let distance = u.getPos().distanceTo(spawnedUnitPos)
             if distance < shortestDist
                 shortestDist = distance
                 target = u
@@ -328,8 +325,8 @@ public class UnitSpawner
             spawnPos = instance.spawnPos
 
         // Spawning units
-        angle spawnFacing = (instance.spawnFacing==-1) ? angle(GetRandomReal(0, 2*PI)) : angle(instance.spawnFacing)
-        unit spawnedUnit = createUnit(instance.owner, instance.unitId, spawnPos, spawnFacing)
+        let spawnFacing = (instance.spawnFacing==-1) ? angle(GetRandomReal(0, 2*PI)) : angle(instance.spawnFacing)
+        let spawnedUnit = createUnit(instance.owner, instance.unitId, spawnPos, spawnFacing)
         instance.spawnedUnits.addUnit(spawnedUnit)
         instance.lastSpawnedUnit = spawnedUnit
 
@@ -339,11 +336,11 @@ public class UnitSpawner
 
         else if instance.targetRect != null
             if instance.getNearestTarget
-                unit nearestTarget = instance.getNearestTargetInRect(spawnedUnit)
+                let nearestTarget = instance.getNearestTargetInRect(spawnedUnit)
                 if nearestTarget != null
                     spawnedUnit.issueTargetOrder("attack", nearestTarget )
             else
-                unit randomTarget = instance.getRandomTargetInRect()
+                let randomTarget = instance.getRandomTargetInRect()
                 if randomTarget != null
                     spawnedUnit.issueTargetOrder("attack", randomTarget)        
 

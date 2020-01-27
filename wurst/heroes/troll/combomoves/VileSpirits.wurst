@@ -75,8 +75,8 @@ init
             
             caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_2)
 
-        else
-            caster.missAttack()
+        // else
+        //     caster.missAttack()
 
         caster.clearCombo()
 
