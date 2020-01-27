@@ -12,6 +12,14 @@ import ClearPoints
 import ChargeSystem
 import initlater Artifact
 import UnitTypeStats
+import AbilityObjEditing
+import CompileTimeData
+import ObjectIds
+import ObjectIdGenerator
+import Icons
+import UtilCommands
+import MapBounds
+import GladiatorShop
 
 
 
@@ -255,11 +263,50 @@ public class GladiatorType
 
                     
     
+//================================================================================================================================================================================================
+// OBJECT DEFINITIONS
 
+let allGladiatorIds = new LinkedList<int>
+let data_GladiatorUnitIds = compiletime(defineDataObj())
+
+function defineGladiatorUnit( int newId, int originId, string name, string icon ) returns HeroDefinition
     
-        
+    let definition = new HeroDefinition(newId, originId)
+    ..setName(name)
+    ..setProperNames(name)
+    ..setIconGameInterface(icon)
+    ..setSightRadiusNight(1800)
+    ..setSightRadiusNight(1800)
+    ..setManaMaximum(100)
+    ..hideHeroMinimapDisplay(true)
+    ..setCanFlee(false)
+    ..setTurnRate(3)
+    ..setSpeedBase(250)
+    ..setAgilityPerLevel(0)
+    ..setStrengthPerLevel(0)
+    ..setIntelligencePerLevel(0)
+    ..setHitPointsRegenerationRate(0)
+    ..setCollisionSize(25)
+    ..setArmorType(ArmorType.Medium)
+    ..setAttack1AttackType(AttackType.Normal)
+    ..setSelectionScale(1.4)
+    ..setHeroAbilities("")
+    ..setNormalAbilities("AInv")
+    ..hideHeroDeathMsg(true)
+    ..hideHeroInterfaceIcon(true)
+    ..setTooltipBasic(name)
+    ..setDescription("")
+    ..setTooltipExtended("")
+    ..setGoldCost(0)
+    ..setLumberCost(0)
+    ..setFoodCost(0)
+    ..setStockMaximum(1)
+    ..setStockReplenishInterval(10000)
+    ..setStockStartDelay(0)
+    ..setButtonPositionX(0)
+    ..setButtonPositionY(0)
 
+    data_GladiatorUnitIds.addData(newId.toRawCode())
+    updateGladiatorShop(newId)
 
-
-        
-        
+    return definition

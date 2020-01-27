@@ -1,0 +1,66 @@
+package GladiatorShop
+
+import UnitObjEditing
+import ObjectIdGenerator
+import LinkedList
+import ObjectIds
+import MapBounds
+
+
+public let GLADIATOR_SHOP_ID = compiletime(UNIT_ID_GEN.next())
+
+public let gladiatorShop = createUnit(Player(PLAYER_NEUTRAL_PASSIVE), GLADIATOR_SHOP_ID, boundMax+vec2(-1000,-1000), angle(0))
+
+let PICKING_UNIT_ID = compiletime(UNIT_ID_GEN.next())
+
+
+public function initializeGladiatorShop()
+    
+    for i=0 to 23
+        createUnit(Player(i), PICKING_UNIT_ID, gladiatorShop.getPos(), angle(0))
+        CreateFogModifierRadius(Player(i), FOG_OF_WAR_VISIBLE, gladiatorShop.getPos().x,gladiatorShop.getPos().x, 500, false, false).start()
+
+
+
+
+//================================================================================================================================================================================================
+// COMPILETIME
+
+
+BuildingDefinition compiletime_GladiatorShop
+
+@compiletime
+function defineGladiatorShop()
+    
+    compiletime_GladiatorShop = new BuildingDefinition(GLADIATOR_SHOP_ID, 'nmer')
+    ..setName("Choose Gladiator")
+    ..setUnitsSold("")
+    ..setUnitsTrained("")
+    ..setUnitSoundSet("")
+    ..setHideMinimapDisplay(true)
+
+
+let compiletime_GladiatorIds = new LinkedList<int>
+
+public function updateGladiatorShop(int newGladiator)
+    compiletime_GladiatorIds.add(newGladiator)
+    
+    string idString = ""
+    for id in compiletime_GladiatorIds
+        if( idString != "" )
+            idString += ","
+        idString += id.toRawCode()
+
+    compiletime_GladiatorShop.setUnitsSold(idString)
+
+@compiletime
+function definePickingUnit()
+
+    new UnitDefinition(PICKING_UNIT_ID, 'hpea')
+    ..setName("Picking Unit")
+    ..setHideMinimapDisplay(true)
+    ..setHitPointsMaximumBase(1500000)
+    ..setCanFlee(false)
+    ..setMovementType(MovementType.Fly)
+    ..setFoodCost(0)
+    ..setAttacksEnabled(0)

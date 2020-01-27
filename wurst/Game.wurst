@@ -14,6 +14,7 @@ import GameSettings
 import PlayerFunctions
 import Lives
 import PickHero
+import GladiatorShop
 
 constant boolean    SPAWNHEROINARENA        = false
 constant boolean    ARENACORNERSPAWN        = true
@@ -302,6 +303,9 @@ function printRoundInfo()
 
 function delayedInit()
     GetExpiredTimer().release()
+
+
+    initializeGladiatorShop()
     
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, BARRACKS_RECT, false, false).start()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Shop_Visibility, false, false).start()

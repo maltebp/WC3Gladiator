@@ -3,26 +3,30 @@ package PickHero
 import UtilCommands
 import DummyRecycler
 import ClosureTimers
-
+import GladiatorShop
+import LinkedList
 
 let CAMERA = gg_cam_Barracks
 public let BARRACKS_RECT = gg_rct_BarracksFog
 let CAM_LOCK_DUMMY = DummyRecycler.get(BARRACKS_RECT.getCenter() + vec2(0,350), angle(0))
 
+let playersPickingHero = new LinkedList<player>
+
 
 public function player.isPickingGladiator() returns bool
-    return false //TODO: Implement this
+    return playersPickingHero.has(this)
 
-function startPickHero()
 
-    let p = Player(0)
-    p.print("Starting picking hero scene...")
+
+function player.startPickHero()
+    playersPickingHero.add(this)
 
     doPeriodically(0.04) cb ->
-        p.cameraSetupApply(true, CAMERA, 0)
-        p.setCameraTargetControllerNoZ( CAM_LOCK_DUMMY, vec2(0,0), false)
+        this.cameraSetupApply(true, CAMERA, 0)
+        this.setCameraTargetControllerNoZ( CAM_LOCK_DUMMY, vec2(0,0), false)
         
-
+        this.clearSelection()
+        this.selectSingle(gladiatorShop)
 
 
 
@@ -31,7 +35,7 @@ init
 
     defineUtilCommand("pickhero")
     ..setAction() (p, args, opts) ->
-        startPickHero()
+        p.startPickHero()
 
 
 
