@@ -10,18 +10,18 @@ import Damage
 import GladiatorSystem
 import LinkedList
 import ClosureTimers
-import OrcGladiator
 import GameSettings
 import PlayerFunctions
 import Lives
+import PickHero
 
 constant boolean    SPAWNHEROINARENA        = false
 constant boolean    ARENACORNERSPAWN        = true
 constant boolean    PREPAREHERO             = false
-constant boolean    LOCKCAMBOUNDS           = true
+constant boolean    LOCKCAMBOUNDS           = false
 constant boolean    MAKEMAPVISIBLE          = false
-constant boolean    CUSTOMROUNDSTART        = true
-constant boolean    STARTATSPECIFICROUND    = true
+constant boolean    CUSTOMROUNDSTART        = false
+constant boolean    STARTATSPECIFICROUND    = false
 constant boolean    SELECTHERO              = true
 int        STARTINGROUND                    = 2
 public let                 FINALROUND       = 15
@@ -164,7 +164,7 @@ function roundPick()
 
 
 function roundPicked()
-    button pressedButton = GetClickedButton()
+    let pressedButton = GetClickedButton()
     
     int round = 1
 
@@ -303,20 +303,18 @@ function printRoundInfo()
 function delayedInit()
     GetExpiredTimer().release()
     
+    CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, BARRACKS_RECT, false, false).start()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Shop_Visibility, false, false).start()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Arena_Visibility, false, false).start()
     CreateFogModifierRect(Player(0), FOG_OF_WAR_MASKED, GetPlayableMapRect(), false, false).start()
+    SetTimeOfDay(12)
+    SetTimeOfDayScale(0)
 
     
 
 function setRound()
 
-    LinkedList<Round> rounds = Round.getRounds()
-
-    // for round in rounds
-    //     print(round.getTitle())
-
-        
+    let rounds = Round.getRounds()
 
     if STARTATSPECIFICROUND
 
