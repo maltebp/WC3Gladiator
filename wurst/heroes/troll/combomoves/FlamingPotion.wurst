@@ -20,13 +20,13 @@ import Artifact
 
 // =========================================================================================================
 
-let DAMAGE_FACTOR = 1.
+let DAMAGE_FACTOR = 0.75
 let DAMAGE_FACTOR_VOODOO = 0.7
 let RADIUS = 150.
 let CASTERBUFF_DURATION = 5.
 
 let BURN_RADIUS = 125.
-let BURN_DAMAGE_FACTOR = 0.5
+let BURN_DAMAGE_FACTOR = 0.4
 let BURN_DURATION = 5.
 let BURN_DAMAGE_FREQ = 1.
 

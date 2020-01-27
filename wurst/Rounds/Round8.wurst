@@ -22,12 +22,12 @@ int EXPLODINGGOBLIN = 'n00J'
 int MINITANK = 'h004'
 int MECHANIC = 'o001'
 
-int HOMINGROCKETS_DAMAGE = 60
+int HOMINGROCKETS_DAMAGE = 80
 real HOMINGROCKETS_FREQ     = 0.5
-real HOMINGROCKETS_DURATION = 8
+real HOMINGROCKETS_DURATION = 7
 
 
-real EXPLODINGGOBLIN_DAMAGE = 60
+real EXPLODINGGOBLIN_DAMAGE = 80
 real EXPLODINGGOBLIN_RANGE  = 350
 real EXPLODINGGOBLIN_BOSSDAMAGE = 650
 real EXPLODINGGOBLIN_DELAY = 2
@@ -48,6 +48,9 @@ SoundDefinition snd_BossDeath = new SoundDefinition(Sounds.tinkerDeathAlt1, fals
 init
 
     BOSSID
+    ..defineResistance(0.1)
+
+    BOSSID_TANK
     ..defineResistance(0.1)
     
 
@@ -77,7 +80,7 @@ init
     AutoCastAbilityType rocketBarrage = new AutoCastAbilityType('A01F', Orders.tranquility, TargetType.ENEMY_IMMEDIATE, 6000, 10, 30)
     roundFunction = (Round round) -> begin
         Round.bossUnit.unpause()
-        //Round.bossUnit.issueImmediateOrderById(Orders.robogoblin)
+        Round.bossUnit.issueImmediateOrderById(Orders.robogoblin)
         snd_BossSpawn.play()
         Round.bossUnit.addAutoCastAbility(rocketBarrage)
     end
@@ -293,6 +296,7 @@ init
 //=========================================================================================================================================================
 
 function explode(unit explodingUnit)
+
 
     group targets = ENUM_GROUP..enumUnitsInRange(explodingUnit.getPos(), EXPLODINGGOBLIN_RANGE)
 

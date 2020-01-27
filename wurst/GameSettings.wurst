@@ -1,0 +1,13 @@
+package GameSettings
+
+public let VERSION = "0.1.2a (Alpha)"
+
+public let NUM_OF_PLAYERS       = 5
+
+public let START_TRAININGPOINTS = 8
+public let START_GOLD           = 50
+public let LIVES                = 5
+
+
+
+

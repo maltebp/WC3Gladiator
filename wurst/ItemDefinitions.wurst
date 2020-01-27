@@ -19,35 +19,71 @@ init
     'I006'
     ..setArmor(4)
 
+    // Gnoll's Old Boots
+    'I007'
+    ..setArmor(3)
+    ..setMoveSpeedFlat(40)
+
+    // Magic Gem
+    'I00J'
+    ..setDamageFlat(8) 
+
     // Enchanted Sword
     'I00L'
     ..setDamageFlat(10) 
     ..setAttackSpeed(0.25)
 
-    //Magic Talisman
+    // Gargoyle's Cloak
+    'I00N'
+    ..setArmor(5)
+
+    // Footman's Helm
+    'I00M'
+    ..setArmor(5)
+    ..setHealthFlat(150)
+
+    // Magic Talisman
     'I00I'
     ..setHealthFlat(75)
     ..setResistance(0.25)
 
+    // Lava Tempered Boots 
+    'I01G'
+    ..setDamageFlat(10) 
+    ..setMoveSpeedFlat(50)
     
 
+    // Demon Figurine
+    'I00T'
+    ..setDamageFlat(14) 
 
-
-    'I01G'.setDamageFlat(10) // Lava Tempered Boots 
-    'I00J'.setDamageFlat(8) // Magic Gem
-    'I00T'.setDamageFlat(14) // Demon Figurine
-    'I009'.setDamageFlat(10) // Demon Figurine
-    'I01R'.setDamageFlat(25) // Fel Stone
-    'I01T'.setDamageFlat(15) // Trident
+    // Storm Lord's Crown
+    'I00E'
+    ..setResistance(0.4)
+    
 
     // Bone gloves
     'I01F' 
     ..setAttackSpeed(0.20)
     ..setArmor(4)
 
+    // Spider BRacers
     'I01U'
-    ..setDamageFlat(5) // Spider BRacers
+    ..setArmor(4)
     ..setAttackSpeed(0.20)
+
+    // Deflective Disc Device
+    'I00B'
+    ..setArmor(8)
+
+    // Tinker's Personal Hammer
+    'I009'.setDamageFlat(10) 
+    
+    'I01R'.setDamageFlat(25) // Fel Stone
+    'I01T'.setDamageFlat(15) // Trident
+
+
+
 
     // Editor's Items
     'I00S'.setDamageFlat(30)

@@ -17,9 +17,10 @@ import SoundUtils
 
 import SoulDrainData
 
-let DAMAGE_RED = 0.25
+
+let DAMAGE_RED = 0.3
 let RADIUS = 800.
-let DURATION = 25.
+let DURATION = 45.
 let RANGE = DEFAULT_CASTRANGE
 
 

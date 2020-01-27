@@ -8,6 +8,8 @@ import initlater Game
 import initlater Round
 import Music
 import TimedSpecialEffects
+import PlayerFunctions
+import Lives
 
 
 SoundDefinition snd_EscapePress = new SoundDefinition(Sounds.bigButtonClick, false)
@@ -84,8 +86,9 @@ function toShop_OnFadeIn()
     playMusic(Sounds.orcX1)
     hero.setHP(hero.getMaxHP())
     hero.setMana(hero.getMaxMana())
-    
     hero.setInvulnerable(false)
+    
+    
 
     getTimer().start(3, function toShop_RoundReview )
 
@@ -107,7 +110,13 @@ function toShop_RoundReview()
         GetExpiredTimer().start(4, function toShop_Reward )
 
     else
+        for p in activePlayers
+            p.removeLife()
+
         printTimed("|cffff3300"+"Round "+Round.getCurrentRoundNumber().toString()+" failed!"+"|r",7 )
+        printTimed("You have "+localPlayer.getNumOfLives().toString()+" lives left.", 7 )
+
+
         snd_RoundLost.play()
         GetExpiredTimer().start(4, function toShop_TryAgain )
 

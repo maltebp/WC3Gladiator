@@ -12,8 +12,8 @@ public abstract class GroundEffect
     protected string                    sfxModel
     protected LinkedList<effect>        sfx
     protected real              baseSfxScale = 1
-    protected timer             timer_Duration
-    protected timer             timer_Effect
+    protected timer             timer_Duration = null
+    protected timer             timer_Effect = null
     protected real              sfxSizeDeviation = 0.1 // Decimal percent
     protected real              sfxAngleDeviation = 0.1 // Decimal percent
 
@@ -46,6 +46,7 @@ public abstract class GroundEffect
         if frequency > 0
             timer_Effect.startPeriodic(frequency, function callback_doEffect )
 
+            
     /** Adds a duration the effect */
     protected function addDuration(real duration)
         if duration > 0

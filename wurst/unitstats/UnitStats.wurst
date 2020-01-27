@@ -13,7 +13,7 @@ let ATTACKSPEED_MAX = 4. // Percent wise attack speed (effects cooldown i.e.)
 let MOVESPEED_MAX = 450.
 let MOVESPEED_MIN = 100.
 let ARMOR_MIN = 0.
-let RESISTANCE_MAX = 10
+let RESISTANCE_MAX = 10.
 let RESISTANCE_MIN = 0.5
 let HEALTH_MIN = 1
 
@@ -97,6 +97,7 @@ public class UnitStats
     function update()   
         var damage = getDamage().toInt()
         let adjustedDamage = damage <= 2 ? 1 : damage-1 // Damage can't be reduced below 1
+        
         theUnit.setBaseDamage( adjustedDamage, 1)
 
         if IsHeroUnitId(theUnit.getTypeId())
@@ -200,9 +201,13 @@ public class UnitStats
         var adjustedArmor = (baseArmor + armorFlat) * armorPerc
         return (adjustedArmor >= ARMOR_MIN) ? adjustedArmor : ARMOR_MIN
 
-    function getResistance() returns real
-        return resistance
 
+    function getResistance() returns real
+        if IsHeroUnitId(theUnit.getTypeId())
+            var adjustedResistance = (resistance >= RESISTANCE_MIN) ? resistance : RESISTANCE_MIN
+            adjustedResistance = (adjustedResistance <= RESISTANCE_MAX) ? adjustedResistance : RESISTANCE_MAX
+            return adjustedResistance
+        return resistance
 
 
     function toString() returns string
@@ -212,7 +217,7 @@ public class UnitStats
                     "\nHP: "+getHealth().toString() + 
                     "\nMove Speed: "+getMoveSpeed().toString(0) +
                     "\nArmor: "+getArmor().toString(1) +
-                    "\nResistance: "+getResistance().toString(1)
+                    "\nResistance: "+(getResistance()*100).toString() + "%"
 
 function isTrue() returns boolean
     return true

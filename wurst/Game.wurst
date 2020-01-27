@@ -10,12 +10,16 @@ import Damage
 import GladiatorSystem
 import LinkedList
 import ClosureTimers
+import OrcGladiator
+import GameSettings
+import PlayerFunctions
+import Lives
 
 constant boolean    SPAWNHEROINARENA        = false
-constant boolean    ARENACORNERSPAWN        = false
+constant boolean    ARENACORNERSPAWN        = true
 constant boolean    PREPAREHERO             = false
-constant boolean    LOCKCAMBOUNDS           = false
-constant boolean    MAKEMAPVISIBLE          = true
+constant boolean    LOCKCAMBOUNDS           = true
+constant boolean    MAKEMAPVISIBLE          = false
 constant boolean    CUSTOMROUNDSTART        = true
 constant boolean    STARTATSPECIFICROUND    = true
 constant boolean    SELECTHERO              = true
@@ -25,15 +29,11 @@ constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn a
 constant boolean    PRINTALPHAINTRO         = false
 
 
-let VERSION = "0.1.2a (Alpha)"
-
-
 let HEROSPAWN_CAMLOCK = Rect(-8129, -8198, -8129, -8198)
 
 constant int array STARTINGITEMS = ['I00M', 'I00M','I00M', 'I009']
 
-constant int START_TRAININGPOINTS           = 8
-constant int START_GOLD                     = 50
+
 
 public constant player ENEMYPLAYER = Player(11)
 public constant vec2 HEROSPAWN_SHOP = vec2(-8129,-8198)
@@ -67,7 +67,9 @@ public button array dialogButton_RoundPick
 
 init
 
-    CameraSetSmoothingFactor(50)
+    initializePlayerList()
+
+    CameraSetSmoothingFactor(30)
 
     // Setting up variables
     MAPREGION = CreateRegion()..addRect(GetPlayableMapRect())
@@ -76,9 +78,14 @@ init
     
     spawnPosOnInit = (SPAWNHEROINARENA) ? ((ARENACORNERSPAWN) ? HEROSPAWN_ARENACORNER: HEROSPAWN_ARENA) : HEROSPAWN_SHOP
 
-    Player(0)
-    ..setLumber(START_TRAININGPOINTS)
-    ..setGold(START_GOLD)
+
+    // Setup players
+    for p in activePlayers
+        p
+        ..setLumber(START_TRAININGPOINTS)
+        ..setGold(START_GOLD)
+        ..setLives(LIVES)
+
 
 
     if SPAWNHEROINARENA
@@ -343,6 +350,9 @@ function enteredRoundNumber()
         printTimed("Starting at round "+roundNumber.toString(),5)
         SND_ENTEREDROUNDNUMBER.play()   
         gameIntroDelay()     
+
+
+
 
 
 init

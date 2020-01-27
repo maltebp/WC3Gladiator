@@ -31,7 +31,7 @@ let AIMASSIST = DEFAULT_AIMASSIST
 let BOUNCE_COUNT = 4
 let DURATION = 12.
 let DURATION_VOODOO = 15.
-let DAMAGE_FACTOR = 0.5
+let DAMAGE_FACTOR = 0.4
 
 let SCROLLOFVOODOO_BOUNCECOUNT = BOUNCE_COUNT + 3
 let SCROLLOFVOODOO_BOUNCERADIUS = BOUNCE_RANGE * 2
@@ -78,7 +78,7 @@ class VoodooLink extends LightningBounce
 
 
     override function targetFilter( unit target) returns boolean
-        return target.isValidEnemyTarget(caster.getOwner())
+        return target.isValidEnemyTarget(caster.getOwner()) and not target.isType(UNIT_TYPE_ANCIENT)
 
 
     override function findBestTarget( group potentialTargets ) returns unit

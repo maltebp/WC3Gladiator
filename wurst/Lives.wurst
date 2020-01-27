@@ -1,0 +1,90 @@
+package Lives
+import ObjectIdGenerator
+import UnitObjEditing
+import LinkedList
+import HashMap
+import ErrorHandling
+
+
+let LIFE_UNIT_ID = compiletime(UNIT_ID_GEN.next())
+
+let LIFE_UNIT_POS = vec2(-9000,9000) // Upper left corner
+
+let playerLives = new HashMap<player, LinkedList<unit>> 
+
+public function player.getNumOfLives() returns int
+    let lives =  playerLives.get(this)
+    if( lives == null )
+        error("Life list hasnt been initialized for "+this.getName())
+    return lives.size()
+
+
+public function player.setLives(int lives)
+    if( playerLives.get(this) != null)
+        this.removeAllLives()
+    this.addLives(lives)
+        
+    
+
+public function player.addLife()
+    var lives = playerLives.get(this)
+
+    if(lives == null)
+        lives = new LinkedList<unit>
+        playerLives.put(this, lives)
+    
+    let lifeUnit = createUnit(this, LIFE_UNIT_ID, LIFE_UNIT_POS, angle(0))
+    ..setInvulnerable(true)
+    ..pause()
+    
+    lives.add(lifeUnit)
+    
+
+public function player.addLives(int lives)
+    for i=1 to lives
+        this.addLife()
+
+
+public function player.removeLife()
+    let lives =  playerLives.get(this)
+    if( lives == null )
+        error("Life list hasnt been initialized for "+this.getName())
+    if( lives.size() == 0 )
+        error(this.getName() + " has 0 lives" )
+    lives.pop().remove() 
+    
+    
+public function player.removeAllLives()
+    let lives =  playerLives.get(this)
+    if( lives == null )
+        error("Life list hasnt been initialized for "+this.getName())
+    if( lives.size() > 0 )
+        for i=1 to lives.size()
+            this.removeLife()
+
+
+
+init
+     CreateTrigger()
+    ..registerPlayerChatEvent(Player(0), "remove life", false)
+    ..addAction() ->
+        Player(0).removeLife()
+
+     CreateTrigger()
+    ..registerPlayerChatEvent(Player(0), "add life", false)
+    ..addAction() ->
+        Player(0).addLife()
+
+
+
+@compiletime
+function defineUnit()
+    
+    new UnitDefinition(LIFE_UNIT_ID, 'hfoo')
+    ..setCanFlee(false)
+    ..setHideMinimapDisplay(true)
+    ..setFoodCost(1)
+    ..setMovementType(MovementType.Fly)
+    ..setCollisionSize(0)
+    ..setModelFile("")
+    ..setAttacksEnabled(0)    

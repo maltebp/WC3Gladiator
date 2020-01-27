@@ -1,10 +1,10 @@
 ---
-projectName: "WC3Gladiator"
+projectName: WC3Gladiator
 dependencies:
-- "https://github.com/wurstscript/wurstStdlib2"
-- "https://github.com/maltebp/ProjectileSystem"
+- https://github.com/wurstscript/wurstStdlib2
+- https://github.com/maltebp/ProjectileSystem
+- https://github.com/maltebp/ChatCommands
 buildMapData:
-  name: "Gladiator (v0.1.2 Alpha)"
-  fileName: "Gladiator-v0.1.2a"
-  author: "Lake"
-  playerCount: 1
+  name: Gladiator (v0.1.2 Alpha)
+  fileName: Gladiator-v0.1.2a
+  author: Lake

@@ -21,7 +21,7 @@ init
 // =========================================================================================================
 
 let DAMAGE_INC = 0.3
-let HEALTH_DRAIN = 0.05
+let HEALTH_DRAIN = 0.025
 let DURATION = 45.
 let DURATION_VOODOO = 45.
 

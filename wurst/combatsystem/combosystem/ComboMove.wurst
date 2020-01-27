@@ -30,7 +30,10 @@ public class ComboMove
 
         comboDesc += "|n"
 
-        BlzSetAbilityExtendedTooltip(moveIds.listAbil, comboDesc+currentDesc, 1)
+        print("Setting combodescription to: "+comboDesc)
+
+        BlzSetAbilityExtendedTooltip(moveIds.listAbil, "Hello world!", 1)
+        print(BlzGetAbilityExtendedTooltip(moveIds.listAbil, 1))
 
         all.add(this)
 
