@@ -12,7 +12,6 @@ import TrollAnimations
 import Projectile
 import Assets
 import GroupUtils
-import Miss
 import HeroDefaults
 import ComboSystem
 import Damage
@@ -81,8 +80,6 @@ init
                 
 
             SND_POSSESSION.playOnPoint(pos.withTerrainZ())
-        else
-            SND_SPELL_MISS.playOnPoint(caster.getPos3Real())
-            caster.missAttack()
+     
 
         targets.clear()

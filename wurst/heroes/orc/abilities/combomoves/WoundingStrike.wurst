@@ -6,7 +6,6 @@ import HoverAbility
 import OrcAnimations
 import MyLibrary
 import GroupUtils
-import Miss
 import SoundDefinitions
 import UnitStatsSystem
 import DamageType
@@ -35,8 +34,6 @@ init
         if target != null
             SND_METAL_SLICE_HEAVY_FLESH[GetRandomInt(0, 2)].playOnPoint(targetPos.withTerrainZ())
             dealCodeDamage(caster, target, caster.getDamage()*DAMAGE_FACTOR )
-        else
-            caster.missAttack()
 
         targets.clear()
 

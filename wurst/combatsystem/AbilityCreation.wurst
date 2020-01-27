@@ -151,8 +151,8 @@ public function createComboMove( string name, string tooltip, string iconActive,
 
 public tuple comboMoveTuple( int useAbil, int   listAbil )
 
-public function compiletime(comboMoveTuple moveT) returns comboMoveTuple
-    return moveT
+// public function compiletime(comboMoveTuple moveT) returns comboMoveTuple
+//     return moveT
 
 
 public function createComboMoveList( vararg comboMoveTuple moves ) returns int

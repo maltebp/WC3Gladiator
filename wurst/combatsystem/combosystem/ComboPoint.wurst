@@ -26,7 +26,7 @@ public class ComboPoint
         ..setColor(comboType.col)
         ..setColorByPlayer(comboType.playercol)
         ..setTimeScale(0.5)
-        ..setScale(0.5)
+        //..setScale(0.5)
 
 
         this.comboType = comboType

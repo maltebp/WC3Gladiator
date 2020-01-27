@@ -65,7 +65,7 @@ public function player.removeAllLives()
 
 
 init
-     CreateTrigger()
+    CreateTrigger()
     ..registerPlayerChatEvent(Player(0), "remove life", false)
     ..addAction() ->
         Player(0).removeLife()

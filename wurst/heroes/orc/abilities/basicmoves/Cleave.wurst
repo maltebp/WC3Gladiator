@@ -7,7 +7,6 @@ import SoundDefinitions
 import AttackCooldown
 import MyLibrary
 import GroupUtils
-import Miss
 import UnitStatsSystem
 import DamageType
 
@@ -60,7 +59,4 @@ init
                     targets.removeUnit(target)
                 else
                     break
-                
-
-        else
-            caster.missAttack()
+     

@@ -9,7 +9,6 @@ import UnitStatsSystem
 import TrollAnimations
 import Assets
 import GroupUtils
-import Miss
 import HeroDefaults
 import Updater
 import BuffObjEditing
@@ -83,9 +82,6 @@ init
 
             caster.reduceCharge( SOUL_DRAIN_REGULARMOVE )
 
-        else
-            SND_SPELL_MISS.playOnPoint(caster.getPos3Real())
-            caster.missAttack()
 
         targets.clear()
 
