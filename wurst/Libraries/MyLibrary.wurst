@@ -53,11 +53,11 @@ public function group.enumEnemyTargets(player enemy, vec2 pos, real range)
                 this.removeUnit(target)
     
 
-public function unit.isEnemyOf(unit whichUnit) returns boolean
-    return this.getOwner().isEnemyOf(whichUnit.getOwner())
+// public function unit.isEnemyOf(unit whichUnit) returns boolean
+//     return this.getOwner().isEnemyOf(whichUnit.getOwner())
 
-public function unit.isAllyOf(unit whichUnit) returns boolean
-    return this.getOwner().isAllyOf(whichUnit.getOwner())  
+// public function unit.isAllyOf(unit whichUnit) returns boolean
+//     return this.getOwner().isAllyOf(whichUnit.getOwner())  
 
 
 
