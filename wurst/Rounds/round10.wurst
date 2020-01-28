@@ -91,7 +91,7 @@ init
     ..addArtifactRewards(1)
 
     // Storm Caller 1
-    round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 24))
+    round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMY, vec2(-639,1025), 24))
     ..setStartDelay(30)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -101,7 +101,7 @@ init
     ..setSpawnCount(5)
 
      // Water Caller 1
-    round.addSpawner(new UnitSpawner(WATERCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 22))
+    round.addSpawner(new UnitSpawner(WATERCALLER_ID, ENEMY, vec2(-639,1025), 22))
     ..setStartDelay(16)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -111,7 +111,7 @@ init
     ..setSpawnCount(5)
 
     // Myrmidon 1
-    round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMYPLAYER, vec2(548,1000), 30 ))
+    round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMY, vec2(548,1000), 30 ))
     ..setStartDelay(2)
     ..setFrequencyDeviation(0.01)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -121,7 +121,7 @@ init
     ..setSpawnCount(4)
 
     // Myrmidon 2
-    round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMYPLAYER, vec2(548,1000), 30))
+    round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMY, vec2(548,1000), 30))
     ..setStartDelay(80)
     ..setFrequencyDeviation(0.01)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -215,9 +215,10 @@ class TornadoAbility
 
             doAnimation()
 
-            let spawnPos = caster.getPos().moveTowards(hero.getPos(), 150)
-            new Tornado(caster, hero, spawnPos, TORNADO_SPEED, TORNADO_DAMAGE, TORNADO_RANGE)
-            ..destroyOnSourceDeath(true)
+            // TODO: Fix this
+            // let spawnPos = caster.getPos().moveTowards(hero.getPos(), 150)
+            // new Tornado(caster, hero, spawnPos, TORNADO_SPEED, TORNADO_DAMAGE, TORNADO_RANGE)
+            // ..destroyOnSourceDeath(true)
 
 
     ondestroy
@@ -530,7 +531,7 @@ function summonElemental()
     let finalPos = ( gg_rct_Arena_Spawn1.contains(spawnPos) ) ? spawnPos : gg_rct_Arena_Spawn1.getCenter()
 
 
-    let elemental = createUnit( ENEMYPLAYER, WATERBEING_ID, finalPos, randomAngle() )
+    let elemental = createUnit( ENEMY, WATERBEING_ID, finalPos, randomAngle() )
     ..setAnimation("birth")
     ..queueAnimation("stand")
     ..pause()

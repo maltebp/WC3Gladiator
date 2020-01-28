@@ -1,12 +1,9 @@
-package Game
+package GameSetup
 
 import public Round
-import FadeAndFilters
 import Music
-import TimedSpecialEffects
 import Preloader
 import Dialog
-import Damage
 import GladiatorSystem
 import LinkedList
 import ClosureTimers
@@ -29,7 +26,6 @@ constant boolean    STARTATSPECIFICROUND    = false
 constant boolean    SELECTHERO              = true
 int        STARTINGROUND                    = 2
 public let                 FINALROUND       = 15
-constant boolean    INSTANTSPAWN            = false  // Toggle rounds to spawn all units at the same time!
 constant boolean    PRINTALPHAINTRO         = false
 
 
@@ -39,7 +35,6 @@ constant int array STARTINGITEMS = ['I00M', 'I00M','I00M', 'I009']
 
 
 
-public constant player ENEMYPLAYER = Player(11)
 public constant vec2 HEROSPAWN_SHOP = vec2(-8129,-8198)
 public constant vec2 HEROSPAWN_ARENA = vec2(173,501)
 public constant vec2 HEROSPAWN_ARENACORNER = vec2(600,-100)
@@ -84,7 +79,7 @@ function instantSetup()
 function delayedSetup()
     initializePlayerList()
 
-    CameraSetSmoothingFactor(30)
+    CameraSetSmoothingFactor(20)
 
 
     // Setting up variables
@@ -101,11 +96,13 @@ function delayedSetup()
     SetTimeOfDayScale(0)
 
 
+
     for p in allPlayers
         p 
         ..setLumber(START_TRAININGPOINTS)
         ..setGold(START_GOLD)
-        ..setLives(LIVES)
+        
+    setLives(LIVES)
 
 
     if SPAWNHEROINARENA
@@ -118,7 +115,8 @@ function delayedSetup()
         
         
 
-    Round.toggleInstantSpawn(INSTANTSPAWN)
+    Round.setCurrentRound(1)
+    //Round.toggleInstantSpawn(INSTANTSPAWN)
 
     // TODO: Move this to somewhere else
     ITEM_DULLBLADE.release()
@@ -128,6 +126,8 @@ function delayedSetup()
     
     for p in allPlayers
         p.startIntro()
+
+
 
     // CreateTrigger()
     // ..registerPlayerEvent(Player(0), EVENT_PLAYER_END_CINEMATIC)
@@ -297,7 +297,6 @@ function delayedInit()
     
 
 function setRound()
-
     let rounds = Round.getRounds()
 
     if STARTATSPECIFICROUND
@@ -315,13 +314,13 @@ function setRound()
 
 function startRound()
 
-    if escapeIsEnabled
+    // if escapeIsEnabled
 
-        if not Round.isARoundRunning()
-            Round.startNextRound()
+    //     if not Round.isARoundRunning()
+    //         Round.startNextRound()
 
-    else if canSkipGameInfo
-        fadeIn()
+    // else if canSkipGameInfo
+    //     fadeIn()
         
 
 function enteredRoundNumber()

@@ -24,7 +24,7 @@ init
 
     // Footman 1
 
-    round.addSpawner(new UnitSpawner('h000', ENEMYPLAYER, vec2(-639,1025), 16))
+    round.addSpawner(new UnitSpawner('h000', ENEMY, vec2(-639,1025), 16))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.05)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -34,7 +34,7 @@ init
 
     // Footman 1
 
-    round.addSpawner(new UnitSpawner('h000', ENEMYPLAYER, vec2(-639,1025), 16))
+    round.addSpawner(new UnitSpawner('h000', ENEMY, vec2(-639,1025), 16))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.05)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -45,7 +45,7 @@ init
 
     // Footman 2
 
-    round.addSpawner(new UnitSpawner('h000', ENEMYPLAYER, vec2(-639,1025), 15))
+    round.addSpawner(new UnitSpawner('h000', ENEMY, vec2(-639,1025), 15))
     ..setStartDelay(60)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -56,7 +56,7 @@ init
 
     // Medic 1
 
-    round.addSpawner(new UnitSpawner('n00A', ENEMYPLAYER, vec2(527,1025), 24))
+    round.addSpawner(new UnitSpawner('n00A', ENEMY, vec2(527,1025), 24))
     ..setStartDelay(4)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -66,7 +66,7 @@ init
 
     //Wizard 1
 
-    round.addSpawner(new UnitSpawner('n009', ENEMYPLAYER, vec2(527,1025), 20))
+    round.addSpawner(new UnitSpawner('n009', ENEMY, vec2(527,1025), 20))
     ..setStartDelay(20)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -76,7 +76,7 @@ init
 
 
     // Wizard 2
-    round.addSpawner(new UnitSpawner('n009', ENEMYPLAYER, vec2(527,1025), 16))
+    round.addSpawner(new UnitSpawner('n009', ENEMY, vec2(527,1025), 16))
     ..setStartDelay(70)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)

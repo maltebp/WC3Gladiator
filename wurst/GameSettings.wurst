@@ -9,7 +9,9 @@ public let NUM_OF_PLAYERS       = 5
 
 public let START_TRAININGPOINTS = 8
 public let START_GOLD           = 50
-public let LIVES                = 5
+public let LIVES                = 4
+public let ENEMY                = Player(11)
+public let                 FINAL_ROUND       = 15
 
 
 /* 
@@ -28,13 +30,18 @@ public let SND_MESSAGE = new SoundDefinition(Sounds.questActivateWhat1, false)
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Test Switches
-public let LOCK_CAM_BOUNDS = false
-public let SKIP_INTRO = true
+public let DEBUG = true
+
+public let LOCK_CAM_BOUNDS  = false
+public let SKIP_INTRO       = true
+public let INSTANT_SPAWN     = true  // Toggle rounds to spawn all units at the same time!
+
 
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Points and rects
-public let SHOP_GLADIATORSPAWN = vec2(-8129,-8198)
+public let SHOP_SPAWN = vec2(-8129,-8198)
+public let ARENA_SPAWN = vec2(173,501)
 
 
 //================================================================================================================================================================================================

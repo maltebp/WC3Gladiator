@@ -51,7 +51,7 @@ init
         new Grow(spawner.getLastSpawnedUnit(),1.1)
     end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(-639,1025), 12))
+    round.addSpawner(new UnitSpawner('n008', ENEMY, vec2(-639,1025), 12))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.05)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -67,7 +67,7 @@ init
         new Grow(spawner.getLastSpawnedUnit(),1.1)
     end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 25))
+    round.addSpawner(new UnitSpawner('n008', ENEMY, vec2(527,1025), 25))
     ..setStartDelay(20)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -83,7 +83,7 @@ init
         new Grow(spawner.getLastSpawnedUnit(),1.1)
     end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 25))
+    round.addSpawner(new UnitSpawner('n008', ENEMY, vec2(527,1025), 25))
     ..setStartDelay(80)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -209,7 +209,7 @@ class ArcaneExplosion
             let source = DummyRecycler.get(pos2, angle(0))
 
             forUnitsInRange(pos2, scaledRange) target ->
-                if target.getOwner().isEnemyOf(ENEMYPLAYER)
+                if target.getOwner().isEnemyOf(ENEMY)
                     flashEffect(Abilities.blackKeeperMissile, target, "chest")
 
                     let distance = target.getPos().distanceTo(pos2)
@@ -245,7 +245,7 @@ init
         let casterDamage = caster.getBaseDamage(1)*MISSILES_DAMAGE_FACTOR
         MISSILES_SOUND.playOnPoint(caster.getPos3Real())
         
-        forEnemiesInRange( ENEMYPLAYER, caster.getPos(), MISSILES_RANGE ) target ->
+        forEnemiesInRange( ENEMY, caster.getPos(), MISSILES_RANGE ) target ->
             let projectile = new Projectile( caster.getPos().withTerrainZ(75), Abilities.druidoftheTalonMissile)
             ..fireUnit(target, 50, true, 800, 0)
             ..addActionOnFinish() ->

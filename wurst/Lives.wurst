@@ -4,13 +4,33 @@ import UnitObjEditing
 import LinkedList
 import HashMap
 import ErrorHandling
+import Players
+import UtilCommands
 
 
 let LIFE_UNIT_ID = compiletime(UNIT_ID_GEN.next())
-
 let LIFE_UNIT_POS = vec2(-9000,9000) // Upper left corner
 
 let playerLives = new HashMap<player, LinkedList<unit>> 
+
+var lives = 0
+
+public function setLives(int newLives)
+    lives = newLives
+    updateLives()
+
+public function removeLife() returns int
+    lives--
+    updateLives()
+    return lives
+
+public function getLives() returns int
+    return lives
+
+function updateLives()
+    for p in allPlayers
+        p.setLives(lives)
+
 
 public function player.getNumOfLives() returns int
     let lives =  playerLives.get(this)
@@ -64,18 +84,21 @@ public function player.removeAllLives()
 
 
 
+
+//================================================================================================================================================================================================
 init
-    CreateTrigger()
-    ..registerPlayerChatEvent(Player(0), "remove life", false)
-    ..addAction() ->
-        Player(0).removeLife()
+    defineUtilCommand("setlives")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p,args,opts) ->
+        let newLives = args.getInt()
+        if( newLives < 0 )
+            p.print("\nLives must be larger than 0")
+        else
+            setLives(newLives)
+            p.print("\nSet lives to {0}".format(lives.toString().highlight()))
 
-    CreateTrigger()
-    ..registerPlayerChatEvent(Player(0), "add life", false)
-    ..addAction() ->
-        Player(0).addLife()
 
-
+//================================================================================================================================================================================================
 
 @compiletime
 function defineUnit()

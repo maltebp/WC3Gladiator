@@ -55,7 +55,7 @@ init
         Earthquake.clearAll()
 
     // Spawner 1
-    round.addSpawner(new UnitSpawner(ROCKGIANT, ENEMYPLAYER, vec2(-639,1025), 15))
+    round.addSpawner(new UnitSpawner(ROCKGIANT, ENEMY, vec2(-639,1025), 15))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -65,7 +65,7 @@ init
     ..setSpawnCount(8)
 
     // Spawner 2
-    round.addSpawner(new UnitSpawner(ROCKGIANT, ENEMYPLAYER, vec2(-639,1025), 30))
+    round.addSpawner(new UnitSpawner(ROCKGIANT, ENEMY, vec2(-639,1025), 30))
     ..setStartDelay(50)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)

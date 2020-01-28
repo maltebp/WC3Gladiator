@@ -36,7 +36,7 @@ init
 
     // Spawner 1
 
-    round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(-639,1025), 23))
+    round.addSpawner(new UnitSpawner('n00E', ENEMY, vec2(-639,1025), 23))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -44,7 +44,7 @@ init
     ..setSpawnCount(5)
 
     //Spawner 2
-    round.addSpawner(new UnitSpawner('n00E', ENEMYPLAYER, vec2(0,0), 50))
+    round.addSpawner(new UnitSpawner('n00E', ENEMY, vec2(0,0), 50))
     ..setStartDelay(70)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)

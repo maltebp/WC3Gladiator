@@ -29,7 +29,7 @@ init
         new StoneForm(spawner.getLastSpawnedUnit())
     end
 
-    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(-639,1025), 10))
+    round.addSpawner(new UnitSpawner('u002', ENEMY, vec2(-639,1025), 10))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -43,7 +43,7 @@ init
         new StoneForm(spawner.getLastSpawnedUnit())
     end
 
-    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(527,1025), 12))
+    round.addSpawner(new UnitSpawner('u002', ENEMY, vec2(527,1025), 12))
     ..setStartDelay(30)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -57,7 +57,7 @@ init
         new StoneForm(spawner.getLastSpawnedUnit())
     end
 
-    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(527,1025), 10))
+    round.addSpawner(new UnitSpawner('u002', ENEMY, vec2(527,1025), 10))
     ..setStartDelay(60)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)

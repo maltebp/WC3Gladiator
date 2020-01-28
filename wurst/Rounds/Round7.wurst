@@ -64,7 +64,7 @@ init
 
 
     // Hatchling 1
-    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    round.addSpawner(new UnitSpawner( HATCHLING, ENEMY, vec2(0,0), 1))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -73,7 +73,7 @@ init
     // ..setSpawnEffect( Abilities.orbVenomMissile )
 
     // Hatchling 2
-    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    round.addSpawner(new UnitSpawner( HATCHLING, ENEMY, vec2(0,0), 1))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -82,7 +82,7 @@ init
     // ..setSpawnEffect( Abilities.orbVenomMissile )
 
     // Hatchling 2
-    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    round.addSpawner(new UnitSpawner( HATCHLING, ENEMY, vec2(0,0), 1))
     ..setStartDelay(50)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -91,7 +91,7 @@ init
     // ..setSpawnEffect( Abilities.orbVenomMissile )
 
     // Webber 3
-    round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 8))
+    round.addSpawner(new UnitSpawner( WEBBER, ENEMY, vec2(0,0), 8))
     ..setStartDelay(10)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -101,7 +101,7 @@ init
     ..setSoundOnSpawn( Sounds.arachnathidWhat2)
 
     // Webber 3
-    round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 15))
+    round.addSpawner(new UnitSpawner( WEBBER, ENEMY, vec2(0,0), 15))
     ..setStartDelay(40)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -111,7 +111,7 @@ init
     ..setSoundOnSpawn( Sounds.arachnathidWhat2)
 
     // Spitter 1
-    round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 12))
+    round.addSpawner(new UnitSpawner( SPITTER, ENEMY, vec2(0,0), 12))
     ..setStartDelay(12)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -121,7 +121,7 @@ init
     ..setSoundOnSpawn( Sounds.arachnathidWhat1)
 
     // Spitter 2
-    round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 10))
+    round.addSpawner(new UnitSpawner( SPITTER, ENEMY, vec2(0,0), 10))
     ..setStartDelay(50)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -210,7 +210,7 @@ function webOnCast()
     projectile.addActionOnFinish() ->
         if target.isAliveTrick()
 
-            InstantDummyCaster.castTarget( ENEMYPLAYER, WEB_DUMMY_ID, 1, Orders.ensnare, target)
+            InstantDummyCaster.castTarget( ENEMY, WEB_DUMMY_ID, 1, Orders.ensnare, target)
             
             let sfx = addEffect(Abilities.webTarget, target.getPos().withTerrainZ(40))
             ..setScale(1.25)
@@ -258,7 +258,7 @@ function onPoisonSpit()
     new Projectile( caster.getPos().withTerrainZ(30), Abilities.chimaeraAcidMissile )
     ..firePoint( targetPos, POISON_SPEED, 0.2)
     ..addActionOnFinish() ->
-        let targets = ENUM_GROUP..enumEnemyTargets( ENEMYPLAYER, targetPos.toVec2(), POISON_AOE )
+        let targets = ENUM_GROUP..enumEnemyTargets( ENEMY, targetPos.toVec2(), POISON_AOE )
     
         for target from targets
             caster.damageTargetPhysical(target, POISON_SPIT_DMG)

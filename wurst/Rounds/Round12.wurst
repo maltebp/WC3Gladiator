@@ -66,7 +66,7 @@ init
         Ensnare.clearAll()
 
     // BERSERKER 1
-    round.addSpawner(new UnitSpawner(BERSERKER, ENEMYPLAYER, vec2(-639,1025), 20))
+    round.addSpawner(new UnitSpawner(BERSERKER, ENEMY, vec2(-639,1025), 20))
     ..setStartDelay(4)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -76,7 +76,7 @@ init
     ..setSpawnCount(6)
 
     // BERSERKER 2
-    round.addSpawner(new UnitSpawner(BERSERKER, ENEMYPLAYER, vec2(-639,1025), 30))
+    round.addSpawner(new UnitSpawner(BERSERKER, ENEMY, vec2(-639,1025), 30))
     ..setStartDelay(70)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -86,7 +86,7 @@ init
     ..setSpawnCount(2)
 
     // DOOM SAYER 1
-    round.addSpawner(new UnitSpawner(DOOMSAYER, ENEMYPLAYER, vec2(-639,1025), 30))
+    round.addSpawner(new UnitSpawner(DOOMSAYER, ENEMY, vec2(-639,1025), 30))
     ..setStartDelay(15)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -96,7 +96,7 @@ init
     ..setSpawnCount(4)
 
     // DOOM SAYER 2
-    round.addSpawner(new UnitSpawner(DOOMSAYER, ENEMYPLAYER, vec2(-639,1025), 30))
+    round.addSpawner(new UnitSpawner(DOOMSAYER, ENEMY, vec2(-639,1025), 30))
     ..setStartDelay(90)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -106,7 +106,7 @@ init
     ..setSpawnCount(1)
 
     // WOLF RIDER 1
-    round.addSpawner(new UnitSpawner(WOLFRIDER, ENEMYPLAYER, vec2(-639,1025), 20))
+    round.addSpawner(new UnitSpawner(WOLFRIDER, ENEMY, vec2(-639,1025), 20))
     ..setStartDelay(12)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)

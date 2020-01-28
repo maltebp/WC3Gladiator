@@ -7,7 +7,6 @@ import TimedSpecialEffects
 import UnitVisualsUtils
 
 
-
 let SKELETONWARRIOR = 'u001'
 let SKELETONARCHER = 'n007'
 let NECROMANCER = 'u000'
@@ -33,7 +32,7 @@ init
         new SummonSkeletons(spawner.getLastSpawnedUnit(), spawner)
     end
 
-    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(-639,1025), 10))
+    round.addSpawner(new UnitSpawner('u000', ENEMY, vec2(-639,1025), 10))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -47,7 +46,7 @@ init
         new SummonSkeletons(spawner.getLastSpawnedUnit(), spawner)
     end
 
-    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(527,1025), 24))
+    round.addSpawner(new UnitSpawner('u000', ENEMY, vec2(527,1025), 24))
     ..setStartDelay(30)
     ..setFrequencyDeviation(0.01)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -61,7 +60,7 @@ init
         new SummonSkeletons(spawner.getLastSpawnedUnit(), spawner)
     end
 
-    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(527,1025), 15))
+    round.addSpawner(new UnitSpawner('u000', ENEMY, vec2(527,1025), 15))
     ..setStartDelay(70)
     ..setFrequencyDeviation(0.01)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -140,7 +139,7 @@ class Skeleton
     construct(SkeletonType whichType, vec2 whichPos)
         vec2 pos = whichPos
         let unitId = (whichType == SkeletonType.WARRIOR) ? 'u001' : 'n007'
-        skeleton = createUnit(ENEMYPLAYER, unitId, pos, angle(GetRandomReal(0, 2*PI)))
+        skeleton = createUnit(ENEMY, unitId, pos, angle(GetRandomReal(0, 2*PI)))
         ..pause()
         ..setAnimation("birth")
 

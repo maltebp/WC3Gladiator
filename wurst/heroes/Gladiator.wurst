@@ -16,12 +16,18 @@ import AbilityObjEditing
 import CompileTimeData
 import ObjectIds
 import Soundsets
+import UtilCommands
 
+
+
+//================================================================================================================================================================================================
+public function getAllGladiators() returns LinkedList<Gladiator>
+    return Gladiator.instances
 
 
 // ================================================================================================================================
 public class Gladiator
-    private static let instances = new LinkedList<thistype>
+    protected static let instances = new LinkedList<thistype>
 
     private unit            gladiatorUnit
     private GladiatorType   gladiatorType
@@ -69,11 +75,19 @@ public class Gladiator
     function getSoundOnNewAbility() returns SoundDefinition
         return gladiatorType.getSoundOnNewAbility()
 
+    /** Refreshes the gladiator, healing it and running all RefreshFunctions defined for the 
+        GladiatorType (refresh cooldowns i.e.) */ 
+        // TODO: Implement refresh functions
+    function refresh()
+        if( gladiatorUnit.isAlive() )
+            gladiatorUnit.setMaxHP(gladiatorUnit.getMaxHP().toInt())
+            gladiatorUnit.setMana(gladiatorUnit.getMaxMana())
+
     
     function getOwner() returns player
         return owner
 
-    function getColor() returns string
+    function getColor() returns color
         return gladiatorType.getColor()
 
     function getGladiatorType() returns GladiatorType
@@ -112,7 +126,7 @@ public class GladiatorType
 
     private string name
 
-    private string color
+    private color col
 
     protected int QAbility
     protected int WAbility
@@ -159,8 +173,8 @@ public class GladiatorType
         snd_NewAbility = new SoundDefinition(soundPath, false)
     
 
-    function setColor(string color)
-        this.color = color
+    function setColor(color col)
+        this.col = col
 
     function addAbilities(vararg int abilities)
         for abil in abilities
@@ -196,9 +210,8 @@ public class GladiatorType
         checkInit() 
         return unitType
 
-    function getColor() returns string
-        checkInit()
-        return color
+    function getColor() returns color
+        return col
 
     function setBaseAbilities( int q, int w, int e)
         QAbility = q
@@ -307,3 +320,14 @@ init
     for stringId in data_GladiatorUnitIds.getData()
         allGladiatorIds.add(stringId.fromRawCode())
         
+
+//================================================================================================================================================================================================
+// Chat Commands
+init    
+    defineUtilCommand("gladiator")
+    .addSubCommand("getall")
+    ..setAction() (p, args, opts) ->
+        var gladiatorNames = ""
+        for gladiator in getAllGladiators()
+            gladiatorNames += "\n    " + gladiator.getOwner().getNameColored() + ": " + gladiator.getUnit().getProperName()
+        p.print("\nGladiators:" + gladiatorNames)

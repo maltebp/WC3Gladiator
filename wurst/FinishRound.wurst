@@ -1,0 +1,146 @@
+package FinishRound
+
+import Scene
+import GladiatorSystem
+import GameSettings
+import Round
+import Abilities
+import TimedSpecialEffects
+import Music
+import Lives
+import FinishMap
+import StringUtils
+import ReadyHandler
+import Players
+
+//================================================================================================================================================================================================
+
+
+let SND_ROUND_WON = new SoundDefinition(Sounds.questCompleted, false)
+let SND_ROUND_LOST = new SoundDefinition(Sounds.questFailed, false)
+let SND_ROUND_COMPLETE = new SoundDefinition(Sounds.goodJob, false)
+
+
+//================================================================================================================================================================================================
+
+
+
+public function finishRound(boolean hasWon)
+
+    stopMusic()
+
+    if( not hasWon )
+        removeLife()
+        
+    if( getLives() <= 0 )
+        mapLost()
+
+    else if( hasWon and Round.getCurrentRoundNumber() == FINAL_ROUND ) 
+        mapWon()
+
+    else
+        new Scene()
+        ..do( p -> p.saveGladiator() )
+        ..wait(4)
+        ..do( p -> p.pauseGladiator() )
+        ..do( p -> p.fadeOut(1) )
+        ..wait(1)
+        ..do( -> Round.clearCurrentRound())
+        ..do( p -> p.moveCam() )
+        ..wait(0.5)
+        ..do( p -> p.fadeIn(1) )
+        ..wait(2)
+        ..do( p -> p.moveGladiator() )
+        ..wait(3)
+        ..addRoundReview(hasWon)
+        ..do( p -> p.enableReadyButton() )
+        ..play(allPlayers)
+
+function player.moveCam()
+    this.setCameraBoundsToRect(gg_rct_Shop_CamBounds)
+    this.setCameraPosition(SHOP_SPAWN)
+
+function player.saveGladiator()
+    let gladiator = this.getGladiator().getUnit()
+    if( gladiator.isAlive() )
+        gladiator.setInvulnerable(true)
+
+function player.pauseGladiator()
+    let gladiator = this.getGladiator().getUnit()
+    if( gladiator.isAlive() )
+        gladiator.pause()
+
+function player.moveGladiator()
+    let gladiator = this.getGladiator().getUnit()
+    if( gladiator.isAlive() )
+        gladiator.setPos(SHOP_SPAWN)
+        addEffect(Abilities.massTeleportCaster, gladiator.getPos())
+        ..setDuration(5)
+    else
+        gladiator
+        ..revive(SHOP_SPAWN, true)
+        this.getGladiator().getSpawnSound().play()
+
+    gladiator.unpause()
+    gladiator.setInvulnerable(false)
+    this.selectSingle(gladiator)
+    this.getGladiator().refresh()
+    
+
+function Scene.addRoundReview(boolean hasWon)
+    let currentRound = Round.getCurrentRound()
+
+    if( hasWon )
+    // Round Won
+        this
+        ..do( -> SND_ROUND_COMPLETE.play() )
+        ..do( -> print("|cff00cc66"+"Round "+Round.getCurrentRoundNumber().toString()+" completed!"+"|r",7))
+        ..wait(4)
+        ..do( -> Round.giveReward() )
+
+        // Reward Items 
+        if( Round.getCurrentRound().getNumberOfItemRewards() > 0 )
+            this
+            ..wait(6)
+            ..do( -> Round.giveItemReward() )
+            // TODO: Fix artifact rewards to use UNLOCK_ARTIFACT_ROUNDS
+
+        // Reward Abilities
+        if( currentRound.abilitiesToReward() > 0)
+            this
+            ..wait(6)
+            ..do(p -> p.rewardAbility())
+        
+        // Next Round
+        ..wait(6)
+        ..do(   -> Round.setNextRound() )
+        ..do( p -> Round.printNextRound(p) )
+        
+    else
+    // Round Lost
+        //
+        this
+        ..do( -> SND_ROUND_LOST.play() )
+        ..do( -> print("|cffff3300"+"Round "+Round.getCurrentRoundNumber().toString()+" failed!"+"|r\n" + 
+                        "You have "+localPlayer.getNumOfLives().toString()+" lives left.",10 ))
+        ..wait(4)
+        ..do( -> print("\nTry again",10))
+
+
+
+function Round.abilitiesToReward() returns int
+    let roundNumber = this.getNumber()
+    var count = 0
+    for i=0 to UNLOCK_ABILITY_ROUNDS.length-1
+        if( UNLOCK_ABILITY_ROUNDS[i] == roundNumber )
+            count++        
+    return count
+
+
+function player.rewardAbility()
+    let gladiator = this.getGladiator()
+
+    let abilityName = gladiator.unlockNextAbility()
+    
+    this.print( "New ability: {0}".format(abilityName.withColor(gladiator.getColor())), 6)
+    gladiator.getSoundOnNewAbility().playForPlayer(this)

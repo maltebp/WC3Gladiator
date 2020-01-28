@@ -1,0 +1,141 @@
+package ReadyHandler
+
+import LinkedList
+
+import Players
+import UtilCommands
+import OnEscape
+import HashMap
+import ClosureTimers
+import SoundUtils
+import StringUtils
+import GameSettings
+import Round
+import Music
+import StartRound
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Settings
+
+let BUTTON_COOLDOWN = 1.
+
+let SND_READY = new SoundDefinition( Sounds.upkeepRing, false, false)
+let SND_NOTREADY = new SoundDefinition( Sounds.mouseClick1, false, false)
+let SND_ALLREADY = new SoundDefinition(Sounds.arrangedTeamInvitation, false)
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+let readyButtonPlayers = new LinkedList<player>
+let readyPlayers = new LinkedList<player>
+let escapeCallbacks = new HashMap<player, OnEscapeCallback>
+let cooldownList  = new LinkedList<player>
+
+public function player.enableReadyButton()
+    if( not readyButtonPlayers.has(this) )
+        readyButtonPlayers.add(this)
+        escapeCallbacks.put(this, this.onEscapePressed(p -> p.toggleReady()))
+
+public function player.disableReadyButton()
+    if( readyButtonPlayers.has(this) )
+        readyButtonPlayers.remove(this)
+        destroy this.removeEscapePressedCallback(escapeCallbacks.getAndRemove(this))
+        
+
+public function player.isReady() returns bool
+    return readyPlayers.has(this)
+
+
+function player.setReadyState(bool ready)
+    if( ready and not readyPlayers.has(this) )
+        readyPlayers.add(this)
+        checkReadyStates()
+    else if( not ready and readyPlayers.has(this))
+        readyPlayers.remove(this) 
+    
+
+    
+function player.toggleReady()
+    this.setReadyState(not this.isReady())
+    if( this.isReady() )
+        SND_READY.playForPlayer(this)
+        this.print("\nYou are {0}".format("ready".withColor(COLOR_HIGHLIGHT)), 10)
+    else
+        SND_NOTREADY.playForPlayer(this)
+        this.print("\nYou are {0}".format("not ready".withColor(COLOR_HIGHLIGHT)), 10)
+    cooldownList.add(this)
+    doAfter(BUTTON_COOLDOWN) ->
+        cooldownList.remove(this)
+
+
+function checkReadyStates()
+    var allReady = true
+    for p in allPlayers
+        if( not p.isReady() )
+            allReady = false
+    if( allReady )
+        allAreReady()
+
+
+function allAreReady()
+    for p in allPlayers
+        p.setReadyState(false)
+        p.disableReadyButton()
+    
+    doAfter(2) ->
+        
+        stopMusic()
+        SND_ALLREADY.play()
+        
+        print("\nAll players ready - starting round {0}!".format(Round.getCurrentRoundNumber().toString().withColor(COLOR_HIGHLIGHT)), 7)
+        doAfter(4) ->
+            startRound()
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Chat command
+init
+    let cmd = defineUtilCommand("ready")
+    ..addHelpCommand("Toggles a player's ready state. First argument is player id and and second either 't' or 'f'")
+    ..addArgument(ArgumentType.INT)
+    ..addArgument(ArgumentType.STRING)
+    ..setAction() (commandingPlayer, args, opts) ->
+        let playerId = args.getInt()
+        var playerExists = false
+        for p in allPlayers
+            if( p.getId() == playerId)
+                playerExists = true
+        if( not playerExists )
+            commandingPlayer.print("Player with ID {0} is not in game.".format(playerId.toString().highlight()), 10)
+        else
+            let readyState = args.getString() == "t"
+            Player(playerId).setReadyState(readyState)
+            commandingPlayer.print("{0}'s ready state was set to '{1}'".format(Player(playerId).getNameColored(), (readyState ? "ready" : "not ready").highlight()), 10)
+
+            
+    cmd.addSubCommand("get")
+    ..addHelpCommand("Prints ready states for all players")
+    ..setAction() (commandingPlayer, args, opts) ->
+        commandingPlayer.print("\n", 10)
+        for p in allPlayers
+            commandingPlayer.print("{0}: {1}".format(p.getNameColored(), (p.isReady() ? "ready" : "not ready")), 10)
+    
+    cmd.addSubCommand("all")
+    ..addHelpCommand("Sets all players ready state to 'ready'")
+    ..setAction() (commandingPlayer, args, opts) ->
+        for p in allPlayers
+            p.setReadyState(true)
+        
+    
+
+
+    
+    
+
+
+
+
+
+

@@ -55,7 +55,7 @@ init
 
     // Spawner 1
 
-    round.addSpawner(new UnitSpawner('n00F', ENEMYPLAYER, vec2(-639,1025), 20))
+    round.addSpawner(new UnitSpawner('n00F', ENEMY, vec2(-639,1025), 20))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -63,7 +63,7 @@ init
     ..setSpawnCount(6)
 
     //Spawner 2
-    round.addSpawner(new UnitSpawner('n00F', ENEMYPLAYER, vec2(0,0), 30))
+    round.addSpawner(new UnitSpawner('n00F', ENEMY, vec2(0,0), 30))
     ..setStartDelay(30)
     ..setFrequencyDeviation(0.05)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -71,7 +71,7 @@ init
     ..setSpawnCount(3)
     
     //Spawner 2
-    round.addSpawner(new UnitSpawner('n00F', ENEMYPLAYER, vec2(-639,1025), 1))
+    round.addSpawner(new UnitSpawner('n00F', ENEMY, vec2(-639,1025), 1))
     ..setStartDelay(100)
     ..setFrequencyDeviation(0)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -304,7 +304,7 @@ function unit.summonDemon()
         while not rectBound.contains(spawnPos)
             spawnPos.moveTowards(rectBound.getCenter(), 50)
 
-        let demon = createUnit(ENEMYPLAYER, 'n00G', spawnPos, angle(GetRandomReal(0, 2*PI)))
+        let demon = createUnit(ENEMY, 'n00G', spawnPos, angle(GetRandomReal(0, 2*PI)))
         this.getSpawner().addSummonedUnit(demon)
         addEffect("Abilities\\Spells\\Demon\\DarkPortal\\DarkPortalTarget.mdl", spawnPos)
 
@@ -357,7 +357,7 @@ init
     UnitVisuals.addUnitType('n00G')
     ..setPlayerColor(PLAYER_COLOR_MAROON)
 
-    registerPlayerUnitEventForPlayer(EVENT_PLAYER_UNIT_DEATH, function unitDies, ENEMYPLAYER)
+    registerPlayerUnitEventForPlayer(EVENT_PLAYER_UNIT_DEATH, function unitDies, ENEMY)
 
 
     addAutoCastAbilityToUnitType('n00F', new AutoCastSummonDemon())

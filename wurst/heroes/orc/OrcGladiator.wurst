@@ -25,7 +25,7 @@ init
     ..setSoundOnSpawn(Sounds.gromWhat3)
     ..setSoundOnRespawn(Sounds.gromYes3)
     ..setSoundOnNewAbility(Sounds.strongholdWhat1)
-    ..setColor("|cff98e698")
+    ..setColor(color(152,230,152))
     ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED)
     ..addAbilities(
         ORC_ABIL_ENRAGE,

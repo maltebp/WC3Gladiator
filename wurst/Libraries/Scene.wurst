@@ -25,65 +25,85 @@ import ClosureTimers
 import public FadeUtil
 
 
-public function player.playScene() returns Scene
-    return new Scene(this)
-
-
 public interface SceneCallback
+    function run()
+
+public interface ScenePlayerCallback
     function run(player p)
 
-        
-// Bad (but easy) way of implementing "wait action"
-class WaitCallback implements SceneCallback
-    real waitDuration
-    construct( real waitDuration)
-        this.waitDuration = waitDuration
+public interface ActionContainer
+    function run(player p)
 
-    override function run(player p)
-        skip
-        
-class SkipPoint implements SceneCallback
-    override function run(player p)
-        skip
+
+
+enum Instruction
+    DO
+    FORPLAYERS
+    WAIT
 
 
 public class Scene
-    
+    protected let instructions = new LinkedList<Instruction>
     protected let actions = new LinkedList<SceneCallback>
-    protected player scenePlayer
+    protected let playerActions = new LinkedList<ScenePlayerCallback>
+    protected let waitTimes = new LinkedList<real>
+    protected var players =  new LinkedList<player>
 
-    construct(player scenePlayer)
-        this.scenePlayer = scenePlayer
-
+    ondestroy
+        destroy actions
+        destroy players
+        destroy waitTimes
+        destroy playerActions
+        destroy instructions
     
     /** Runs the scene for the player */
-    function play()
+    function play(vararg player players)
+        for p in players
+            this.players.add(p)
         runNext()
+
+    function play(LinkedList<player> players)
+        destroy this.players
+        this.players = players.copy()
+        runNext()
+
+    /** Add an action to the scene.*/
+    function do(SceneCallback action)   
+        actions.add(action)
+        instructions.add(Instruction.DO)
 
     /** Add an action to the scene.
         The callback takes the player for which the scene is running. */
-    function do(SceneCallback action)   
-        actions.add(action)
+    function do(ScenePlayerCallback action)   
+        playerActions.add(action)
+        instructions.add(Instruction.FORPLAYERS)
         
     /** Add a "wait action" to the scene */
     function wait(real duration)
-        actions.add( new WaitCallback(duration) )
-
-    // function skipPoint()
-    //     actions.add( new SkipPoint() )
+        waitTimes.add(duration)
+        instructions.add(Instruction.WAIT)
 
 
     private function runNext()
-        let action = actions.dequeue()
-        if( action == null )
+        
+        if( instructions.size() == 0 )
             destroy this
         else
-            if( action instanceof WaitCallback)
-                let waitDuration = (action castTo WaitCallback).waitDuration
-                doAfter(waitDuration) ->
+            let instruction = instructions.dequeue()
+            switch instruction
+                case DO
+                    let action = actions.dequeue()
+                    action.run()
+                    destroy action
                     runNext()
-            else
-                action.run(scenePlayer)
-                runNext()
-        
+                case FORPLAYERS
+                    let action = playerActions.dequeue()
+                    for p in players
+                        action.run(p)
+                    destroy action
+                    runNext()
+                case WAIT
+                    let waitTime = waitTimes.dequeue()
+                    doAfter(waitTime) ->
+                        runNext()
 

@@ -84,7 +84,7 @@ UnitSpawner eggSpawner
 
 init
     // EGG
-    eggSpawner = new UnitSpawner(EGG_ID, ENEMYPLAYER, vec2(-639,1025), 0)
+    eggSpawner = new UnitSpawner(EGG_ID, ENEMY, vec2(-639,1025), 0)
 
     // Round Setup
     let round = new Round()
@@ -105,7 +105,7 @@ init
 
 
     // BROODER
-    round.addSpawner(new UnitSpawner(BROODER_ID, ENEMYPLAYER, vec2(-639,1025), 30))
+    round.addSpawner(new UnitSpawner(BROODER_ID, ENEMY, vec2(-639,1025), 30))
     ..setStartDelay(15)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -115,7 +115,7 @@ init
     ..setSpawnCount(5)
 
     // PROTECTOR 1
-    round.addSpawner(new UnitSpawner(PROTECTOR_ID, ENEMYPLAYER, vec2(-639,1025), 30))
+    round.addSpawner(new UnitSpawner(PROTECTOR_ID, ENEMY, vec2(-639,1025), 30))
     ..setStartDelay(5)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -208,7 +208,7 @@ class DragonEgg
 
         this.pos = pos
 
-        egg = createUnit( ENEMYPLAYER, EGG_ID, pos, angle(GetRandomReal(0, PI2)) )
+        egg = createUnit( ENEMY, EGG_ID, pos, angle(GetRandomReal(0, PI2)) )
         ..setMaxMana(EGG_HATCHTIME)
         ..setMana(I2R(EGG_HATCHTIME))
 
@@ -246,12 +246,12 @@ class DragonEgg
 
         if timeToHatch <= 0
 
-            dragon = createUnit(ENEMYPLAYER, GROWNDRAGON_ID, pos, randomAngle())
+            dragon = createUnit(ENEMY, GROWNDRAGON_ID, pos, randomAngle())
             
 
         else
             
-            dragon = createUnit(ENEMYPLAYER, DRAGON_ID, pos, randomAngle()) 
+            dragon = createUnit(ENEMY, DRAGON_ID, pos, randomAngle()) 
 
             let hp = DRAGON_HEALTH_MIN + (DRAGON_HEALTH_MAX-DRAGON_HEALTH_MIN)/EGG_HATCHTIME * (EGG_HATCHTIME-timeToHatch)
 

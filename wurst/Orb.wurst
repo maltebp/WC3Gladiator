@@ -4,6 +4,7 @@ import TimerUtils
 import LinkedList
 import TimedSpecialEffects
 import HashMap
+import GladiatorSystem
 
 abstract class Orb
 
@@ -14,7 +15,6 @@ abstract class Orb
     private static timer updateTimer    
 
     protected vec2 pos
-    protected LinkedList<unit> activationUnits = new LinkedList<unit>
     // If not empty, this is a list of the ONLY units that may activate the orb
 
     protected effect orb
@@ -38,8 +38,6 @@ abstract class Orb
             updateTimer
             ..pause()
             ..release()
-
-        destroy activationUnits
 
     /** For testing purposes */
     protected static function printOrbs()
@@ -67,11 +65,10 @@ abstract class Orb
                     if not unitInRange.isAliveTrick()
                         unitsInRange.removeUnit(unitInRange)
 
-                // Sorting activationUnits
-                if orb.activationUnits != null
-                    for unitInRange in unitsInRange
-                        if not orb.activationUnits.has(unitInRange)
-                            unitsInRange.removeUnit(unitInRange)
+                // Sorting units
+                for unitInRange in unitsInRange
+                    if not unitInRange.isGladiator()
+                        unitsInRange.removeUnit(unitInRange)
                 
                 // Finding the nearest Unit
                 if unitsInRange.size() > 1
@@ -89,10 +86,6 @@ abstract class Orb
                     orb.consume(unitsInRange.next())
                     
                 unitsInRange.clear()
-            
-    function addActivationUnit( unit whichUnit )
-
-        activationUnits.add(whichUnit)
 
     static function destroyAll()
         

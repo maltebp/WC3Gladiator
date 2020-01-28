@@ -2,7 +2,6 @@ package Players
 
 import LinkedList
 import RegisterEvents
-import ClosureTimers
 
 public let allPlayers = new LinkedList<player>
 public var mapMaker = Player(0)
@@ -22,6 +21,7 @@ public function player.addTestPlayers(vararg player players)
         if( not allPlayers.has(p) )
             allPlayers.add(p)
             p.setPlayerAlliance(this, ALLIANCE_SHARED_CONTROL, true)
+            
 
     // Sort the new player list
     allPlayers.sortWith( (p1, p2) -> p1.getId() - p2.getId() )

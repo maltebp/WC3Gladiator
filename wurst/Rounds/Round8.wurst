@@ -71,7 +71,7 @@ init
     
     // Prepare
     roundFunction = (Round round) -> begin
-        Round.setBossUnit(createUnit(ENEMYPLAYER, BOSSID, vec2(14,1000), angle(PIHALF+PI)))
+        Round.setBossUnit(createUnit(ENEMY, BOSSID, vec2(14,1000), angle(PIHALF+PI)))
         Round.bossUnit.pause()
     end
 
@@ -102,21 +102,21 @@ init
 
 
     // Mechanic
-    round.addSpawner(new UnitSpawner(MECHANIC, ENEMYPLAYER, vec2(-639,1025), 24))
+    round.addSpawner(new UnitSpawner(MECHANIC, ENEMY, vec2(-639,1025), 24))
     ..setStartDelay(20)
     ..setFrequencyDeviation(0)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
 
     // Mechanic
-    round.addSpawner(new UnitSpawner(MECHANIC, ENEMYPLAYER, vec2(-639,1025), 24))
+    round.addSpawner(new UnitSpawner(MECHANIC, ENEMY, vec2(-639,1025), 24))
     ..setStartDelay(20)
     ..setFrequencyDeviation(0)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
 
     // Exploding Robot
-    round.addSpawner(new UnitSpawner(EXPLODINGGOBLIN, ENEMYPLAYER, vec2(0,0), 12))
+    round.addSpawner(new UnitSpawner(EXPLODINGGOBLIN, ENEMY, vec2(0,0), 12))
     ..setStartDelay(10)
     ..setFrequencyDeviation(0)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -124,7 +124,7 @@ init
     ..setSoundOnSpawn(Sounds.clockwerkGoblinYesAttack1)
 
     // Exploding Robot
-    round.addSpawner(new UnitSpawner(EXPLODINGGOBLIN, ENEMYPLAYER, vec2(0,0), 20))
+    round.addSpawner(new UnitSpawner(EXPLODINGGOBLIN, ENEMY, vec2(0,0), 20))
     ..setStartDelay(100)
     ..setFrequencyDeviation(0)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -132,7 +132,7 @@ init
     ..setSoundOnSpawn(Sounds.clockwerkGoblinYesAttack1)
 
     // Mini Tank
-    round.addSpawner(new UnitSpawner(MINITANK, ENEMYPLAYER, vec2(0,0), 8))
+    round.addSpawner(new UnitSpawner(MINITANK, ENEMY, vec2(0,0), 8))
     ..setStartDelay(5)
     ..setFrequencyDeviation(0)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -140,7 +140,7 @@ init
     ..setSoundOnSpawn(Sounds.steamTankWhat3)
 
     // Mini Tank
-    round.addSpawner(new UnitSpawner(MINITANK, ENEMYPLAYER, vec2(0,0), 18))
+    round.addSpawner(new UnitSpawner(MINITANK, ENEMY, vec2(0,0), 18))
     ..setStartDelay(120)
     ..setFrequencyDeviation(0)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)

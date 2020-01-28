@@ -13,7 +13,7 @@ import GladiatorSystem
 
 let CAMERA = gg_cam_Barracks
 public let BARRACKS_RECT = gg_rct_BarracksFog
-let CAM_LOCK_DUMMY = DummyRecycler.get(BARRACKS_RECT.getCenter() + vec2(0,350), angle(0))
+let CAM_LOCK_DUMMY = DummyRecycler.get(BARRACKS_RECT.getCenter() + vec2(0,200 ), angle(0))
 
 let playersPickingHero = new LinkedList<player>
 let selectionCallbacks = new HashMap<player,CallbackPeriodic> 
@@ -32,13 +32,13 @@ public function player.startPickHero()
         this.setCameraTargetControllerNoZ( CAM_LOCK_DUMMY, vec2(0,0), false)
     camLockCallbacks.put(this, callback)
 
-    this.playScene()
+    new Scene()
     ..do( p -> p.fadeIn(1.5, null))
     ..wait(1.5)
     ..do( p -> p.toggleCinematicMode(false, 1.5))
     ..wait(1.5)
     ..do( p -> p.lockToShop() )
-    ..play()
+    ..play(this)
     
     
 function player.lockToShop()
@@ -56,16 +56,17 @@ function player.choseGladiator( unit chosenGladiator )
 
     let gladiatorType = chosenGladiator.getTypeId().getGladiatorType()
     chosenGladiator.remove()
+
+    gladiatorType.getSoundOnNewAbility().playForPlayer(this)
     
-    let scene = this.playScene()
-    ..wait(1.5)
-    ..do( p -> p.fadeOut(1.5, null))
+    let scene = new Scene()
     ..wait(2)
+    ..do( p -> p.fadeOut(1, null))
+    ..wait(1)
     ..do() p -> 
         destroy camLockCallbacks.getAndRemove(this)
-        
         p.startShopIntro(gladiatorType)
-    scene.play()
+    scene.play(this)
 
         
         
@@ -78,7 +79,6 @@ init
             
             buyingPlayer.choseGladiator(soldUnit)
             
-    
         
 
 

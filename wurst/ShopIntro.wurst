@@ -5,24 +5,25 @@ import GameSettings
 import Abilities
 import TimedSpecialEffects
 import StringUtils
-import initlater Game
+import ReadyHandler
+import Round
 
 
 
 public function player.startShopIntro(GladiatorType gladiatorType)
     
-    let scene = this.playScene()
+    let scene = new Scene()
     
     scene.do() p ->
         p.resetToGameCamera(0)
-        p.setCameraPosition(SHOP_GLADIATORSPAWN)
+        p.setCameraPosition(SHOP_SPAWN)
         if LOCK_CAM_BOUNDS
             p.setCameraBoundsToRect(gg_rct_Shop_CamBounds)
 
     scene
     ..wait(1)
-    ..do( p -> p.fadeIn(1.5) )
-    ..wait(1.5)
+    ..do( p -> p.fadeIn(1) )
+    ..wait(1)
     ..do( p -> p.createGladiator(gladiatorType))
     ..wait(1.25)
     ..do( p -> p.getGladiator().getSpawnSound().play() )
@@ -36,14 +37,14 @@ public function player.startShopIntro(GladiatorType gladiatorType)
     ..wait(8)
     ..do() p ->
         Round.printNextRound(p)
-        escapeIsEnabled = true
-    scene.play()
+        p.enableReadyButton()
+    scene.play(this)
     
 
 
 function player.createGladiator(GladiatorType gladiatorType)
     
-    let gladiator = this.newGladiator(gladiatorType, SHOP_GLADIATORSPAWN, angle(3*PIHALF))
+    let gladiator = this.newGladiator(gladiatorType, SHOP_SPAWN, angle(3*PIHALF))
 
     // Unlock All Initial Abilities
     for i=0 to UNLOCK_ABILITY_ROUNDS.length-1

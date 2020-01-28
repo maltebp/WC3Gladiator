@@ -2,8 +2,6 @@ package Round
 
 import public UnitSpawner
 import ErrorHandling
-import initlater Game
-import Transitions
 import TimerUtils
 import Orb
 import Music
@@ -14,6 +12,7 @@ import LinkedList
 import GladiatorSystem
 import StringUtils
 import GameSettings
+import initlater FinishRound
 
 public class Round
 
@@ -79,7 +78,6 @@ public class Round
 
     private static SoundDefinition snd_GoldReward = new SoundDefinition(Sounds.receiveGold, false)
     private static SoundDefinition snd_RoundInfo = new SoundDefinition(Sounds.questLog, false)
-    private static SoundDefinition snd_StartRound = new SoundDefinition(Sounds.goodJob, false)
     private static SoundDefinition snd_ItemReward = new SoundDefinition(Sounds.itemReceived, false)
 
 
@@ -213,6 +211,7 @@ public class Round
         isBossRound = true
             
     function initialize()
+        aRoundIsRunning = true
         activateSpawners()
         activateHealthOrbSpawn()
         playMusic(music)
@@ -230,7 +229,7 @@ public class Round
             for spawner in spawners
                 spawner.start()
 
-                if instantSpawn
+                if DEBUG and INSTANT_SPAWN
                     spawner.spawnAll()
         
     function clear()
@@ -266,7 +265,6 @@ public class Round
         new HealthOrb(spawnPos)
         ..setHealInstant(round.healthOrb_FlatToHealInstant, round.healthOrb_PercToHealInstant )
         ..setHealOverTime(round.healthOrb_FlatToHealOverTime, round.healthOrb_PercToHealOverTime, HEALTHORB_DURATION )
-        ..addActivationUnit(hero)
         
 
     private static function stopHealthOrbSpawn()
@@ -276,7 +274,12 @@ public class Round
         
 
     private static function wasLastUnit() returns boolean
-        if hero.isAliveTrick()
+        var aliveGladiators = 0
+        for gladiator in getAllGladiators()
+            if( gladiator.getUnit().isAlive() )
+                aliveGladiators++
+
+        if( aliveGladiators > 0 )
             let round = rounds.get(currentRoundNumber-1)
             for spawner in round.spawners
                 if not spawner.isFinished() or not spawner.allUnitsAreDead()
@@ -338,26 +341,6 @@ public class Round
 
         return false
 
-    function giveAbilityReward() returns boolean
-
-     
-        if abilityReward > -1
-
-            printTimed(" ", 6)
-
-            string text = "New ability: "
-            text += gladiator.getColor()+gladiator.getGladiatorType().unlockComboMove()+"|r"
- 
-            printTimed(text, 6)
-
-            gladiator.getSoundOnNewAbility().playForPlayer(gladiator.getOwner())
-        
-            return true
-
-        else
-            return false
-            
-        
 
     static function giveReward()
         currentRound.reward()
@@ -414,24 +397,27 @@ public class Round
         currentRound.stopSpawners()
         if currentRound.codeOnHeroDeath != null
             currentRound.codeOnHeroDeath.run(currentRound)
-        stopMusic()
-        transitionToShop(false)
+        finishRound(false)
 
     private static function roundWon()
         roundWon =true
         currentRound.stopSpawners()
         if currentRound.codeOnLastUnitDeath != null
             currentRound.codeOnLastUnitDeath.run(currentRound)
-        stopMusic()
-        transitionToShop(true)
+        finishRound(true)
 
 
     protected static function anyUnitDies()
         if aRoundIsRunning and not roundWon
             let dying = GetDyingUnit()
             
-            if dying == hero
-                roundLost()
+            if( dying.isGladiator() )
+                var allDead = true
+                for gladiator in getAllGladiators()
+                    if( gladiator.getUnit().isAlive() ) 
+                        allDead = false
+                if( allDead )
+                    roundLost()
             
             else if isBossRound and dying == bossUnit
                 roundWon = true
@@ -442,27 +428,7 @@ public class Round
                 doAfter(0.1) ->
                     if wasLastUnit()
                         roundWon()
-            
 
-    static function startNextRound()
-        if totalNumberOfRounds != 0
-            
-            if not currentRoundNumber > totalNumberOfRounds
-
-                aRoundIsRunning = true
-                roundWon = false
-
-                snd_StartRound.play()
-                
-                stopMusic()
-
-                transitionToArena()
-
-            else
-                error("No more rounds")
-
-        else
-            error("No rounds added")
             
     
         
@@ -473,6 +439,8 @@ public class Round
     
         
 
+    function getNumberOfItemRewards() returns int
+        return itemRewards.size()
 
         
                
