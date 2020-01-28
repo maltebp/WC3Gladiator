@@ -1,0 +1,54 @@
+package FadeUtil
+
+import public TimerUtils
+import ClosureTimers
+
+
+
+public interface FadeCallback
+    function run()
+
+public function player.toggleCinematicMode(bool toggle, real duration)
+
+    if( localPlayer == this )
+        ShowInterface(not toggle, duration)
+
+        // Last argument doesn't seem to have an effect
+        EnableSelect(not toggle, true)
+        EnablePreSelect(not toggle, true)
+        EnableDragSelect(not toggle, true)
+        EnableUserControl(not toggle)
+        EnableUserUI(not toggle)
+    
+
+public function player.fadeOut(real duration, FadeCallback onFinish)
+    this.fade(true, duration, onFinish)
+
+public function player.fadeOut(real duration)
+    this.fade(true, duration, null)
+        
+
+public function player.fadeIn(real duration, FadeCallback onFinish)
+    this.fade(false, duration, onFinish) 
+
+public function player.fadeIn(real duration)
+    this.fade(false, duration, null) 
+        
+        
+    
+function player.fade(bool fadeOut, real duration, FadeCallback onFinish)
+    if( localPlayer == this )
+        SetCineFilterTexture("ReplaceableTextures\\CameraMasks\\White_mask.blp")
+        SetCineFilterBlendMode(BLEND_MODE_BLEND)
+        SetCineFilterStartColor(0, 0, 0, fadeOut ? 0 : 255)
+        SetCineFilterEndColor(0, 0, 0, fadeOut ? 255 : 0)
+        SetCineFilterDuration(duration)
+        DisplayCineFilter(true)
+
+    if( onFinish != null )
+        doAfter(duration) ->
+            onFinish.run()
+    
+    
+
+        

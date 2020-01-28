@@ -35,6 +35,13 @@ public function unit.getGladiatorInstance() returns Gladiator
         return null
     return Gladiator.getInstance(this)
 
+/** Returns the GladiatorType instance, which has this unit type id
+    as its "unit". */
+public function int.getGladiatorType() returns GladiatorType
+    for gladiatorType in GladiatorType.getAllTypes()
+        if( gladiatorType.getUnitType() == this )
+            return gladiatorType
+    return null
 
 /*
     It allows the defend ability to become an useable ability

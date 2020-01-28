@@ -15,6 +15,9 @@ import PlayerFunctions
 import Lives
 import PickHero
 import GladiatorShop
+import Players
+import FadeUtil
+import Intro
 
 constant boolean    SPAWNHEROINARENA        = false
 constant boolean    ARENACORNERSPAWN        = true
@@ -50,7 +53,7 @@ public let gladiatorTypes = new LinkedList<GladiatorType>
 
 
 public region MAPREGION
-boolean escapeIsEnabled = false
+public boolean escapeIsEnabled = false
 boolean canSkipGameInfo
 boolean canTypeStartingRound = false
 
@@ -67,26 +70,42 @@ public button array dialogButton_RoundPick
 
 
 init
+    instantSetup()
+    doAfter(0.01, () -> delayedSetup())
 
+
+function instantSetup()
+    playMusic(Sounds.orcX1)
+    for p in allPlayers
+        p.fadeOut(0)
+        p.toggleCinematicMode(true, 0)
+
+
+function delayedSetup()
     initializePlayerList()
 
     CameraSetSmoothingFactor(30)
 
+
     // Setting up variables
     MAPREGION = CreateRegion()..addRect(GetPlayableMapRect())
+
+    initializeGladiatorShop()
+
     
-    playMusic(Sounds.orcX1)
-    
-    spawnPosOnInit = (SPAWNHEROINARENA) ? ((ARENACORNERSPAWN) ? HEROSPAWN_ARENACORNER: HEROSPAWN_ARENA) : HEROSPAWN_SHOP
+    CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, BARRACKS_RECT, false, false).start()
+    CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Shop_Visibility, false, false).start()
+    CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Arena_Visibility, false, false).start()
+    CreateFogModifierRect(Player(0), FOG_OF_WAR_MASKED, GetPlayableMapRect(), false, false).start()
+    SetTimeOfDay(12)
+    SetTimeOfDayScale(0)
 
 
-    // Setup players
-    for p in activePlayers
-        p
+    for p in allPlayers
+        p 
         ..setLumber(START_TRAININGPOINTS)
         ..setGold(START_GOLD)
         ..setLives(LIVES)
-
 
 
     if SPAWNHEROINARENA
@@ -101,29 +120,39 @@ init
 
     Round.toggleInstantSpawn(INSTANTSPAWN)
 
+    // TODO: Move this to somewhere else
+    ITEM_DULLBLADE.release()
+    ITEM_LEATHERARMOR.release()
+    ITEM_COMMONGEM.release()
+    ITEM_AMULET.release()
+    
+    for p in allPlayers
+        p.startIntro()
+
+    // CreateTrigger()
+    // ..registerPlayerEvent(Player(0), EVENT_PLAYER_END_CINEMATIC)
+    // ..addAction(function startRound)
+
+
+    // // new Fade
+    // // ..setCinematicMode(not CUSTOMROUNDSTART)
+    // // ..setFadeOutDuration(0)
+    // // ..start(FADEOUT)
+
+    // if CUSTOMROUNDSTART
+    //     EnableSelect(false, false)
+    //     EnablePreSelect(false, false)
+
+    // getTimer().start(1, function delayedInit)
+
+
+    // if PRINTALPHAINTRO
+    //     timer_GameIntro.start(3.0, function preStartInfo )
+    // else
+    //     timer_GameIntro.start(3.0, function roundPick )
+
     
 
-    CreateTrigger()
-    ..registerPlayerEvent(Player(0), EVENT_PLAYER_END_CINEMATIC)
-    ..addAction(function startRound)
-
-
-    new Fade
-    ..setCinematicMode(not CUSTOMROUNDSTART)
-    ..setFadeOutDuration(0)
-    ..start(FADEOUT)
-
-    if CUSTOMROUNDSTART
-        EnableSelect(false, false)
-        EnablePreSelect(false, false)
-
-    getTimer().start(1, function delayedInit)
-
-
-    if PRINTALPHAINTRO
-        timer_GameIntro.start(3.0, function preStartInfo )
-    else
-        timer_GameIntro.start(3.0, function roundPick )
 
 
 /** Information give before alpha start */
@@ -203,7 +232,6 @@ function gameIntro()
        " slaughter.",10)
     printTimed("At least you will die with honor.", 10)
 
-
     timer_GameIntro.start(13, function fadeIn)
 
 
@@ -213,106 +241,58 @@ function fadeIn()
     ClearTextMessages()
     timer_GameIntro.pause()
 
-    new Fade
-    ..setEndDelay(1)
-    ..onFadeIn(function createHero )
-    ..start(FADEIN)
+    Player(0).startPickHero()
+
+    // new Fade
+    // ..setEndDelay(1)
+    // ..onFadeIn(function createHero )
+    // ..start(FADEIN)
 
 
-function createHero()
+// function createHero()
 
     
-    gladiator = Player(0).newGladiator( GLADIATOR_TROLL, spawnPosOnInit, angle(3*PIHALF))
+//     gladiator = Player(0).newGladiator( GLADIATOR_TROLL, spawnPosOnInit, angle(3*PIHALF))
 
-    gladiator.releaseAbility(0)
+//     gladiator.releaseAbility(0)
 
-    hero = gladiator.getUnit()
-    ..setInvulnerable(true)
-    ..pause()
+//     hero = gladiator.getUnit()
+//     ..setInvulnerable(true)
+//     ..pause()
 
-    doAfter(0.01) ->
-        for gladiatorType in GladiatorType.getAllTypes()
-            gladiatorType.releaseNextArtifact()
-            for i=1 to 4
-                gladiatorType.unlockComboMove()
+//     doAfter(0.01) ->
+//         for gladiatorType in GladiatorType.getAllTypes()
+//             gladiatorType.releaseNextArtifact()
+//             for i=1 to 4
+//                 gladiatorType.unlockComboMove()
 
 
-    ITEM_DULLBLADE.release()
-    ITEM_LEATHERARMOR.release()
-    ITEM_COMMONGEM.release()
-    ITEM_AMULET.release()
+//     ITEM_DULLBLADE.release()
+//     ITEM_LEATHERARMOR.release()
+//     ITEM_COMMONGEM.release()
+//     ITEM_AMULET.release()
 
-    setDamageTestUnit(hero)
+//     setDamageTestUnit(hero)
 
-    setRound()
+//     setRound()
     
-    addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
-    ..setDuration(3)
+//     addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
+//     ..setDuration(3)
 
-    if PREPAREHERO
-        for i = 0 to 4
-            hero.addItemById(STARTINGITEMS[i])
+//     if PREPAREHERO
+//         for i = 0 to 4
+//             hero.addItemById(STARTINGITEMS[i])
             
         
 
-    getTimer().start(1.25, function playHeroSound)
+//     getTimer().start(1.25, function playHeroSound)
 
 
-
-function playHeroSound()
-    gladiator.getSoundOnSpawn().play()
-    GetExpiredTimer().start(2, function disableCinematicMode )
-
-function disableCinematicMode()
-    /*  The Fade object should be able to do this cinematic fading,
-        but it hasn't been implemented to enable and disable cinematic
-        fading offest from the fade. - Has to be implemented */ 
-    ShowInterface(true, 1.5)
-    GetExpiredTimer().start(1.5, function enableControls )
-    
-function enableControls()
-
-    EnableSelect(true, true)
-    EnablePreSelect(true, true)
-    EnableDragSelect(true, true)
-
-    Player(0)
-    ..selectSingle(hero)
-
-    if LOCKCAMBOUNDS
-        Player(0).setCameraBoundsToRect(gg_rct_Shop_CamBounds)
-
-    hero
-    ..setInvulnerable(false)
-    ..unpause()
-
-    GetExpiredTimer().start(3, function printStartInfo)
-
-
-
-function printStartInfo()
-    snd_Text.play()
-    printTimed("Prepare yourself now, and when you're ready, press '"+"|cffffcc00"+"escape|r' to start the round.",5)
-    
-    GetExpiredTimer().start(8, function printRoundInfo)
-    
-
-function printRoundInfo()
-    Round.printNextRound()
-    escapeIsEnabled = true
 
 function delayedInit()
     GetExpiredTimer().release()
 
-
-    initializeGladiatorShop()
     
-    CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, BARRACKS_RECT, false, false).start()
-    CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Shop_Visibility, false, false).start()
-    CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Arena_Visibility, false, false).start()
-    CreateFogModifierRect(Player(0), FOG_OF_WAR_MASKED, GetPlayableMapRect(), false, false).start()
-    SetTimeOfDay(12)
-    SetTimeOfDayScale(0)
 
     
 

@@ -1,0 +1,14 @@
+package StringUtils
+
+/**
+    Create a percentage string from a real number. I.e.0.1 becomes 10%. */
+public function real.toPercentageString() returns string
+    let percentage =  (this*100).round().toString()+"%"
+    print("Converting " + this.toString(6) + " to percentage: " + percentage )
+    return percentage
+
+
+public function string.withColor(color col) returns string
+    return col.toColorString() + this + "|r"
+
+

@@ -1,44 +1,96 @@
 package PickHero
 
-import UtilCommands
 import DummyRecycler
 import ClosureTimers
 import GladiatorShop
 import LinkedList
+import Scene
+import HashMap
+import UtilCommands
+import RegisterEvents
+import ShopIntro
+import GladiatorSystem
 
 let CAMERA = gg_cam_Barracks
 public let BARRACKS_RECT = gg_rct_BarracksFog
 let CAM_LOCK_DUMMY = DummyRecycler.get(BARRACKS_RECT.getCenter() + vec2(0,350), angle(0))
 
 let playersPickingHero = new LinkedList<player>
+let selectionCallbacks = new HashMap<player,CallbackPeriodic> 
+let camLockCallbacks = new HashMap<player,CallbackPeriodic> 
 
 
 public function player.isPickingGladiator() returns bool
     return playersPickingHero.has(this)
 
 
-
-function player.startPickHero()
+public function player.startPickHero()
     playersPickingHero.add(this)
 
-    doPeriodically(0.04) cb ->
+    let callback = doPeriodically(0.04) cb ->
         this.cameraSetupApply(true, CAMERA, 0)
         this.setCameraTargetControllerNoZ( CAM_LOCK_DUMMY, vec2(0,0), false)
-        
+    camLockCallbacks.put(this, callback)
+
+    this.playScene()
+    ..do( p -> p.fadeIn(1.5, null))
+    ..wait(1.5)
+    ..do( p -> p.toggleCinematicMode(false, 1.5))
+    ..wait(1.5)
+    ..do( p -> p.lockToShop() )
+    ..play()
+    
+    
+function player.lockToShop()
+
+    let timerCb = doPeriodically(0.04) cb ->
         this.clearSelection()
         this.selectSingle(gladiatorShop)
+    selectionCallbacks.put(this, timerCb)
+
+
+function player.choseGladiator( unit chosenGladiator )
+    //RemoveUnitFromStock(gladiatorShop, chosenGladiator.getTypeId())
+    destroy selectionCallbacks.getAndRemove(this)
+    this.clearSelection()
+
+    let gladiatorType = chosenGladiator.getTypeId().getGladiatorType()
+    chosenGladiator.remove()
+    
+    let scene = this.playScene()
+    ..wait(1.5)
+    ..do( p -> p.fadeOut(1.5, null))
+    ..wait(2)
+    ..do() p -> 
+        destroy camLockCallbacks.getAndRemove(this)
+        
+        p.startShopIntro(gladiatorType)
+    scene.play()
+
+        
+        
+
+init
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SELL) ->
+        if( GetSellingUnit() == gladiatorShop )
+            let soldUnit = GetSoldUnit()
+            let buyingPlayer = GetBuyingUnit().getOwner()
+            
+            buyingPlayer.choseGladiator(soldUnit)
+            
+    
+        
+
+
+    
 
 
 
     
 init
-
     defineUtilCommand("pickhero")
     ..setAction() (p, args, opts) ->
         p.startPickHero()
-
-
-
 
 
 

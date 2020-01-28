@@ -15,11 +15,6 @@ import UnitTypeStats
 import AbilityObjEditing
 import CompileTimeData
 import ObjectIds
-import ObjectIdGenerator
-import Icons
-import UtilCommands
-import MapBounds
-import GladiatorShop
 
 
 
@@ -62,11 +57,11 @@ public class Gladiator
         return gladiatorUnit
 
 
-    function getSoundOnSpawn() returns SoundDefinition
+    function getSpawnSound() returns SoundDefinition
         return gladiatorType.getSoundOnSpawn()
 
 
-    function getSoundOnRespawn() returns SoundDefinition
+    function getRespawnSound() returns SoundDefinition
         return gladiatorType.getSoundOnRespawn()
 
 
@@ -266,10 +261,11 @@ public class GladiatorType
 //================================================================================================================================================================================================
 // OBJECT DEFINITIONS
 
-let allGladiatorIds = new LinkedList<int>
+public let allGladiatorIds = new LinkedList<int>
 let data_GladiatorUnitIds = compiletime(defineDataObj())
 
-function defineGladiatorUnit( int newId, int originId, string name, string icon ) returns HeroDefinition
+/** Defines the generics of a gladiator unit (hide minimap, set attack type etc. ) */
+public function defineGladiatorUnit( int newId, int originId, string name, string icon ) returns HeroDefinition
     
     let definition = new HeroDefinition(newId, originId)
     ..setName(name)
@@ -301,12 +297,15 @@ function defineGladiatorUnit( int newId, int originId, string name, string icon 
     ..setLumberCost(0)
     ..setFoodCost(0)
     ..setStockMaximum(1)
-    ..setStockReplenishInterval(10000)
     ..setStockStartDelay(0)
     ..setButtonPositionX(0)
     ..setButtonPositionY(0)
 
     data_GladiatorUnitIds.addData(newId.toRawCode())
-    updateGladiatorShop(newId)
 
     return definition
+
+init
+    for stringId in data_GladiatorUnitIds.getData()
+        allGladiatorIds.add(stringId.fromRawCode())
+        

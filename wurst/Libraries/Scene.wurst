@@ -1,0 +1,89 @@
+
+//================================================================================================================================================================================================
+
+package Scene
+
+//================================================================================================================================================================================================
+/* 
+    Library to run a series of actions with time delays in between, without
+    getting tons of nested lambdas.
+
+    Example:
+        let scene = new Scene()
+        ..do( p -> p.fadeOut(1.5, null))
+        ..wait(3)
+        ..do( p -> p.print("Bam bam bam bam!!") )
+        ..wait( 3)
+        ..do( p -> p.fadeIn(1.5, null))
+
+*/
+//================================================================================================================================================================================================
+
+
+import LinkedList
+import ClosureTimers
+import public FadeUtil
+
+
+public function player.playScene() returns Scene
+    return new Scene(this)
+
+
+public interface SceneCallback
+    function run(player p)
+
+        
+// Bad (but easy) way of implementing "wait action"
+class WaitCallback implements SceneCallback
+    real waitDuration
+    construct( real waitDuration)
+        this.waitDuration = waitDuration
+
+    override function run(player p)
+        skip
+        
+class SkipPoint implements SceneCallback
+    override function run(player p)
+        skip
+
+
+public class Scene
+    
+    protected let actions = new LinkedList<SceneCallback>
+    protected player scenePlayer
+
+    construct(player scenePlayer)
+        this.scenePlayer = scenePlayer
+
+    
+    /** Runs the scene for the player */
+    function play()
+        runNext()
+
+    /** Add an action to the scene.
+        The callback takes the player for which the scene is running. */
+    function do(SceneCallback action)   
+        actions.add(action)
+        
+    /** Add a "wait action" to the scene */
+    function wait(real duration)
+        actions.add( new WaitCallback(duration) )
+
+    // function skipPoint()
+    //     actions.add( new SkipPoint() )
+
+
+    private function runNext()
+        let action = actions.dequeue()
+        if( action == null )
+            destroy this
+        else
+            if( action instanceof WaitCallback)
+                let waitDuration = (action castTo WaitCallback).waitDuration
+                doAfter(waitDuration) ->
+                    runNext()
+            else
+                action.run(scenePlayer)
+                runNext()
+        
+

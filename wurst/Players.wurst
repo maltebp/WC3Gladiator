@@ -13,10 +13,6 @@ init
         if(Player(i).isIngame())
             allPlayers.add(Player(i))
 
-    doAfter(0.01) ->
-        for p in allPlayers
-            print(p.getNameColored())
-
 
 /** Adds "test" players to the of all players. The calling player
     will gain control of the other players.

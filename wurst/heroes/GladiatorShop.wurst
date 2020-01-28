@@ -3,8 +3,9 @@ package GladiatorShop
 import UnitObjEditing
 import ObjectIdGenerator
 import LinkedList
-import ObjectIds
 import MapBounds
+import Gladiator
+import ObjectIds
 
 
 public let GLADIATOR_SHOP_ID = compiletime(UNIT_ID_GEN.next())
@@ -15,6 +16,9 @@ let PICKING_UNIT_ID = compiletime(UNIT_ID_GEN.next())
 
 
 public function initializeGladiatorShop()
+
+    for gladiatorId in allGladiatorIds
+        AddUnitToStock(gladiatorShop, gladiatorId, 1, 1)
     
     for i=0 to 23
         createUnit(Player(i), PICKING_UNIT_ID, gladiatorShop.getPos(), angle(0))
@@ -27,31 +31,16 @@ public function initializeGladiatorShop()
 // COMPILETIME
 
 
-BuildingDefinition compiletime_GladiatorShop
-
 @compiletime
 function defineGladiatorShop()
-    
-    compiletime_GladiatorShop = new BuildingDefinition(GLADIATOR_SHOP_ID, 'nmer')
+    new BuildingDefinition(GLADIATOR_SHOP_ID, 'nmer')
     ..setName("Choose Gladiator")
     ..setUnitsSold("")
     ..setUnitsTrained("")
     ..setUnitSoundSet("")
+    ..setNormalAbilities("Ane2,Avul,Asud")
     ..setHideMinimapDisplay(true)
 
-
-let compiletime_GladiatorIds = new LinkedList<int>
-
-public function updateGladiatorShop(int newGladiator)
-    compiletime_GladiatorIds.add(newGladiator)
-    
-    string idString = ""
-    for id in compiletime_GladiatorIds
-        if( idString != "" )
-            idString += ","
-        idString += id.toRawCode()
-
-    compiletime_GladiatorShop.setUnitsSold(idString)
 
 @compiletime
 function definePickingUnit()
@@ -64,3 +53,4 @@ function definePickingUnit()
     ..setMovementType(MovementType.Fly)
     ..setFoodCost(0)
     ..setAttacksEnabled(0)
+    ..setUnitClassification("")

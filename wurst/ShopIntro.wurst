@@ -1,0 +1,57 @@
+package ShopIntro
+import GladiatorSystem
+import Scene
+import GameSettings
+import Abilities
+import TimedSpecialEffects
+import StringUtils
+import initlater Game
+
+
+
+public function player.startShopIntro(GladiatorType gladiatorType)
+    
+    let scene = this.playScene()
+    
+    scene.do() p ->
+        p.resetToGameCamera(0)
+        p.setCameraPosition(SHOP_GLADIATORSPAWN)
+        if LOCK_CAM_BOUNDS
+            p.setCameraBoundsToRect(gg_rct_Shop_CamBounds)
+
+    scene
+    ..wait(1)
+    ..do( p -> p.fadeIn(1.5) )
+    ..wait(3)
+    ..do( p -> p.createGladiator(gladiatorType))
+    ..wait(1.25)
+    ..do( p -> p.getGladiator().getSpawnSound().play() )
+    ..wait(2)
+    ..do( p -> p.toggleCinematicMode(false, 1.5))
+    ..wait(1.5)
+    ..do(p -> p.selectSingle(p.getGladiator().getUnit()))
+    ..wait(3)
+    ..do() p ->
+        SND_MESSAGE.playForPlayer(p)
+        p.print("Prepare yourself now, and when you're ready, press '{0}' to start the round.".format("escape".withColor(COLOR_HIGHLIGHT)),5)
+    scene
+    ..wait(3)
+    ..do() p ->
+        Round.printNextRound(p)
+        escapeIsEnabled = true
+    scene.play()
+    
+
+
+function player.createGladiator(GladiatorType gladiatorType)
+    
+    let gladiator = this.newGladiator(gladiatorType, SHOP_GLADIATORSPAWN, angle(3*PIHALF))
+    
+    addEffect(Abilities.massTeleportCaster, gladiator.getUnit().getPos() )
+    ..setDuration(3)
+
+
+    // TODO: Remove or implement this
+    // if PREPAREHERO
+    //     for i = 0 to 4
+    //         hero.addItemById(STARTINGITEMS[i])

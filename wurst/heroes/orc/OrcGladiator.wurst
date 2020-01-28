@@ -1,41 +1,43 @@
 package OrcGladiator
 
-// import Gladiator
-// import ComboUnit
-// import AbilityCreation
-// import HeroDefaults
+import Gladiator
+import AbilityCreation
+import HeroDefaults
 
-// import Strike
-// import Cleave
-// import Evade
-
-// import WoundingStrike
-// import WhirlingStrike
+import ObjectIdGenerator
 
 
 
+public let GLADIATOR_ORC = new GladiatorType()
+public let GLADIATOR_ORC_ID = compiletime(UNIT_ID_GEN.next())
 
-// public let GLADIATOR_ORC = new GladiatorType()
-
-// public let UNIT_ID = 'O000'
 
 // public let COMBOLIST = compiletime( createComboMoveList(WOUNDINGSTRIKE_ID, WHIRLINGSTRIKE_ID))
-// let COMBOUNIT_ORC = new ComboUnitDefinition(UNIT_ID, COMBOLIST)
+// let COMBOUNIT_ORC = new ComboUnitDefinition(GLADIATOR_ORC_ID, COMBOLIST)
 
 
-// init
-//         GLADIATOR_ORC
-//         ..setUnitType(UNIT_ID)
-//         ..setSoundOnSpawn(Sounds.gromWhat3)
-//         ..setSoundOnRespawn(Sounds.gromYes3)
-//         ..setSoundOnNewAbility(Sounds.strongholdWhat1)
-//         ..setColor("|cff98e698")
-//         ..setBaseAbilities( ORC_Q_ID, ORC_W_ID, ORC_E_ID )
-//         ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED)
+init
+    GLADIATOR_ORC
+    ..setUnitType(GLADIATOR_ORC_ID)
+    ..setSoundOnSpawn(Sounds.gromWhat3)
+    ..setSoundOnRespawn(Sounds.gromYes3)
+    ..setSoundOnNewAbility(Sounds.strongholdWhat1)
+    ..setColor("|cff98e698")
+    ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED)
 
-//         COMBOUNIT_ORC
-//         ..addComboMoves(COMBO_WOUNDINGSTRIKE,
-//                         COMBO_WHIRLINGSTRIKE)
+
+    // ..setBaseAbilities( ORC_Q_ID, ORC_W_ID, ORC_E_ID )
+    // COMBOUNIT_ORC
+    // ..addComboMoves(COMBO_WOUNDINGSTRIKE,
+    //                 COMBO_WHIRLINGSTRIKE)
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// COMPILETIME
+
+@compiletime
+function defineOrcGladiator()
+    defineGladiatorUnit(GLADIATOR_ORC_ID, 'Obla', "Orc Gladiator", Icons.bTNHeroBlademaster)
 
 
 

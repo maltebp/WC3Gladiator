@@ -1,0 +1,29 @@
+package Intro
+import GameSettings
+import StringUtils
+import initlater Game
+import PickHero
+import Scene
+
+
+public function player.startIntro()
+
+    let scene = this.playScene()
+
+    if( localPlayer == this)
+        ClearTextMessages()
+
+    if( not SKIP_INTRO )
+        scene.wait(3)
+        scene.do() p ->
+            SND_MESSAGE.playForPlayer(p) 
+            p.print(
+                "Welcome Gladiator!".withColor(COLOR_HIGHLIGHT) + 
+                "\nYou will have to face fierce opponents, whose only goal is make you regret the day you "+
+                "stepped into the arena. To call yourself the true champion, you have to survive" + FINALROUND.toString() +" merciless rounds of slaughter." +
+            "\nAt least you will die with honor."
+            , 12)
+        scene.wait(15)
+        
+    scene.do(p -> p.startPickHero())
+    scene.play()

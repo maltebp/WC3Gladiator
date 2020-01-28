@@ -12,6 +12,8 @@ import public ItemReward
 import ClosureTimers
 import LinkedList
 import GladiatorSystem
+import StringUtils
+import GameSettings
 
 public class Round
 
@@ -382,16 +384,13 @@ public class Round
     static function wonRound()
         
 
-    static function printNextRound()
-        snd_RoundInfo.play()
-        printTimed("Next round: ",7)
-        printTimed(" ",7)
-        currentRound.toString()
+    static function printNextRound(player p)
+        snd_RoundInfo.playForPlayer(p)
+        printTimed("Next round: \n{0}".format(currentRound.toString()),7)
+        
 
-
-    function toString()
-        printTimed("|cffffcc00Round "+number.toString() + " - '"+title+"'|r",7)
-        printTimed(description,7)
+    function toString() returns string
+        return "Round: {0} - {1}\n".format().withColor(COLOR_HIGHLIGHT) + "\n" + description
 
     
     static function setNextRound()
