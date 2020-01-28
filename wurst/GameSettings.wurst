@@ -12,6 +12,13 @@ public let START_GOLD           = 50
 public let LIVES                = 5
 
 
+/* 
+    Lists of round numbers which unlocks artifacts and abilities
+    - Round 0 is when the Gladiator is created
+    - They are both unlocked in the order they're added when defining the GladiatorType. */
+public let UNLOCK_ABILITY_ROUNDS = [0,0,2,5,8,11] // Total: 6
+public let UNLOCK_ARTIFACT_ROUNDS = [1,2,4,5,6,7,8,9,10,11,12,13] // Total: 12
+
 
 
 

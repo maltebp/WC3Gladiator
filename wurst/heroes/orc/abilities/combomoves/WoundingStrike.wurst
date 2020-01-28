@@ -1,42 +1,42 @@
-package WoundingStrike
+// package WoundingStrike
 
-import AbilityCreation
-import ComboSystem
-import HoverAbility
-import OrcAnimations
-import MyLibrary
-import GroupUtils
-import SoundDefinitions
-import UnitStatsSystem
-import DamageType
-import HeroDefaults
+// import AbilityCreation
+// import ComboSystem
+// import HoverAbility
+// import OrcAnimations
+// import MyLibrary
+// import GroupUtils
+// import SoundDefinitions
+// import UnitStatsSystem
+// import DamageType
+// import HeroDefaults
 
-let AIMASSIST = DEFAULT_AIMASSIST
-let DAMAGE_FACTOR  = 2.
+// let AIMASSIST = DEFAULT_AIMASSIST
+// let DAMAGE_FACTOR  = 2.
 
-public let WOUNDINGSTRIKE_ID = compiletime( createComboMove("Wounding Strike", "Do a slam dunk!", Icons.bTNCriticalStrike, Icons.pASBTNCriticalStrike,1))
-public let COMBO_WOUNDINGSTRIKE = new ComboMove( WOUNDINGSTRIKE_ID, COMBO_POINT_W, COMBO_POINT_E, null )
-let ABIL_DEF = new PointAbility(WOUNDINGSTRIKE_ID.useAbil, 100, ANIM_ORC_SLAM)
-init
+// public let WOUNDINGSTRIKE_ID = compiletime( createComboMove("Wounding Strike", "Do a slam dunk!", Icons.bTNCriticalStrike, Icons.pASBTNCriticalStrike,1))
+// public let COMBO_WOUNDINGSTRIKE = new ComboMove( WOUNDINGSTRIKE_ID, COMBO_POINT_W, COMBO_POINT_E, null )
+// let ABIL_DEF = new PointAbility(WOUNDINGSTRIKE_ID.useAbil, 100, ANIM_ORC_SLAM)
+// init
 
-    ABIL_DEF
-    ..queueStandReady()
-    ..addAdjustments() (caster, adjustments) ->
-        adjustments.speed = 1.5
-        return adjustments
+//     ABIL_DEF
+//     ..queueStandReady()
+//     ..addAdjustments() (caster, adjustments) ->
+//         adjustments.speed = 1.5
+//         return adjustments
     
-    ABIL_DEF
-    ..onEffect() (caster, targetPos) ->
-        let targets = ENUM_GROUP..enumEnemyTargets( caster.getOwner(), targetPos, AIMASSIST)
+//     ABIL_DEF
+//     ..onEffect() (caster, targetPos) ->
+//         let targets = ENUM_GROUP..enumEnemyTargets( caster.getOwner(), targetPos, AIMASSIST)
         
-        let target = targets.getNearestUnit(targetPos)
+//         let target = targets.getNearestUnit(targetPos)
 
-        if target != null
-            SND_METAL_SLICE_HEAVY_FLESH[GetRandomInt(0, 2)].playOnPoint(targetPos.withTerrainZ())
-            dealCodeDamage(caster, target, caster.getDamage()*DAMAGE_FACTOR )
+//         if target != null
+//             SND_METAL_SLICE_HEAVY_FLESH[GetRandomInt(0, 2)].playOnPoint(targetPos.withTerrainZ())
+//             dealCodeDamage(caster, target, caster.getDamage()*DAMAGE_FACTOR )
 
-        targets.clear()
+//         targets.clear()
 
-        caster.clearCombo()
+//         caster.clearCombo()
 
     

@@ -1,0 +1,38 @@
+// package WhirlingStrike
+
+// import AbilityCreation
+// import ComboSystem
+// import HoverAbility
+// import OrcAnimations
+// import MyLibrary
+
+
+// // =========================================================================================================
+
+// let DAMAGE_FACTOR = 0.5
+// let RADIUS = 200.
+
+// // =========================================================================================================
+
+
+// public let WHIRLINGSTRIKE_ID  = compiletime( createComboMove("Blood Pact", "Do a slam dunk!", Icons.bTNBerserkForTrolls, Icons.bTNBerserkForTrolls,5))
+// let ABIL_DEF = new NoTargetAbility( WHIRLINGSTRIKE_ID.useAbil, ANIM_ORC_WHIRLE )
+// public let COMBO_WHIRLINGSTRIKE = new ComboMove( WHIRLINGSTRIKE_ID, COMBO_POINT_Q, COMBO_POINT_Q, null )
+
+// init
+    
+//     ABIL_DEF
+//     ..queueStandReady()
+//     ..addAdjustments() (caster, adjustments) ->
+//         adjustments.speed = 1.5
+//         return adjustments
+    
+//     ABIL_DEF
+//     ..onEffect() (caster) ->
+
+//         forEnemiesInRange(caster.getOwner(), caster.getPos(), RADIUS) target ->
+//             // Deal damage
+
+//         caster.clearCombo()
+
+    

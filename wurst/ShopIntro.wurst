@@ -22,20 +22,18 @@ public function player.startShopIntro(GladiatorType gladiatorType)
     scene
     ..wait(1)
     ..do( p -> p.fadeIn(1.5) )
-    ..wait(3)
+    ..wait(1.5)
     ..do( p -> p.createGladiator(gladiatorType))
     ..wait(1.25)
     ..do( p -> p.getGladiator().getSpawnSound().play() )
     ..wait(2)
-    ..do( p -> p.toggleCinematicMode(false, 1.5))
-    ..wait(1.5)
     ..do(p -> p.selectSingle(p.getGladiator().getUnit()))
     ..wait(3)
     ..do() p ->
         SND_MESSAGE.playForPlayer(p)
         p.print("Prepare yourself now, and when you're ready, press '{0}' to start the round.".format("escape".withColor(COLOR_HIGHLIGHT)),5)
     scene
-    ..wait(3)
+    ..wait(8)
     ..do() p ->
         Round.printNextRound(p)
         escapeIsEnabled = true
@@ -46,10 +44,14 @@ public function player.startShopIntro(GladiatorType gladiatorType)
 function player.createGladiator(GladiatorType gladiatorType)
     
     let gladiator = this.newGladiator(gladiatorType, SHOP_GLADIATORSPAWN, angle(3*PIHALF))
+
+    // Unlock All Initial Abilities
+    for i=0 to UNLOCK_ABILITY_ROUNDS.length-1
+        if( UNLOCK_ABILITY_ROUNDS[i] == 0 )
+            gladiator.unlockNextAbility()
     
     addEffect(Abilities.massTeleportCaster, gladiator.getUnit().getPos() )
     ..setDuration(3)
-
 
     // TODO: Remove or implement this
     // if PREPAREHERO

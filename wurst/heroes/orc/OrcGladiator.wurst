@@ -5,15 +5,18 @@ import AbilityCreation
 import HeroDefaults
 
 import ObjectIdGenerator
+import Enrage
+import CleaveOLD
+import ImpedingRoar
+import WoundingStrikeGladiator
+import WhirlingStrike
+import Frenzy
 
 
 
 public let GLADIATOR_ORC = new GladiatorType()
-public let GLADIATOR_ORC_ID = compiletime(UNIT_ID_GEN.next())
+public let GLADIATOR_ORC_ID = compiletime(HERO_ID_GEN.next())
 
-
-// public let COMBOLIST = compiletime( createComboMoveList(WOUNDINGSTRIKE_ID, WHIRLINGSTRIKE_ID))
-// let COMBOUNIT_ORC = new ComboUnitDefinition(GLADIATOR_ORC_ID, COMBOLIST)
 
 
 init
@@ -24,13 +27,14 @@ init
     ..setSoundOnNewAbility(Sounds.strongholdWhat1)
     ..setColor("|cff98e698")
     ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED)
-
-
-    // ..setBaseAbilities( ORC_Q_ID, ORC_W_ID, ORC_E_ID )
-    // COMBOUNIT_ORC
-    // ..addComboMoves(COMBO_WOUNDINGSTRIKE,
-    //                 COMBO_WHIRLINGSTRIKE)
-
+    ..addAbilities(
+        ORC_ABIL_ENRAGE,
+        ORC_ABIL_CLEAVE,
+        ORC_ABIL_FRENZY,
+        ORC_ABIL_WOUNDING_STRIKE,
+        ORC_ABIL_IMPEDING_ROAR,
+        ORC_ABIL_WHIRLING_STRIKE
+    )
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // COMPILETIME
@@ -41,16 +45,3 @@ function defineOrcGladiator()
 
 
 
-
-// public constant Artifact ARTIFACT_BLOODFEATHERSHEART    = new Artifact('I011','I012', 'O000')
-// public constant Artifact ARTIFACT_ORCISHCLEAVER         = new Artifact('I00Z', 'I010', 'O000')
-// public constant Artifact ARTIFACT_KILMAIM               = new Artifact('I014', 'I019', 'O000')
-// public constant Artifact ARTIFACT_TOOTHOFTHEWARCHIEF    = new Artifact('I015', 'I01B', 'O000')
-// public constant Artifact ARTIFACT_TOKENOFSAMURO         = new Artifact('I017', 'I01C', 'O000')
-// public constant Artifact ARTIFACT_GIFTOFTHETAUREN       = new Artifact('I018', 'I01D', 'O000')
-// public constant Artifact ARTIFACT_BLOODOFMANNOROTH      = new Artifact('I013', 'I01E', 'O000')
-// public constant Artifact ARTIFACT_MEMOIROFTHEPAST       = new Artifact('I01J','I01K','O000')
-// public constant Artifact ARTIFACT_WARBLADEOFSAMURO          = new Artifact('I01A','I01Q','O000')
-// public constant Artifact ARTIFACT_STANDARDOFTHEORCS               = new Artifact('I016','I01P', 'O000')
-// public constant Artifact ARTIFACT_WARDRUM                = new Artifact('I01L','I01O', 'O000')
-// public constant Artifact ARTIFACT_HELMOFTHEWARLORD                = new Artifact('I01L','I01O', 'O000')

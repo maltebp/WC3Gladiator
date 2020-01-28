@@ -1,0 +1,85 @@
+package Frenzy
+
+import SoundUtils
+import RegisterEvents
+
+import TimerUtils
+
+import EnergySystem
+import ChargeSystem
+import Enrage
+import Artifact
+import OrcArtifacts
+
+public let ORC_ABIL_FRENZY = 'A006'
+
+constant real REGENINCREASE = 0.5 // Percent
+constant real  DURATION = 10
+constant real ENRAGE_DURATIONINC = 0.010 // Per charge consumed
+
+constant real GIFTOFTHETAUREN_COOLDOWNREDUCTION = 0.5
+constant int CHARGE = 15
+
+
+constant int BUFFID = 'B000'
+
+constant SoundDefinition snd_OnCast= new SoundDefinition(Sounds.bloodlustTarget, false, true)
+
+public function unit.getFrenzyCooldownReduction() returns real
+    if this.hasFrenzy() and this.hasArtifact(ARTIFACT_GIFTOFTHETAUREN)
+        return GIFTOFTHETAUREN_COOLDOWNREDUCTION
+    return 1
+
+public function unit.hasFrenzy() returns boolean
+    return this.getAbilityLevel(BUFFID) > 0
+
+
+function endEffect()
+    timer expiredTimer = GetExpiredTimer()
+
+    Caster data = expiredTimer.getData() castTo Caster
+
+    data.caster.reduceEnergyRegen(REGENINCREASE)
+    
+    expiredTimer.release()
+
+    data.caster.removeAbility(BUFFID)
+    
+
+function onCast()
+    unit caster = GetSpellAbilityUnit()
+
+    if caster.hasArtifact(ARTIFACT_GIFTOFTHETAUREN)
+        if caster.getAbilityLevel('A005') > 0
+            caster.resetAbilityCooldown('A005')
+        if caster.getAbilityLevel('A008') > 0
+            caster.resetAbilityCooldown('A008')
+        if caster.getAbilityLevel('A01M') > 0
+            caster.resetAbilityCooldown('A01M')
+        if caster.getAbilityLevel('A000') > 0
+            caster.resetAbilityCooldown('A000')
+        if caster.getAbilityLevel('A007') > 0
+            caster.resetAbilityCooldown('A007')
+
+        //caster.setMana(caster.getMaxMana())
+
+    snd_OnCast.playOnPoint(caster.getPos3Fly())
+
+    caster.increaseEnergyRegen(REGENINCREASE)
+    
+    caster.addCharge(CHARGE)
+
+    real enrageFactor = 1+ENRAGE_DURATIONINC*caster.consumeEnrage()
+
+    getTimer()
+    ..setData( new Caster(caster) castTo int)
+    ..start(DURATION*enrageFactor, function endEffect )
+
+class Caster
+    unit caster
+             
+    construct(unit caster)
+        this.caster = caster
+
+init
+    registerSpellEffectEvent(ORC_ABIL_ENRAGE, function onCast)

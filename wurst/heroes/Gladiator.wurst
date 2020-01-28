@@ -10,11 +10,12 @@ import          ErrorHandling
 import ComboSystem
 import ClearPoints
 import ChargeSystem
-import initlater Artifact
+import public initlater Artifact
 import UnitTypeStats
 import AbilityObjEditing
 import CompileTimeData
 import ObjectIds
+import Soundsets
 
 
 
@@ -25,31 +26,31 @@ public class Gladiator
     private unit            gladiatorUnit
     private GladiatorType   gladiatorType
     private player          owner
+    private var abilitiesReleased = 0
 
 
-    construct(GladiatorType whichType, player owner, vec2 spawnPos, angle facing )
+    construct(GladiatorType gladiatorType, player owner, vec2 spawnPos, angle facing )
         this.owner = owner
-        gladiatorType = whichType
-
-        gladiatorUnit = gladiatorType.newGladiatorUnit(owner, spawnPos, facing)
-
-        let comboUnitDefinition = ComboUnitDefinition.getDefinition(gladiatorUnit)
-
-        gladiatorUnit.addAbility(comboUnitDefinition.getListAbil())
-        
+        this.gladiatorType = gladiatorType
+        gladiatorUnit = gladiatorType.createGladiatorUnit(owner, spawnPos, facing)
         instances.add(this)
 
 
     /** Releases an ability, adding it to the gladiator unit. The abilityNumber is the number in the list */
-    function releaseAbility(int abilityNumber) returns string
-        let abilityId = gladiatorType.getAbility(abilityNumber)
-        
-        if gladiatorUnit.getAbilityLevel(abilityId) > 0
-            error(gladiatorUnit.getProperName()+" already has that ability")
+    function unlockNextAbility() returns string
+        let abilities = gladiatorType.getAllAbilities()
+        if( abilities.size() <= abilitiesReleased)
+            Log.warn("{0}'s {1} should release ability {2}, but the gladiator only has {3} abilities".format(
+                owner.getNameColored(), gladiatorUnit.getName(), abilitiesReleased.toString(), abilities.size().toString() ))
+    
+        let abilityId = abilities.get(abilitiesReleased)
 
+        if gladiatorUnit.getAbilityLevel(abilityId) > 0
+            Log.error("{0}'s {1} already has that ability".format(owner.getNameColored(), gladiatorUnit.getName()))
         else
             gladiatorUnit.addAbility(abilityId)
 
+        abilitiesReleased++
         return GetAbilityName(abilityId)
 
 
@@ -183,12 +184,12 @@ public class GladiatorType
 
     function getAbility(int number) returns int
         checkInit()
-        return abilities.get(number)         
+        return abilities.size() >= number ? 0 : abilities.get(number)         
     
 
     function getAllAbilities() returns LinkedList<int>
         checkInit() 
-        return null
+        return abilities
 
 
     function getUnitType() returns int
@@ -214,12 +215,8 @@ public class GladiatorType
         if not hasBeenInitialized
             initialize()
 
-    function newGladiatorUnit( player owner, vec2 spawnPos, angle facing) returns unit
+    function createGladiatorUnit(player owner, vec2 spawnPos, angle facing) returns unit
         let gladiatorUnit = createUnit(owner, unitType, spawnPos, facing)
-        ..addAbility(QAbility)
-        ..addAbility(WAbility)
-        ..addAbility(EAbility)
-        ..addAbility(CLEAR_POINTS_ABIL_ID)
         ..suspendXp(true)
         ..enableCharge()
         ..addArtifactSlots()
@@ -300,6 +297,7 @@ public function defineGladiatorUnit( int newId, int originId, string name, strin
     ..setStockStartDelay(0)
     ..setButtonPositionX(0)
     ..setButtonPositionY(0)
+    ..setUnitSoundSet(Soundsets.hellscream)
 
     data_GladiatorUnitIds.addData(newId.toRawCode())
 

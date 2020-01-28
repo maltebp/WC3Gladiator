@@ -386,11 +386,11 @@ public class Round
 
     static function printNextRound(player p)
         snd_RoundInfo.playForPlayer(p)
-        printTimed("Next round: \n{0}".format(currentRound.toString()),7)
+        printTimed("\nNext round: \n\n{0}".format(currentRound.toString()),7)
         
 
     function toString() returns string
-        return "Round: {0} - {1}\n".format().withColor(COLOR_HIGHLIGHT) + "\n" + description
+        return "Round {0} - {1}\n".format(number.toString(),title).withColor(COLOR_HIGHLIGHT) + description
 
     
     static function setNextRound()
