@@ -72,11 +72,11 @@ class ImpedingRoarBuff extends Buff
         
     override function onApply()
         if( target != null )
-            target.adjustMoveSpeedPerc(-MOVESPEED_RED) 
-            target.adjustAttackSpeed(-ATTACKSPEED_RED)   
+            target.adjustStatPercentage(STAT_MOVESPEED, -MOVESPEED_RED) 
+            target.adjustStatPercentage(STAT_ATTACKSPEED, -ATTACKSPEED_RED) 
 
     override function onRemove()
         if( target != null )
-            target.adjustMoveSpeedPerc(MOVESPEED_RED) 
-            target.adjustAttackSpeed(ATTACKSPEED_RED) 
+            target.adjustStatPercentage(STAT_MOVESPEED, -MOVESPEED_RED) 
+            target.adjustStatPercentage(STAT_ATTACKSPEED, -ATTACKSPEED_RED) 
             

@@ -4,7 +4,7 @@ import SoundUtils
 public let DEFAULT_ARMOR = 5.
 public let DEFAULT_MOVESPEED = 250.
 public let DEFAULT_DAMAGE = 20.
-public let DEFAULT_ATTACKCOOLDOWN = 1.5
+public let DEFAULT_ATTACKCOOLDOWN = 0.75
 public let DEFAULT_HEALTH = 500.
 public let DEFAULT_AIMASSIST = 150.
 public let DEFAULT_CASTRANGE = 700.

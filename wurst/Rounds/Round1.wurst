@@ -3,6 +3,7 @@ package Round1
 import public Round
 import public UnitTypeStats
 import public GameSettings
+import Stats
 
 public Round round
 
@@ -86,9 +87,6 @@ init
     ..setSpawnCount(1)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
 
-    
-    'n005'
-    ..defineResistance(0.1)
 
     
 

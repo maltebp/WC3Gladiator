@@ -7,7 +7,7 @@ import public SoundUtils
 import public Damage
 import public GameSettings
 import public GroupUtils
-import public UnitStatsSystem
+import public Stats
 import public TimedSpecialEffects
 import public StringUtils
 import public Buff

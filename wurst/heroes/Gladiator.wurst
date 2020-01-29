@@ -8,7 +8,6 @@ import          LinkedList
 import public   SoundUtils
 import          ErrorHandling
 import ComboSystem
-import ClearPoints
 import ChargeSystem
 import public initlater Artifact
 import UnitTypeStats
@@ -19,6 +18,7 @@ import Soundsets
 import UtilCommands
 import MapBounds
 import ClosureForGroups
+import Stats
 
 
 //================================================================================================================================================================================================
@@ -174,13 +174,13 @@ public class GladiatorType
         tempUnit.remove()
 
 
-    function setBaseStats( real damage, real armor, real health, real attackCooldown, real moveSpeed  )
+    function setBaseStats( real damage, real armor, real health, real attackSpeed, real moveSpeed  )
         unitType
-        ..defineDamage(damage.toInt())
-        ..defineArmor(armor)
-        ..defineHealth(health)
-        ..defineAttackCooldown(attackCooldown)
-        ..defineMoveSpeed(moveSpeed)
+        ..setUnitTypeStat(STAT_DAMAGE, damage)
+        ..setUnitTypeStat(STAT_ARMOR, armor)
+        ..setUnitTypeStat(STAT_HEALTH, health)
+        ..setUnitTypeStat(STAT_ATTACKSPEED, attackSpeed)
+        ..setUnitTypeStat(STAT_MOVESPEED, moveSpeed)
 
     function setSoundOnSpawn(string soundPath)
         snd_Spawn = new SoundDefinition(soundPath, false)
@@ -338,6 +338,12 @@ public function defineGladiatorUnit( int newId, int originId, string name, strin
     ..setButtonPositionY(0)
     ..setUnitSoundSet("")
     ..setRequirements("")
+    ..setAttacksEnabled(1)
+    ..setAttack1AttackType(AttackType.Normal)
+    ..setAttack1DamageBase(1)
+    ..setAttack1DamageSidesperDie(1)
+    ..setAttack1DamageNumberofDice(1)
+    ..setAttack1AttackType(AttackType.Normal)
 
     ..setTurnRate(3)
     ..setOrientationInterpolation(0) // Allows for almost instant visual turning

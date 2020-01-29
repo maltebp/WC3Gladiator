@@ -1,98 +1,98 @@
-package Evade
+// package Evade
 
-import AbilityCreation
-import HoverAbility
-import OrcAnimations
-import SoundDefinitions
-import Assets
-import TimedSpecialEffects
-import AttackCooldown
-import LinkedList
-import ClosureTimers
-import BuffObjEditing
-import DamageDetection
-import DamageType
-import StandardTextTags
-import ComboSystem
+// import AbilityCreation
+// import HoverAbility
+// import OrcAnimations
+// import SoundDefinitions
+// import Assets
+// import TimedSpecialEffects
+// import AttackCooldown
+// import LinkedList
+// import ClosureTimers
+// import BuffObjEditing
+// import DamageDetection
+// import DamageType
+// import StandardTextTags
+// import ComboSystem
 
-public let ORC_E_ID = compiletime( createE( Icons.bTNMirrorImage, "Evade", "Strike an enemy dealing damage to it.")  )
-public let EVADE_BUFF = compiletime( createDummyBuffObject("Evade", "You'll evade incoming attacks", Icons.bTNMirrorImage ) )
+// public let ORC_E_ID = compiletime( createE( Icons.bTNMirrorImage, "Evade", "Strike an enemy dealing damage to it.")  )
+// public let EVADE_BUFF = compiletime( createDummyBuffObject("Evade", "You'll evade incoming attacks", Icons.bTNMirrorImage ) )
 
-let ABIL_DEF = new ImmediateAbility(ORC_E_ID)
+// let ABIL_DEF = new ImmediateAbility(ORC_E_ID)
 
 
-init
-    ABIL_DEF
-    ..queueStandReady()
-    ..onEffect() (c) ->
-        if c.attemptAttack( SND_SORCERESS_MISSILE_DEATH  )
-            c.addEffect( Abilities.mirrorImageCaster, "origin")
-            ..setDuration( 3 )
-            EvadeBuff.applyBuff(c, 2, 5)
-            c.addComboPoint(COMBO_POINT_E)
+// init
+//     ABIL_DEF
+//     ..queueStandReady()
+//     ..onEffect() (c) ->
+//         if c.attemptAttack( SND_SORCERESS_MISSILE_DEATH  )
+//             c.addEffect( Abilities.mirrorImageCaster, "origin")
+//             ..setDuration( 3 )
+//             EvadeBuff.applyBuff(c, 2, 5)
+//             c.addComboPoint(COMBO_POINT_E)
 
   
-class EvadeBuff
-    protected static var SHOULDDETECT = false // To stop it from checking all instances at every damage event
-    private static let instances = new LinkedList<thistype>
+// class EvadeBuff
+//     protected static var SHOULDDETECT = false // To stop it from checking all instances at every damage event
+//     private static let instances = new LinkedList<thistype>
     
-    private unit buffUnit
-    private int stacksRemaining
-    private CallbackSingle durationCb = null
+//     private unit buffUnit
+//     private int stacksRemaining
+//     private CallbackSingle durationCb = null
 
-    construct( unit buffUnit )
-        this.buffUnit = buffUnit
-        ..setVertexColor(255,255,255,175)
-        ..addAbility( EVADE_BUFF.abilId )
+//     construct( unit buffUnit )
+//         this.buffUnit = buffUnit
+//         ..setVertexColor(255,255,255,175)
+//         ..addAbility( EVADE_BUFF.abilId )
 
-        instances.add(this)
-        if instances.size() == 1
-            SHOULDDETECT = true
+//         instances.add(this)
+//         if instances.size() == 1
+//             SHOULDDETECT = true
 
-    ondestroy
-        if durationCb != null
-            destroy durationCb
+//     ondestroy
+//         if durationCb != null
+//             destroy durationCb
 
-        if buffUnit != null
-            buffUnit.setVertexColor(255,255,255,255)
-            if buffUnit.hasAbility(EVADE_BUFF.abilId)
-                buffUnit.removeAbility(EVADE_BUFF.abilId)
-        instances.remove(this)
-        if instances.size() == 0
-            SHOULDDETECT = false
+//         if buffUnit != null
+//             buffUnit.setVertexColor(255,255,255,255)
+//             if buffUnit.hasAbility(EVADE_BUFF.abilId)
+//                 buffUnit.removeAbility(EVADE_BUFF.abilId)
+//         instances.remove(this)
+//         if instances.size() == 0
+//             SHOULDDETECT = false
 
-    function consumeStack()
-        stacksRemaining--
-        if stacksRemaining <= 0
-            destroy this
+//     function consumeStack()
+//         stacksRemaining--
+//         if stacksRemaining <= 0
+//             destroy this
 
-    static function applyBuff( unit whichUnit, int stacks, real duration )
-        var instance = getInstance(whichUnit)
-        if instance == null
-            instance = new EvadeBuff(whichUnit)
-        else
-            destroy instance.durationCb
-        instance.stacksRemaining = stacks 
-        instance.durationCb = doAfter(duration) ->
-            instance.durationCb = null
-            destroy instance
+//     static function applyBuff( unit whichUnit, int stacks, real duration )
+//         var instance = getInstance(whichUnit)
+//         if instance == null
+//             instance = new EvadeBuff(whichUnit)
+//         else
+//             destroy instance.durationCb
+//         instance.stacksRemaining = stacks 
+//         instance.durationCb = doAfter(duration) ->
+//             instance.durationCb = null
+//             destroy instance
     
-    static function getInstance( unit whichUnit ) returns thistype
-        for instance in instances
-            if instance.buffUnit == whichUnit
-                return instance
-        return null
+//     static function getInstance( unit whichUnit ) returns thistype
+//         for instance in instances
+//             if instance.buffUnit == whichUnit
+//                 return instance
+//         return null
 
-init
-    addOnDamageFunc() ->
-        if EvadeBuff.SHOULDDETECT
-            if getDamageType() == DamageType.ATTACK
-                let target = GetTriggerUnit()
-                let instance = EvadeBuff.getInstance(target)
+// init
+//     addOnDamageFunc() ->
+//         if EvadeBuff.SHOULDDETECT
+//             if getDamageType() == DamageType.ATTACK
+//                 let target = GetTriggerUnit()
+//                 let instance = EvadeBuff.getInstance(target)
 
-                if instance != null
-                    instance.consumeStack()
-                    BlzSetEventDamage(0)
-                    standardTextTag(target.getPos(), "Evade!")
-                    ..setColor(230,150,60,255)
+//                 if instance != null
+//                     instance.consumeStack()
+//                     BlzSetEventDamage(0)
+//                     standardTextTag(target.getPos(), "Evade!")
+//                     ..setColor(230,150,60,255)
             

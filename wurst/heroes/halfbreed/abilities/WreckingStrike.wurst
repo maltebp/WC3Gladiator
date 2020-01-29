@@ -60,10 +60,6 @@ function onCast()
     SND_ON_ATTACK_2.playOnPoint(target.getPos3Real())
 
     target.applyBuff(new WreckingStrikeBuff(), caster, DURATION)
-    target.adjustArmorFlat(-ARMOR_RED)
-    doAfter(DURATION) ->
-        if( target != null )
-            target.adjustArmorFlat(ARMOR_RED)
     
 
 class WreckingStrikeBuff extends Buff
@@ -73,11 +69,11 @@ class WreckingStrikeBuff extends Buff
 
     override function onApply()
         if( target != null )
-            target.adjustArmorFlat(-ARMOR_RED)
+            target.adjustStatFlat(STAT_ARMOR, -ARMOR_RED)
 
     override function onRemove()
         if( target != null )
-            target.adjustArmorFlat(ARMOR_RED)
+            target.adjustStatFlat(STAT_ARMOR, ARMOR_RED)
 
 
 

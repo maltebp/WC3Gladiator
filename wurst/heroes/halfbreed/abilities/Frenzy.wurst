@@ -58,8 +58,8 @@ class FrenzyBuff extends Buff
 
     override function onApply()
         if( target != null )
-            target.adjustAttackSpeed(ATTACK_SPEED_INC)
+            target.adjustStatPercentage(STAT_ATTACKSPEED, ATTACK_SPEED_INC) 
 
     override function onRemove()
         if( target != null )
-            target.adjustAttackSpeed(-ATTACK_SPEED_INC)           
+            target.adjustStatPercentage(STAT_ATTACKSPEED, -ATTACK_SPEED_INC)         

@@ -12,7 +12,7 @@ import TimedSpecialEffects
 import UnitVisualsUtils
 import ErrorHandling
 import HomingRockets
-import UnitTypeStats
+import Stats
 
 
 int BOSSID = 'n00H'
@@ -48,10 +48,10 @@ SoundDefinition snd_BossDeath = new SoundDefinition(Sounds.tinkerDeathAlt1, fals
 init
 
     BOSSID
-    ..defineResistance(0.1)
+    ..setUnitTypeStat(STAT_RESISTANCE, 0.9)
 
     BOSSID_TANK
-    ..defineResistance(0.1)
+    ..setUnitTypeStat(STAT_RESISTANCE, 0.9)
     
 
     round = new Round()

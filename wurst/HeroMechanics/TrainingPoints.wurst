@@ -1,7 +1,7 @@
 package TrainingPoints
 
 import HashMap
-import UnitStatsSystem
+import Stats
 import FoodResource
 import GameSettings
 import UtilCommands
@@ -66,22 +66,21 @@ class HeroTrainingPoints
 
     /** Can be negative */
     protected function adjustHealth(int adjustAmount)
-        hero.adjustHealthFlat(adjustAmount.toReal())
+        hero.adjustStatFlat(STAT_HEALTH, adjustAmount.toReal())
         health += adjustAmount
 
     protected function adjustArmor(real adjustAmount)
-        hero.adjustArmorFlat(adjustAmount)
+        hero.adjustStatFlat(STAT_ARMOR, adjustAmount)
         armor += adjustAmount
         
 
     protected function adjustPower(int adjustAmount)
-        hero.adjustDamageFlat(adjustAmount.toReal())
+        hero.adjustStatFlat(STAT_DAMAGE, adjustAmount.toReal())
         power += adjustAmount
         
 
     protected function adjustAttackSpeed(real adjustAmount)
-        //Resetting attack speed
-        hero.adjustAttackSpeed(adjustAmount)
+        hero.adjustStatPercentage(STAT_ATTACKSPEED, adjustAmount)
         attackSpeed += adjustAmount
         
     /** Gets the instances containing information about training points for

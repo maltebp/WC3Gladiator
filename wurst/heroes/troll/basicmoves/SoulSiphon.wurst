@@ -1,85 +1,85 @@
-package SoulSiphon
+// package SoulSiphon
 
-import AbilityCreation
-import HoverAbility
-import SoundDefinitions
-import AttackCooldown
-import MyLibrary
-import UnitStatsSystem
-import DamageDetection
-import DamageType
-import TrollAnimations
-import Projectile
-import Assets
-import GroupUtils
-import HeroDefaults
-import ComboSystem
-import Damage
-import BloodPact
-import SoulDrainData
-import ClosureTimers
-import VoodooPotion
-import Artifact
-import initlater TrollGladiator
-
-
-let RANGE = DEFAULT_CASTRANGE
-let DRAIN_FACTOR = 2. // Equilavent to damage factor
-let DRAIN_FACTOR_VOODOO = 2.
-let TRANSFER_FACTOR = 0.5 // Amount drained gained by the caster
-let SS_COOLDOWN_REDUC = 0.5 // Percent of total cooldown
-let AIMASSIST = 75.
-let CHARGE = 25.
+// import AbilityCreation
+// import HoverAbility
+// import SoundDefinitions
+// import AttackCooldown
+// import MyLibrary
+// import UnitStatsSystem
+// import DamageDetection
+// import DamageType
+// import TrollAnimations
+// import Projectile
+// import Assets
+// import GroupUtils
+// import HeroDefaults
+// import ComboSystem
+// import Damage
+// import BloodPact
+// import SoulDrainData
+// import ClosureTimers
+// import VoodooPotion
+// import Artifact
+// import initlater TrollGladiator
 
 
-public let TROLL_SOULSIPHON_ID = compiletime( createW( Icons.bTNManaDrain, "Soul Siphon", "Strike an enemy dealing damage to it.")  )
+// let RANGE = DEFAULT_CASTRANGE
+// let DRAIN_FACTOR = 2. // Equilavent to damage factor
+// let DRAIN_FACTOR_VOODOO = 2.
+// let TRANSFER_FACTOR = 0.5 // Amount drained gained by the caster
+// let SS_COOLDOWN_REDUC = 0.5 // Percent of total cooldown
+// let AIMASSIST = 75.
+// let CHARGE = 25.
 
-let ABIL_DEF = new PointAbility( TROLL_SOULSIPHON_ID, RANGE, ANIM_TROLL_ATTACK )
+
+// public let TROLL_SOULSIPHON_ID = compiletime( createW( Icons.bTNManaDrain, "Soul Siphon", "Strike an enemy dealing damage to it.")  )
+
+// let ABIL_DEF = new PointAbility( TROLL_SOULSIPHON_ID, RANGE, ANIM_TROLL_ATTACK )
 
 
-init
-    ABIL_DEF
-    ..queueStandReady()
+// init
+//     ABIL_DEF
+//     ..queueStandReady()
 
-    ABIL_DEF.setCastCritera() caster ->
-        return caster.attemptAttack( SND_SORCERESS_MISSILE_DEATH )
+//     ABIL_DEF.setCastCritera() caster ->
+//         return caster.attemptAttack( SND_SORCERESS_MISSILE_DEATH )
 
-    ABIL_DEF.onEffect() (caster, pos) ->
+//     ABIL_DEF.onEffect() (caster, pos) ->
     
-        caster.activateBloodPact()
+//         caster.activateBloodPact()
 
 
-        let targets = ENUM_GROUP..enumEnemyTargets( caster.getOwner(), pos, AIMASSIST)
+//         let targets = ENUM_GROUP..enumEnemyTargets( caster.getOwner(), pos, AIMASSIST)
         
-        let target = targets.getNearestUnit(pos)
+//         let target = targets.getNearestUnit(pos)
 
-        if target != null
+//         if target != null
 
-            let drainFactor = (target.consumeVoodoo(caster)) ?  DRAIN_FACTOR_VOODOO : DRAIN_FACTOR
-            let damage =  caster.getDamage() * drainFactor
-            let transferFactor = TRANSFER_FACTOR 
-            let heal = (damage*transferFactor)
+//             let drainFactor = (target.consumeVoodoo(caster)) ?  DRAIN_FACTOR_VOODOO : DRAIN_FACTOR
+//             let damage =  caster.getDamage() * drainFactor
+//             let transferFactor = TRANSFER_FACTOR 
+//             let heal = (damage*transferFactor)
 
-            caster.damageTargetSpell( target, damage )
-            caster.addComboPoint( COMBO_POINT_W )            
+//             caster.damageTargetSpell( target, damage )
+//             caster.addComboPoint( COMBO_POINT_W )            
 
-            let projectile = new Projectile(target.getPos().withTerrainZ(60), Abilities.zigguratMissile)
-            ..fireUnit( caster, 60, true, 1000, 0)
+//             let projectile = new Projectile(target.getPos().withTerrainZ(60), Abilities.zigguratMissile)
+//             ..fireUnit( caster, 60, true, 1000, 0)
 
-            projectile
-            ..addActionOnFinish() ->
-                if caster != null and caster.isAlive()
-                    caster.setHP( caster.getHP()+heal)
+//             projectile
+//             ..addActionOnFinish() ->
+//                 if caster != null and caster.isAlive()
+//                     caster.setHP( caster.getHP()+heal)
 
-                    if caster.hasArtifact( ARTIFACT_TROLL_SPIRITSTAFF )
-                        caster.reduceCooldownPerc(0.5, true)
+//                     if caster.hasArtifact( ARTIFACT_TROLL_SPIRITSTAFF )
+//                         caster.reduceCooldownPerc(0.5, true)
 
-                    doAfter(0.01) ->
-                        caster.addCharge(30)
+//                     doAfter(0.01) ->
+//                         caster.addCharge(30)
 
                 
 
-            SND_POSSESSION.playOnPoint(pos.withTerrainZ())
+//             SND_POSSESSION.playOnPoint(pos.withTerrainZ())
      
 
-        targets.clear()
+//         targets.clear()

@@ -1,5 +1,6 @@
 package Damage
-import UnitStatsSystem
+
+import Stats
 
 constant boolean TESTMODE = true
 
@@ -12,7 +13,7 @@ public function unit.damageTargetPhysical(unit target, real damage)
 
 /** Deals damage to the target which is adjusted as spell damage (reduced by spell reduction and Elune's Grace)*/
 public function unit.damageTargetSpell(unit target, real damage)
-    this.damageTargetUniversal(target, target.getResistance() * damage)
+    this.damageTargetUniversal(target, (1-target.getStat(STAT_RESISTANCE)) * damage)
 
 /** Deals damage to the target which is not adjusted by anything */
 public function unit.damageTargetUniversal(unit target, real damage)

@@ -1,0 +1,60 @@
+package Stats
+
+import public LakeStatSystem
+import StatType
+
+public StatType STAT_DAMAGE = null
+public StatType STAT_ARMOR = null
+public StatType STAT_HEALTH = null
+public StatType STAT_MANA = null
+public StatType STAT_MOVESPEED = null
+public StatType STAT_ATTACKSPEED = null
+public StatType STAT_RESISTANCE = null
+public StatType STAT_CHARGE_REGEN = null
+
+
+public function unit.getDamage() returns real
+    return this.getStat(STAT_DAMAGE)
+
+init
+    STAT_DAMAGE = new StatType(
+        "Damage",
+         u -> u.getBaseDamage(0).toReal(),
+        (u, damage) -> u.setBaseDamage(damage.round(), 0))
+        ..setValueToStringCallback( value -> value.round().toString() )
+        ..setMinValue(1)
+
+    STAT_ARMOR = new StatType( "Armor", u -> u.getArmor(), (u, armor) -> u.setArmor(armor) )
+        ..setValueToStringCallback( value -> value.toString(1) )
+        ..setMinValue(-5)
+
+    STAT_HEALTH = new StatType( "Health", u -> u.getMaxHP(), (u, hp) -> u.setMaxHP(hp.round(), true) )
+        ..setValueToStringCallback( value -> value.round().toString() )
+        ..setMinValue(1)
+
+    STAT_MANA = new StatType( "Mana", u -> u.getMaxMana(), (u, mana) -> u.setMaxMana(mana.round(), true) )
+        ..setValueToStringCallback( value -> value.round().toString() )
+        ..setMinValue(0)
+
+    STAT_MOVESPEED = new StatType( "Move Speed", u -> u.getMoveSpeed(), (u, movespeed) -> u.setMoveSpeed(movespeed) )
+        ..setMinValue(250)
+        ..setMaxValue(450)
+
+    // Measured in attacks per second (not attack cooldown)
+    STAT_ATTACKSPEED = new StatType("Attack Speed", u -> 1 / u.getAttackCooldown(0), (u, attackspeed) -> u.setAttackCooldown( 1 / attackspeed, 0) )
+        ..setValueToStringCallback( value -> value.toString(2) )
+        ..setMinValue(0.01)
+
+    STAT_RESISTANCE = new StatType(
+        "Resistance",
+        u -> 0,
+        (u, resistance) -> skip)
+        ..setValueToStringCallback( value -> value.toString(2) )
+        ..setMaxValue(0.75)
+
+
+
+    STAT_CHARGE_REGEN = new StatType(
+        "Charge",
+        u -> 0, // base value
+        (u, regen) -> skip)
