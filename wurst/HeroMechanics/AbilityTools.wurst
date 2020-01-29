@@ -9,8 +9,7 @@ import public GameSettings
 import public GroupUtils
 import public UnitStatsSystem
 import public TimedSpecialEffects
-
-import StringUtils
+import public StringUtils
 
 import ObjectIdGenerator
 import ErrorHandling

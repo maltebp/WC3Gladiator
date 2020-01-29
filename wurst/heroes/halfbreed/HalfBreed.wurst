@@ -6,6 +6,7 @@ import HeroDefaults
 import Icons
 import StringUtils
 import Cleave
+import FlyingAxe
 
 
 public let HALF_BREED = new GladiatorType("Half-Breed")
@@ -22,7 +23,8 @@ init
     ..setColor(HALF_BREED_COLOR)
     ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED)
     ..addAbilities(
-        HALF_BREED_CLEAVE
+        HALF_BREED_CLEAVE,
+        HALF_BREED_FLYING_AXE
     )
 
 

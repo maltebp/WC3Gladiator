@@ -1,26 +1,27 @@
 package FlyingAxe
 
 import AbilityTools
+import Projectile
 
 //================================================================================================================================================================================================
 // Settings
 
-let DMG_FACTOR          = 1.5
+let DMG_FACTOR          = 0.75
 let DMG_REDUCTION       = 0.15 // Per target
 let TRAVEL_RANGE        = 700.
-let TRAVEL_SPEED        = 1000.
+let TRAVEL_SPEED        = 800.
 let AOE_RANGE           = 125.
 
 
 public let HALF_BREED_FLYING_AXE = compiletime(defineTargetPoint1(
     "Flying Axe",
-    "Strike an enemy with a cleaving strike, damaging the target and 2 nearby enemies for reduced damage.",
-    Icons.bTNCriticalStrike,
+    "Throw an axe which deals damage to enemies it hits. The damage is reduced by {0} each hit, and it dissipates if the damage is reduced to 0%.".format(DMG_REDUCTION.toPercentageString()),
+    Icons.bTNOrcMeleeUpThree,
     "Q",
     6,      // Cooldown
     10,     // Mana
     TRAVEL_RANGE,    // Range
-    "attack slam"
+    "attack"
 ))
 
 let SND_ON_ATTACK = [
@@ -37,3 +38,46 @@ init
         onCast()
 
 function onCast()
+    let caster = GetSpellAbilityUnit()
+
+    // Calculate target pos
+    let spellTargetPos = vec2(GetSpellTargetX(), GetSpellTargetY())
+    let actualPos = caster.getPos().moveTowards(spellTargetPos, TRAVEL_RANGE)
+
+    // Damage
+    let startDamage = caster.getDamage() * DMG_FACTOR
+
+    // Create Missile
+    let projectile = new AxeProjectile( caster.getPos().withTerrainZ(80), Abilities.rexxarMissile, startDamage)      
+    ..firePoint(actualPos.withTerrainZ(80), TRAVEL_SPEED, 0)
+    
+    projectile.getEffect()
+    projectile.addCollisionAction(AOE_RANGE, true) target ->
+        caster.damageTargetPhysical(target, startDamage * projectile.damageFactor)
+        target.addEffect(Abilities.stampedeMissileDeath, "chest")..setDuration(3)
+        SND_ON_ATTACK[GetRandomInt(0, 2)].playOnPoint(target.getPos3Real())
+
+        projectile.damageFactor -= DMG_REDUCTION
+        if( projectile.damageFactor <= 0 )
+            destroy projectile
+
+    projectile.setCollisionFilter() u ->
+        return u.isEnemyOf(caster) and u.isAlive()
+
+
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Only used to store number of targets hit
+class AxeProjectile extends Projectile
+    var damageFactor = 1.
+    var startDamage = 0.
+
+    construct(vec3 originPos, string sfxPath, real startDamage )
+        super(originPos, sfxPath)
+        this.startDamage = startDamage
+    
+    
+
+
