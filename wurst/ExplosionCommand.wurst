@@ -1,0 +1,28 @@
+package ExplosionCommand
+import UtilCommands
+import Abilities
+import TimedSpecialEffects
+import Objects
+
+init
+    defineUtilCommand("explosion")
+    ..addOptionReal("d", 500)
+    ..addOptionReal("r", 300)
+    ..setAction() (p, args, opts ) ->
+        let pos = p.getMousePos()
+        let targets = ENUM_GROUP..enumUnitsInRange(pos, opts.getReal("r"))
+
+        for target from targets
+            if( target.isAlive() and target.getOwner().isEnemyOf(p) )
+                target.addHP(-opts.getReal("d"))
+                
+        addEffect(Abilities.mortarMissile, pos)
+        ..setScale(2)
+        ..destr()
+        ..setTimeScale(0.5)
+
+        addEffect(Abilities.warStompCaster, pos)
+        ..setDuration(3)
+
+        addEffect(Objects.neutralBuildingExplosion, pos)
+        ..setDuration(3)

@@ -9,12 +9,14 @@ import LinkedList
 import ClosureTimers
 import GameSettings
 import PlayerFunctions
-import Lives
 import PickHero
 import GladiatorShop
 import Players
 import FadeUtil
 import Intro
+import Mastery
+import TrainingPoints
+import Attempts
 
 constant boolean    SPAWNHEROINARENA        = false
 constant boolean    ARENACORNERSPAWN        = true
@@ -86,6 +88,7 @@ function delayedSetup()
     MAPREGION = CreateRegion()..addRect(GetPlayableMapRect())
 
     initializeGladiatorShop()
+    initializeAttemptsWindow()
 
     
     CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, BARRACKS_RECT, false, false).start()
@@ -99,10 +102,11 @@ function delayedSetup()
 
     for p in allPlayers
         p 
-        ..setLumber(START_TRAININGPOINTS)
+        ..addMasteryPoints(START_MASTERY)
+        ..addTrainingPoints(START_TRAININGPOINTS)
         ..setGold(START_GOLD)
         
-    setLives(LIVES)
+    setAttemptsLeft(ATTEMPTS)
 
 
     if SPAWNHEROINARENA
@@ -113,10 +117,11 @@ function delayedSetup()
         ..setCameraPosition(gg_rct_Shop_CamBounds.getCenter())
         ..setCameraBoundsToRect(HEROSPAWN_CAMLOCK)
         
+    
         
 
     Round.setCurrentRound(1)
-    //Round.toggleInstantSpawn(INSTANTSPAWN)
+    
 
     // TODO: Move this to somewhere else
     ITEM_DULLBLADE.release()

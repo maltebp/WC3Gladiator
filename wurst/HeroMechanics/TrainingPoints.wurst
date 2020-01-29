@@ -2,6 +2,9 @@ package TrainingPoints
 
 import HashMap
 import UnitStatsSystem
+import FoodResource
+import GameSettings
+import UtilCommands
 
 constant real ARMOR_PER_POINT = 1
 constant int    HEALTH_PER_POINT = 15
@@ -18,6 +21,14 @@ constant integer    TRAINID_POWER5 = 'I00C'
 constant integer    TRAINID_ATTACKSPEED = 'I001'
 constant integer    TRAINID_ATTACKSPEED5 = 'I00G'
 constant integer    TRAINID_RESET = 'I005'
+
+
+public function player.addTrainingPoints(int numberOfPoints)
+    this.addFood(numberOfPoints)
+
+public function player.removeTrainingPoints(int pointsToRemove)
+    for i=1 to pointsToRemove
+        this.removeFood()
 
 
 class HeroTrainingPoints
@@ -42,7 +53,7 @@ class HeroTrainingPoints
 
 
     protected function resetPoints()
-        owner.addLumber(pointsTrained)
+        owner.addTrainingPoints(pointsTrained)
         pointsTrained = 0
 
         adjustHealth(-health)
@@ -85,51 +96,58 @@ class HeroTrainingPoints
     
 
     protected static function train()
-        
         let unitToTrain = GetBuyingUnit()
+        let owner = unitToTrain.getOwner()
         let instance = getUnitInstance(unitToTrain)
         let whatToTrain = GetSoldItem().getTypeId()
 
+        if( whatToTrain == TRAINID_RESET )
+            instance.resetPoints()
+        else
+            let foodCost = whatToTrain.isTraining5() ? 5 : 1
 
-        switch whatToTrain
-            
-            case TRAINID_HEALTH
-                instance.pointsTrained++
-                instance.adjustHealth(HEALTH_PER_POINT)
+            if( owner.getFood() < foodCost )
+                SND_ERROR.playForPlayer(owner)
+            else
+                switch whatToTrain
+                    
+                    case TRAINID_HEALTH
+                        instance.pointsTrained++
+                        instance.adjustHealth(HEALTH_PER_POINT)
 
-            case TRAINID_HEALTH5
-                instance.pointsTrained += 5
-                instance.adjustHealth(HEALTH_PER_POINT*5)
+                    case TRAINID_HEALTH5
+                        instance.pointsTrained += 5
+                        instance.adjustHealth(HEALTH_PER_POINT*5)
 
-            case TRAINID_ARMOR
-                instance.pointsTrained++
-                instance.adjustArmor(ARMOR_PER_POINT)
+                    case TRAINID_ARMOR
+                        instance.pointsTrained++
+                        instance.adjustArmor(ARMOR_PER_POINT)
 
-            case TRAINID_ARMOR5
-                instance.pointsTrained += 5
-                instance.adjustArmor(ARMOR_PER_POINT*5)
+                    case TRAINID_ARMOR5
+                        instance.pointsTrained += 5
+                        instance.adjustArmor(ARMOR_PER_POINT*5)
 
-            case TRAINID_ATTACKSPEED
-                instance.pointsTrained++
-                instance.adjustAttackSpeed(ATTACKSPEED_PER_POINT)
+                    case TRAINID_ATTACKSPEED
+                        instance.pointsTrained++
+                        instance.adjustAttackSpeed(ATTACKSPEED_PER_POINT)
 
-            case TRAINID_ATTACKSPEED5
-                instance.pointsTrained += 5
-                instance.adjustAttackSpeed(ATTACKSPEED_PER_POINT*5)
+                    case TRAINID_ATTACKSPEED5
+                        instance.pointsTrained += 5
+                        instance.adjustAttackSpeed(ATTACKSPEED_PER_POINT*5)
 
-            case TRAINID_POWER
-                instance.pointsTrained++
-                instance.adjustPower(POWER_PER_POINT) 
+                    case TRAINID_POWER
+                        instance.pointsTrained++
+                        instance.adjustPower(POWER_PER_POINT) 
 
-            case TRAINID_POWER5
-                instance.pointsTrained += 5
-                instance.adjustPower(POWER_PER_POINT*5) 
-
-            case TRAINID_RESET
-                instance.resetPoints()
-
+                    case TRAINID_POWER5
+                        instance.pointsTrained += 5
+                        instance.adjustPower(POWER_PER_POINT*5) 
+                        
+                owner.removeTrainingPoints(foodCost)
 
 
+function int.isTraining5() returns bool
+    return this == TRAINID_HEALTH5 or this == TRAINID_ARMOR5 or this == TRAINID_ATTACKSPEED5 or this == TRAINID_POWER5
 
 function itemBoughtFilter() returns boolean
     let itemId = GetSoldItem().getTypeId()
@@ -144,3 +162,13 @@ init
     // Setup item tooltips
 
 
+//================================================================================================================================================================================================
+// CHAT COMMAND
+
+init
+    if DEBUG
+        defineUtilCommand("training")
+        ..addArgument(ArgumentType.INT)
+        ..setAction() (p, args, opts) ->
+            p.addFood(args.getInt())
+    

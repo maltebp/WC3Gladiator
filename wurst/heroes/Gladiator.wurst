@@ -17,7 +17,13 @@ import CompileTimeData
 import ObjectIds
 import Soundsets
 import UtilCommands
+import MapBounds
 
+
+//================================================================================================================================================================================================
+// Settings
+
+let MASTERY_SHOP_POSITIONS = boundMax + vec2(-1000, 1000)
 
 
 //================================================================================================================================================================================================
@@ -32,6 +38,7 @@ public class Gladiator
     private unit            gladiatorUnit
     private GladiatorType   gladiatorType
     private player          owner
+    private unit masteryShop = null
     private var abilitiesReleased = 0
 
 
@@ -39,6 +46,11 @@ public class Gladiator
         this.owner = owner
         this.gladiatorType = gladiatorType
         gladiatorUnit = gladiatorType.createGladiatorUnit(owner, spawnPos, facing)
+
+
+        if( gladiatorType.masteryShopType == 0 ) 
+            error("Mastery shop type for {0} has not been set!".format(gladiatorType.getName()))
+        masteryShop = createUnit(owner, gladiatorType.masteryShopType, MASTERY_SHOP_POSITIONS, angle(0))
         instances.add(this)
 
 
@@ -92,6 +104,10 @@ public class Gladiator
 
     function getGladiatorType() returns GladiatorType
         return gladiatorType
+
+        
+    function getMasteryShop() returns unit
+        return masteryShop
     
 
     static function isUnitGladiator(unit whichUnit) returns boolean
@@ -127,6 +143,8 @@ public class GladiatorType
     private string name
 
     private color col
+
+    protected int masteryShopType = 0
 
     protected int QAbility
     protected int WAbility
@@ -175,6 +193,9 @@ public class GladiatorType
 
     function setColor(color col)
         this.col = col
+
+    function setMasteryShopType(int masteryShopType)
+        this.masteryShopType = masteryShopType
 
     function addAbilities(vararg int abilities)
         for abil in abilities
@@ -240,12 +261,14 @@ public class GladiatorType
     
         return gladiatorUnit
 
+    
         
     function getName() returns string
         return name
 
-    function addArtifact( Artifact artifact)
-        artifacts.add(artifact)
+    function addArtifacts(vararg Artifact artifacts)
+        for artifact in artifacts
+            this.artifacts.add(artifact)
 
     function releaseNextArtifact() returns Artifact
         for artifact in artifacts

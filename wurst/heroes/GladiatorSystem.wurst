@@ -3,7 +3,6 @@ package GladiatorSystem
 import public Gladiator
 
 // So that you may just import the Gladiator system
-import public TrollGladiator
 import RegisterEvents
 import Orders
 import ClosureTimers

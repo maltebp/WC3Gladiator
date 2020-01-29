@@ -7,6 +7,8 @@ import GladiatorSystem
 import GameSettings
 import Abilities
 import TimedSpecialEffects
+import Mastery
+import Attempts
 
 //================================================================================================================================================================================================
 
@@ -19,11 +21,15 @@ public function startRound()
 
     let scene = new Scene()
     ..do( p -> p.getGladiator().getUnit().pause())
+    ..do( p -> p.disableMasteryShop() )
+
     ..do( p -> p.fadeOut(1.5))
     ..do( p -> p.toggleCinematicMode(true, 1.5))
+    ..do( p -> p.toggleAttemptsWindow(false) )
     ..wait(1.5)
     ..do( p -> p.preparePlayer() )
     ..do( -> round.prepare() )
+
     ..do( p -> p.fadeIn(1.5))
     ..do( p -> p.toggleCinematicMode(false, 1.5))
     ..wait(2.5)

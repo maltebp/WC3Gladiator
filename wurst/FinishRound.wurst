@@ -7,11 +7,12 @@ import Round
 import Abilities
 import TimedSpecialEffects
 import Music
-import Lives
+import Attempts
 import FinishMap
 import StringUtils
 import ReadyHandler
 import Players
+import Mastery
 
 //================================================================================================================================================================================================
 
@@ -30,9 +31,9 @@ public function finishRound(boolean hasWon)
     stopMusic()
 
     if( not hasWon )
-        removeLife()
+        removeAttempt()
         
-    if( getLives() <= 0 )
+    if( getAttemptsLeft() <= 0 )
         mapLost()
 
     else if( hasWon and Round.getCurrentRoundNumber() == FINAL_ROUND ) 
@@ -53,7 +54,8 @@ public function finishRound(boolean hasWon)
         ..do( p -> p.moveGladiator() )
         ..wait(3)
         ..addRoundReview(hasWon)
-        ..do( p -> p.enableReadyButton() )
+        ..do( p -> p.enableReadyCommand() )
+        ..do( p -> p.enableMasteryShop() )
         ..play(allPlayers)
 
 function player.moveCam()
@@ -113,16 +115,16 @@ function Scene.addRoundReview(boolean hasWon)
         
         // Next Round
         ..wait(6)
+        ..do( p -> p.toggleAttemptsWindow(true) )
         ..do(   -> Round.setNextRound() )
         ..do( p -> Round.printNextRound(p) )
         
     else
     // Round Lost
-        //
         this
         ..do( -> SND_ROUND_LOST.play() )
         ..do( -> print("|cffff3300"+"Round "+Round.getCurrentRoundNumber().toString()+" failed!"+"|r\n" + 
-                        "You have "+localPlayer.getNumOfLives().toString()+" lives left.",10 ))
+                        "Remeaning attmepts: "+getAttemptsLeft().toString(),10 ))
         ..wait(4)
         ..do( -> print("\nTry again",10))
 

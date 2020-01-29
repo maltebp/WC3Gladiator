@@ -1,0 +1,64 @@
+package Attempts
+
+import Players
+import UtilCommands
+
+var attemptsLeft = 0
+leaderboard attemptsWindow // Must not be created at init
+
+// List of players to show window for
+var showWindow = false
+bool array playerWindowToggle
+
+
+public function toggleAttemptsWindow(bool toggle)
+    showWindow = toggle
+    for p in allPlayers
+        p.toggleWindow()
+
+public function player.toggleAttemptsWindow(bool toggle)
+    playerWindowToggle[this.getId()] = toggle
+    this.toggleWindow()
+
+function player.toggleWindow()
+    let show = playerWindowToggle[this.getId()] and showWindow
+    if( localPlayer == this )
+        LeaderboardDisplay(attemptsWindow, show)
+
+
+public function initializeAttemptsWindow()
+    attemptsWindow = CreateLeaderboard()
+    for p in allPlayers
+        PlayerSetLeaderboard(p, attemptsWindow)
+    toggleAttemptsWindow(true)
+
+function updateWindow()
+    LeaderboardSetLabel( attemptsWindow, "Remaining Attempts:  "+attemptsLeft.toString())
+    LeaderboardResizeBJ(attemptsWindow)
+
+public function setAttemptsLeft(int attempts)
+    attemptsLeft = attempts
+    updateWindow()
+
+public function removeAttempt() returns int
+    attemptsLeft--
+    updateWindow()
+    return attemptsLeft
+
+public function getAttemptsLeft() returns int
+    return attemptsLeft
+
+
+
+//================================================================================================================================================================================================
+init
+    defineUtilCommand("setattempts")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p,args,opts) ->
+        let attempts = args.getInt()
+        if( attempts < 0 )
+            p.print("\nAttempts must be larger than 0", 10)
+        else
+            setAttemptsLeft(attempts)
+            p.print("\nSet lives to {0}".format(attempts.toString().highlight()),10)
+

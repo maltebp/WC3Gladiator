@@ -4,16 +4,12 @@ import LinkedList
 
 import Players
 import UtilCommands
-import OnEscape
-import HashMap
 import ClosureTimers
-import SoundUtils
 import StringUtils
 import GameSettings
 import Round
 import Music
 import StartRound
-
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Settings
@@ -26,39 +22,32 @@ let SND_ALLREADY = new SoundDefinition(Sounds.arrangedTeamInvitation, false)
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-let readyButtonPlayers = new LinkedList<player>
+let readyCommand = new ChatCommand("-ready")
 let readyPlayers = new LinkedList<player>
-let escapeCallbacks = new HashMap<player, OnEscapeCallback>
 let cooldownList  = new LinkedList<player>
 
-public function player.enableReadyButton()
-    if( not readyButtonPlayers.has(this) )
-        readyButtonPlayers.add(this)
-        escapeCallbacks.put(this, this.onEscapePressed(p -> p.toggleReady()))
+public function player.enableReadyCommand()
+    readyCommand.enableForPlayers(this)
 
 public function player.disableReadyButton()
-    if( readyButtonPlayers.has(this) )
-        readyButtonPlayers.remove(this)
-        destroy this.removeEscapePressedCallback(escapeCallbacks.getAndRemove(this))
-        
+    readyCommand.disableForPlayers(this)
+
 
 public function player.isReady() returns bool
     return readyPlayers.has(this)
 
-
 function player.setReadyState(bool ready)
     if( ready and not readyPlayers.has(this) )
         readyPlayers.add(this)
-        checkReadyStates()
     else if( not ready and readyPlayers.has(this))
         readyPlayers.remove(this) 
-    
+    checkReadyStates()
 
     
 function player.toggleReady()
-    this.setReadyState(not this.isReady())
-    if( this.isReady() )
+    let ready = not this.isReady()
+    this.setReadyState(ready)
+    if( ready )
         SND_READY.playForPlayer(this)
         this.print("\nYou are {0}".format("ready".withColor(COLOR_HIGHLIGHT)), 10)
     else
@@ -67,6 +56,7 @@ function player.toggleReady()
     cooldownList.add(this)
     doAfter(BUTTON_COOLDOWN) ->
         cooldownList.remove(this)
+    
 
 
 function checkReadyStates()
@@ -94,8 +84,18 @@ function allAreReady()
 
 
 
+//================================================================================================================================================================================================
+// Ready Command
+init
+    readyCommand
+    ..disableForAllPlayers()
+    ..setAction() (p, args, opts) ->
+        p.toggleReady()
+        
+
+
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Chat command
+// Test Command
 init
     let cmd = defineUtilCommand("ready")
     ..addHelpCommand("Toggles a player's ready state. First argument is player id and and second either 't' or 'f'")

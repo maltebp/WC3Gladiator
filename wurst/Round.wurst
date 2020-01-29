@@ -13,6 +13,9 @@ import GladiatorSystem
 import StringUtils
 import GameSettings
 import initlater FinishRound
+import Players
+import TrainingPoints
+import Mastery
 
 public class Round
 
@@ -292,8 +295,13 @@ public class Round
         snd_GoldReward.play()
         printTimed(" ", 5)
         printTimed("You've been granted "+TEXTCOLOR_GOLD+goldReward.toString()+"|r gold"+" and "+TEXTCOLOR_TRAINPOINT+trainingPointsReward.toString()+"|r training points.", 5)
-        Player(0).addGold(goldReward)
-        Player(0).addLumber(trainingPointsReward)
+        
+        for p in allPlayers
+            p.addGold(goldReward)
+            p.addTrainingPoints(TRAINING_POINTS_PER_ROUND)
+            p.addMasteryPoints(MASTERY_PER_ROUND)
+
+        unlockMasteryRoundRequirement(number)
 
 
     /** Rewards items, including artifacts */
@@ -310,7 +318,7 @@ public class Round
             int i = 0
 
             if numberOfItems > 0
-                
+    
                 for itemReward in itemRewards
 
                     text += TEXTCOLOR_ITEM+itemReward.getName()+"|r"
@@ -321,20 +329,6 @@ public class Round
                         text += ", "
 
                     itemReward.release() 
-
-
-            if artifactsToRelease > 0
-                for artifactNum = 1 to artifactsToRelease
-                    
-                    for gladiatorType in GladiatorType.getAllTypes()
-                        let artifact = gladiatorType.releaseNextArtifact()
-                        if artifact != null
-                            text += TEXTCOLOR_ARTIFACT+artifact.getName()+" (Artifact)|r"
-                    
-                    i++
-
-                    if i < numberOfRewards
-                        text += ", "
 
             printTimed(text, 8)
             return true

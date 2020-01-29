@@ -9,6 +9,7 @@ import HashMap
 import ErrorHandling
 import SoundUtils
 import LinkedList
+import ObjectIds
 
 
 // ----------------------------------------------------------------------------------------
@@ -136,7 +137,7 @@ public class ArtifactShop
             if shop.raceType == raceType and not shop.isFull()
                 return shop
 
-        error("No more shops available for id '"+raceType.toString()+"'.")
+        error("No more shops available for id '"+raceType.toRawCode()+"'.")
         return null
                 
 

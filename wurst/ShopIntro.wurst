@@ -7,6 +7,8 @@ import TimedSpecialEffects
 import StringUtils
 import ReadyHandler
 import Round
+import Mastery
+import Attempts
 
 
 
@@ -29,15 +31,18 @@ public function player.startShopIntro(GladiatorType gladiatorType)
     ..do( p -> p.getGladiator().getSpawnSound().play() )
     ..wait(2)
     ..do(p -> p.selectSingle(p.getGladiator().getUnit()))
+    ..do( p -> p.enableMasteryShop() )
+    ..do( p -> p.toggleAttemptsWindow(true) )
     ..wait(3)
+    
     ..do() p ->
         SND_MESSAGE.playForPlayer(p)
-        p.print("Prepare yourself now, and when you're ready, press '{0}' to start the round.".format("escape".withColor(COLOR_HIGHLIGHT)),5)
+        p.print("Prepare yourself now, and when you're ready, write '{0}' to start the round.".format("-ready".withColor(COLOR_HIGHLIGHT)),5)
     scene
     ..wait(8)
     ..do() p ->
         Round.printNextRound(p)
-        p.enableReadyButton()
+        p.enableReadyCommand()
     scene.play(this)
     
 
@@ -53,8 +58,3 @@ function player.createGladiator(GladiatorType gladiatorType)
     
     addEffect(Abilities.massTeleportCaster, gladiator.getUnit().getPos() )
     ..setDuration(3)
-
-    // TODO: Remove or implement this
-    // if PREPAREHERO
-    //     for i = 0 to 4
-    //         hero.addItemById(STARTINGITEMS[i])
