@@ -1,0 +1,39 @@
+package FlyingAxe
+
+import AbilityTools
+
+//================================================================================================================================================================================================
+// Settings
+
+let DMG_FACTOR          = 1.5
+let DMG_REDUCTION       = 0.15 // Per target
+let TRAVEL_RANGE        = 700.
+let TRAVEL_SPEED        = 1000.
+let AOE_RANGE           = 125.
+
+
+public let HALF_BREED_FLYING_AXE = compiletime(defineTargetPoint1(
+    "Flying Axe",
+    "Strike an enemy with a cleaving strike, damaging the target and 2 nearby enemies for reduced damage.",
+    Icons.bTNCriticalStrike,
+    "Q",
+    6,      // Cooldown
+    10,     // Mana
+    TRAVEL_RANGE,    // Range
+    "attack slam"
+))
+
+let SND_ON_ATTACK = [
+    new SoundDefinition(Sounds.metalHeavySliceFlesh1, false, true),
+    new SoundDefinition(Sounds.metalHeavySliceFlesh2, false, true),
+    new SoundDefinition(Sounds.metalHeavySliceFlesh3, false, true)
+]
+
+
+//================================================================================================================================================================================================
+
+init
+    registerSpellEffectEvent(HALF_BREED_FLYING_AXE) ->
+        onCast()
+
+function onCast()

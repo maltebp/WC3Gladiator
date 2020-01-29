@@ -5,6 +5,7 @@ import ObjectIdGenerator
 import HeroDefaults
 import Icons
 import StringUtils
+import Cleave
 
 
 public let HALF_BREED = new GladiatorType("Half-Breed")
@@ -20,14 +21,9 @@ init
     ..setSoundOnNewAbility(Sounds.strongholdWhat1)
     ..setColor(HALF_BREED_COLOR)
     ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED)
-    // ..addAbilities(
-    //     ORC_ABIL_ENRAGE,
-    //     ORC_ABIL_CLEAVE,
-    //     ORC_ABIL_FRENZY,
-    //     ORC_ABIL_WOUNDING_STRIKE,
-    //     ORC_ABIL_IMPEDING_ROAR,
-    //     ORC_ABIL_WHIRLING_STRIKE
-    // )
+    ..addAbilities(
+        HALF_BREED_CLEAVE
+    )
 
 
 //================================================================================================================================================================================================

@@ -1,0 +1,79 @@
+package Cleave
+
+import AbilityTools
+
+//================================================================================================================================================================================================
+// Settings
+
+let DMG_FACTOR          = 1.5
+let MAX_CASTER_DIST     = 200.
+let CLEAVE_RANGE        = 200. // Target also needs to be in MAX_CASTER_DIST range from caster
+let CLEAVE_TARGETS      = 2
+let CLEAVE_DMG_FACTOR   = 0.5
+
+public let HALF_BREED_CLEAVE = compiletime(defineSingleTarget1(
+    "Cleave",
+    "Strike an enemy with a cleaving strike, damaging the target and 2 nearby enemies for reduced damage.",
+    Icons.bTNCriticalStrike,
+    "W",
+    8,      // Cooldown
+    10,     // Mana
+    MELEE_RANGE,    // Range
+    "attack"
+))
+
+let SND_ON_ATTACK = [
+    new SoundDefinition(Sounds.metalHeavySliceFlesh1, false, true),
+    new SoundDefinition(Sounds.metalHeavySliceFlesh2, false, true),
+    new SoundDefinition(Sounds.metalHeavySliceFlesh3, false, true)
+]
+
+
+//================================================================================================================================================================================================
+
+init
+    registerSpellEffectEvent(HALF_BREED_CLEAVE) ->
+        onCast()
+
+function onCast()
+    let caster = GetSpellAbilityUnit()
+    let target = GetSpellTargetUnit()
+    let targetPos = target.getPos()
+
+    let primaryDmg = caster.getDamage() * DMG_FACTOR
+    let secondaryDmg = primaryDmg * CLEAVE_DMG_FACTOR
+
+    // Damage Primary Target
+    caster.damageTargetPhysical(target, primaryDmg)
+    target.addEffect(Objects.critterBloodAlbatross, "chest")..setDuration(3)
+    SND_ON_ATTACK[GetRandomInt(0, 2)].playOnPoint(target.getPos3Real())
+    
+    // Grouping targets in target range
+    let potentialTargets = enemiesInRange(caster.getOwner(), targetPos, CLEAVE_RANGE)
+    potentialTargets.removeUnit(target)
+
+    // Removing targets out of caster range
+    for potentialTarget in potentialTargets
+        if( potentialTarget.getPos().distanceTo(caster.getPos()) > MAX_CASTER_DIST )
+            potentialTargets.removeUnit(potentialTarget)
+
+    // Cleaving targets
+    for i=1 to CLEAVE_TARGETS
+        if( not potentialTargets.size() > 0 )
+            break
+        
+        let secondaryTarget = potentialTargets.getNearestUnit(targetPos)
+        potentialTargets.removeUnit(secondaryTarget)
+    
+        caster.damageTargetPhysical(target, secondaryDmg)
+        secondaryTarget.addEffect(Objects.critterBloodAlbatross, "chest")..setDuration(3)
+        
+    potentialTargets.clear()
+
+    
+    
+
+
+
+    
+

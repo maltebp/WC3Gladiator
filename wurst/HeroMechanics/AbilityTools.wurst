@@ -1,0 +1,118 @@
+package AbilityTools
+
+import public AbilityObjEditing
+import public Assets
+import public RegisterEvents
+import public SoundUtils
+import public Damage
+import public GameSettings
+import public GroupUtils
+import public UnitStatsSystem
+import public TimedSpecialEffects
+
+import StringUtils
+
+import ObjectIdGenerator
+import ErrorHandling
+
+
+public function defineSingleTarget1( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation ) returns int
+    let abilId = ABIL_ID_GEN.next()
+    new AbilityDefinitionChainLightningcreep(abilId)
+    ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
+    ..setDamageperTarget(1, 0)
+    ..setAreaofEffect(1, 0)
+    ..setCastRange(1, range)
+    ..setAnimationNames(animation)
+    ..setNumberofTargetsHit(1, 0)
+    ..setArtTarget("")
+    ..setMissileArt("")
+    ..setLightningEffects("")
+    return abilId
+
+
+public function defineTargetPoint1( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation ) returns int
+    let abilId = ABIL_ID_GEN.next()
+    new AbilityDefinitionCarrionSwarmcreep(abilId)
+    ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
+    ..setDamage(1, 0)
+    ..setDistance(1, 0)
+    ..setFinalArea(1, 0)
+    ..setAreaofEffect(1, 0)
+    ..setCastRange(1, range)
+    ..setAnimationNames(animation)
+    ..setMissileArt("")
+    ..setArtSpecial("")
+    return abilId
+
+
+    
+
+
+public function AbilityDefinition.setupGenerics(string name, string description, string icon, string hotkey, real cooldown, int manaCost)
+    if( not compiletime )
+        error("Ability {0} is not being setup during compiletime!".format(name))
+    this
+    ..setName(name)
+    ..setEditorSuffix("")
+    ..setIconNormal(icon)
+    ..setTooltipNormal( 1, name + "  [" + hotkey.withColor(COLOR_HIGHLIGHT) + "]" )
+    ..setTooltipNormalExtended( 1, description + "\n\n" + "Cooldown: ".withColor(COLOR_HIGHLIGHT) + cooldown.toString(0) )
+    ..setupHotkey(hotkey)
+    ..setCooldown(1, cooldown)
+    ..setManaCost(1, manaCost)
+    
+
+
+public function AbilityDefinition.setupHotkey( string hotkey )
+    var x = 0
+    var y = 2
+    
+    switch hotkey
+        case "Q"
+            x = 0
+            y = 2
+        case "W"
+            x = 1
+            y = 2
+        case "E"
+            x = 2
+            y = 2
+        case "R"
+            x = 3
+            y = 2
+        case "D"
+            x = 1
+            y = 1
+        case "F"
+            x = 2
+            y = 1
+        case "G"
+            x = 3
+            y = 1
+
+        default
+            compileError("Wrong hotkey!")
+
+    this.setButtonPositionNormalX(x)
+    this.setButtonPositionNormalY(y)
+    this.setHotkeyNormal(hotkey)
+
+
+
+//================================================================================================================================================================================================
+// Runtime Functions
+
+/** Groups alive units in range who are enemy of p. Uses ENUM_GROUP */
+public function enemiesInRange(player p, vec2 origin, real range) returns group
+    let g = ENUM_GROUP
+    ..clear()
+    ..enumUnitsInRange(origin, range)
+    
+    for u in g
+        if( not u.isAlive() or not u.isEnemyOf(p) )
+            g.removeUnit(u)
+
+    return g
+
+

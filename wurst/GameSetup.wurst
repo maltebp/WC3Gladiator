@@ -17,6 +17,8 @@ import Intro
 import Mastery
 import TrainingPoints
 import Attempts
+import TestUnit
+import HalfBreed
 
 constant boolean    SPAWNHEROINARENA        = false
 constant boolean    ARENACORNERSPAWN        = true
@@ -138,7 +140,16 @@ function delayedSetup()
             p.toggleCinematicMode(false, 0)
             p.setCameraPosition(vec2(0,0))
             p.enableMasteryShop()
-                
+            let gladiator = p.newGladiator(HALF_BREED, vec2(600,100), angle(0))
+
+            if( TEST_MODE_UNLOCK_ABIL )
+                for i=1 to 6
+                    gladiator.unlockNextAbility()       
+        
+        let basePos = vec2(-350, 900)
+        for i=1 to TEST_DUMMIES
+            let adjustedPos = basePos + vec2(GetRandomReal(-300, 300), GetRandomReal(-300, 300))
+            createTestUnit(adjustedPos)
 
 
 

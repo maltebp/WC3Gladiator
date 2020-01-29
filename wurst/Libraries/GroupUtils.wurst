@@ -54,6 +54,8 @@ public function group.getHighestHpUnit() returns unit
     return null
 
 
+
+
 /** Adds a unit to the group for certain amount of time */
 public function group.addUnitTimed(unit whichUnit, real duration)
     new TimedGroup( this, whichUnit, duration)

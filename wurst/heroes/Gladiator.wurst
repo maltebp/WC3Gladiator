@@ -65,7 +65,7 @@ public class Gladiator
     
         let abilityId = abilities.get(abilitiesReleased)
 
-        if gladiatorUnit.getAbilityLevel(abilityId) > 0
+        if( gladiatorUnit.getAbilityLevel(abilityId) > 0 )
             Log.error("{0}'s {1} already has that ability".format(owner.getNameColored(), gladiatorUnit.getName()))
         else
             gladiatorUnit.addAbility(abilityId)
