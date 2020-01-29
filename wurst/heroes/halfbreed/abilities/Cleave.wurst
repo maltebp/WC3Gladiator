@@ -19,7 +19,7 @@ public let HALF_BREED_CLEAVE = compiletime(defineSingleTarget1(
     8,      // Cooldown
     10,     // Mana
     MELEE_RANGE,    // Range
-    "attack"
+    "spell,slam"
 ))
 
 let SND_ON_ATTACK = [

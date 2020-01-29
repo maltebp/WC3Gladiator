@@ -74,7 +74,8 @@ init
 
 
 function instantSetup()
-    playMusic(Sounds.orcX1)
+    //playMusic(Sounds.orcX1)
+    playMusic(MUSIC_SHOP)
     for p in allPlayers
         p.fadeOut(0)
         p.toggleCinematicMode(true, 0)

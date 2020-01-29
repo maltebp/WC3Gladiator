@@ -12,7 +12,7 @@ let ATTACKSPEED_MIN = 0.3
 let ATTACKSPEED_MAX = 4. // Percent wise attack speed (effects cooldown i.e.)
 let MOVESPEED_MAX = 450.
 let MOVESPEED_MIN = 100.
-let ARMOR_MIN = 0.
+let ARMOR_MIN = -5.
 let RESISTANCE_MAX = 10.
 let RESISTANCE_MIN = 0.5
 let HEALTH_MIN = 1
@@ -103,7 +103,7 @@ public class UnitStats
         if IsHeroUnitId(theUnit.getTypeId())
             theUnit.setMaxMana( (getAttackCooldown()*100).round(), true )
 
-        theUnit.setAttackCooldown( getAttackCooldown(), 1)
+        theUnit.setAttackCooldown( getAttackCooldown(), 0)
 
         theUnit.setMaxHP( getHealth(), true)
 
@@ -165,12 +165,15 @@ public class UnitStats
 
     function adjustArmorFlat( real adjustment )
         armorFlat += adjustment
+        update()
 
     function adjustArmorPerc( real adjustment )
         armorPerc += adjustment
+        update()
 
     function adjustResistance(real adjustment)
         resistance += adjustment
+        update()
 
 
 // Getters ---------------------------------------------------------------------------

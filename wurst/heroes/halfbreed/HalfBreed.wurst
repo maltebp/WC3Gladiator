@@ -7,6 +7,9 @@ import Icons
 import StringUtils
 import Cleave
 import FlyingAxe
+import Frenzy
+import Execution
+import WreckingStrike
 
 
 public let HALF_BREED = new GladiatorType("Half-Breed")
@@ -24,7 +27,10 @@ init
     ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED)
     ..addAbilities(
         HALF_BREED_CLEAVE,
-        HALF_BREED_FLYING_AXE
+        HALF_BREED_FLYING_AXE,
+        HALF_BREED_FRENZY,
+        HALF_BREED_EXECUTION,
+        HALF_BREED_WRECKING_STRIKE
     )
 
 

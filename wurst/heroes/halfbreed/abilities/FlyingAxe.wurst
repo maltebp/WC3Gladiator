@@ -52,14 +52,14 @@ function onCast()
     ..firePoint(actualPos.withTerrainZ(80), TRAVEL_SPEED, 0)
     
     projectile.getEffect()
-    projectile.addCollisionAction(AOE_RANGE, true) target ->
+    projectile.setCollisionAction(AOE_RANGE, true) target ->
         caster.damageTargetPhysical(target, startDamage * projectile.damageFactor)
-        target.addEffect(Abilities.stampedeMissileDeath, "chest")..setDuration(3)
+        target.addEffect(Objects.critterBloodAlbatross, "chest")..setDuration(3)
         SND_ON_ATTACK[GetRandomInt(0, 2)].playOnPoint(target.getPos3Real())
 
         projectile.damageFactor -= DMG_REDUCTION
         if( projectile.damageFactor <= 0 )
-            destroy projectile
+            projectile.stop()
 
     projectile.setCollisionFilter() u ->
         return u.isEnemyOf(caster) and u.isAlive()

@@ -1,47 +1,47 @@
-package OrcGladiator
+// package OrcGladiator
 
-import Gladiator
-import AbilityCreation
-import HeroDefaults
+// import Gladiator
+// import AbilityCreation
+// import HeroDefaults
 
-import ObjectIdGenerator
-import Enrage
-import CleaveOLD
-import ImpedingRoar
-import WoundingStrikeGladiator
-import WhirlingStrike
-import Frenzy
-import OrcArtifacts
-import UtilCommands
-import ClosureForGroups
+// import ObjectIdGenerator
+// import Enrage
+// import CleaveOLD
+// import ImpedingRoar
+// import WoundingStrikeGladiator
+// import WhirlingStrike
+// import Frenzy
+// import OrcArtifacts
+// import UtilCommands
+// import ClosureForGroups
 
 
-// public let GLADIATOR_ORC = new GladiatorType("Orc")
-// public let GLADIATOR_ORC_ID = compiletime(HERO_ID_GEN.next())
-// public let ORC_COLOR = color(152,230,152)
+// // public let GLADIATOR_ORC = new GladiatorType("Orc")
+// // public let GLADIATOR_ORC_ID = compiletime(HERO_ID_GEN.next())
+// // public let ORC_COLOR = color(152,230,152)
 
-// init
-//     GLADIATOR_ORC
-//     ..setUnitType(GLADIATOR_ORC_ID)
-//     ..setSoundOnSpawn(Sounds.gromWhat3)
-//     ..setSoundOnRespawn(Sounds.gromYes3)
-//     ..setSoundOnNewAbility(Sounds.strongholdWhat1)
-//     ..setColor(ORC_COLOR)
-//     ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED)
-//     ..addAbilities(
-//         ORC_ABIL_ENRAGE,
-//         ORC_ABIL_CLEAVE,
-//         ORC_ABIL_FRENZY,
-//         ORC_ABIL_WOUNDING_STRIKE,
-//         ORC_ABIL_IMPEDING_ROAR,
-//         ORC_ABIL_WHIRLING_STRIKE
-//     )
+// // init
+// //     GLADIATOR_ORC
+// //     ..setUnitType(GLADIATOR_ORC_ID)
+// //     ..setSoundOnSpawn(Sounds.gromWhat3)
+// //     ..setSoundOnRespawn(Sounds.gromYes3)
+// //     ..setSoundOnNewAbility(Sounds.strongholdWhat1)
+// //     ..setColor(ORC_COLOR)
+// //     ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED)
+// //     ..addAbilities(
+// //         ORC_ABIL_ENRAGE,
+// //         ORC_ABIL_CLEAVE,
+// //         ORC_ABIL_FRENZY,
+// //         ORC_ABIL_WOUNDING_STRIKE,
+// //         ORC_ABIL_IMPEDING_ROAR,
+// //         ORC_ABIL_WHIRLING_STRIKE
+// //     )
 
     
 
-// //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// // COMPILETIME
+// // //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// // // COMPILETIME
 
-// @compiletime
-// function defineOrcGladiator()
-//     defineGladiatorUnit(GLADIATOR_ORC_ID, 'Obla', "Orc Gladiator", Icons.bTNHeroBlademaster)
+// // @compiletime
+// // function defineOrcGladiator()
+// //     defineGladiatorUnit(GLADIATOR_ORC_ID, 'Obla', "Orc Gladiator", Icons.bTNHeroBlademaster)

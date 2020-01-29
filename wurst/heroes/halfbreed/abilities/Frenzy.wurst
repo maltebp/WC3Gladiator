@@ -1,0 +1,55 @@
+package Frenzy
+
+import AbilityTools
+import ClosureTimers
+
+//================================================================================================================================================================================================
+// Settings
+
+let DMG_FACTOR          = 0.75
+let DMG_REDUCTION       = 0.15 // Per target
+let TRAVEL_RANGE        = 700.
+let TRAVEL_SPEED        = 800.
+let AOE_RANGE           = 125.
+let ATTACK_SPEED_INC    = 1.
+let DURATION            = 5.
+
+
+public let HALF_BREED_FRENZY = compiletime(defineInstantCast1(
+    "Frenzy",
+    "Enter a Frenzy, increasing your attack speed by {0} for {1} seconds.".format(DMG_REDUCTION.toPercentageString(), ATTACK_SPEED_INC.toString(0)),
+    Icons.bTNBerserk,
+    "F",
+    15,      // Cooldown
+    10      // Mana
+))
+
+public let HALF_BREED_FRENZY_BUFF = compiletime(defineBuff(
+    "Frenzy",
+    "Increased attack speed.",
+    Icons.bTNBerserk,
+    DURATION,
+    Abilities.bloodLustTarget,
+    "hand,right",
+    "hand,left"))
+
+let SND_ROAR = new SoundDefinition(Sounds.gromYesAttack2, false, true)
+let SND_EFFECT = new SoundDefinition(Sounds.spiritLink1, false, true)
+
+
+//================================================================================================================================================================================================
+
+init
+    registerSpellEffectEvent(HALF_BREED_FRENZY) ->
+        onCast()
+
+function onCast()
+    let caster = GetSpellAbilityUnit()
+    ..applyBuff(HALF_BREED_FRENZY_BUFF)
+    ..adjustAttackSpeed(ATTACK_SPEED_INC)
+
+    SND_ROAR.playOnPoint(caster.getPos3Real())
+    SND_EFFECT.playOnPoint(caster.getPos3Real())
+
+    doAfter(DURATION) -> 
+        caster.adjustAttackSpeed(-ATTACK_SPEED_INC)

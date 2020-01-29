@@ -36,6 +36,8 @@ public let UNLOCK_ARTIFACT_ROUNDS = [1,2,4,5,6,7,8,9,10,11,12,13] // Total: 12
 public let SND_MESSAGE = new SoundDefinition(Sounds.questActivateWhat1, false)
 public let SND_ERROR = new SoundDefinition(Sounds.error, false)
 
+public let MUSIC_SHOP = "InTheGiantsShadow.mp3"
+
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Test Switches
 public let DEBUG = true 

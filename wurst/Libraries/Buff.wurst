@@ -1,0 +1,39 @@
+// TODO: Implement this
+
+// package Buff
+// import HashMap
+// import LinkedList
+
+// /*
+//     Apply buff
+
+//     If unit has buff
+// */
+
+
+// class BuffUnit
+//     let buffMap = new IterableMap<int, LinkedList<Buff>>
+
+//     static function getInstance(unit buffUnit) returns thistype
+//         return buffUnit =
+
+
+// abstract class Buff
+
+//     protected unit buffUnit
+
+//     construct(real duration, int buffId)
+
+//     abstract function onApply()
+        
+//     abstract function onRemove()      
+    
+
+//     function compare() returns int
+//         return 0
+
+    
+
+    
+
+    

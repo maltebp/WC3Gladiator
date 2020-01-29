@@ -11,8 +11,14 @@ import public UnitStatsSystem
 import public TimedSpecialEffects
 import public StringUtils
 
-import ObjectIdGenerator
+import public ObjectIdGenerator
 import ErrorHandling
+import BuffObjEditing
+import ObjectIds
+import DummyRecycler
+import CompileTimeData
+import HashMap
+import Orders
 
 
 public function defineSingleTarget1( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation ) returns int
@@ -27,6 +33,40 @@ public function defineSingleTarget1( string name, string description, string ico
     ..setArtTarget("")
     ..setMissileArt("")
     ..setLightningEffects("")
+    return abilId
+
+
+
+public function defineSingleTarget2( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation ) returns int
+    let abilId = ABIL_ID_GEN.next()
+    new AbilityDefinitionSeaWitchForkedLightning(abilId)
+    ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
+    ..setCastRange(1, range)
+    ..setAnimationNames(animation)
+    ..setLevels(1)
+    ..setHeroAbility(false)
+    ..setDistance(1, 0)
+    ..setFinalArea(1, 0)
+    ..setDamageperTarget(1, 0)
+    ..setAreaofEffect(1, 0)
+    ..setNumberofTargetsHit(1, 0)
+    ..setArtSpecial("")
+    ..setLightningEffects("")
+    return abilId
+
+public function defineSingleTarget3( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation ) returns int
+    let abilId = ABIL_ID_GEN.next()
+    new AbilityDefinitionFingerofDeath(abilId)
+    ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
+    ..setCastRange(1, range)
+    ..setAnimationNames(animation)
+    ..setLevels(1)
+    ..setHeroAbility(false)
+    ..setArtTarget("")
+    ..setDamage(1, 0)
+    ..setLightningEffects("")
+    ..setGraphicDuration(1, 0.01)
+    ..setTargetsAllowed(1, "enemy,ground")
     return abilId
 
 
@@ -45,7 +85,35 @@ public function defineTargetPoint1( string name, string description, string icon
     return abilId
 
 
+let instantCast1_Buff = BUFF_ID_GEN.next()
+var instantCast1_BuffDefined = false
+
+public function defineInstantCast1( string name, string description, string icon, string hotkey, real cooldown, int manaCost ) returns int
     
+    if( not instantCast1_BuffDefined) 
+        new BuffDefinition(instantCast1_Buff, 'Bbsk')
+        ..setName(1, "")
+        ..setTooltipNormal(1, "Hidden buff")
+        ..setTooltipNormalExtended(1, "Nothing to see here")
+        ..setIcon(Icons.bTNAcorn)
+        ..setTargetAttachments(1, 0)
+        ..setTargetAttachmentPoint0(1, "")
+        ..setTargetAttachmentPoint1(1, "")
+        ..setArtTarget(1, "")
+
+    let abilId = ABIL_ID_GEN.next()
+    new AbilityDefinitionBeserk(abilId)
+    ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
+    ..setBuffs(1, instantCast1_Buff.toRawCode())
+    ..setDamageTakenIncrease(1, 0)
+    ..setAttackSpeedIncrease(1, 0)
+    ..setMovementSpeedIncrease(1, 0)
+    ..setDurationHero(1, 0.01)
+    ..setDurationNormal(1, 0.01)
+    ..setArtCaster("")
+
+    return abilId
+
 
 
 public function AbilityDefinition.setupGenerics(string name, string description, string icon, string hotkey, real cooldown, int manaCost)
@@ -113,5 +181,70 @@ public function enemiesInRange(player p, vec2 origin, real range) returns group
             g.removeUnit(u)
 
     return g
+
+
+
+//================================================================================================================================================================================================
+// Buffs
+
+// In pairs: buffId, abilId
+let dataObj_CustomBuffs = compiletime(defineDataObj())
+let buffMap = new IterableMap<int,int>
+
+/** Define a buff at compiletime, which may be applied using 'unit.applyBuff'. */
+public function defineBuff(string name, string description, string icon, real duration, string sfx, string attach1, string attach2) returns int
+    let attachCount = attach2 != "" ? 2 : 0    
+
+    let buffId = BUFF_ID_GEN.next()
+    new BuffDefinition(buffId, 'Binf')
+    ..setName(1, name)
+    ..setTooltipNormal(1, name)
+    ..setTooltipNormalExtended(1, description)
+    ..setIcon(icon)
+    ..setArtTarget(1, sfx)
+    ..setTargetAttachmentPoint0(1, attach1)
+    ..setTargetAttachmentPoint1(1, attach2)
+    ..setTargetAttachments(1,  attachCount)
+
+    let abilId = ABIL_ID_GEN.next()
+    new AbilityDefinitionInnerFireCreep(abilId)
+    ..setName(name + "(buff ability)")
+    ..setBuffs(1, buffId.toRawCode())
+    ..setManaCost(1, 0)
+    ..setTargetsAllowed(1, "air,ground,friend,enemy,neutral")
+    ..setCastRange(1, 10000)
+    ..setDurationHero(1, duration)
+    ..setDurationNormal(1, duration)
+    ..setCooldown(1, 0)
+    ..setEffectSound("")
+    ..setDamageIncrease(1, 0)
+    ..setDefenseIncrease(1, 0)
+
+    dataObj_CustomBuffs.addData(buffId.toRawCode())
+    dataObj_CustomBuffs.addData(abilId.toRawCode())    
+
+    return buffId
+
+
+init
+    let data = dataObj_CustomBuffs.getData()
+    while(data.size() > 0)
+        buffMap.put(data.dequeue().fromRawCode(), data.dequeue().fromRawCode())
+
+
+/** Apply buff defined by 'defineBuff' function to this unit */
+public function unit.applyBuff(int buffId)
+    let dummy = DummyRecycler.get(this.getPos(), angle(0))
+    
+    if( not buffMap.has(buffId) )
+        error("Buff map doesn't have buff "+buffId.toRawCode())
+
+    let abilId = buffMap.get(buffId)
+    dummy.addAbility(abilId)
+    if( dummy.getAbilityLevel(abilId) == 0 )
+        error("Dummy didn't get buff ability (buffId: {0}, abilId: {1}".format(buffId.toRawCode(), abilId.toRawCode()))
+    
+    dummy.issueTargetOrderById(Orders.innerfire, this)
+    DummyRecycler.recycle(dummy)  
 
 

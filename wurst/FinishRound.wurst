@@ -57,6 +57,7 @@ public function finishRound(boolean hasWon)
         ..wait(3)
         ..addRoundReview(hasWon)
         ..do( p -> p.enableReadyCommand() )
+        ..do( -> playMusic(MUSIC_SHOP))
         ..play(allPlayers)
 
 function player.moveCam()

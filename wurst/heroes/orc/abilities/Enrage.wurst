@@ -1,189 +1,189 @@
-package Enrage
+// package Enrage
 
-import TimerUtils
-import ChargeSystem
-import RegisterEvents
-import SoundUtils
-import HashMap
-import InstantDummyCaster
-import Orders
-import TimerUnitData
-import TimedSpecialEffects
-import initlater Frenzy
-import Artifact
-import ClosureTimers
-import OrcArtifacts
+// import TimerUtils
+// import ChargeSystem
+// import RegisterEvents
+// import SoundUtils
+// import HashMap
+// import InstantDummyCaster
+// import Orders
+// import TimerUnitData
+// import TimedSpecialEffects
+// import initlater Frenzy
+// import Artifact
+// import ClosureTimers
+// import OrcArtifacts
 
-public let ORC_ABIL_ENRAGE = 'A01M'
-constant int DUMMYABILITYID = 'A01L'
-constant int BUFFID = 'B007'
-constant real COOLDOWN = 6
-constant int MAXCONSUMEAMOUNT = 40
-constant real DURATION = 6
-constant real MANACOST = 25
-constant let MEMOIROFTHEPAST_RAGEBONUS = 25
-
-
-constant SoundDefinition snd_Error = new SoundDefinition(Sounds.error, false)
-constant SoundDefinition snd_Cast = new SoundDefinition(Sounds.gromYesAttack2, false, true)
-constant SoundDefinition snd_Use = new SoundDefinition(Sounds.gromYesAttack4, false, true)
+// public let ORC_ABIL_ENRAGE = 'A01M'
+// constant int DUMMYABILITYID = 'A01L'
+// constant int BUFFID = 'B007'
+// constant real COOLDOWN = 6
+// constant int MAXCONSUMEAMOUNT = 40
+// constant real DURATION = 6
+// constant real MANACOST = 25
+// constant let MEMOIROFTHEPAST_RAGEBONUS = 25
 
 
+// constant SoundDefinition snd_Error = new SoundDefinition(Sounds.error, false)
+// constant SoundDefinition snd_Cast = new SoundDefinition(Sounds.gromYesAttack2, false, true)
+// constant SoundDefinition snd_Use = new SoundDefinition(Sounds.gromYesAttack4, false, true)
 
 
-/** Removes the unit's enrage ability and returns the Enrage Charge value */
-public function unit.consumeEnrage() returns real
-    if not this.hasEnrage()
-        return 0
-    UnitEnrage enrageInstance = UnitEnrage.getUnitInstance(this)
-    real charge = enrageInstance.getCharge()
-    snd_Use.playOnPoint(this.getPos3with(75))
-    destroy enrageInstance
-    return charge
+
+
+// /** Removes the unit's enrage ability and returns the Enrage Charge value */
+// public function unit.consumeEnrage() returns real
+//     if not this.hasEnrage()
+//         return 0
+//     UnitEnrage enrageInstance = UnitEnrage.getUnitInstance(this)
+//     real charge = enrageInstance.getCharge()
+//     snd_Use.playOnPoint(this.getPos3with(75))
+//     destroy enrageInstance
+//     return charge
     
 
-public function unit.activateEnrage(real charge, real duration)
-    UnitEnrage.getUnitInstance(this)
-    ..setCharge(charge)
-    ..setDuration(duration)
-    snd_Cast.playOnPoint(this.getPos3with(75))
+// public function unit.activateEnrage(real charge, real duration)
+//     UnitEnrage.getUnitInstance(this)
+//     ..setCharge(charge)
+//     ..setDuration(duration)
+//     snd_Cast.playOnPoint(this.getPos3with(75))
     
 
-public function unit.getEnrageCharge() returns real
-    if not this.hasEnrage()
-        return 0
-    return UnitEnrage.getUnitInstance(this).getCharge()
+// public function unit.getEnrageCharge() returns real
+//     if not this.hasEnrage()
+//         return 0
+//     return UnitEnrage.getUnitInstance(this).getCharge()
 
-public function unit.removeEnrage()
-    if this.hasEnrage()
-        destroy UnitEnrage.getUnitInstance(this)
+// public function unit.removeEnrage()
+//     if this.hasEnrage()
+//         destroy UnitEnrage.getUnitInstance(this)
 
-public function unit.hasEnrage() returns boolean
-    return UnitEnrage.unitHasEnrage(this)
+// public function unit.hasEnrage() returns boolean
+//     return UnitEnrage.unitHasEnrage(this)
     
 
 
 
-class UnitEnrage
+// class UnitEnrage
     
-    private unit enrageUnit
-    private real charge = 0
-    private timer timer_Duration = null
-    private static IterableMap<unit, thistype> instances
-    private boolean isDestroyed = false
+//     private unit enrageUnit
+//     private real charge = 0
+//     private timer timer_Duration = null
+//     private static IterableMap<unit, thistype> instances
+//     private boolean isDestroyed = false
 
-    construct(unit whichUnit)
-        enrageUnit = whichUnit
-        InstantDummyCaster.castTarget(enrageUnit.getOwner(), DUMMYABILITYID, 1, Orders.unholyfrenzy, enrageUnit)
-        instances.put(enrageUnit, this)
+//     construct(unit whichUnit)
+//         enrageUnit = whichUnit
+//         InstantDummyCaster.castTarget(enrageUnit.getOwner(), DUMMYABILITYID, 1, Orders.unholyfrenzy, enrageUnit)
+//         instances.put(enrageUnit, this)
 
 
-    ondestroy
+//     ondestroy
 
-        instances.remove(enrageUnit)
-        instances.removeValue(this, true)
+//         instances.remove(enrageUnit)
+//         instances.removeValue(this, true)
 
-        if timer_Duration != null
-            timer_Duration.pause()
-            timer_Duration.release()
+//         if timer_Duration != null
+//             timer_Duration.pause()
+//             timer_Duration.release()
             
 
-        enrageUnit.removeAbility(BUFFID)
+//         enrageUnit.removeAbility(BUFFID)
 
 
 
-    protected function setDuration(real duration)
+//     protected function setDuration(real duration)
 
-        if timer_Duration == null
-            timer_Duration = getTimer()
-            ..setData(this castTo int)
+//         if timer_Duration == null
+//             timer_Duration = getTimer()
+//             ..setData(this castTo int)
 
-        timer_Duration.start(duration, function callback_EndDuration)
+//         timer_Duration.start(duration, function callback_EndDuration)
     
 
-    protected function setCharge(real charge)
-        this.charge = charge
+//     protected function setCharge(real charge)
+//         this.charge = charge
 
 
-    function getCharge() returns real
-        return charge
+//     function getCharge() returns real
+//         return charge
 
 
-    static function getUnitInstance(unit whichUnit) returns thistype
+//     static function getUnitInstance(unit whichUnit) returns thistype
 
-        if instances == null
-            instances = new IterableMap<unit, thistype>
+//         if instances == null
+//             instances = new IterableMap<unit, thistype>
             
-        if instances.has(whichUnit)
-            return instances.get(whichUnit)
+//         if instances.has(whichUnit)
+//             return instances.get(whichUnit)
 
-        return new UnitEnrage(whichUnit)
+//         return new UnitEnrage(whichUnit)
         
 
-    private static function callback_EndDuration()
-        destroy GetExpiredTimer().getData() castTo thistype
+//     private static function callback_EndDuration()
+//         destroy GetExpiredTimer().getData() castTo thistype
 
 
-    static function unitHasEnrage(unit whichUnit) returns boolean
-        if instances == null
-            return false
-        if instances.has(whichUnit)
-            return true
-        return false
+//     static function unitHasEnrage(unit whichUnit) returns boolean
+//         if instances == null
+//             return false
+//         if instances.has(whichUnit)
+//             return true
+//         return false
  
-    static function callback_CheckInstance()
-        if instances == null
-            print("Instances: null")
-        else
-            string s = "Instances: "
-            for key in instances
-                s += "U: "+key.getName()
-                s += ", "+instances.get(key) castTo int.toString()+" | "
+//     static function callback_CheckInstance()
+//         if instances == null
+//             print("Instances: null")
+//         else
+//             string s = "Instances: "
+//             for key in instances
+//                 s += "U: "+key.getName()
+//                 s += ", "+instances.get(key) castTo int.toString()+" | "
 
-            print(s)
+//             print(s)
     
 
-function onCast()
+// function onCast()
     
-    if GetSpellAbilityId() == ORC_ABIL_ENRAGE
+//     if GetSpellAbilityId() == ORC_ABIL_ENRAGE
 
-        unit caster = GetSpellAbilityUnit()
+//         unit caster = GetSpellAbilityUnit()
      
-        int charge = caster.getCharge()
+//         int charge = caster.getCharge()
 
-        if charge > 0
-            real cooldown = COOLDOWN * (caster.getFrenzyCooldownReduction())
-            caster.setAbilityCooldown(ORC_ABIL_ENRAGE, 1, cooldown)
+//         if charge > 0
+//             real cooldown = COOLDOWN * (caster.getFrenzyCooldownReduction())
+//             caster.setAbilityCooldown(ORC_ABIL_ENRAGE, 1, cooldown)
 
-            caster.addEffect("Abilities\\Spells\\Orc\\AncestralSpirit\\AncestralSpiritCaster.mdl", "origin")
-            ..setDuration(3)
-            int consumedCharge = (charge > MAXCONSUMEAMOUNT) ? MAXCONSUMEAMOUNT : charge
-            caster.reduceCharge(consumedCharge)
+//             caster.addEffect("Abilities\\Spells\\Orc\\AncestralSpirit\\AncestralSpiritCaster.mdl", "origin")
+//             ..setDuration(3)
+//             int consumedCharge = (charge > MAXCONSUMEAMOUNT) ? MAXCONSUMEAMOUNT : charge
+//             caster.reduceCharge(consumedCharge)
 
-            if caster.hasArtifact(ARTIFACT_MEMOIROFTHEPAST)
-                consumedCharge += MEMOIROFTHEPAST_RAGEBONUS
+//             if caster.hasArtifact(ARTIFACT_MEMOIROFTHEPAST)
+//                 consumedCharge += MEMOIROFTHEPAST_RAGEBONUS
 
-            caster.activateEnrage(I2R(consumedCharge), DURATION)
+//             caster.activateEnrage(I2R(consumedCharge), DURATION)
         
-        else
-            getTimer()
-            ..setUnitData(caster)
-            ..start(0.01, function resetCooldown)
+//         else
+//             getTimer()
+//             ..setUnitData(caster)
+//             ..start(0.01, function resetCooldown)
 
-            doAfter(0.01) ->
-                caster.addMana(MANACOST)
-            snd_Error.playForPlayer(caster.getOwner())
+//             doAfter(0.01) ->
+//                 caster.addMana(MANACOST)
+//             snd_Error.playForPlayer(caster.getOwner())
     
 
-function resetCooldown()
-    timer t = GetExpiredTimer()
-    unit u = t.getUnitData()
-    t.release()    
-    u.resetAbilityCooldown(ORC_ABIL_ENRAGE)
+// function resetCooldown()
+//     timer t = GetExpiredTimer()
+//     unit u = t.getUnitData()
+//     t.release()    
+//     u.resetAbilityCooldown(ORC_ABIL_ENRAGE)
 
 
-init 
+// init 
     
-    registerSpellEffectEvent(ORC_ABIL_ENRAGE, function onCast)
+//     registerSpellEffectEvent(ORC_ABIL_ENRAGE, function onCast)
 
     
