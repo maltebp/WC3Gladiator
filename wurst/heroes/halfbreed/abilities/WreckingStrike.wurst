@@ -7,35 +7,36 @@ import ClosureTimers
 // Settings
 
 let DMG_FACTOR          = 1.5
-let DURATION            = 10.
+let DURATION            = 20.
 let ARMOR_RED           = 8.
 
 
-public let HALF_BREED_WRECKING_STRIKE_BUFF = compiletime(defineBuff(
-    "Wrecking Strike",
-    "Reduced armor.",
-    Icons.bTNCorpseExplode,
-    10,
-    Abilities.crippleTarget,
-    "origin",
-    ""
-))
+
 
 public let HALF_BREED_WRECKING_STRIKE = compiletime(defineSingleTarget3(
     "Wrecking Strike",
     "Attempt at executing an enemy, dealing {0} of you power in damage. If the execution is succesful, the cooldown of the ability will be reset",
     Icons.bTNCorpseExplode,
     "R",
-    12,      // Cooldown
+    5,      // Cooldown
     10,     // Mana
     MELEE_RANGE,    // Range
     "attack"
 ))
 
+public let HALF_BREED_WRECKING_STRIKE_BUFF = compiletime(defineBuff(
+    "Wrecking Strike",
+    "Reduced armor.",
+    Icons.bTNCorpseExplode,
+    Abilities.crippleTarget,
+    "origin",
+    ""
+))
+
 let SND_ON_ATTACK = [
-    new SoundDefinition(Sounds.metalHeavyBashMetal1, false, true),
-    new SoundDefinition(Sounds.metalHeavyBashMetal2, false, true),
-    new SoundDefinition(Sounds.metalHeavyBashMetal3, false, true)
+    new SoundDefinition(Sounds.metalHeavySliceMetal1, false, true),
+    new SoundDefinition(Sounds.metalHeavySliceMetal2, false, true),
+    new SoundDefinition(Sounds.metalHeavySliceMetal3, false, true)
 ]
 
 let SND_ON_ATTACK_2 = new SoundDefinition(Sounds.shockwave, false, true)
@@ -60,12 +61,25 @@ function onCast()
     SND_ON_ATTACK[GetRandomInt(0, 2)].playOnPoint(target.getPos3Real())
     SND_ON_ATTACK_2.playOnPoint(target.getPos3Real())
 
-    target.applyBuff(HALF_BREED_WRECKING_STRIKE_BUFF)
+    target.applyBuff(new WreckingStrikeBuff(), caster, DURATION)
     target.adjustArmorFlat(-ARMOR_RED)
     doAfter(DURATION) ->
         if( target != null )
             target.adjustArmorFlat(ARMOR_RED)
     
+
+class WreckingStrikeBuff extends Buff
+
+    construct()
+        super(HALF_BREED_WRECKING_STRIKE_BUFF, false)
+
+    override function onApply()
+        if( target != null )
+            target.adjustArmorFlat(-ARMOR_RED)
+
+    override function onRemove()
+        if( target != null )
+            target.adjustArmorFlat(ARMOR_RED)
 
 
 

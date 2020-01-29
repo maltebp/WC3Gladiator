@@ -19,6 +19,9 @@ import DummyRecycler
 import CompileTimeData
 import HashMap
 import Orders
+import LinkedList
+import ClosureTimers
+import OnUnitEnterLeave
 
 
 public function defineSingleTarget1( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation ) returns int
@@ -114,6 +117,19 @@ public function defineInstantCast1( string name, string description, string icon
 
     return abilId
 
+// Immediate cast has a small delay, whereas instant cast is instant
+public function defineImmediate1( string name, string description, string icon, string hotkey, real cooldown, int manaCost, string animation ) returns int
+    let abilId = ABIL_ID_GEN.next()
+    new AbilityDefinitionRoarcreep(abilId)
+    ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
+    ..setBuffs(1, instantCast1_Buff.toRawCode())
+    ..setTargetsAllowed(1, "none")
+    ..setArtCaster("")
+    ..setAreaofEffect(1, 0)
+    ..setDamageIncrease(1, 0)
+    ..setAnimationNames(animation)
+
+    return abilId
 
 
 public function AbilityDefinition.setupGenerics(string name, string description, string icon, string hotkey, real cooldown, int manaCost)
@@ -189,10 +205,10 @@ public function enemiesInRange(player p, vec2 origin, real range) returns group
 
 // In pairs: buffId, abilId
 let dataObj_CustomBuffs = compiletime(defineDataObj())
-let buffMap = new IterableMap<int,int>
+let buffAbilMap = new IterableMap<int,int>
 
 /** Define a buff at compiletime, which may be applied using 'unit.applyBuff'. */
-public function defineBuff(string name, string description, string icon, real duration, string sfx, string attach1, string attach2) returns int
+public function defineBuff(string name, string description, string icon, string sfx, string attach1, string attach2) returns int
     let attachCount = attach2 != "" ? 2 : 0    
 
     let buffId = BUFF_ID_GEN.next()
@@ -213,8 +229,8 @@ public function defineBuff(string name, string description, string icon, real du
     ..setManaCost(1, 0)
     ..setTargetsAllowed(1, "air,ground,friend,enemy,neutral")
     ..setCastRange(1, 10000)
-    ..setDurationHero(1, duration)
-    ..setDurationNormal(1, duration)
+    ..setDurationHero(1, 0)
+    ..setDurationNormal(1, 0)
     ..setCooldown(1, 0)
     ..setEffectSound("")
     ..setDamageIncrease(1, 0)
@@ -229,17 +245,17 @@ public function defineBuff(string name, string description, string icon, real du
 init
     let data = dataObj_CustomBuffs.getData()
     while(data.size() > 0)
-        buffMap.put(data.dequeue().fromRawCode(), data.dequeue().fromRawCode())
+        buffAbilMap.put(data.dequeue().fromRawCode(), data.dequeue().fromRawCode())
 
 
 /** Apply buff defined by 'defineBuff' function to this unit */
-public function unit.applyBuff(int buffId)
-    let dummy = DummyRecycler.get(this.getPos(), angle(0))
+public function unit.applyBuffSimple(int buffId)
     
-    if( not buffMap.has(buffId) )
+    if( not buffAbilMap.has(buffId) )
         error("Buff map doesn't have buff "+buffId.toRawCode())
 
-    let abilId = buffMap.get(buffId)
+    let abilId = buffAbilMap.get(buffId)
+    let dummy = DummyRecycler.get(this.getPos(), angle(0))
     dummy.addAbility(abilId)
     if( dummy.getAbilityLevel(abilId) == 0 )
         error("Dummy didn't get buff ability (buffId: {0}, abilId: {1}".format(buffId.toRawCode(), abilId.toRawCode()))
@@ -248,3 +264,114 @@ public function unit.applyBuff(int buffId)
     DummyRecycler.recycle(dummy)  
 
 
+
+let unitBuffMap = new HashMap<unit, IterableMap<int, LinkedList<Buff>>>
+
+public function unit.applyBuff(Buff buffObject, unit source, real duration) 
+    buffObject.source = source
+    buffObject.target = this
+    
+    // Create / Get buff map
+    if( not unitBuffMap.has(this) )
+        unitBuffMap.put(this, new IterableMap<int, LinkedList<Buff>>)
+    let buffMap = unitBuffMap.get(this)
+    
+    // Create / Get buff list
+    if( not buffMap.has(buffObject.buffId) )
+        buffMap.put(buffObject.buffId, new LinkedList<Buff>)
+    let buffList = buffMap.get(buffObject.buffId)
+
+    // Remove existing buff from source
+    for unitBuff in buffList
+        if( unitBuff.source == source )
+            buffList.remove(unitBuff)
+            destroy unitBuff
+
+    // Destroying existing buffs if they don't stack
+    if( buffList.size() > 0 and not buffObject.stacks )
+        for unitBuff in buffList
+            buffList.remove(unitBuff)
+            destroy unitBuff
+
+    // Apply new buff
+    this.applyBuffSimple(buffObject.buffId) // Apply buff (icons, effects etc)
+    buffList.add(buffObject)
+    buffObject.buffList = buffList
+    buffObject.onApply()
+
+    
+    // Add duration
+    buffObject.durationCb = doAfter(duration) ->
+        buffObject.durationCb = null
+        destroy buffObject
+
+
+    
+
+public abstract class Buff
+    protected bool stacks
+    protected CallbackSingle durationCb = null
+    protected LinkedList<Buff> buffList = null // The list of buffs it belongs to
+
+    protected int buffId
+    protected unit source = null
+    protected unit target = null
+
+    construct(int buffId, bool stacks)
+        this.buffId = buffId
+        this.stacks = stacks
+
+    ondestroy
+        if( durationCb != null )
+            destroy durationCb
+
+        // Remove buff From list
+        if( buffList != null) 
+            buffList.remove(this)
+
+            // Remove actual buff if this was the last buff
+            if( buffList.size() == 0 and target != null)
+                target.removeAbility(buffId)
+
+        onRemove()
+
+    abstract function onApply()
+    abstract function onRemove()
+
+
+function unit.removeAllBuffs()
+    if( unitBuffMap.has(this))
+        let buffMap = unitBuffMap.getAndRemove(this)  
+        for buffId in buffMap
+            let buffList = buffMap.get(buffId)
+            for unitBuff in buffList
+                unitBuff.onRemove()
+                destroy unitBuff
+            destroy buffList
+        destroy buffMap
+    
+
+function unit.removeBuff(int buffId) returns bool
+    if( unitBuffMap.has(this) )
+        let buffMap = unitBuffMap.get(this)
+        if( buffMap.has(buffId) )
+            let buffList = buffMap.get(buffId)
+            var count = 0
+            for unitBuff in buffList
+                buffList.remove(unitBuff)
+                destroy unitBuff
+                count++
+            return count > 0            
+    return false
+    
+
+init
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH) ->
+        GetDyingUnit().removeAllBuffs()
+    
+    onLeave() ->
+        getEnterLeaveUnit().removeAllBuffs()
+
+            
+        
+        
