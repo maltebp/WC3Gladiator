@@ -16,7 +16,6 @@ import OrcArtifacts
 
 public let GLADIATOR_ORC = new GladiatorType()
 public let GLADIATOR_ORC_ID = compiletime(HERO_ID_GEN.next())
-public let ARTIFACT_SHOP_ORC = new ArtifactShop(gg_unit_n00K_0002, GLADIATOR_ORC_ID)
 public let ORC_COLOR = color(152,230,152)
 
 init
@@ -34,22 +33,6 @@ init
         ORC_ABIL_WOUNDING_STRIKE,
         ORC_ABIL_IMPEDING_ROAR,
         ORC_ABIL_WHIRLING_STRIKE
-    )
-
-    // Artifacts
-    GLADIATOR_ORC.addArtifacts(
-        ARTIFACT_BLOODFEATHERSHEART,
-        ARTIFACT_ORCISHCLEAVER,     
-        ARTIFACT_KILMAIM,           
-        ARTIFACT_TOOTHOFTHEWARCHIEF,
-        ARTIFACT_TOKENOFSAMURO,     
-        ARTIFACT_GIFTOFTHETAUREN,   
-        ARTIFACT_BLOODOFMANNOROTH,  
-        ARTIFACT_MEMOIROFTHEPAST,   
-        ARTIFACT_WARBLADEOFSAMURO,  
-        ARTIFACT_STANDARDOFTHEORCS, 
-        ARTIFACT_WARDRUM,            
-        ARTIFACT_HELMOFTHEWARLORD            
     )
 
     
