@@ -11,8 +11,6 @@ let DURATION            = 20.
 let ARMOR_RED           = 8.
 
 
-
-
 public let HALF_BREED_WRECKING_STRIKE = compiletime(defineSingleTarget3(
     "Wrecking Strike",
     "Attempt at executing an enemy, dealing {0} of you power in damage. If the execution is succesful, the cooldown of the ability will be reset",

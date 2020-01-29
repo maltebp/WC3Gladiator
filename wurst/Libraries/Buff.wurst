@@ -1,39 +1,248 @@
-// TODO: Implement this
 
-// package Buff
-// import HashMap
-// import LinkedList
+//================================================================================================================================================================================================
 
-// /*
-//     Apply buff
+package Buff
 
-//     If unit has buff
-// */
+/*//================================================================================================================================================================================================
+
+    Library to create custom buffs and allowing buff effects to stack from different unit.
+    
+    How to use:
+        1) Define buff:
+            This is the actual buff that will be applied to the target
+
+                let MY_BUFF = compiletime(defineBuff(...))
+
+        2) Implement Buff Class:
+            The implementation defines the buff "type", and is used to
+            add the buff to targets
+
+                class MyBuff extends Buff
+                    
+                    construct()
+                        super( MY_BUFF, ...)
+
+                    override function onApply()
+                        ...
+
+                    override function onRemove()
+                        ...
+    
+        3) Apply the buff:
+            The buff is applied to the unit by creating an object of
+            the extension of the buff class
+
+                target.applyBuff(new MyBuff(), ... )
+                 
+*///===============================================================================================================================================================================================
+
+import public Icons
+import public Abilities
+
+import CompileTimeData
+import HashMap
+import BuffObjEditing
+import ObjectIds
+import DummyRecycler
+import Orders
+import ErrorHandling
+import LinkedList
+import ClosureTimers
+import OnUnitEnterLeave
+import ObjectIdGenerator
+import AbilityObjEditing
+import RegisterEvents
 
 
-// class BuffUnit
-//     let buffMap = new IterableMap<int, LinkedList<Buff>>
 
-//     static function getInstance(unit buffUnit) returns thistype
-//         return buffUnit =
+// In pairs: buffId, abilId
+let dataObj_CustomBuffs = compiletime(defineDataObj())
+let buffAbilMap = new IterableMap<int,int>
+
+/** Define a buff at compiletime. Use this with an extension of the Buff class, or use it
+    with the unit.applyBuffSimple(...).. */
+public function defineBuff(string name, string description, string icon, string sfx, string attach1, string attach2) returns int
+    let attachCount = attach2 != "" ? 2 : 0    
+
+    let buffId = BUFF_ID_GEN.next()
+    new BuffDefinition(buffId, 'Binf')
+    ..setName(1, name)
+    ..setTooltipNormal(1, name)
+    ..setTooltipNormalExtended(1, description)
+    ..setIcon(icon)
+    ..setArtTarget(1, sfx)
+    ..setTargetAttachmentPoint0(1, attach1)
+    ..setTargetAttachmentPoint1(1, attach2)
+    ..setTargetAttachments(1,  attachCount)
+
+    let abilId = ABIL_ID_GEN.next()
+    new AbilityDefinitionInnerFireCreep(abilId)
+    ..setName(name + "(buff ability)")
+    ..setBuffs(1, buffId.toRawCode())
+    ..setManaCost(1, 0)
+    ..setTargetsAllowed(1, "air,ground,friend,enemy,neutral")
+    ..setCastRange(1, 10000)
+    ..setDurationHero(1, 0)
+    ..setDurationNormal(1, 0)
+    ..setCooldown(1, 0)
+    ..setEffectSound("")
+    ..setDamageIncrease(1, 0)
+    ..setDefenseIncrease(1, 0)
+
+    dataObj_CustomBuffs.addData(buffId.toRawCode())
+    dataObj_CustomBuffs.addData(abilId.toRawCode())    
+
+    return buffId
 
 
-// abstract class Buff
+init
+    let data = dataObj_CustomBuffs.getData()
+    while(data.size() > 0)
+        buffAbilMap.put(data.dequeue().fromRawCode(), data.dequeue().fromRawCode())
 
-//     protected unit buffUnit
 
-//     construct(real duration, int buffId)
+/** Apply buff defined by 'defineBuff' function to this unit. This
+    includes no logic applying or removal, and is probably not that
+    interesting to use. */
+public function unit.applyBuffSimple(int buffId)
+    
+    if( not buffAbilMap.has(buffId) )
+        error("Buff map doesn't have buff "+buffId.toRawCode())
 
-//     abstract function onApply()
-        
-//     abstract function onRemove()      
+    let abilId = buffAbilMap.get(buffId)
+    let dummy = DummyRecycler.get(this.getPos(), angle(0))
+    dummy.addAbility(abilId)
+    if( dummy.getAbilityLevel(abilId) == 0 )
+        error("Dummy didn't get buff ability (buffId: {0}, abilId: {1}".format(buffId.toRawCode(), abilId.toRawCode()))
+    
+    dummy.issueTargetOrderById(Orders.innerfire, this)
+    DummyRecycler.recycle(dummy)  
+
+let unitBuffMap = new HashMap<unit, IterableMap<int, LinkedList<Buff>>>
+
+
+/**
+    Apply your custom buff to this unit. Create a new object of your implementation
+    of the Buff class. */
+public function unit.applyBuff(Buff buffObject, unit source, real duration) 
+    buffObject.source = source
+    buffObject.target = this
+    
+    // Create / Get buff map
+    if( not unitBuffMap.has(this) )
+        unitBuffMap.put(this, new IterableMap<int, LinkedList<Buff>>)
+    let buffMap = unitBuffMap.get(this)
+    
+    // Create / Get buff list
+    if( not buffMap.has(buffObject.buffId) )
+        buffMap.put(buffObject.buffId, new LinkedList<Buff>)
+    let buffList = buffMap.get(buffObject.buffId)
+
+    // Remove existing buff from source
+    for unitBuff in buffList
+        if( unitBuff.source == source )
+            buffList.remove(unitBuff)
+            destroy unitBuff
+
+    // Destroying existing buffs if they don't stack
+    if( buffList.size() > 0 and not buffObject.stacks )
+        for unitBuff in buffList
+            buffList.remove(unitBuff)
+            destroy unitBuff
+
+    // Apply new buff
+    this.applyBuffSimple(buffObject.buffId) // Apply buff (icons, effects etc)
+    buffList.add(buffObject)
+    buffObject.buffList = buffList
+    buffObject.onApply()
+
+    
+    // Add duration
+    buffObject.durationCb = doAfter(duration) ->
+        buffObject.durationCb = null
+        destroy buffObject
+
+
+/** Remove ALL buffs of the particular type from this unit. This
+    remove all instances of the buff, in case the buff is stackable
+    by multiple players
+    The buffid must have been applied via an implementation of the Buff
+    class, using the unit.applyBuff(...) */
+public function unit.removeBuff(int buffId) returns bool
+    if( unitBuffMap.has(this) )
+        let buffMap = unitBuffMap.get(this)
+        if( buffMap.has(buffId) )
+            let buffList = buffMap.get(buffId)
+            var count = 0
+            for unitBuff in buffList
+                buffList.remove(unitBuff)
+                destroy unitBuff
+                count++
+            return count > 0            
+    return false
     
 
-//     function compare() returns int
-//         return 0
 
+/**
+    Buff class which defines the logic of a buff. It uses a buff id
+    defined by 'defineBuff'.
+    When the buff is applied to a target, the onApply() function is
+    run, and when its removed, the onRemove() function is called.
+    Use the internal variables 'source' and 'target' to get the
+    buff source and target. These MAY BE NULL. */
+public abstract class Buff
+    protected bool stacks
+    protected CallbackSingle durationCb = null
+    protected LinkedList<Buff> buffList = null // The list of buffs it belongs to
+
+    protected int buffId
+    protected unit source = null
+    protected unit target = null
+
+    construct(int buffId, bool stacks)
+        this.buffId = buffId
+        this.stacks = stacks
+
+    ondestroy
+        if( durationCb != null )
+            destroy durationCb
+
+        // Remove buff From list
+        if( buffList != null) 
+            buffList.remove(this)
+
+            // Remove actual buff if this was the last buff
+            if( buffList.size() == 0 and target != null)
+                target.removeAbility(buffId)
+
+        onRemove()
+
+    /** Is run when a buff of this type is applied to a unit. Use
+        the internal variables 'source' and 'target' to get the
+        buff source and target. These MAY BE NULL */
+    abstract function onApply()
+
+    /** Is run when a buff of this type is removed from a unit. Use
+        the internal variables 'source' and 'target' to get the
+        buff source and target. These MAY BE NULL */
+    abstract function onRemove()
+
+
+function unit.removeAllBuffs()
+    if( unitBuffMap.has(this))
+        let buffMap = unitBuffMap.getAndRemove(this)  
+        for buffId in buffMap
+            let buffList = buffMap.get(buffId)
+            for unitBuff in buffList
+                unitBuff.onRemove()
+                destroy unitBuff
+            destroy buffList
+        destroy buffMap
     
 
+init
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH) ->
+        GetDyingUnit().removeAllBuffs()
     
-
-    
+    onLeave() ->
+        getEnterLeaveUnit().removeAllBuffs()
