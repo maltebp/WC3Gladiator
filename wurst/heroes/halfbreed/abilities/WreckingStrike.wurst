@@ -7,7 +7,7 @@ import ClosureTimers
 // Settings
 
 let DMG_FACTOR          = 1.5
-let DURATION            = 20.
+let DURATION            = 8.
 let ARMOR_RED           = 8.
 
 
@@ -16,7 +16,7 @@ public let HALF_BREED_WRECKING_STRIKE = compiletime(defineSingleTarget3(
     "Attempt at executing an enemy, dealing {0} of you power in damage. If the execution is succesful, the cooldown of the ability will be reset",
     Icons.bTNCorpseExplode,
     "R",
-    5,      // Cooldown
+    10,      // Cooldown
     10,     // Mana
     MELEE_RANGE,    // Range
     "attack"

@@ -1,7 +1,6 @@
 package Frenzy
 
 import AbilityTools
-import ClosureTimers
 
 //================================================================================================================================================================================================
 // Settings
@@ -11,7 +10,7 @@ let TRAVEL_RANGE        = 700.
 let TRAVEL_SPEED        = 800.
 let AOE_RANGE           = 125.
 let ATTACK_SPEED_INC    = 1.
-let DURATION            = 10.
+let DURATION            = 5.
 
 
 public let HALF_BREED_FRENZY = compiletime(defineInstantCast1(
@@ -19,7 +18,7 @@ public let HALF_BREED_FRENZY = compiletime(defineInstantCast1(
     "Enter a Frenzy, increasing your attack speed by {0} for {1} seconds.".format(ATTACK_SPEED_INC.toPercentageString(), DURATION.toString(0)),
     Icons.bTNBerserk,
     "F",
-    2,      // Cooldown
+    12,      // Cooldown
     10      // Mana
 ))
 

@@ -2,7 +2,6 @@ package ImpedingRoar
 
 
 import AbilityTools
-import ClosureTimers
 
 //================================================================================================================================================================================================
 // Settings
@@ -11,6 +10,7 @@ let DMG_FACTOR      = 0.25
 let AOE_RANGE       = 300.
 let ATTACKSPEED_RED = 0.20
 let MOVESPEED_RED   = 0.3
+let DURATION        = 10.
 
 
 public let HALF_BREED_IMPEDING_ROAR = compiletime(defineImmediate1(
@@ -62,5 +62,21 @@ function onCast()
     for target from targets
         caster.damageTargetPhysical(target, damage)
         target.addEffect(Abilities.spellStealMissile, "chest").destr()
-        //target.applyBuff(HALF_BREED_IMPEDING_ROAR_BUFF)
-    
+        target.applyBuff(new ImpedingRoarBuff(), caster, DURATION)
+
+
+class ImpedingRoarBuff extends Buff
+
+    construct()
+        super(HALF_BREED_IMPEDING_ROAR_BUFF, false)
+        
+    override function onApply()
+        if( target != null )
+            target.adjustMoveSpeedPerc(-MOVESPEED_RED) 
+            target.adjustAttackSpeed(-ATTACKSPEED_RED)   
+
+    override function onRemove()
+        if( target != null )
+            target.adjustMoveSpeedPerc(MOVESPEED_RED) 
+            target.adjustAttackSpeed(ATTACKSPEED_RED) 
+            

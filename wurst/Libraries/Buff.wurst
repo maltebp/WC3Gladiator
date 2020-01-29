@@ -52,7 +52,9 @@ import OnUnitEnterLeave
 import ObjectIdGenerator
 import AbilityObjEditing
 import RegisterEvents
+import DummyCaster
 
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 // In pairs: buffId, abilId
@@ -94,7 +96,7 @@ public function defineBuff(string name, string description, string icon, string 
 
     return buffId
 
-
+// Load buff ids from compiletime
 init
     let data = dataObj_CustomBuffs.getData()
     while(data.size() > 0)
@@ -104,19 +106,15 @@ init
 /** Apply buff defined by 'defineBuff' function to this unit. This
     includes no logic applying or removal, and is probably not that
     interesting to use. */
-public function unit.applyBuffSimple(int buffId)
-    
+public function unit.applyBuffSimple( int buffId, unit source)
     if( not buffAbilMap.has(buffId) )
         error("Buff map doesn't have buff "+buffId.toRawCode())
 
     let abilId = buffAbilMap.get(buffId)
-    let dummy = DummyRecycler.get(this.getPos(), angle(0))
-    dummy.addAbility(abilId)
-    if( dummy.getAbilityLevel(abilId) == 0 )
-        error("Dummy didn't get buff ability (buffId: {0}, abilId: {1}".format(buffId.toRawCode(), abilId.toRawCode()))
-    
-    dummy.issueTargetOrderById(Orders.innerfire, this)
-    DummyRecycler.recycle(dummy)  
+    new DummyCaster()
+    ..owner(source.getOwner())
+    ..origin(this.getPos())
+    ..castTarget(abilId, 1, Orders.innerfire, this)
 
 let unitBuffMap = new HashMap<unit, IterableMap<int, LinkedList<Buff>>>
 
@@ -151,12 +149,11 @@ public function unit.applyBuff(Buff buffObject, unit source, real duration)
             destroy unitBuff
 
     // Apply new buff
-    this.applyBuffSimple(buffObject.buffId) // Apply buff (icons, effects etc)
+    this.applyBuffSimple(buffObject.buffId, source ) // Apply buff (icons, effects etc)
     buffList.add(buffObject)
     buffObject.buffList = buffList
     buffObject.onApply()
 
-    
     // Add duration
     buffObject.durationCb = doAfter(duration) ->
         buffObject.durationCb = null

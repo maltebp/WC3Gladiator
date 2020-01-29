@@ -4,18 +4,17 @@ import Gladiator
 import ObjectIdGenerator
 import HeroDefaults
 import Icons
-import StringUtils
 import Cleave
 import FlyingAxe
 import Frenzy
 import Execution
 import WreckingStrike
+import ImpedingRoar
 
 
 public let HALF_BREED = new GladiatorType("Half-Breed")
 public let HALF_BREED_UNIT_ID = compiletime(HERO_ID_GEN.next())
 public let HALF_BREED_COLOR = color(197, 126, 67)
-
 
 init
     HALF_BREED
@@ -30,7 +29,8 @@ init
         HALF_BREED_FLYING_AXE,
         HALF_BREED_FRENZY,
         HALF_BREED_EXECUTION,
-        HALF_BREED_WRECKING_STRIKE
+        HALF_BREED_WRECKING_STRIKE,
+        HALF_BREED_IMPEDING_ROAR
     )
 
 
