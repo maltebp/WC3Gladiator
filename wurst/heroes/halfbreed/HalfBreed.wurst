@@ -10,6 +10,7 @@ import Frenzy
 import Execution
 import WreckingStrike
 import ImpedingRoar
+import ChargeSystem
 
 
 public let HALF_BREED = new GladiatorType("Half-Breed")
@@ -32,6 +33,10 @@ init
         HALF_BREED_WRECKING_STRIKE,
         HALF_BREED_IMPEDING_ROAR
     )
+
+    HALF_BREED
+    ..addActionOnSpawn() gladiator ->
+        gladiator.enableCharge()
 
 
 //================================================================================================================================================================================================

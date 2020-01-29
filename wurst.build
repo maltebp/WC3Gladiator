@@ -4,6 +4,7 @@ dependencies:
 - https://github.com/wurstscript/wurstStdlib2
 - https://github.com/maltebp/ProjectileSystem
 - https://github.com/maltebp/ChatCommands
+- https://github.com/maltebp/LakeStatSystem
 buildMapData:
   name: Gladiator (v0.1.2 Alpha)
   fileName: Gladiator-v0.1.2a

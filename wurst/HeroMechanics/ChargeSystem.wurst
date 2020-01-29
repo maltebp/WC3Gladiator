@@ -35,15 +35,15 @@ import ErrorHandling
 // ------------------------------------------------------------------------------------------------------------------------
 // Settings
 
-constant real   DEGENERATION_BASE = 2 // Per second
-constant real   DEGENERATION_FREQ = 0.3
+let DEGENERATION_BASE = 2. // Per second
+let DEGENERATION_FREQ = 0.3
 
-constant int    MAXCHARGE  = 100 // Should be adjusted with game constants
+let MAXCHARGE  = 100 // Should be adjusted with game constants
 
-constant boolean TESTMODE = false
+let TESTMODE = false
 
 // Other constants
-constant int    DEGENERATION_TIMESPERSEC = R2I(1 / DEGENERATION_FREQ)
+let DEGENERATION_TIMESPERSEC = R2I(1 / DEGENERATION_FREQ)
 
 // =========================================================================================================================
 // Access functions
