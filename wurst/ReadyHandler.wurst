@@ -49,10 +49,10 @@ function player.toggleReady()
     this.setReadyState(ready)
     if( ready )
         SND_READY.playForPlayer(this)
-        this.print("\nYou are {0}".format("ready".withColor(COLOR_HIGHLIGHT)), 10)
+        this.print("\nYou are {0}".format("ready".withColor(COLOR_HIGHLIGHT)), 8)
     else
         SND_NOTREADY.playForPlayer(this)
-        this.print("\nYou are {0}".format("not ready".withColor(COLOR_HIGHLIGHT)), 10)
+        this.print("\nYou are {0}".format("not ready".withColor(COLOR_HIGHLIGHT)), 8)
     cooldownList.add(this)
     doAfter(BUTTON_COOLDOWN) ->
         cooldownList.remove(this)

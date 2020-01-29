@@ -29,6 +29,7 @@ public function startRound()
     ..wait(1.5)
     ..do( p -> p.preparePlayer() )
     ..do( -> round.prepare() )
+    ..do( -> ClearTextMessages() )
 
     ..do( p -> p.fadeIn(1.5))
     ..do( p -> p.toggleCinematicMode(false, 1.5))

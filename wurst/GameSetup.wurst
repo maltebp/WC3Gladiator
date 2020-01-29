@@ -129,8 +129,16 @@ function delayedSetup()
     ITEM_COMMONGEM.release()
     ITEM_AMULET.release()
     
-    for p in allPlayers
-        p.startIntro()
+    if not DEBUG or not TEST_MODE
+        for p in allPlayers
+            p.startIntro()
+    else
+        for p in allPlayers
+            p.fadeIn(0)
+            p.toggleCinematicMode(false, 0)
+            p.setCameraPosition(vec2(0,0))
+            p.enableMasteryShop()
+                
 
 
 

@@ -52,10 +52,11 @@ public function finishRound(boolean hasWon)
         ..do( p -> p.fadeIn(1) )
         ..wait(2)
         ..do( p -> p.moveGladiator() )
+        ..do( p -> p.toggleAttemptsWindow(true) )
+        ..do( p -> p.enableMasteryShop() )
         ..wait(3)
         ..addRoundReview(hasWon)
         ..do( p -> p.enableReadyCommand() )
-        ..do( p -> p.enableMasteryShop() )
         ..play(allPlayers)
 
 function player.moveCam()
@@ -115,7 +116,6 @@ function Scene.addRoundReview(boolean hasWon)
         
         // Next Round
         ..wait(6)
-        ..do( p -> p.toggleAttemptsWindow(true) )
         ..do(   -> Round.setNextRound() )
         ..do( p -> Round.printNextRound(p) )
         

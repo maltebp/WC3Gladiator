@@ -36,11 +36,12 @@ public let SND_ERROR = new SoundDefinition(Sounds.error, false)
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Test Switches
-public let DEBUG = true
+public let DEBUG = true 
 
+public let TEST_MODE        = false   // Test mode skips the entire intro and just puts you in the map
 public let LOCK_CAM_BOUNDS  = false
 public let SKIP_INTRO       = true
-public let INSTANT_SPAWN     = true  // Toggle rounds to spawn all units at the same time!
+public let INSTANT_SPAWN    = true   // Toggle rounds to spawn all units at the same time!
 
 
 

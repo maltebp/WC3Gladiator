@@ -18,6 +18,7 @@ import ObjectIds
 import Soundsets
 import UtilCommands
 import MapBounds
+import ClosureForGroups
 
 
 //================================================================================================================================================================================================
@@ -60,6 +61,7 @@ public class Gladiator
         if( abilities.size() <= abilitiesReleased)
             Log.warn("{0}'s {1} should release ability {2}, but the gladiator only has {3} abilities".format(
                 owner.getNameColored(), gladiatorUnit.getName(), abilitiesReleased.toString(), abilities.size().toString() ))
+            return ""
     
         let abilityId = abilities.get(abilitiesReleased)
 
@@ -159,8 +161,9 @@ public class GladiatorType
     
     private LinkedList<GladiatorAction> actions_OnSpawn = null
 
-    construct()
+    construct(string name)
         allTypes.add(this)
+        this.name = name
 
     
     function setUnitType(int unitType)
@@ -253,7 +256,6 @@ public class GladiatorType
         let gladiatorUnit = createUnit(owner, unitType, spawnPos, facing)
         ..suspendXp(true)
         ..enableCharge()
-        ..addArtifactSlots()
         
         if actions_OnSpawn != null
             for action in actions_OnSpawn
@@ -262,9 +264,11 @@ public class GladiatorType
         return gladiatorUnit
 
     
-        
     function getName() returns string
         return name
+
+    function getNameColored() returns string
+        return col.toColorString() + name + "|r"
 
     function addArtifacts(vararg Artifact artifacts)
         for artifact in artifacts
@@ -309,7 +313,6 @@ public function defineGladiatorUnit( int newId, int originId, string name, strin
     ..setManaMaximum(100)
     ..hideHeroMinimapDisplay(true)
     ..setCanFlee(false)
-    ..setTurnRate(3)
     ..setSpeedBase(250)
     ..setAgilityPerLevel(0)
     ..setStrengthPerLevel(0)
@@ -333,7 +336,11 @@ public function defineGladiatorUnit( int newId, int originId, string name, strin
     ..setStockStartDelay(0)
     ..setButtonPositionX(0)
     ..setButtonPositionY(0)
-    ..setUnitSoundSet(Soundsets.hellscream)
+    ..setUnitSoundSet("")
+    ..setRequirements("")
+
+    ..setTurnRate(3)
+    ..setOrientationInterpolation(0) // Allows for almost instant visual turning
 
     data_GladiatorUnitIds.addData(newId.toRawCode())
 
@@ -347,10 +354,50 @@ init
 //================================================================================================================================================================================================
 // Chat Commands
 init    
-    defineUtilCommand("gladiator")
-    .addSubCommand("getall")
+    let cmd = defineUtilCommand("gladiator")
+
+    var sub = cmd.addSubCommand("getall")
     ..setAction() (p, args, opts) ->
         var gladiatorNames = ""
         for gladiator in getAllGladiators()
             gladiatorNames += "\n    " + gladiator.getOwner().getNameColored() + ": " + gladiator.getUnit().getProperName()
         p.print("\nGladiators:" + gladiatorNames)
+
+
+    // Spawn Gladiator
+    sub = cmd.addSubCommand("new")
+    ..addArgument(ArgumentType.STRING)
+    ..setAction() (p, args, opts) ->
+        GladiatorType gladType = null
+        let gladName = args.getString()
+        var allNames = ""
+        for gladiator in GladiatorType.getAllTypes()
+            let adjustedName = gladiator.getName().replace(" ", "").replace("-", "").toLowerCase()
+            if( adjustedName == gladName )
+                gladType = gladiator
+            if(allNames == "")
+                allNames += ", "
+            allNames += adjustedName
+        
+        if( gladType == null )
+            p.print("Couldn't find gladiator type '{}'. Available types are: {1}".format(gladName.highlight(), allNames))
+        else
+            new Gladiator(gladType, p, p.getMousePos(), angle(0))
+
+    sub.addHelpCommand("Spawns a Gladiator for of a given gladiator type. The type is name in lower-case without spaces and '-'. (i.e. Half-Breed -> halfbreed)")
+
+    // Unlock abilites for selected gladiators
+    sub  = cmd.addSubCommand("unlockability")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p,args,opts) ->
+        forUnitsSelected(p) u ->
+            let abilitiesToUnlock = args.getInt()
+            if( not Gladiator.isUnitGladiator(u) )
+                p.print("{0} is not a gladiator".format(u.getName().highlight()))
+            else
+                let gladiator = Gladiator.getInstance(u)
+                let name = gladiator.getGladiatorType().getNameColored()
+                for i=0 to abilitiesToUnlock
+                    let abilityName = gladiator.unlockNextAbility()
+                    if( abilityName != "" )
+                        p.print("Unlocked {0} for {1}.".format(abilityName.highlight(), name), 8)

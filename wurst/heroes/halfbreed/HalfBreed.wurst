@@ -1,0 +1,40 @@
+package HalfBreed
+
+import Gladiator
+import ObjectIdGenerator
+import HeroDefaults
+import Icons
+import StringUtils
+
+
+public let HALF_BREED = new GladiatorType("Half-Breed")
+public let HALF_BREED_UNIT_ID = compiletime(HERO_ID_GEN.next())
+public let HALF_BREED_COLOR = color(197, 126, 67)
+
+
+init
+    HALF_BREED
+    ..setUnitType(HALF_BREED_UNIT_ID)
+    ..setSoundOnSpawn(Sounds.ogreBeastMasterYes3)
+    ..setSoundOnRespawn(Sounds.dR02Rexxar04)
+    ..setSoundOnNewAbility(Sounds.strongholdWhat1)
+    ..setColor(HALF_BREED_COLOR)
+    ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED)
+    // ..addAbilities(
+    //     ORC_ABIL_ENRAGE,
+    //     ORC_ABIL_CLEAVE,
+    //     ORC_ABIL_FRENZY,
+    //     ORC_ABIL_WOUNDING_STRIKE,
+    //     ORC_ABIL_IMPEDING_ROAR,
+    //     ORC_ABIL_WHIRLING_STRIKE
+    // )
+
+
+//================================================================================================================================================================================================
+// Unit Definition
+
+@compiletime
+function defineUnit()
+    defineGladiatorUnit(HALF_BREED_UNIT_ID, 'Orex', "Half-Breed", Icons.bTNBeastMaster)
+    ..setTooltipBasic(HALF_BREED.getNameColored())
+    ..setTooltipExtended("As half ogre and half orc this ferocious gladiatior rely on highly offensive close-combat.")
