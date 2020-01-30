@@ -10,6 +10,7 @@ import UtilCommands
 import RegisterEvents
 import ShopIntro
 import GladiatorSystem
+import GameSettings
 
 let CAMERA = gg_cam_Barracks
 public let BARRACKS_RECT = gg_rct_BarracksFog
@@ -33,10 +34,12 @@ public function player.startPickHero()
     camLockCallbacks.put(this, callback)
 
     new Scene()
-    ..do( p -> p.fadeIn(1.5, null))
+    ..do( p -> p.fadeIn(1.5))
     ..wait(1.5)
     ..do( p -> p.toggleCinematicMode(false, 1.5))
     ..wait(1.5)
+    ..do( p -> SND_MESSAGE.playForPlayer(p) )
+    ..do( p -> p.print("\nChoose your gladiator", 1000) )
     ..do( p -> p.lockToShop() )
     ..play(this)
     
@@ -63,14 +66,15 @@ function player.choseGladiator( unit chosenGladiator )
     ..wait(2)
     ..do( p -> p.fadeOut(1, null))
     ..wait(1)
-    ..do() p -> 
+    scene.do() p ->
+        if( p == localPlayer )
+            ClearTextMessages()
+    scene.do() p -> 
         destroy camLockCallbacks.getAndRemove(this)
         p.startShopIntro(gladiatorType)
     scene.play(this)
 
         
-        
-
 init
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SELL) ->
         if( GetSellingUnit() == gladiatorShop )
@@ -79,19 +83,6 @@ init
             
             buyingPlayer.choseGladiator(soldUnit)
             
-        
-
-
-    
-
-
-
-    
-init
-    defineUtilCommand("pickhero")
-    ..setAction() (p, args, opts) ->
-        p.startPickHero()
-
 
 
     

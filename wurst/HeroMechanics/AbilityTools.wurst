@@ -189,7 +189,7 @@ public function enemiesInRange(player p, vec2 origin, real range) returns group
     ..enumUnitsInRange(origin, range)
     
     for u in g
-        if( not u.isAliveTrick() or not u.isEnemyOf(p) )
+        if( not u.isAlive() or not u.isEnemyOf(p) )
             g.removeUnit(u)
 
     return g

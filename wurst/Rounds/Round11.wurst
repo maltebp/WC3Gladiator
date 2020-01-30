@@ -39,6 +39,9 @@ constant let EARTHQUAKE_RANGE = 250.
 
 constant let snd_Shockwave = new SoundDefinition(Sounds.mountainGiantPissed1, false)
 
+Round round = null
+
+
 //=========================================================================================================================================================
 //  Setup
 

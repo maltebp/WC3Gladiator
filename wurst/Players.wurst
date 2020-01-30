@@ -26,7 +26,13 @@ public function player.addTestPlayers(vararg player players)
     // Sort the new player list
     allPlayers.sortWith( (p1, p2) -> p1.getId() - p2.getId() )
 
-        
+
+/** Currently, host is just first player. But using this function, allows
+for easier implementation of getting the host down the line */
+public function getHost() returns player
+    return allPlayers.getFirst()
+
+
 
 
 // ----------------------------------------------------------------------------------------------------------------------------------------

@@ -21,6 +21,8 @@ let LIGHTNINGCHARGE_DAMAGE = 225.
 let LIGHTNINGCHARGE_RANGE = 350.
 let LIGHTNINGCHARGE_DURATION = 8.
 
+Round round = null
+
 
 init
     //=========================================================================================================================================================
@@ -30,7 +32,7 @@ init
     ..setReward(30, 4)
     ..addItemRewards(ITEM_STORMLORDCROWN)
     ..addArtifactRewards(1)
-    ..setTitle("STORMLORDS")
+    ..setTitle("Stormlords")
     ..setDescription("Don't go get thunder struck now.")
     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
 

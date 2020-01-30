@@ -79,6 +79,9 @@ let MENDEGGS_ABILITYID = compiletime(ABIL_ID_GEN.next())
 
 UnitSpawner eggSpawner
 
+Round round = null
+
+
 //=========================================================================================================================================================
 
 

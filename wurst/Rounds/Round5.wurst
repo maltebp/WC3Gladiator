@@ -9,6 +9,9 @@ let GARGOYLE = 'u002'
 let STONEFORM_HPACTIVATE = 0.25 // % Percent
 let STONEFORM_HPDEACTIVATE = 0.90 // % Percent
 
+Round round = null
+
+
 init
     //=========================================================================================================================================================
     //  Gargoyles

@@ -30,6 +30,8 @@ let MISSILES_COOLDOWN = 10.
 let MISSILES_ID = compiletime(ABIL_ID_GEN.next() )
 let MISSILES_SOUND = new SoundDefinition(Sounds.shimmeringPortalEntrance, false, true)
 
+Round round = null
+
 
 init
     //=========================================================================================================================================================

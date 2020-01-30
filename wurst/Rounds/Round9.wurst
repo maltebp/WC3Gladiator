@@ -37,6 +37,7 @@ constant real LIFEDRAIN_COOLDOWN    = 15
 constant real FELFIREBOLT_COOLDOWN = 10
 constant real FELFIREBOLT_STARTCOOLDOWN = 5
 
+Round round = null
 
 
 

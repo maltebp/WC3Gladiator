@@ -73,6 +73,7 @@ let SUMMONELEMENTAL_ID = compiletime( ABIL_ID_GEN.next() )
 let ELEMENTAL_ATTACK_ID = compiletime( ABIL_ID_GEN.next() )
 
 
+Round round = null
 
 
 // ======================================================================================================================================

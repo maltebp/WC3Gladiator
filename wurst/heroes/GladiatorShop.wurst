@@ -34,7 +34,7 @@ public function initializeGladiatorShop()
 @compiletime
 function defineGladiatorShop()
     new BuildingDefinition(GLADIATOR_SHOP_ID, 'nmer')
-    ..setName("Choose Gladiator")
+    ..setName("Gladiator's Hold")
     ..setUnitsSold("")
     ..setUnitsTrained("")
     ..setUnitSoundSet("")

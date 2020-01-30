@@ -1,21 +1,25 @@
 package Round
 
 import public UnitSpawner
+import public Artifact
+import public ItemReward
+import public Stats
+import public Difficulty
+
 import ErrorHandling
 import TimerUtils
 import Orb
 import Music
-import public Artifact
-import public ItemReward
+
 import ClosureTimers
 import LinkedList
 import GladiatorSystem
-import StringUtils
 import GameSettings
 import initlater FinishRound
 import Players
 import TrainingPoints
 import Mastery
+import UtilCommands
 
 public class Round
 
@@ -41,11 +45,11 @@ public class Round
     private static int totalNumberOfRounds = 0
     private static int currentRoundNumber = 0
     private static boolean roundWon = false
-    private static Round currentRound
+    protected static Round currentRound
     private static boolean isBossRound = false
     private static boolean instantSpawn = false
 
-    
+
 
     
 
@@ -69,6 +73,10 @@ public class Round
     private string description
     private string music = Sounds.orcVictory
     private  int artifactsToRelease = 0 
+    protected var level = 0
+    protected var playerCount = 0
+
+    protected UnitStatCallback scaleStatsCallback = null
 
 
     Round_RemoteFunction codeOnClear = null
@@ -152,6 +160,7 @@ public class Round
 
     function setMusic(string music)
         this.music = music
+
         
 
     /** Adds one or more artifacts as a reward, when winning the round */
@@ -199,6 +208,13 @@ public class Round
     static function getRounds() returns LinkedList<Round>
         return rounds.copy()
 
+    /** Round number the round is scaled with */
+    function getLevel() returns int
+        return level
+
+    /** Numbers of players the round is scaled with */
+    function getPlayerCount() returns int
+        return playerCount
     
 
 
@@ -425,18 +441,39 @@ public class Round
 
             
     
+    function setStatScalingCallback(UnitStatCallback callback)
+        scaleStatsCallback = callback
         
+
     function prepare()
+
+        if( level == 0)
+            level = number
+
+        if( playerCount == 0)
+            playerCount = allPlayers.size()
+
         isBossRound = false
         if codeOnPrepare != null
             codeOnPrepare.run(this)
-    
+
+
+    function scaleUnitStats(unit u)
+        var dmgInc = u.getStatInstance(STAT_DAMAGE).getBaseValue()
+        dmgInc *= (level-1) * ROUND_LVL_SCALE_POWER
+        dmgInc *= (playerCount-1) * ROUND_PLAYER_SCALE_POWER
+        u.adjustStatFlat(STAT_DAMAGE, dmgInc)
+
+        var hpInc = u.getStatInstance(STAT_HEALTH).getBaseValue()
+        hpInc *= (level-1) * ROUND_LVL_SCALE_HEALTH
+        hpInc *= (playerCount-1) *  ROUND_PLAYER_SCALE_HEALTH
+        u.adjustStatFlat(STAT_HEALTH, hpInc)
         
 
     function getNumberOfItemRewards() returns int
         return itemRewards.size()
 
-        
+
                
 public interface Round_RemoteFunction
     function run(Round round)
@@ -447,6 +484,40 @@ init
     ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_DEATH)
     ..addAction(function Round.anyUnitDies)
         
+
+    /*  Single listener on unit stats initialzied for all rounds, to improve
+        efficiency. This then call the approriate round's stat adjustment
+        callback. */
+    afterUnitStatsInitialized() u ->
+        if( Round.isARoundRunning() )
+            let round = Round.getCurrentRound()
+            if( round.scaleStatsCallback == null )
+                Log.warn("Stat scaling callback is null for round '{0}'".format(round.getTitle()))
+            else
+                round.scaleStatsCallback.run(u)
         
-        
-        
+
+//================================================================================================================================================================================================
+// CHAT COMMAND
+
+init
+    let cmd = defineUtilCommand("round")
+
+
+    var sub = cmd.addSubCommand("level")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p,args,opts) ->
+        let round = Round.currentRound
+        round.level = args.getInt()
+        p.print("\nSet round level to: {0} for round {1}".format(
+            round.level.toString().highlight(), Round.currentRound.getTitle().highlight()), 5)
+        SND_CLICK.playForPlayer(p)
+
+    sub = cmd.addSubCommand("players")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p,args,opts) ->
+        let round = Round.currentRound
+        round.playerCount = args.getInt()
+        p.print("\nSet player count to: {0} for round {1}".format(
+            round.playerCount.toString().highlight(), Round.currentRound.getTitle().highlight()), 5)
+        SND_CLICK.playForPlayer(p)

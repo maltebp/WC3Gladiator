@@ -9,7 +9,7 @@ let CHARGE = 30
 
 let DMG_FACTOR          = 1.5
 let MAX_CASTER_DIST     = 200.
-let CLEAVE_RANGE        = 200. // Target also needs to be in MAX_CASTER_DIST range from caster
+let CLEAVE_RANGE        = 300. // Target also needs to be in MAX_CASTER_DIST range from caster
 let CLEAVE_TARGETS      = 2
 let CLEAVE_DMG_FACTOR   = 0.5
 
@@ -46,7 +46,7 @@ function onCast()
     caster.adjustCharge(CHARGE)
 
     // Damage
-    let primaryDmg = caster.getDamage() * DMG_FACTOR
+    let primaryDmg = caster.getStat(STAT_DAMAGE) * DMG_FACTOR
     let secondaryDmg = primaryDmg * CLEAVE_DMG_FACTOR
 
     // Damage Primary Target
@@ -65,7 +65,7 @@ function onCast()
 
     // Cleaving targets
     for i=1 to CLEAVE_TARGETS
-        if( not potentialTargets.size() > 0 )
+        if( potentialTargets.size() == 0 )
             break
         
         let secondaryTarget = potentialTargets.getNearestUnit(targetPos)

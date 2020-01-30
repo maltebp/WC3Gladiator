@@ -28,6 +28,24 @@ public let MELEE_RANGE = 125.
 public let UNLOCK_ABILITY_ROUNDS = [0,0,2,5,8,11] // Total: 6
 public let UNLOCK_ARTIFACT_ROUNDS = [1,2,4,5,6,7,8,9,10,11,12,13] // Total: 12
 
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Round Scaling
+
+public let ROUND_PLAYER_SCALE_HEALTH = 0.8
+public let ROUND_PLAYER_SCALE_POWER  = 0.25
+
+public let ROUND_LVL_SCALE_HEALTH = 0.25
+public let ROUND_LVL_SCALE_POWER  = 0.25
+
+
+// Difficulties 
+public let DIFFICULTY_EASY_POWER    = -0.25
+public let DIFFICULTY_EASY_HEALTH   = -0.25
+public let DIFFICULTY_NORMAL_HEALTH = 0.
+public let DIFFICULTY_NORMAL_POWER  = 0.
+public let DIFFICULTY_HARD_POWER    = 0.25
+public let DIFFICULTY_HARD_HEALTH   = 0.25
+
 
 
 
@@ -35,6 +53,7 @@ public let UNLOCK_ARTIFACT_ROUNDS = [1,2,4,5,6,7,8,9,10,11,12,13] // Total: 12
 // SOUNDS
 public let SND_MESSAGE = new SoundDefinition(Sounds.questActivateWhat1, false)
 public let SND_ERROR = new SoundDefinition(Sounds.error, false)
+public let SND_CLICK = new SoundDefinition(Sounds.click, false)
 
 public let MUSIC_SHOP = "InTheGiantsShadow.mp3"
 
@@ -42,14 +61,16 @@ public let MUSIC_SHOP = "InTheGiantsShadow.mp3"
 // Test Switches
 public let DEBUG = true 
 
-public let TEST_MODE        = true   // Test mode skips the entire intro and just puts you in the map
+public let SKIP_INTRO       = true
+public let SKIP_DIFFICULTY  = true
+
+public let LOCK_CAM_BOUNDS  = false
+public let INSTANT_SPAWN    = false   // Toggle rounds to spawn all units at the same time!
+
+public let TEST_MODE        = false   // Test mode skips the entire intro and just puts you in the map
 // public let TEST_GLADIATOR   = HALF_BREED // Gladiator to spawn in TEST_MODE // Set manually in GameSetup
 public let TEST_DUMMIES     = 10    // Number of test dummies to spawn in the arena in TEST_MODE
 public let TEST_MODE_UNLOCK_ABIL = true // Unlock all abilities in test mode
-
-public let LOCK_CAM_BOUNDS  = false
-public let SKIP_INTRO       = true
-public let INSTANT_SPAWN    = true   // Toggle rounds to spawn all units at the same time!
 
 
 
