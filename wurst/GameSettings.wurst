@@ -32,8 +32,8 @@ public let UNLOCK_ARTIFACT_ROUNDS = [1,2,4,5,6,7,8,9,10,11,12,13] // Total: 12
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Round Scaling
 
-public let ROUND_PLAYER_SCALE_HEALTH = 0.8
-public let ROUND_PLAYER_SCALE_POWER  = 0.25
+public let ROUND_PLAYER_SCALE_HEALTH = 0.75
+public let ROUND_PLAYER_SCALE_POWER  = 0.40
 
 public let ROUND_LVL_SCALE_HEALTH = 0.25
 public let ROUND_LVL_SCALE_POWER  = 0.25
@@ -47,6 +47,15 @@ public let DIFFICULTY_NORMAL_POWER  = 0.
 public let DIFFICULTY_HARD_POWER    = 0.25
 public let DIFFICULTY_HARD_HEALTH   = 0.25
 
+
+// // Health Orbs
+public let ORB_INSTANT_FLAT = 75
+public let ORB_INSTANT_PERC = 0.1
+public let ORB_HOT_FLAT = 40
+public let ORB_HOT_PERC = 0.02
+public let ORB_HEAL_DURATION = 8.
+public let ORB_SPAWN_FREQ = 25. // For one player
+public let ORB_ROUND_LVL_SCALE = 0.10
 
 
 
@@ -64,6 +73,8 @@ public let DEBUG = true
 
 public let SKIP_INTRO       = true
 public let SKIP_DIFFICULTY  = true
+public let SKIP_SHOP_INTRO  = true
+public let SKIP_HERO_SELECTION = true   
 
 public let LOCK_CAM_BOUNDS  = false
 public let INSTANT_SPAWN    = false   // Toggle rounds to spawn all units at the same time!

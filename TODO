@@ -6,17 +6,18 @@ Todo:
     ✔ Gladiator picking
     ✔ Multiplayer transitions
     ✔ Difficulty settings
-    ☐ Reimplement item stats
-    ☐ Make Training work
+    ✔ Make Training work
+    ✔ Reimplement item stats
+    ✔ Fix energy regen
 
     Multiplayer scaling:
         ✔ Scaling system
-        ☐ Orb scaling
+        ✔ Orb scaling
         ☐ Implement scaling
     
     Half-Breed Gladiator:
-        ☐ Create unit
-        ☐ Charge mechanic (rage)
+        ✔ Create unit
+        ✔ Charge mechanic (rage)
         
         Masteries:
             ☐ Sleight of Hand: axe cooldown reset

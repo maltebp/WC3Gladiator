@@ -11,6 +11,7 @@ import RegisterEvents
 import ShopIntro
 import GladiatorSystem
 import GameSettings
+import HalfBreed
 
 let CAMERA = gg_cam_Barracks
 public let BARRACKS_RECT = gg_rct_BarracksFog
@@ -26,23 +27,28 @@ public function player.isPickingGladiator() returns bool
 
 
 public function player.startPickHero()
-    playersPickingHero.add(this)
+    if( not DEBUG and not SKIP_HERO_SELECTION)
+        playersPickingHero.add(this)
 
-    let callback = doPeriodically(0.04) cb ->
-        this.cameraSetupApply(true, CAMERA, 0)
-        this.setCameraTargetControllerNoZ( CAM_LOCK_DUMMY, vec2(0,0), false)
-    camLockCallbacks.put(this, callback)
+        let callback = doPeriodically(0.04) cb ->
+            this.cameraSetupApply(true, CAMERA, 0)
+            this.setCameraTargetControllerNoZ( CAM_LOCK_DUMMY, vec2(0,0), false)
+        camLockCallbacks.put(this, callback)
 
-    new Scene()
-    ..do( p -> p.fadeIn(1.5))
-    ..wait(1.5)
-    ..do( p -> p.toggleCinematicMode(false, 1.5))
-    ..wait(1.5)
-    ..do( p -> SND_MESSAGE.playForPlayer(p) )
-    ..do( p -> p.print("\nChoose your gladiator", 1000) )
-    ..do( p -> p.lockToShop() )
-    ..play(this)
+        new Scene()
+        ..do( p -> p.fadeIn(1.5))
+        ..wait(1.5)
+        ..do( p -> p.toggleCinematicMode(false, 1.5))
+        ..wait(1.5)
+        ..do( p -> SND_MESSAGE.playForPlayer(p) )
+        ..do( p -> p.print("\nChoose your gladiator", 1000) )
+        ..do( p -> p.lockToShop() )
+        ..play(this)
     
+    else
+        this.toggleCinematicMode(false, 0)
+        this.startShopIntro(HALF_BREED)
+
     
 function player.lockToShop()
 

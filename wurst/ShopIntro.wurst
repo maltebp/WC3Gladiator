@@ -22,27 +22,40 @@ public function player.startShopIntro(GladiatorType gladiatorType)
         if LOCK_CAM_BOUNDS
             p.setCameraBoundsToRect(gg_rct_Shop_CamBounds)
 
-    scene
-    ..wait(1)
-    ..do( p -> p.fadeIn(1) )
-    ..wait(1)
-    ..do( p -> p.createGladiator(gladiatorType))
-    ..wait(1.25)
-    ..do( p -> p.getGladiator().getSpawnSound().play() )
-    ..wait(2)
-    ..do(p -> p.selectSingle(p.getGladiator().getUnit()))
-    ..do( p -> p.enableMasteryShop() )
-    ..do( p -> p.toggleAttemptsWindow(true) )
-    ..wait(3)
+    if( not DEBUG or not SKIP_SHOP_INTRO)
+
+        scene
+        ..wait(1)
+        ..do( p -> p.fadeIn(1) )
+        ..wait(1)
+        ..do( p -> p.createGladiator(gladiatorType))
+        ..wait(1.25)
+        ..do( p -> p.getGladiator().getSpawnSound().play() )
+        ..wait(2)
+        ..do(p -> p.selectSingle(p.getGladiator().getUnit()))
+        ..do( p -> p.enableMasteryShop() )
+        ..do( p -> p.toggleAttemptsWindow(true) )
+        ..wait(3)
+        
+        ..do() p ->
+            SND_MESSAGE.playForPlayer(p)
+            p.print("Prepare yourself now, and when you're ready, write '{0}' to start the round.".format("-ready".withColor(COLOR_HIGHLIGHT)),5)
+        scene
+        ..wait(8)
+        ..do() p ->
+            Round.printNextRound(p)
+            p.enableReadyCommand()
     
-    ..do() p ->
-        SND_MESSAGE.playForPlayer(p)
-        p.print("Prepare yourself now, and when you're ready, write '{0}' to start the round.".format("-ready".withColor(COLOR_HIGHLIGHT)),5)
-    scene
-    ..wait(8)
-    ..do() p ->
-        Round.printNextRound(p)
-        p.enableReadyCommand()
+    else
+        scene
+        ..do( p -> p.fadeIn(0) )
+        ..do( p -> p.createGladiator(gladiatorType))
+        ..do(p -> p.selectSingle(p.getGladiator().getUnit()))
+        ..do( p -> p.enableMasteryShop() )
+        ..do( p -> p.toggleAttemptsWindow(true) )
+        ..do() p ->
+            Round.printNextRound(p)
+            p.enableReadyCommand()
     scene.play(this)
     
 

@@ -5,11 +5,11 @@ import AbilityTools
 //================================================================================================================================================================================================
 // Settings
 
-let CHARGE = 30
+let CHARGE = 25
 
 let DMG_FACTOR          = 1.5
 let MAX_CASTER_DIST     = 200.
-let CLEAVE_RANGE        = 300. // Target also needs to be in MAX_CASTER_DIST range from caster
+let CLEAVE_RANGE        = 250. // Target also needs to be in MAX_CASTER_DIST range from caster
 let CLEAVE_TARGETS      = 2
 let CLEAVE_DMG_FACTOR   = 0.5
 
@@ -18,8 +18,8 @@ public let HALF_BREED_CLEAVE = compiletime(defineSingleTarget1(
     "Strike an enemy with a cleaving strike, damaging the target and 2 nearby enemies for reduced damage.",
     Icons.bTNCriticalStrike,
     "W",
-    8,      // Cooldown
-    10,     // Mana
+    3,      // Cooldown
+    40,     // Mana
     MELEE_RANGE,    // Range
     "spell,slam"
 ))

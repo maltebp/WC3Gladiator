@@ -265,17 +265,26 @@ public class Round
 
     private function activateHealthOrbSpawn()
         timer_HealthOrbDuration.start(healthOrb_SpawnDuration+0.1, function stopHealthOrbSpawn )
-        timer_HealthOrbSpawn.startPeriodic(HEALTHORB_SPAWNFREQ, function spawnHealthOrb)
+        timer_HealthOrbSpawn.startPeriodic(ORB_SPAWN_FREQ / playerCount, function spawnHealthOrb)
         
 
 
     private static function spawnHealthOrb()
         let round = GetExpiredTimer().getData() castTo thistype
-        let spawnPos = gg_rct_Arena_Spawn1.randomPoint()
 
+        let scale = 1 + (round.level-1) * ORB_ROUND_LVL_SCALE 
+
+        let spawnPos = gg_rct_Arena_Spawn1.randomPoint()
         new HealthOrb(spawnPos)
-        ..setHealInstant(round.healthOrb_FlatToHealInstant, round.healthOrb_PercToHealInstant )
-        ..setHealOverTime(round.healthOrb_FlatToHealOverTime, round.healthOrb_PercToHealOverTime, HEALTHORB_DURATION )
+        ..setHealInstant(
+            ORB_INSTANT_FLAT * scale,
+            ORB_INSTANT_PERC
+        )
+        ..setHealOverTime(
+            ORB_HOT_FLAT * scale,
+            ORB_HOT_PERC,
+            ORB_HEAL_DURATION
+        )
         
 
     private static function stopHealthOrbSpawn()
@@ -402,8 +411,8 @@ public class Round
         u.adjustStatFlat(STAT_DAMAGE, dmgInc)
 
         var hpInc = u.getStatInstance(STAT_HEALTH).getBaseValue()
-        hpInc *= (level-1) * ROUND_LVL_SCALE_HEALTH
-        hpInc *= (playerCount-1) *  ROUND_PLAYER_SCALE_HEALTH
+        hpInc *= (1+(level-1) * ROUND_LVL_SCALE_HEALTH)
+        hpInc *= (1+(playerCount-1) *  ROUND_PLAYER_SCALE_HEALTH)
         u.adjustStatFlat(STAT_HEALTH, hpInc)
         
 

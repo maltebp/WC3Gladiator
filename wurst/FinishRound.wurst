@@ -133,7 +133,7 @@ function Scene.addRoundReview(boolean hasWon)
         this
         ..do( -> SND_ROUND_LOST.play() )
         ..do( -> print("|cffff3300"+"Round "+Round.getCurrentRoundNumber().toString()+" failed!"+"|r\n" + 
-                        "Remeaning attmepts: "+getAttemptsLeft().toString(),10 ))
+                        "Remaining attempts: "+getAttemptsLeft().toString(),10 ))
         ..wait(4)
         ..do( -> print("\nTry again",10))
 

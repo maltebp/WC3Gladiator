@@ -24,6 +24,9 @@ public let ORC_DEATH_WISH = compiletime(defineMastery(
     ),
     ORC_DEATH_WISH_UNLOCK
 ))
+
+
+
     
 init
     HALF_BREED.setMasteryShopType(HALF_BREED_MASTERY_SHOP)

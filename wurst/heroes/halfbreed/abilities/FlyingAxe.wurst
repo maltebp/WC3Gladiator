@@ -6,8 +6,8 @@ import Projectile
 //================================================================================================================================================================================================
 // Settings
 
-let CHARGE              = 30
-let DMG_FACTOR          = 1.5
+let CHARGE              = 50
+let DMG_FACTOR          = 2.0
 let DMG_REDUCTION       = 0.15 // Per target
 let TRAVEL_RANGE        = 700.
 let TRAVEL_SPEED        = 800.
@@ -16,11 +16,11 @@ let AOE_RANGE           = 125.
 
 public let HALF_BREED_FLYING_AXE = compiletime(defineTargetPoint1(
     "Flying Axe",
-    "Throw an axe which damages enemies it hits by {0} of your power. The damage is reduced by {0} each hit, and the axe dissipates if the damage is reduced to 0%.".format( DMG_FACTOR.toPercentageString(), DMG_REDUCTION.toPercentageString()),
+    "Throw an axe which damages enemies it hits by {0} of your power. The damage is reduced by {1} each hit, and the axe dissipates if the damage is reduced to 0%.".format( DMG_FACTOR.toPercentageString(), DMG_REDUCTION.toPercentageString()),
     Icons.bTNOrcMeleeUpThree,
     "Q",
-    6,      // Cooldown
-    10,     // Mana
+    10,      // Cooldown
+    60,     // Mana
     TRAVEL_RANGE,    // Range
     "attack"
 ))

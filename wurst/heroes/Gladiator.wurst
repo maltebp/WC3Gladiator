@@ -177,13 +177,17 @@ public class GladiatorType
         tempUnit.remove()
 
 
-    function setBaseStats( real damage, real armor, real health, real attackSpeed, real moveSpeed  )
+    function setBaseStats( real damage, real armor, real health, real attackSpeed, real moveSpeed, real energy, real energyRegen  )
         unitType
         ..setUnitTypeStat(STAT_DAMAGE, damage)
         ..setUnitTypeStat(STAT_ARMOR, armor)
         ..setUnitTypeStat(STAT_HEALTH, health)
         ..setUnitTypeStat(STAT_ATTACKSPEED, attackSpeed)
         ..setUnitTypeStat(STAT_MOVESPEED, moveSpeed)
+        ..setUnitTypeStat(STAT_ENERGY, energy )
+        ..setUnitTypeStat(STAT_ENERGY_REGEN, energyRegen )
+        ..setUnitTypeStat(STAT_RESISTANCE, 0)
+        
 
     function setSoundOnSpawn(string soundPath)
         snd_Spawn = new SoundDefinition(soundPath, false)
