@@ -6,6 +6,7 @@ import AbilityTools
 //================================================================================================================================================================================================
 // Settings
 
+let CHARGE          = 30
 let DMG_FACTOR      = 0.25
 let AOE_RANGE       = 300.
 let ATTACKSPEED_RED = 0.20
@@ -20,7 +21,7 @@ public let HALF_BREED_IMPEDING_ROAR = compiletime(defineImmediate1(
     "D",
     12,         // Cooldown
     10,         // Mana
-    "attack"
+    "spell,slam"
 ))
 
 public let HALF_BREED_IMPEDING_ROAR_BUFF = compiletime(defineBuff(
@@ -52,6 +53,9 @@ init
 
 function onCast()
     let caster = GetSpellAbilityUnit()
+
+    // Adjust charge
+    caster.adjustCharge(CHARGE)
     
     caster.addEffect(Abilities.roarCaster, "origin")..setDuration(5)
     SND_ROAR.playOnPoint(caster.getPos().withTerrainZ())
@@ -77,6 +81,6 @@ class ImpedingRoarBuff extends Buff
 
     override function onRemove()
         if( target != null )
-            target.adjustStatPercentage(STAT_MOVESPEED, -MOVESPEED_RED) 
-            target.adjustStatPercentage(STAT_ATTACKSPEED, -ATTACKSPEED_RED) 
+            target.adjustStatPercentage(STAT_MOVESPEED, MOVESPEED_RED) 
+            target.adjustStatPercentage(STAT_ATTACKSPEED, ATTACKSPEED_RED) 
             

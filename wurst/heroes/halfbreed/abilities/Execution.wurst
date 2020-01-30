@@ -7,14 +7,15 @@ import ClosureTimers
 //================================================================================================================================================================================================
 // Settings
 
-let DMG_FACTOR          = 3.
+let CHARGE      = 40
+let DMG_FACTOR  = 4.
 
 public let HALF_BREED_EXECUTION = compiletime(defineSingleTarget2(
     "Execute",
-    "Attempt at executing an enemy, dealing {0} of you power in damage. If the execution is succesful, the cooldown of the ability will be reset",
+    "Attempt at executing an enemy, dealing {0} of you power in damage. If the execution is succesful, the cooldown of the ability will be reset".format(DMG_FACTOR.toPercentageString()),
     Icons.bTNCleavingAttack,
-    "E",
-    8,      // Cooldown
+    "R",
+    20,      // Cooldown
     10,     // Mana
     MELEE_RANGE,    // Range
     "attack"
@@ -36,6 +37,9 @@ init
 function onCast()
     let caster = GetSpellAbilityUnit()
     let target = GetSpellTargetUnit()
+
+    // Adjust charge
+    caster.adjustCharge(CHARGE)
 
     let damage = caster.getDamage() * DMG_FACTOR
 

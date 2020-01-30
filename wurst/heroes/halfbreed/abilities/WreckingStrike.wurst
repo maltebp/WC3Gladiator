@@ -6,17 +6,18 @@ import ClosureTimers
 //================================================================================================================================================================================================
 // Settings
 
-let DMG_FACTOR          = 1.5
-let DURATION            = 8.
-let ARMOR_RED           = 8.
+let CHARGE      = 40
+let DMG_FACTOR  = 2.
+let DURATION    = 8.
+let ARMOR_RED   = 8.
 
 
 public let HALF_BREED_WRECKING_STRIKE = compiletime(defineSingleTarget3(
     "Wrecking Strike",
     "Attempt at executing an enemy, dealing {0} of you power in damage. If the execution is succesful, the cooldown of the ability will be reset",
     Icons.bTNCorpseExplode,
-    "R",
-    10,      // Cooldown
+    "E",
+    8,      // Cooldown
     10,     // Mana
     MELEE_RANGE,    // Range
     "attack"
@@ -53,6 +54,10 @@ function onCast()
 
     let damage = caster.getDamage() * DMG_FACTOR
 
+
+    // Adjust charge
+    caster.adjustCharge(CHARGE)
+
     caster.damageTargetPhysical(target, damage)
     target.addEffect(Abilities.stampedeMissileDeath, "chest")..setDuration(3)
     target.addEffect(Abilities.ancientProtectorMissile, "chest")..destr()
@@ -60,6 +65,7 @@ function onCast()
     SND_ON_ATTACK_2.playOnPoint(target.getPos3Real())
 
     target.applyBuff(new WreckingStrikeBuff(), caster, DURATION)
+
     
 
 class WreckingStrikeBuff extends Buff

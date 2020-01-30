@@ -10,7 +10,7 @@ public StatType STAT_MANA = null
 public StatType STAT_MOVESPEED = null
 public StatType STAT_ATTACKSPEED = null
 public StatType STAT_RESISTANCE = null
-public StatType STAT_CHARGE_REGEN = null
+public StatType STAT_CHARGE_DEREGEN = null
 
 
 public function unit.getDamage() returns real
@@ -41,7 +41,11 @@ init
         ..setMaxValue(450)
 
     // Measured in attacks per second (not attack cooldown)
-    STAT_ATTACKSPEED = new StatType("Attack Speed", u -> 1 / u.getAttackCooldown(0), (u, attackspeed) -> u.setAttackCooldown( 1 / attackspeed, 0) )
+    STAT_ATTACKSPEED = new StatType("Attack Speed",
+        u -> u.getBaseDamage(0) > 0 ?  1/u.getAttackCooldown(0) : 0, (u, attackspeed) -> begin
+            if(u.getBaseDamage(0) > 0)
+                u.setAttackCooldown( 1 / attackspeed, 0)
+        end) 
         ..setValueToStringCallback( value -> value.toString(2) )
         ..setMinValue(0.01)
 
@@ -54,7 +58,7 @@ init
 
 
 
-    STAT_CHARGE_REGEN = new StatType(
+    STAT_CHARGE_DEREGEN = new StatType(
         "Charge",
         u -> 0, // base value
         (u, regen) -> skip)

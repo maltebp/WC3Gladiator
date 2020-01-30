@@ -4,12 +4,15 @@ package Gladiator
 
 // -----------------------------------------------------------------------------------------------------------------------------
 
-import          LinkedList
+
+import public Charge
+import public initlater Artifact
+
 import public   SoundUtils
+
+import          LinkedList
 import          ErrorHandling
 import ComboSystem
-import ChargeSystem
-import public initlater Artifact
 import UnitTypeStats
 import AbilityObjEditing
 import CompileTimeData

@@ -1,3 +1,33 @@
 package Rage
+import HashMap
+import OnUnitEnterLeave
+import Stats
+import Charge
+import UtilCommands
+import ClosureForGroups
 
-// USE MARK OF CHAOS SOUND OR VOODOO 
+//================================================================================================================================================================================================
+// Settings
+
+let CHARGE_DMG_FACTOR = 0.003
+
+//================================================================================================================================================================================================
+
+
+/*
+    The percentage damage is stored in a map as an INT
+    since the the map mess up the decimal values if its a real */
+let damageAdjustMap = new IterableMap<unit, int>
+
+public function unit.updateRage()
+    if( damageAdjustMap.has(this) )  
+        this.adjustStatPercentage(STAT_DAMAGE, -(damageAdjustMap.get(this)/1000) )
+    let adjustment = this.getCharge() * CHARGE_DMG_FACTOR
+    this.adjustStatPercentage(STAT_DAMAGE, adjustment)
+    damageAdjustMap.put(this, (adjustment*1000).round())
+
+
+init
+    onLeave() ->
+        if( damageAdjustMap.has(getEnterLeaveUnit()))
+            damageAdjustMap.remove(getEnterLeaveUnit())

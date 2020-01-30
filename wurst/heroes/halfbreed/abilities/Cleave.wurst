@@ -5,6 +5,8 @@ import AbilityTools
 //================================================================================================================================================================================================
 // Settings
 
+let CHARGE = 30
+
 let DMG_FACTOR          = 1.5
 let MAX_CASTER_DIST     = 200.
 let CLEAVE_RANGE        = 200. // Target also needs to be in MAX_CASTER_DIST range from caster
@@ -40,6 +42,10 @@ function onCast()
     let target = GetSpellTargetUnit()
     let targetPos = target.getPos()
 
+    // Adjust charge
+    caster.adjustCharge(CHARGE)
+
+    // Damage
     let primaryDmg = caster.getDamage() * DMG_FACTOR
     let secondaryDmg = primaryDmg * CLEAVE_DMG_FACTOR
 

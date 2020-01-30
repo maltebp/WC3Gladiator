@@ -1,6 +1,6 @@
 package SoulDrainData
 
-import public ChargeSystem
+import public Charge
 
 public let SOUL_DRAIN_REGULARMOVE = 2
 public let SOUL_DRAIN_COMBOMOVE_1 = 5

@@ -10,7 +10,8 @@ import Frenzy
 import Execution
 import WreckingStrike
 import ImpedingRoar
-import ChargeSystem
+import Stats
+import Rage
 
 
 public let HALF_BREED = new GladiatorType("Half-Breed")
@@ -37,7 +38,9 @@ init
     HALF_BREED
     ..addActionOnSpawn() gladiator ->
         gladiator.enableCharge()
-
+        gladiator.setStatBase(STAT_CHARGE_DEREGEN, 10)
+        gladiator.onChargeUpdate() u ->
+            u.updateRage()
 
 //================================================================================================================================================================================================
 // Unit Definition

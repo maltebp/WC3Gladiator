@@ -5,6 +5,7 @@ import AbilityTools
 //================================================================================================================================================================================================
 // Settings
 
+let CHARGE              = 20
 let DMG_FACTOR          = 0.75
 let TRAVEL_RANGE        = 700.
 let TRAVEL_SPEED        = 800.
@@ -30,7 +31,7 @@ public let HALF_BREED_FRENZY_BUFF = compiletime(defineBuff(
     "hand,right",
     "hand,left"))
 
-let SND_ROAR = new SoundDefinition(Sounds.gromYesAttack2, false, true)
+let SND_ROAR = new SoundDefinition(Sounds.gromYesAttack4, false, true)
 let SND_EFFECT = new SoundDefinition(Sounds.spiritLink1, false, true)
 
 
@@ -42,6 +43,9 @@ init
 
 function onCast()
     let caster = GetSpellAbilityUnit()
+
+    // Adjust charge
+    caster.adjustCharge(CHARGE)
     
     caster
     ..applyBuff(new FrenzyBuff(), caster, DURATION)
@@ -49,7 +53,7 @@ function onCast()
     SND_ROAR.playOnPoint(caster.getPos3Real())
     SND_EFFECT.playOnPoint(caster.getPos3Real())
 
-
+    
 
 class FrenzyBuff extends Buff
 

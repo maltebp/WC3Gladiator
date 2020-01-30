@@ -1,0 +1,188 @@
+
+// =======================================================================================================================
+
+package Charge
+
+// =======================================================================================================================
+
+import LinkedList
+import HashMap
+import ClosureTimers
+import OnUnitEnterLeave
+import Stats
+
+// ------------------------------------------------------------------------------------------------------------------------
+// Settings
+
+let DEGENERATION_FREQ = 0.05
+
+let MAXCHARGE  = 100 // Should be adjusted with game constants
+
+let TESTMODE = false
+
+// Other constants
+let DEGENERATION_TIMESPERSEC = R2I(1 / DEGENERATION_FREQ)
+
+
+// =========================================================================================================================
+// Access functions
+
+/** Setup a UnitCharge instance, if the unit doesn't already have one*/
+public function unit.enableCharge()
+    UnitCharge.getUnitInstance(this)
+    
+
+public function unit.adjustCharge(int amount)
+    UnitCharge.getUnitInstance(this).adjustCharge(amount)
+
+/** Sets the charge to a specific amount for a unit. Creates a UnitCharge instance if one doesn't already exists */
+public function unit.setCharge( int amount )
+    UnitCharge.getUnitInstance(this).setCharge(amount)
+
+/** Gets the unit's current charge level. It returns 0 if the unit is not connected to the Charge system (or the unit is not a hero) */
+public function unit.getCharge() returns int
+    if not this.isType(UNIT_TYPE_HERO)
+        return 0
+    if not UnitCharge.unitHasInstance(this)
+        return 0
+    return GetHeroXP(this)
+
+
+/**  */
+public function unit.toggleChargeRegeneration(bool toggle)
+    UnitCharge.getUnitInstance(this).regenEnabled = toggle
+
+/** Add some code to run when the unit is charged to full */
+public function unit.onFullCharge(ChargeAction action)
+    UnitCharge.getUnitInstance(this)
+    ..addActionOnFullCharge(action)
+
+/** Add some code which is run every time the Unit's charge is changed */
+public function unit.onChargeUpdate(ChargeAction action)
+    UnitCharge.getUnitInstance(this)
+    ..addActionOnChargeUpdate(action)
+
+
+interface ChargeAction
+    function run(unit chargeUnit)
+
+
+
+//================================================================================================================================================================================================
+
+class UnitCharge
+    private static let instances = new IterableMap<unit,thistype>
+    private static CallbackPeriodic updateCallback = null
+    
+    private let actions_OnFullCharge = new LinkedList<ChargeAction> 
+    private let actions_OnChargeUpdate = new LinkedList<ChargeAction> 
+
+    private unit chargeUnit
+    private var chargeToAdjust = 0.
+
+    protected bool regenEnabled = true
+
+
+    construct(unit chargeUnit)
+        this.chargeUnit = chargeUnit
+        chargeUnit.suspendXp(true)
+        setCharge(0)
+
+        instances.put(chargeUnit, this)
+
+        // Start global updater
+        if( updateCallback == null )
+            updateCallback = doPeriodically(DEGENERATION_FREQ, cb -> updateAll() )
+        
+    ondestroy
+        instances.remove(chargeUnit)
+        for action in actions_OnFullCharge
+            destroy action
+        destroy actions_OnFullCharge
+        for action in actions_OnChargeUpdate
+            destroy action
+        destroy actions_OnChargeUpdate
+
+
+    
+    /** Sets the charge for a unit */
+    function setCharge(int charge)
+        let currentCharge = GetHeroXP(chargeUnit)
+
+        if charge != currentCharge
+
+            // Adjusting charge to be between max (MAXCHARGE) and min (0)
+            int finalCharge = (charge > MAXCHARGE) ? MAXCHARGE : charge
+            finalCharge = (finalCharge < 0 ) ? 0 : finalCharge
+
+            let xpIsSuspended = chargeUnit.isSuspendedXp()
+
+            if xpIsSuspended
+                chargeUnit.suspendXp(false)
+            
+            // If unit has max charge and wants to reduce it
+            if currentCharge == MAXCHARGE and finalCharge < MAXCHARGE
+                UnitStripHeroLevel(chargeUnit, 1)
+                chargeUnit.addXp(finalCharge,false)
+            else
+                chargeUnit.addXp(finalCharge-currentCharge, false)
+
+            if xpIsSuspended
+                chargeUnit.suspendXp(true)
+
+            if finalCharge == MAXCHARGE and actions_OnFullCharge != null
+                for action in actions_OnFullCharge
+                    action.run(chargeUnit)
+
+            if actions_OnChargeUpdate != null
+                for action in actions_OnChargeUpdate
+                    action.run(chargeUnit)
+
+        
+    /** Adjusts the charge (addition or subtraction) */
+    function adjustCharge(int charge)
+        setCharge(GetHeroXP(chargeUnit)+charge)
+
+
+    /** Updates the charge unit: degenerating charge, and checking if the unit still exists */
+    function update()
+        if chargeUnit == null
+            Log.warn("Charge unit is null")
+            destroy this
+        else
+            if( regenEnabled )
+                let deregen = chargeUnit.getStat(STAT_CHARGE_DEREGEN)
+                chargeToAdjust += deregen / DEGENERATION_TIMESPERSEC
+
+                let chargeToAdjustInt = R2I(chargeToAdjust)
+
+                if chargeToAdjustInt > 0
+                    adjustCharge(-chargeToAdjustInt)
+                    chargeToAdjust -= chargeToAdjustInt
+
+
+    function addActionOnFullCharge( ChargeAction action )
+        actions_OnFullCharge.add(action)             
+
+    function addActionOnChargeUpdate( ChargeAction action )
+        actions_OnChargeUpdate.add(action)
+        
+    /** Gets the UnitCharge instance for the unit. Creates one if it doesn't exist */
+    static function getUnitInstance(unit whichUnit) returns thistype
+        if instances == null or not instances.has(whichUnit)
+            return new UnitCharge(whichUnit)
+        return instances.get(whichUnit)
+
+
+    static function unitHasInstance(unit whichUnit) returns boolean
+        return (instances == null) ? false : instances.has(whichUnit)
+    
+    private static function updateAll()
+        for chargeUnit in instances
+            instances.get(chargeUnit).update()
+
+init
+    onLeave() ->
+        let u = getEnterLeaveUnit()
+        if( UnitCharge.unitHasInstance(u))
+            destroy UnitCharge.getUnitInstance(u)

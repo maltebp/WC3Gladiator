@@ -38,7 +38,7 @@ init
 
         caster.clearCombo()
 
-        caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_2)
+        // caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_2)
         
 
 

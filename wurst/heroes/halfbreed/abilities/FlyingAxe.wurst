@@ -6,6 +6,7 @@ import Projectile
 //================================================================================================================================================================================================
 // Settings
 
+let CHARGE              = 30
 let DMG_FACTOR          = 0.75
 let DMG_REDUCTION       = 0.15 // Per target
 let TRAVEL_RANGE        = 700.
@@ -15,7 +16,7 @@ let AOE_RANGE           = 125.
 
 public let HALF_BREED_FLYING_AXE = compiletime(defineTargetPoint1(
     "Flying Axe",
-    "Throw an axe which deals damage to enemies it hits. The damage is reduced by {0} each hit, and it dissipates if the damage is reduced to 0%.".format(DMG_REDUCTION.toPercentageString()),
+    "Throw an axe which deals damage to enemies it hits. The damage is reduced by {0} each hit, and the axe dissipates if the damage is reduced to 0%.".format(DMG_REDUCTION.toPercentageString()),
     Icons.bTNOrcMeleeUpThree,
     "Q",
     6,      // Cooldown
@@ -39,6 +40,9 @@ init
 
 function onCast()
     let caster = GetSpellAbilityUnit()
+
+    // Adjust charge
+    caster.adjustCharge(CHARGE)
 
     // Calculate target pos
     let spellTargetPos = vec2(GetSpellTargetX(), GetSpellTargetY())
