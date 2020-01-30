@@ -18,7 +18,13 @@ let DURATION        = 10.
 
 public let HALF_BREED_IMPEDING_ROAR = compiletime(defineImmediate1(
     "Impeding Roar",
-    "Attempt at executing an enemy, dealing {0} of you power in damage. If the execution is succesful, the cooldown of the ability will be reset",
+    ("Let out deafening roar, which damages all nearby enemies for {0} of your power."+
+    " Additionally, the roar impedes the enemies, reducing their attack speed by {1} and their movement speed by {2} for {3} seconds. ").format(
+        DMG_FACTOR.toPercentageString(),
+        ATTACKSPEED_RED.toPercentageString(),
+        MOVESPEED_RED.toPercentageString(),
+        DURATION.toInt().toString()        
+    ),
     Icons.bTNMaskOfDeath,
     "D",
     12,         // Cooldown
@@ -63,7 +69,8 @@ function onCast()
     caster.addEffect(Abilities.roarCaster, "origin")..setDuration(5)
     SND_ROAR.playOnPoint(caster.getPos().withTerrainZ())
 
-    let damage = caster.getPower() * DMG_FACTOR
+    let ogreLungsLvl = caster.getOwner().getMasteryLevel(HALF_BREED_OGRE_LUNGS)
+    let damage = caster.getPower() * DMG_FACTOR * (1 + ogreLungsLvl * HALF_BREED_OGRE_LUNGS_DMG_INC)
 
     let targets = enemiesInRange(caster.getOwner(), caster.getPos(), AOE_RANGE)
     for target from targets

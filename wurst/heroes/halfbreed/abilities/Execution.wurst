@@ -12,7 +12,7 @@ let CHARGE      = 40
 let DMG_FACTOR  = 4.
 
 public let HALF_BREED_EXECUTION = compiletime(defineSingleTarget2(
-    "Execute",
+    "Execution",
     "Attempt at executing an enemy, dealing {0} of you power in damage. If the execution is succesful, the cooldown of the ability will be reset".format(DMG_FACTOR.toPercentageString()),
     Icons.bTNCleavingAttack,
     "R",
@@ -27,6 +27,8 @@ let SND_ON_ATTACK = [
     new SoundDefinition(Sounds.metalHeavySliceFlesh2, false, true),
     new SoundDefinition(Sounds.metalHeavySliceFlesh3, false, true)
 ]
+
+let SND_VICTORY_RUSH = new SoundDefinition(Sounds.bigBadVoodooSpellBirth1, false, true)
 
 
 //================================================================================================================================================================================================
@@ -54,9 +56,34 @@ function onCast()
     doAfter(0.05) ->
         if( not target.isAlive() )
             caster.resetAbilityCooldown(HALF_BREED_EXECUTION)
-    
+            let victoryRushLvl = caster.getOwner().getMasteryLevel(HALF_BREED_VICTORY_RUSH)
+            caster.applyBuff(new VictoryRushBuff(victoryRushLvl), caster, HALF_BREED_VICTORY_RUSH_DURATION)
+            SND_VICTORY_RUSH.playOnPoint(caster.getPos3Real())
 
 
 
     
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Victory Rush
 
+let VICTORY_RUSH_BUFF = compiletime(defineBuff(
+    "Victory Rush",
+    "Increased power",
+    Icons.bTNReincarnation,
+    Abilities.spiritLinkTarget,
+    "origin",""))
+    
+class VictoryRushBuff extends Buff
+    var lvl = 0
+
+    construct(int lvl)
+        super(VICTORY_RUSH_BUFF, false)
+        this.lvl = lvl
+
+    override function onApply()
+        if( target != null )
+            target.adjustStatPercentage(STAT_DAMAGE, lvl * HALF_BREED_VICTORY_RUSH_POWER_INC)
+
+    override function onRemove()
+        if( target != null )
+            target.adjustStatPercentage(STAT_DAMAGE, -(lvl * HALF_BREED_VICTORY_RUSH_POWER_INC))

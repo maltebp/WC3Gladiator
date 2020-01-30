@@ -6,7 +6,7 @@ import initlater HalfBreedMasteries
 //================================================================================================================================================================================================
 // Settings
 
-let CHARGE = 25
+let CHARGE = 20
 
 let DMG_FACTOR          = 1.5
 let MAX_CASTER_DIST     = 200.
@@ -16,10 +16,14 @@ let CLEAVE_DMG_FACTOR   = 0.5
 
 public let HALF_BREED_CLEAVE = compiletime(defineSingleTarget1(
     "Cleave",
-    "Strike an enemy with a cleaving strike, damaging the target and 2 nearby enemies for reduced damage.",
+    "Strike an enemy with a cleaving strike, damaging the target for {0} of your power, and {1} nearby enemies for {2} less.".format(
+        DMG_FACTOR.toPercentageString(),
+        CLEAVE_TARGETS.toString(),
+        CLEAVE_DMG_FACTOR.toPercentageString()
+    ),
     Icons.bTNCriticalStrike,
     "W",
-    3,      // Cooldown
+    2,      // Cooldown
     40,     // Mana
     MELEE_RANGE,    // Range
     "spell,slam"
@@ -48,9 +52,11 @@ function onCast()
     // Adjust charge
     caster.adjustCharge(CHARGE)
 
+    let sharpenedCleaverLvl = caster.getOwner().getMasteryLevel(HALF_BREED_SHARPENED_CLEAVER)
+
     // Damage
     let primaryDmg = caster.getStat(STAT_DAMAGE) * DMG_FACTOR
-    let secondaryDmg = primaryDmg * CLEAVE_DMG_FACTOR
+    let secondaryDmg = primaryDmg * (1 - CLEAVE_DMG_FACTOR * (1-sharpenedCleaverLvl * HALF_BREED_SHARPENED_CLEAVER_PENALTY_RED))
 
     // Damage Primary Target
     caster.damageTargetPhysical(target, primaryDmg)

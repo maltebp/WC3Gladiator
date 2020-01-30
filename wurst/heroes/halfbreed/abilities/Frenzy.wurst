@@ -52,8 +52,9 @@ function onCast()
     // Adjust charge
     caster.adjustCharge(CHARGE)
     
+    let chargeLvl = caster.getOwner().getMasteryLevel(HALF_BREED_CHARGE)
     caster
-    ..applyBuff(new FrenzyBuff(), caster, DURATION)
+    ..applyBuff(new FrenzyBuff(chargeLvl), caster, DURATION)
 
     SND_ROAR.playOnPoint(caster.getPos3Real())
     SND_EFFECT.playOnPoint(caster.getPos3Real())
@@ -62,13 +63,18 @@ function onCast()
 
 class FrenzyBuff extends Buff
 
-    construct()
+    int chargeLvl
+
+    construct(int chargeLvl)
         super(HALF_BREED_FRENZY_BUFF, false)
+        this.chargeLvl = chargeLvl
 
     override function onApply()
         if( target != null )
             target.adjustStatPercentage(STAT_ATTACKSPEED, ATTACK_SPEED_INC) 
+            target.adjustStatPercentage(STAT_MOVESPEED, (chargeLvl * HALF_BREED_CHARGE_MOVE_SPEED_INC) )
 
     override function onRemove()
         if( target != null )
-            target.adjustStatPercentage(STAT_ATTACKSPEED, -ATTACK_SPEED_INC)         
+            target.adjustStatPercentage(STAT_ATTACKSPEED, -ATTACK_SPEED_INC)  
+            target.adjustStatPercentage(STAT_MOVESPEED, -(chargeLvl * HALF_BREED_CHARGE_MOVE_SPEED_INC) )       

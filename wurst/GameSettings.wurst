@@ -13,8 +13,8 @@ public let START_MASTERY        = 0
 public let ATTEMPTS             = 5
 public let ENEMY                = Player(11)
 public let                 FINAL_ROUND       = 15
-public let MASTERY_MAX_LEVEL = 10
-public let MASTERY_PER_ROUND = 3
+public let MASTERY_MAX_LEVEL = 4
+public let MASTERY_PER_ROUND = 2
 public let TRAINING_POINTS_PER_ROUND = 3
 public let GOLD_PER_ROUND = 30
 
@@ -26,7 +26,7 @@ public let MELEE_RANGE = 125.
     Lists of round numbers which unlocks artifacts and abilities
     - Round 0 is when the Gladiator is created
     - They are both unlocked in the order they're added when defining the GladiatorType. */
-public let UNLOCK_ABILITY_ROUNDS = [0,0,2,5,8,11] // Total: 6
+public let UNLOCK_ABILITY_ROUNDS = [0,0,2,5,7,10] // Total: 6
 public let UNLOCK_ARTIFACT_ROUNDS = [1,2,4,5,6,7,8,9,10,11,12,13] // Total: 12
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -35,26 +35,28 @@ public let UNLOCK_ARTIFACT_ROUNDS = [1,2,4,5,6,7,8,9,10,11,12,13] // Total: 12
 public let ROUND_PLAYER_SCALE_HEALTH = 0.75
 public let ROUND_PLAYER_SCALE_POWER  = 0.40
 
-public let ROUND_LVL_SCALE_HEALTH = 0.25
-public let ROUND_LVL_SCALE_POWER  = 0.25
+public let ROUND_LVL_SCALE_HEALTH = 0.20
+public let ROUND_LVL_SCALE_POWER  = 0.20
 
 
 // Difficulties 
-public let DIFFICULTY_EASY_POWER    = -0.25
-public let DIFFICULTY_EASY_HEALTH   = -0.25
+public let DIFFICULTY_EASY_POWER    = -0.20
+public let DIFFICULTY_EASY_HEALTH   = -0.20
 public let DIFFICULTY_NORMAL_HEALTH = 0.
 public let DIFFICULTY_NORMAL_POWER  = 0.
-public let DIFFICULTY_HARD_POWER    = 0.25
-public let DIFFICULTY_HARD_HEALTH   = 0.25
+public let DIFFICULTY_HARD_POWER    = 0.15
+public let DIFFICULTY_HARD_HEALTH   = 0.15
+public let DIFFICULTY_INSANE_POWER    = 0.30
+public let DIFFICULTY_INSANE_HEALTH   = 0.30
 
 
 // // Health Orbs
 public let ORB_INSTANT_FLAT = 75
 public let ORB_INSTANT_PERC = 0.1
-public let ORB_HOT_FLAT = 40
+public let ORB_HOT_FLAT = 50
 public let ORB_HOT_PERC = 0.02
-public let ORB_HEAL_DURATION = 8.
-public let ORB_SPAWN_FREQ = 25. // For one player
+public let ORB_HEAL_DURATION = 10.
+public let ORB_SPAWN_FREQ = 33. // For one player
 public let ORB_ROUND_LVL_SCALE = 0.10
 
 
@@ -79,7 +81,7 @@ public let SKIP_HERO_SELECTION = true
 public let LOCK_CAM_BOUNDS  = false
 public let INSTANT_SPAWN    = false   // Toggle rounds to spawn all units at the same time!
 
-public let TEST_MODE        = true   // Test mode skips the entire intro and just puts you in the map
+public let TEST_MODE        = false   // Test mode skips the entire intro and just puts you in the map
 // public let TEST_GLADIATOR   = HALF_BREED // Gladiator to spawn in TEST_MODE // Set manually in GameSetup
 public let TEST_DUMMIES     = 10    // Number of test dummies to spawn in the arena in TEST_MODE
 public let TEST_MODE_UNLOCK_ABIL = true // Unlock all abilities in test mode

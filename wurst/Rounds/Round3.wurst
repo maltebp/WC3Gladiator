@@ -15,6 +15,9 @@ import AutoCastAbility
 import RegisterEvents
 import Projectile
 import GroupUtils
+import HashMap
+import UnitIndexer
+import OnUnitEnterLeave
 
 
 let ARCANE_BEING = 'n008'
@@ -35,10 +38,9 @@ let MISSILES_SOUND = new SoundDefinition(Sounds.shimmeringPortalEntrance, false,
 
 Round round = null
 
-
 init
     //=========================================================================================================================================================
-    //  Arcane Elementals (Round 2)
+    //  Arcane BEINGS (Round 2)
 
     round = new Round
     ..setReward(30, 3)
@@ -115,53 +117,69 @@ init
 // GROW
 
 class Grow extends Updater
+
+    protected static let instances = new IterableMap<unit, thistype>
     
     private static let GROWTH_DURATION = 30
     private static let GROWTH_SCALE = 0.75                  // Final scale increase in %
-    private static let GROWTH_DMG = 3                    // Final DMG increase in %
+    private static let GROWTH_DMG = 3.5                     // Final DMG increase in %
 
     private static let GROWTH_FREQ = 0.5
 
-    private static let GROWTH_MAXCOUNT = R2I(GROWTH_DURATION/GROWTH_FREQ)
+    private static let GROWTH_MAXCOUNT = (GROWTH_DURATION/GROWTH_FREQ).toInt()
 
-    private int startDamage
     private real startScale
 
     private real damagePerGrowth
     private real scalePerGrowth
 
     private integer growthCounter = 1 
-    private unit    mob
+    private unit    mob = null 
 
     construct(unit whichUnit, real startScale)
         mob = whichUnit
-
+    
         this.startScale = startScale
-        this.startDamage = mob.getBaseDamage(1)
         
         scalePerGrowth = (startScale * GROWTH_SCALE) / I2R(GROWTH_MAXCOUNT)
-        damagePerGrowth = (I2R(startDamage)*GROWTH_DMG) / I2R(GROWTH_MAXCOUNT)
+        damagePerGrowth = GROWTH_DMG / GROWTH_MAXCOUNT
         
         updateFreq = GROWTH_FREQ
+
+        instances.put(mob, this)
         startUpdate()
 
     ondestroy
-        if mob != null
-            new ArcaneExplosion(mob.getPos(), growthCounter, mob.getPower() * EXPLOSION_DAMAGE)
+        if( mob == null )
+            Log.warn("Arcane being was null when trying to destroy")
+        else
+            instances.remove(mob)
+
 
     override function update()
-    
-        if( mob != null and mob.isAliveTrick() )
+        if( mob != null )
+            if( not mob.isAliveTrick() )
+                new ArcaneExplosion(mob.getPos(), growthCounter, mob.getPower() * EXPLOSION_DMG_FACTOR )
+                destroy this
 
-            if( growthCounter <= GROWTH_MAXCOUNT )
+            else if ( growthCounter <= GROWTH_MAXCOUNT )
                 growthCounter = growthCounter + 1
 
-                mob.setBaseDamage(startDamage+R2I(damagePerGrowth*growthCounter), 1)
+                mob.adjustStatPercentage(STAT_DAMAGE, damagePerGrowth) 
                 mob.setScale(startScale+scalePerGrowth*growthCounter)
-    
-
         else
             destroy this
+
+init
+    onLeave() ->
+        let u = getEnterLeaveUnit()
+        if( u.getTypeId() == ARCANE_BEING )
+            let growInstance = Grow.instances.get(u)
+            if( growInstance == null )
+                Log.warn("Grow instance for Arcane Being is null")
+            else
+                destroy growInstance
+            
             
 
 
@@ -229,7 +247,7 @@ class ArcaneExplosion
                     flashEffect(Abilities.blackKeeperMissile, target, "chest")
 
                     let distance = target.getPos().distanceTo(pos2)
-                    let adjustedDamage = damage * (1 - (distance/scaledRange)*(1.-EXPLOSION_MINDAMAGE) )
+                    let adjustedDamage = damage * (1 - (distance/scaledRange) * (1.-EXPLOSION_MINDAMAGE) )
 
                     source.damageTargetSpell(target, adjustedDamage)
             
@@ -271,7 +289,6 @@ init
             projectile.getEffect().setScale(2)
 
             
-
         doAfter(1) ->
             let units = ENUM_GROUP..enumEnemyTargets(caster.getOwner(), caster.getPos(), 5000)
             caster.issueTargetOrderById(Orders.attack, units.getNearestUnit(caster.getPos()) )

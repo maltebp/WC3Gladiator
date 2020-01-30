@@ -95,6 +95,7 @@ function player.moveGladiator()
 
     gladiator.unpause()
     gladiator.setInvulnerable(false)
+    gladiator.setHP(gladiator.getMaxHP())
     this.selectSingle(gladiator)
     this.getGladiator().refresh()
     
@@ -124,7 +125,7 @@ function Scene.addRoundReview(boolean hasWon)
             ..wait(6)
         
         // Next Round
-        
+        this
         ..do(   -> Round.setNextRound() )
         ..do( p -> Round.printNextRound(p) )
         
@@ -151,7 +152,7 @@ function Round.abilitiesToReward() returns int
 function player.rewardAbility()
     let gladiator = this.getGladiator()
     let abilityName = gladiator.unlockNextAbility()
-    this.print( "New ability: {0}".format(abilityName.withColor(gladiator.getColor())), 6)
+    this.print( "\nNew ability: {0}".format(abilityName.withColor(gladiator.getColor())), 6)
     gladiator.getSoundOnNewAbility().playForPlayer(this)
 
 

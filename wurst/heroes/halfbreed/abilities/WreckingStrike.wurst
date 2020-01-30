@@ -6,15 +6,19 @@ import initlater HalfBreedMasteries
 //================================================================================================================================================================================================
 // Settings
 
-let CHARGE      = 40
+let CHARGE      = 30
 let DMG_FACTOR  = 2.
 let DURATION    = 8.
-let ARMOR_RED   = 8.
+let ARMOR_RED   = 6.
 
 
 public let HALF_BREED_WRECKING_STRIKE = compiletime(defineSingleTarget3(
     "Wrecking Strike",
-    "Attempt at executing an enemy, dealing {0} of you power in damage. If the execution is succesful, the cooldown of the ability will be reset",
+    "Strike an enemy with a wrecking force, damaging the target for {0} of your power, and reduce its armor by {1} for {2} seconds.".format(
+        DMG_FACTOR.toPercentageString(),
+        ARMOR_RED.toInt().toString(),
+        DURATION.toInt().toString()
+    ),
     Icons.bTNCorpseExplode,
     "E",
     8,      // Cooldown
@@ -52,7 +56,8 @@ function onCast()
     let caster = GetSpellAbilityUnit()
     let target = GetSpellTargetUnit()
 
-    let damage = caster.getPower() * DMG_FACTOR
+    let ogreStrengthLvl = caster.getOwner().getMasteryLevel(HALF_BREED_HAVOC)
+    let damage = caster.getPower() * DMG_FACTOR * (1 + HALF_BREED_HAVOC_DMG_INC * ogreStrengthLvl)
 
     // Adjust charge
     caster.adjustCharge(CHARGE)

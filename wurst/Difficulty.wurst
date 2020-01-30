@@ -12,6 +12,7 @@ public enum Difficulty
     EASY
     NORMAL
     HARD
+    INSANE
 
 public function Difficulty.toString() returns string
     switch this
@@ -21,6 +22,8 @@ public function Difficulty.toString() returns string
             return "NORMAL"
         case HARD
             return "HARD"
+        case INSANE
+            return "INSANE"
 
 public function getDifficulty() returns Difficulty
     return difficulty
@@ -41,6 +44,9 @@ public function unit.adjustToDifficulty()
         case HARD
             this.adjustStatPercentage(STAT_DAMAGE, DIFFICULTY_HARD_POWER)
             this.adjustStatPercentage(STAT_HEALTH, DIFFICULTY_HARD_HEALTH)
+        case INSANE
+            this.adjustStatPercentage(STAT_DAMAGE, DIFFICULTY_INSANE_POWER)
+            this.adjustStatPercentage(STAT_HEALTH, DIFFICULTY_INSANE_HEALTH)
 
 
 interface DifficultyCallback
@@ -53,6 +59,7 @@ public function player.showDifficultyDialog(DifficultyCallback callback)
     ..addDifficultyButton(Difficulty.EASY, callback)
     ..addDifficultyButton(Difficulty.NORMAL, callback)
     ..addDifficultyButton(Difficulty.HARD, callback)
+    ..addDifficultyButton(Difficulty.INSANE, callback)
     dialogBox.display(this, true)
 
 // Generic way of adding a difficulty button to dialogbox

@@ -34,12 +34,12 @@ init
         new SummonSkeletons(spawner.getLastSpawnedUnit(), spawner)
     end
 
-    round.addSpawner(new UnitSpawner('u000', ENEMY, vec2(-639,1025), 10))
+    round.addSpawner(new UnitSpawner('u000', ENEMY, vec2(-639,1025), 12))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(12)
+    ..setSpawnCount(10)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
     ..setCodeOnSpawn(func)
 

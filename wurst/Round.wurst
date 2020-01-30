@@ -392,7 +392,6 @@ public class Round
         
 
     function prepare()
-
         if( level == 0)
             level = number
 
@@ -407,12 +406,12 @@ public class Round
     function scaleUnitStats(unit u)
         var dmgInc = u.getStatInstance(STAT_DAMAGE).getBaseValue()
         dmgInc *= (level-1) * ROUND_LVL_SCALE_POWER
-        dmgInc *= (playerCount-1) * ROUND_PLAYER_SCALE_POWER
+        dmgInc *= (1+ (playerCount-1) * ROUND_PLAYER_SCALE_POWER)
         u.adjustStatFlat(STAT_DAMAGE, dmgInc)
 
         var hpInc = u.getStatInstance(STAT_HEALTH).getBaseValue()
-        hpInc *= (1+(level-1) * ROUND_LVL_SCALE_HEALTH)
-        hpInc *= (1+(playerCount-1) *  ROUND_PLAYER_SCALE_HEALTH)
+        hpInc *= (level-1) * ROUND_LVL_SCALE_HEALTH
+        hpInc *= (1+ (playerCount-1) *  ROUND_PLAYER_SCALE_HEALTH)
         u.adjustStatFlat(STAT_HEALTH, hpInc)
         
 

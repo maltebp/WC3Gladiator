@@ -2,10 +2,10 @@ package HeroDefaults
 import SoundUtils
 
 public let DEFAULT_ARMOR = 3.
-public let DEFAULT_MOVESPEED = 250.
-public let DEFAULT_DAMAGE = 16.
+public let DEFAULT_MOVESPEED = 260.
+public let DEFAULT_DAMAGE = 18.
 public let DEFAULT_ATTACKCOOLDOWN = 0.75
-public let DEFAULT_HEALTH = 500.
+public let DEFAULT_HEALTH = 450.
 public let DEFAULT_AIMASSIST = 150.
 public let DEFAULT_CASTRANGE = 700.
 public let DEFAULT_ENERGY =  100.
