@@ -71,7 +71,7 @@ function onCast()
         let secondaryTarget = potentialTargets.getNearestUnit(targetPos)
         potentialTargets.removeUnit(secondaryTarget)
     
-        caster.damageTargetPhysical(target, secondaryDmg)
+        caster.damageTargetPhysical(secondaryTarget, secondaryDmg)
         secondaryTarget.addEffect(Objects.critterBloodAlbatross, "chest")..setDuration(3)
         
     potentialTargets.clear()
