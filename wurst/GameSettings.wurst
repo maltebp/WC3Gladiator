@@ -9,11 +9,11 @@ public let NUM_OF_PLAYERS       = 5
 
 public let START_TRAININGPOINTS = 8
 public let START_GOLD           = 50
-public let START_MASTERY        = 3
+public let START_MASTERY        = 0
 public let ATTEMPTS             = 5
 public let ENEMY                = Player(11)
 public let                 FINAL_ROUND       = 15
-public let MASTERY_MAX_LEVEL = 6
+public let MASTERY_MAX_LEVEL = 10
 public let MASTERY_PER_ROUND = 3
 public let TRAINING_POINTS_PER_ROUND = 3
 public let GOLD_PER_ROUND = 30
@@ -79,7 +79,7 @@ public let SKIP_HERO_SELECTION = true
 public let LOCK_CAM_BOUNDS  = false
 public let INSTANT_SPAWN    = false   // Toggle rounds to spawn all units at the same time!
 
-public let TEST_MODE        = false   // Test mode skips the entire intro and just puts you in the map
+public let TEST_MODE        = true   // Test mode skips the entire intro and just puts you in the map
 // public let TEST_GLADIATOR   = HALF_BREED // Gladiator to spawn in TEST_MODE // Set manually in GameSetup
 public let TEST_DUMMIES     = 10    // Number of test dummies to spawn in the arena in TEST_MODE
 public let TEST_MODE_UNLOCK_ABIL = true // Unlock all abilities in test mode

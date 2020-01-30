@@ -2,6 +2,8 @@ package ImpedingRoar
 
 
 import AbilityTools
+import initlater HalfBreedMasteries
+
 
 //================================================================================================================================================================================================
 // Settings
@@ -53,6 +55,7 @@ init
 
 function onCast()
     let caster = GetSpellAbilityUnit()
+    caster.activateBloodthirst()
 
     // Adjust charge
     caster.adjustCharge(CHARGE)
@@ -60,7 +63,7 @@ function onCast()
     caster.addEffect(Abilities.roarCaster, "origin")..setDuration(5)
     SND_ROAR.playOnPoint(caster.getPos().withTerrainZ())
 
-    let damage = caster.getDamage() * DMG_FACTOR
+    let damage = caster.getPower() * DMG_FACTOR
 
     let targets = enemiesInRange(caster.getOwner(), caster.getPos(), AOE_RANGE)
     for target from targets

@@ -65,7 +65,7 @@ public class Round
     protected timer timer_HealthOrbSpawn
     protected string title
     protected string description
-    protected string music = Sounds.orcVictory
+    protected string music = "TheAssassinLooms.mp3"
     protected  int artifactsToRelease = 0 
     protected var level = 0
     protected var playerCount = 0

@@ -14,9 +14,10 @@ public StatType STAT_MOVESPEED = null
 public StatType STAT_ATTACKSPEED = null
 public StatType STAT_RESISTANCE = null
 public StatType STAT_CHARGE_DEREGEN = null
+public StatType STAT_DAMAGE_TAKEN = null
 
 
-public function unit.getDamage() returns real
+public function unit.getPower() returns real
     return this.getStat(STAT_DAMAGE)
 
 init
@@ -86,6 +87,10 @@ init
         (u, regen) -> skip)
         ..setValueToStringCallback( value -> value.toString(0) )
 
+
+    STAT_DAMAGE_TAKEN = new StatType( "Damage Taken", u -> 1., (u, damageTaken) -> skip )
+        ..setValueToStringCallback( value -> value.toString(2) )
+        ..setMinValue(0.25)
 
 
 //================================================================================================================================================================================================

@@ -1,6 +1,9 @@
 package Frenzy
 
 import AbilityTools
+import initlater HalfBreedMasteries
+
+
 
 //================================================================================================================================================================================================
 // Settings
@@ -43,6 +46,8 @@ init
 
 function onCast()
     let caster = GetSpellAbilityUnit()
+
+    caster.activateBloodthirst()
 
     // Adjust charge
     caster.adjustCharge(CHARGE)

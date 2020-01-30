@@ -3,37 +3,107 @@ package HalfBreedMasteries
 import ObjectIdGenerator
 import Mastery
 import HalfBreed
-import Gladiator
+import GladiatorSystem
+import Stats
+import Abilities
 
 
-public let HALF_BREED_MASTERY_SHOP = compiletime( UNIT_ID_GEN.next() )
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// SHARPENED CLEAVER
 
-public let ORC_DEATH_WISH_DMG_INC = 1.0 
-public let ORC_DEATH_WISH_DMG_TAKEN_INC = 1.0 
-public let ORC_DEATH_WISH_DURATION = 15.
-public let ORC_DEATH_WISH_UNLOCK = 1
-
-public let ORC_DEATH_WISH = compiletime(defineMastery(
-    "Death Wish",
-    Icons.bTNBloodLust,
+public let HALF_BREED_SHARPENED_CLEAVER_DMG_INC = 0.1
+public let HALF_BREED_SHARPENED_CLEAVER = compiletime(defineMastery(
+    "Sleight of Hand",
+    Icons.bTNSpiritWalkerAdeptTraining,
     HALF_BREED_COLOR,
-    rank -> "Increases damage done by {0} and damage taken by {1} for {2} seconds after casting any abilities.".format(
-        (ORC_DEATH_WISH_DMG_INC*rank).toPercentageString(),
-        (ORC_DEATH_WISH_DMG_TAKEN_INC*rank).toPercentageString(),
-        (ORC_DEATH_WISH_DURATION).toString(0)
+    rank -> "".format(
+        HALF_BREED_SLEIGHT_OF_HAND_PROC_CHANCE.toPercentageString()
     ),
-    ORC_DEATH_WISH_UNLOCK
+    1
 ))
 
 
 
-    
-init
-    HALF_BREED.setMasteryShopType(HALF_BREED_MASTERY_SHOP)
 
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// BLOODTHIRST
+
+public let HALF_BREED_BLOODTHIRST_HEAL_FACTOR = 0.04
+public let HALF_BREED_BLOODTHIRST = compiletime(defineMastery(
+    "Bloodthirst",
+    Icons.bTNBloodLust,
+    HALF_BREED_COLOR,
+    rank -> "Each time you use an ability to restore {0} of your power has health.".format(
+        (HALF_BREED_BLOODTHIRST_HEAL_FACTOR*rank).toPercentageString()
+    ),
+    1
+))
+
+public function unit.activateBloodthirst()
+    let bloodthirstLevel = this.getOwner().getMasteryLevel(HALF_BREED_BLOODTHIRST)
+    if( bloodthirstLevel > 0 )
+        this.addHP( this.getPower() * HALF_BREED_BLOODTHIRST_HEAL_FACTOR * bloodthirstLevel )
+        this.addEffect(Abilities.vampiricAuraTarget, "origin")
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// DEATH WISH
+
+public let HALF_BREED_DEATH_WISH_POWER_INC = 0.05
+public let HALF_BREED_DEATH_WISH_DMG_TAKEN_INC = 0.03
+public let HALF_BREED_DEATH_WISH = compiletime(defineMastery(
+    "Death Wish",
+    Icons.bTNDeathPact,
+    HALF_BREED_COLOR,
+    rank -> "Permanently increase your power by {0}, but also increases the damage you take by {1}".format(
+        (HALF_BREED_DEATH_WISH_POWER_INC*rank).toPercentageString(),
+        (HALF_BREED_DEATH_WISH_DMG_TAKEN_INC*rank).toPercentageString()
+    ),
+    1
+))
+
+init
+    onResearchSkillChanged(HALF_BREED_DEATH_WISH) (p,lvl) ->
+        p.getGladiator().getUnit()
+        ..adjustStatPercentage(STAT_DAMAGE, HALF_BREED_DEATH_WISH_POWER_INC)
+        ..adjustStatFlat(STAT_DAMAGE_TAKEN, HALF_BREED_DEATH_WISH_DMG_TAKEN_INC)
+        
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// SLEIGHT OF HAND
+
+public let HALF_BREED_SLEIGHT_OF_HAND_PROC_CHANCE = 0.025
+public let HALF_BREED_SLEIGHT_OF_HAND = compiletime(defineMastery(
+    "Sleight of Hand",
+    Icons.bTNSpiritWalkerAdeptTraining,
+    HALF_BREED_COLOR,
+    rank -> "Gives you a {0} chance for your Flying Axe ability to get its cooldown reset when you use it.".format(
+        (HALF_BREED_SLEIGHT_OF_HAND_PROC_CHANCE*rank).toPercentageString()
+    ),
+    1
+))
+
+
+
+
+
+
+//================================================================================================================================================================================================
+// Shop definition
+
+public let HALF_BREED_MASTERY_SHOP = compiletime( UNIT_ID_GEN.next() )
+    
 @compiletime
 function defineShop()
     defineMasteryShop(HALF_BREED_MASTERY_SHOP)
     ..defineAsResearchSkillShop(
-        ORC_DEATH_WISH
+        HALF_BREED_BLOODTHIRST, 
+        HALF_BREED_DEATH_WISH,
+        HALF_BREED_SLEIGHT_OF_HAND
     )
+
+init
+    HALF_BREED.setMasteryShopType(HALF_BREED_MASTERY_SHOP)

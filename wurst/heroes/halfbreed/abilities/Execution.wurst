@@ -3,6 +3,7 @@ package Execution
 
 import AbilityTools
 import ClosureTimers
+import initlater HalfBreedMasteries
 
 //================================================================================================================================================================================================
 // Settings
@@ -38,10 +39,12 @@ function onCast()
     let caster = GetSpellAbilityUnit()
     let target = GetSpellTargetUnit()
 
+    caster.activateBloodthirst()
+
     // Adjust charge
     caster.adjustCharge(CHARGE)
 
-    let damage = caster.getDamage() * DMG_FACTOR
+    let damage = caster.getPower() * DMG_FACTOR
 
     caster.damageTargetPhysical(target, damage)
     target.addEffect(Abilities.stampedeMissileDeath, "chest")..setDuration(3)

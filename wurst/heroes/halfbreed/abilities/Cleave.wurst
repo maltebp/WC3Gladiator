@@ -1,6 +1,7 @@
 package Cleave
 
 import AbilityTools
+import initlater HalfBreedMasteries
 
 //================================================================================================================================================================================================
 // Settings
@@ -41,6 +42,8 @@ function onCast()
     let caster = GetSpellAbilityUnit()
     let target = GetSpellTargetUnit()
     let targetPos = target.getPos()
+
+    caster.activateBloodthirst()
 
     // Adjust charge
     caster.adjustCharge(CHARGE)

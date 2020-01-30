@@ -1,6 +1,7 @@
 package Damage
 
 import Stats
+import DamageDetection
 
 constant boolean TESTMODE = true
 
@@ -20,8 +21,21 @@ public function unit.damageTargetUniversal(unit target, real damage)
     UnitDamageTarget(this, target, damage, false, false, ATTACK_TYPE_MELEE, DAMAGE_TYPE_UNIVERSAL, WEAPON_TYPE_WHOKNOWS)
 
 
+init
+    addOnDamageFunc() ->
+        let target = GetTriggerUnit()
+        let dmg = GetEventDamage()
+
+        // Adjust to damage taken
+        let adjustedDamage = dmg * target.getStat(STAT_DAMAGE_TAKEN)
+        BlzSetEventDamage(adjustedDamage)
+        
+
+        // print(target.getName() + " damaged with {0} damage".format(dmg.toString(1)))
 
 
+
+    
 // Bonus info on damage: Elune's Grace reduces Magic Damage (from regular attacks) AND Spell Damage taken
 
 

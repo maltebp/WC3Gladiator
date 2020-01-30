@@ -2,6 +2,8 @@ package FlyingAxe
 
 import AbilityTools
 import Projectile
+import initlater HalfBreedMasteries
+import Mastery
 
 //================================================================================================================================================================================================
 // Settings
@@ -20,7 +22,7 @@ public let HALF_BREED_FLYING_AXE = compiletime(defineTargetPoint1(
     Icons.bTNOrcMeleeUpThree,
     "Q",
     10,      // Cooldown
-    60,     // Mana
+    40,     // Mana
     TRAVEL_RANGE,    // Range
     "attack"
 ))
@@ -41,6 +43,8 @@ init
 function onCast()
     let caster = GetSpellAbilityUnit()
 
+    caster.activateBloodthirst()
+
     // Adjust charge
     caster.adjustCharge(CHARGE)
 
@@ -49,7 +53,7 @@ function onCast()
     let actualPos = caster.getPos().moveTowards(spellTargetPos, TRAVEL_RANGE)
 
     // Damage
-    let startDamage = caster.getDamage() * DMG_FACTOR
+    let startDamage = caster.getPower() * DMG_FACTOR
 
     // Create Missile
     let projectile = new AxeProjectile( caster.getPos().withTerrainZ(80), Abilities.rexxarMissile, startDamage)      
@@ -68,6 +72,14 @@ function onCast()
     projectile.setCollisionFilter() u ->
         return u.isEnemyOf(caster) and u.isAlive()
 
+    
+
+    // Sleight of Hand
+    let sleightOfHandLvl = caster.getOwner().getMasteryLevel(HALF_BREED_SLEIGHT_OF_HAND)
+    if( sleightOfHandLvl > 0 )
+        let roll = GetRandomReal(0, 1)
+        if( roll < sleightOfHandLvl * HALF_BREED_SLEIGHT_OF_HAND_PROC_CHANCE)
+            caster.resetAbilityCooldown(HALF_BREED_FLYING_AXE)
 
 
 

@@ -147,7 +147,7 @@ class Grow extends Updater
 
     ondestroy
         if mob != null
-            new ArcaneExplosion(mob.getPos(), growthCounter, mob.getDamage() * EXPLOSION_DAMAGE)
+            new ArcaneExplosion(mob.getPos(), growthCounter, mob.getPower() * EXPLOSION_DAMAGE)
 
     override function update()
     
@@ -258,7 +258,7 @@ init
     registerSpellEffectEvent( MISSILES_ID) ->
         let caster = GetSpellAbilityUnit()
 
-        let casterDamage = caster.getDamage() * MISSILES_DAMAGE_FACTOR
+        let casterDamage = caster.getPower() * MISSILES_DAMAGE_FACTOR
         MISSILES_SOUND.playOnPoint(caster.getPos3Real())
         
         forEnemiesInRange( ENEMY, caster.getPos(), MISSILES_RANGE ) target ->

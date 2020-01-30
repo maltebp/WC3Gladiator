@@ -1,6 +1,7 @@
 package WreckingStrike
 
 import AbilityTools
+import initlater HalfBreedMasteries
 
 //================================================================================================================================================================================================
 // Settings
@@ -51,11 +52,11 @@ function onCast()
     let caster = GetSpellAbilityUnit()
     let target = GetSpellTargetUnit()
 
-    let damage = caster.getDamage() * DMG_FACTOR
-
+    let damage = caster.getPower() * DMG_FACTOR
 
     // Adjust charge
     caster.adjustCharge(CHARGE)
+    caster.activateBloodthirst()
 
     caster.damageTargetPhysical(target, damage)
     target.addEffect(Abilities.stampedeMissileDeath, "chest")..setDuration(3)

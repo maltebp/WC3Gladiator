@@ -45,20 +45,18 @@ function player.setReadyState(bool ready)
 
     
 function player.toggleReady()
-    if( allPlayers.size() == 1 )
-        allAreReady()
+
+    let ready = not this.isReady()
+    this.setReadyState(ready)
+    if( ready )
+        SND_READY.playForPlayer(this)
+        this.print("\nYou are {0}".format("ready".withColor(COLOR_HIGHLIGHT)), 8)
     else
-        let ready = not this.isReady()
-        this.setReadyState(ready)
-        if( ready )
-            SND_READY.playForPlayer(this)
-            this.print("\nYou are {0}".format("ready".withColor(COLOR_HIGHLIGHT)), 8)
-        else
-            SND_NOTREADY.playForPlayer(this)
-            this.print("\nYou are {0}".format("not ready".withColor(COLOR_HIGHLIGHT)), 8)
-        cooldownList.add(this)
-        doAfter(BUTTON_COOLDOWN) ->
-            cooldownList.remove(this)
+        SND_NOTREADY.playForPlayer(this)
+        this.print("\nYou are {0}".format("not ready".withColor(COLOR_HIGHLIGHT)), 8)
+    cooldownList.add(this)
+    doAfter(BUTTON_COOLDOWN) ->
+        cooldownList.remove(this)
     
 
 
@@ -76,13 +74,15 @@ function allAreReady()
         p.setReadyState(false)
         p.disableReadyButton()
     
-    doAfter(2) ->
+    var delay = allPlayers.size() > 1 ? 2. : 0.
+    doAfter(delay) ->
         
         stopMusic()
         SND_ALLREADY.play()
         
         print("\nAll players ready - starting round {0}!".format(Round.getCurrentRoundNumber().toString().withColor(COLOR_HIGHLIGHT)), 7)
-        doAfter(4) ->
+        delay = allPlayers.size() > 1 ? 4. : 0.
+        doAfter(delay) ->
             startRound()
 
 
