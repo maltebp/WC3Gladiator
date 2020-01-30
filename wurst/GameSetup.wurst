@@ -319,24 +319,6 @@ function delayedInit()
 
     
 
-    
-
-function setRound()
-    let rounds = Round.getRounds()
-
-    if STARTATSPECIFICROUND
-
-        
-        for round in rounds
-            if  round.getNumber() < STARTINGROUND
-                round.giveRewardNotFancy()
-            else
-                break
-        destroy rounds
-            
-        Round.setCurrentRound(STARTINGROUND)
-
-
 function startRound()
 
     // if escapeIsEnabled

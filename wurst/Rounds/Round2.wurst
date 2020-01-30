@@ -71,6 +71,21 @@ init
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
     ..setCodeOnSpawn(func)
 
+
+//================================================================================================================================================================================================
+// STATS SCALING
+
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == NECROMANCER or id == SKELETONARCHER or id == SKELETONWARRIOR )
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
+
+
+
+//================================================================================================================================================================================================
+// Mechanics
+
     
 enum SkeletonType
     WARRIOR

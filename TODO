@@ -1,19 +1,44 @@
 
 
 
-Multiplayer:
-    ✔ Gladiator Picking
-    ✔ Revert to old Gladiator system (mastery, ability unlocking)
-    ✔ 2 player round start
-    ☐ Remake artifact / mastery system to fit for 2 players
-    ☐ Create Death / Respawn system for 2 players
-    ☐ Balance rounds for 2 players
+Todo:
+    ✔ Change artifacts to masteries
+    ✔ Gladiator picking
+    ✔ Multiplayer transitions
+    ✔ Difficulty settings
+    ☐ Reimplement item stats
+    ☐ Make Training work
 
-    Create Troll Gladiator:
+    Multiplayer scaling:
+        ✔ Scaling system
+        ☐ Orb scaling
+        ☐ Implement scaling
+    
+    Half-Breed Gladiator:
         ☐ Create unit
-        ☐ Create abilities
-        ☐ Create artifacts
+        ☐ Charge mechanic (rage)
+        
+        Masteries:
+        
+        Abilities:
+            ✔ done
 
+    Troll Gladiator:
+        ☐ Create unit
+        ☐ Charge mechanic
+        ☐ Handful masteries
+
+        Abilities:
+            ☐ 1
+            ☐ 2
+            ☐ 3
+            ☐ 4
+            ☐ 5
+            ☐ 6
+
+    If time:
+        ☐ Fix projectile pivoting
+        ☐ Add arena soundtrack (commanding the fury)
 
 
 Voodoo: Too much and you get stunned

@@ -9,10 +9,10 @@ import TimedSpecialEffects
 import Music
 import Attempts
 import FinishMap
-import StringUtils
 import ReadyHandler
 import Players
 import Mastery
+import LinkedList
 
 //================================================================================================================================================================================================
 
@@ -20,6 +20,14 @@ import Mastery
 let SND_ROUND_WON = new SoundDefinition(Sounds.questCompleted, false)
 let SND_ROUND_LOST = new SoundDefinition(Sounds.questFailed, false)
 let SND_ROUND_COMPLETE = new SoundDefinition(Sounds.goodJob, false)
+
+
+let SND_REWARD_GOLD = new SoundDefinition(Sounds.receiveGold, false)
+let SND_REWARD_ITEMS = new SoundDefinition(Sounds.itemReceived, false)
+
+let COLOR_ITEM = color(217,179,140)
+let COLOR_GOLD = color(255,204,0)
+let COLOR_TRAINING_POINTS = color( 0,250,154)
 
 
 //================================================================================================================================================================================================
@@ -100,23 +108,23 @@ function Scene.addRoundReview(boolean hasWon)
         ..do( -> SND_ROUND_COMPLETE.play() )
         ..do( -> print("|cff00cc66"+"Round "+Round.getCurrentRoundNumber().toString()+" completed!"+"|r",7))
         ..wait(4)
-        ..do( -> Round.giveReward() )
+        ..do( -> rewardPoints(currentRound) )
+        ..wait(6)
 
-        // Reward Items 
+        // Reward Itemss
         if( Round.getCurrentRound().getNumberOfItemRewards() > 0 )
             this
+            ..do( -> rewardItems(currentRound))
             ..wait(6)
-            ..do( -> Round.giveItemReward() )
-            // TODO: Fix artifact rewards to use UNLOCK_ARTIFACT_ROUNDS
 
         // Reward Abilities
         if( currentRound.abilitiesToReward() > 0)
             this
-            ..wait(6)
             ..do(p -> p.rewardAbility())
+            ..wait(6)
         
         // Next Round
-        ..wait(6)
+        
         ..do(   -> Round.setNextRound() )
         ..do( p -> Round.printNextRound(p) )
         
@@ -142,8 +150,33 @@ function Round.abilitiesToReward() returns int
 
 function player.rewardAbility()
     let gladiator = this.getGladiator()
-
     let abilityName = gladiator.unlockNextAbility()
-    
     this.print( "New ability: {0}".format(abilityName.withColor(gladiator.getColor())), 6)
     gladiator.getSoundOnNewAbility().playForPlayer(this)
+
+
+
+
+function rewardPoints(Round round)
+    round.rewardPoints()
+    SND_REWARD_GOLD.play()
+    printTimed("\nYou've been granted {0} gold and {1} training points.".format(
+        GOLD_PER_ROUND.toString().withColor(COLOR_GOLD),
+        TRAINING_POINTS_PER_ROUND.toString().withColor(COLOR_TRAINING_POINTS)
+    ), 5)
+    
+
+
+/** Rewards items, including artifacts */
+function rewardItems(Round round)
+    let rewards = round.rewardItems()
+
+    if( rewards.size() > 0 )
+        var rewardNames = ""
+        for reward in rewards
+            if( rewardNames != "")
+                rewardNames += ", "
+            rewardNames += reward.getName().withColor(COLOR_ITEM)
+    
+        print("\nNew item{0} unlocked: \n{1}".format(rewards.size() > 1 ? "s" : "", rewardNames), 8)
+        SND_REWARD_ITEMS.play()

@@ -17,6 +17,9 @@ import Projectile
 import GroupUtils
 
 
+let ARCANE_BEING = 'n008'
+
+let EXPLOSION_DMG_FACTOR = 5. 
 let EXPLOSION_DAMAGE = 75. // Base
 let EXPLOSION_COUNTDOWN = 3.
 let EXPLOSION_DELAY = 0.5
@@ -37,7 +40,6 @@ init
     //=========================================================================================================================================================
     //  Arcane Elementals (Round 2)
 
-
     round = new Round
     ..setReward(30, 3)
     ..addItemRewards(ITEM_MAGICTALISMAN, ITEM_MAGICGEM)
@@ -53,7 +55,7 @@ init
         new Grow(spawner.getLastSpawnedUnit(),1.1)
     end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMY, vec2(-639,1025), 12))
+    round.addSpawner(new UnitSpawner(ARCANE_BEING, ENEMY, vec2(-639,1025), 12))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.05)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -69,7 +71,7 @@ init
         new Grow(spawner.getLastSpawnedUnit(),1.1)
     end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMY, vec2(527,1025), 25))
+    round.addSpawner(new UnitSpawner(ARCANE_BEING, ENEMY, vec2(527,1025), 25))
     ..setStartDelay(20)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -85,7 +87,7 @@ init
         new Grow(spawner.getLastSpawnedUnit(),1.1)
     end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMY, vec2(527,1025), 25))
+    round.addSpawner(new UnitSpawner(ARCANE_BEING, ENEMY, vec2(527,1025), 25))
     ..setStartDelay(80)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -95,7 +97,18 @@ init
     ..setCodeOnSpawn(func)
     ..setSoundOnSpawn(Sounds.obsidianAvengerWhat2)
 
-    addAutoCastAbilityToUnitType('n008', new AutoCastAbilityType( MISSILES_ID, Orders.roar, TargetType.ENEMY_IMMEDIATE, MISSILES_RANGE, 5, MISSILES_COOLDOWN ))
+    addAutoCastAbilityToUnitType(ARCANE_BEING, new AutoCastAbilityType( MISSILES_ID, Orders.roar, TargetType.ENEMY_IMMEDIATE, MISSILES_RANGE, 5, MISSILES_COOLDOWN ))
+
+
+
+//================================================================================================================================================================================================
+// STATS SCALING
+
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == ARCANE_BEING )
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
 
 
 // ======================================================================================================================================
@@ -134,7 +147,7 @@ class Grow extends Updater
 
     ondestroy
         if mob != null
-            new ArcaneExplosion(mob.getPos(), growthCounter)
+            new ArcaneExplosion(mob.getPos(), growthCounter, mob.getDamage() * EXPLOSION_DAMAGE)
 
     override function update()
     
@@ -161,13 +174,15 @@ class Grow extends Updater
 class ArcaneExplosion
     private vec3 pos
     private int growthCount
+    private real damage
 
     private effect array[2] sfx 
 
-    construct( vec2 pos, int growthCount )
+    construct( vec2 pos, int growthCount, real damage )
 
         this.pos = pos.withTerrainZ() - vec3(-20, 0, 0) // apparently the position is off by a lil bit
         this.growthCount = growthCount
+        this.damage = damage
 
         sfx[0] = addEffect( Units.wisp1, pos + vec3(0,0,30))
         ..setScale( 1 * (1. + growthCount/75.) )
@@ -205,7 +220,6 @@ class ArcaneExplosion
             ..setDuration(4)
 
             let scaledRange = EXPLOSION_RANGE * (1. + growthCount/75.)
-            let scaledDamage =  EXPLOSION_DAMAGE * (1. + growthCount/25.)
 
             let pos2 = pos.toVec2()
             let source = DummyRecycler.get(pos2, angle(0))
@@ -215,9 +229,9 @@ class ArcaneExplosion
                     flashEffect(Abilities.blackKeeperMissile, target, "chest")
 
                     let distance = target.getPos().distanceTo(pos2)
-                    let exactDamage = scaledDamage * (1 - (distance/scaledRange)*(1.-EXPLOSION_MINDAMAGE) )
+                    let adjustedDamage = damage * (1 - (distance/scaledRange)*(1.-EXPLOSION_MINDAMAGE) )
 
-                    source.damageTargetSpell(target, exactDamage)
+                    source.damageTargetSpell(target, adjustedDamage)
             
 
             destroy this
@@ -244,7 +258,7 @@ init
     registerSpellEffectEvent( MISSILES_ID) ->
         let caster = GetSpellAbilityUnit()
 
-        let casterDamage = caster.getBaseDamage(1)*MISSILES_DAMAGE_FACTOR
+        let casterDamage = caster.getDamage() * MISSILES_DAMAGE_FACTOR
         MISSILES_SOUND.playOnPoint(caster.getPos3Real())
         
         forEnemiesInRange( ENEMY, caster.getPos(), MISSILES_RANGE ) target ->

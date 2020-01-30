@@ -30,12 +30,6 @@ public class Round
     private static let HEALTHORB_SPAWNFREQ = 25.
     private static let HEALTHORB_DURATION  = 8.
 
-    private static let TEXTCOLOR_GOLD = "|cffffcc00"
-    private static let TEXTCOLOR_TRAINPOINT = "|cff00FA9A"
-    private static let TEXTCOLOR_ARTIFACT = "|cffb3b3ff"
-    private static let TEXTCOLOR_ITEM = "|cffd9b38c"
-    
-
 //=========================================================================================================================================================
 
  
@@ -56,23 +50,23 @@ public class Round
     private static boolean aRoundIsRunning = false
     static unit bossUnit = null
 
-    private let spawners = new LinkedList<UnitSpawner>
-    private int number
-    private int goldReward
-    private int trainingPointsReward
-    private let itemRewards = new LinkedList<ItemReward>
-    private int abilityReward = -1 // Number
-    private real healthOrb_FlatToHealInstant
-    private real healthOrb_PercToHealInstant
-    private real healthOrb_FlatToHealOverTime
-    private real healthOrb_PercToHealOverTime
-    private real healthOrb_SpawnDuration
-    private timer timer_HealthOrbDuration
-    private timer timer_HealthOrbSpawn
-    private string title
-    private string description
-    private string music = Sounds.orcVictory
-    private  int artifactsToRelease = 0 
+    protected let spawners = new LinkedList<UnitSpawner>
+    protected int number
+    protected int goldReward
+    protected int trainingPointsReward
+    protected let itemRewards = new LinkedList<ItemReward>
+    protected int abilityReward = -1 // Number
+    protected real healthOrb_FlatToHealInstant
+    protected real healthOrb_PercToHealInstant
+    protected real healthOrb_FlatToHealOverTime
+    protected real healthOrb_PercToHealOverTime
+    protected real healthOrb_SpawnDuration
+    protected timer timer_HealthOrbDuration
+    protected timer timer_HealthOrbSpawn
+    protected string title
+    protected string description
+    protected string music = Sounds.orcVictory
+    protected  int artifactsToRelease = 0 
     protected var level = 0
     protected var playerCount = 0
 
@@ -87,9 +81,7 @@ public class Round
     Round_RemoteFunction codeOnLastUnitDeath = null
 
 
-    private static SoundDefinition snd_GoldReward = new SoundDefinition(Sounds.receiveGold, false)
     private static SoundDefinition snd_RoundInfo = new SoundDefinition(Sounds.questLog, false)
-    private static SoundDefinition snd_ItemReward = new SoundDefinition(Sounds.itemReceived, false)
 
 
 // ======================================================================================================================================
@@ -307,74 +299,21 @@ public class Round
         return false
                 
 
-    private function reward()
-        snd_GoldReward.play()
-        printTimed(" ", 5)
-        printTimed("You've been granted "+TEXTCOLOR_GOLD+goldReward.toString()+"|r gold"+" and "+TEXTCOLOR_TRAINPOINT+trainingPointsReward.toString()+"|r training points.", 5)
-        
+    /** Rewards gold, training points and mastery points, and unlock
+        new masteries */
+    function rewardPoints()
         for p in allPlayers
             p.addGold(goldReward)
             p.addTrainingPoints(TRAINING_POINTS_PER_ROUND)
             p.addMasteryPoints(MASTERY_PER_ROUND)
-
         unlockMasteryRoundRequirement(number)
 
 
-    /** Rewards items, including artifacts */
-    private function rewardItems() returns boolean
-        let numberOfItems = itemRewards.size()
-        let numberOfRewards = artifactsToRelease + numberOfItems
-
-        if numberOfRewards > 0
-            
-            snd_ItemReward.play()
-            printTimed(" ", 8)
-            string text = "New items unlocked: \n"
-            
-            int i = 0
-
-            if numberOfItems > 0
-    
-                for itemReward in itemRewards
-
-                    text += TEXTCOLOR_ITEM+itemReward.getName()+"|r"
-                    
-                    i++
-
-                    if i < numberOfRewards
-                        text += ", "
-
-                    itemReward.release() 
-
-            printTimed(text, 8)
-            return true
-
-        return false
-
-
-    static function giveReward()
-        currentRound.reward()
-
-    static function giveItemReward() returns boolean
-        return currentRound.rewardItems()
-
-    function giveRewardNotFancy()
-        Player(0).addGold(goldReward)
-        Player(0).addLumber(trainingPointsReward)
-    
-        for i=1 to artifactsToRelease    
-            for gladiatorType in GladiatorType.getAllTypes()
-                gladiatorType.releaseNextArtifact()
-
-        for i=1 to abilityReward    
-            for gladiatorType in GladiatorType.getAllTypes()
-                gladiatorType.unlockComboMove()
-
-        for itemReward in itemRewards
-            itemReward.release()
-
-
-    static function wonRound()
+    /** Releases all item rewards, and return a list of rewarded items*/
+    function rewardItems() returns LinkedList<ItemReward>
+        for reward in itemRewards
+            reward.release()
+        return itemRewards   
         
 
     static function printNextRound(player p)
@@ -387,12 +326,10 @@ public class Round
 
     
     static function setNextRound()
-
         if currentRoundNumber < totalNumberOfRounds
             currentRoundNumber++
             currentRound = rounds.get(currentRoundNumber-1)
             aRoundIsRunning = false
-            
         else
             error("No more rounds")
 
@@ -504,7 +441,7 @@ init
     let cmd = defineUtilCommand("round")
 
 
-    var sub = cmd.addSubCommand("level")
+    cmd.addSubCommand("level")
     ..addArgument(ArgumentType.INT)
     ..setAction() (p,args,opts) ->
         let round = Round.currentRound
@@ -513,11 +450,27 @@ init
             round.level.toString().highlight(), Round.currentRound.getTitle().highlight()), 5)
         SND_CLICK.playForPlayer(p)
 
-    sub = cmd.addSubCommand("players")
+    cmd.addSubCommand("players")
     ..addArgument(ArgumentType.INT)
     ..setAction() (p,args,opts) ->
         let round = Round.currentRound
         round.playerCount = args.getInt()
         p.print("\nSet player count to: {0} for round {1}".format(
             round.playerCount.toString().highlight(), Round.currentRound.getTitle().highlight()), 5)
+        SND_CLICK.playForPlayer(p)
+
+    cmd.addSubCommand("next")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p,args,opts) ->
+        let nextRound = args.getInt()
+        while( Round.currentRound.number < nextRound )
+            Round.currentRound
+            ..rewardItems()
+            ..rewardPoints()
+            if( Round.currentRound.abilityReward > 0)
+                for gladiator in getAllGladiators()
+                    gladiator.unlockNextAbility()
+            Round.setNextRound()
+
+        p.print("\nSet next round to {0}".format(Round.currentRound.getTitle().highlight()), 5)
         SND_CLICK.playForPlayer(p)
