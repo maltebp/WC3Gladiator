@@ -23,27 +23,32 @@ import UnitVisualsUtils
 import ChannelOnUnit
 import HashMap
 import ErrorHandling
+import AbilityTools
+import Projectile
 
 
 // ================================================================================================================================
 // Settings
 
-constant real LIFEDRAIN_AMOUNT      = 15
-constant real LIFEDRAIN_FACTOR      = 2.5
-constant real LIFEDRAIN_TRIGGERHP   = 0.5
-constant real LIFEDRAIN_FREQ        = 0.5
-constant real LIFEDRAIN_COOLDOWN    = 15
+let WARLOCK = 'n00F'
+let DEMON = 'n00G'
 
-constant real FELFIREBOLT_COOLDOWN = 10
-constant real FELFIREBOLT_STARTCOOLDOWN = 5
+let LIFEDRAIN_AMOUNT = 15.
+let LIFEDRAIN_FACTOR      = 2.5
+let LIFEDRAIN_TRIGGERHP   = 0.5
+let LIFEDRAIN_FREQ        = 0.5
+let LIFEDRAIN_COOLDOWN    = 15.
 
-Round round = null
+let FELFIREBOLT_COOLDOWN = 10.
+let FELFIREBOLT_STARTCOOLDOWN = 5.
+
+let FEL_BOLT_DMG_FACTOR = 2.5
 
 
 
 //=========================================================================================================================================================
 //  Setup
-
+Round round = null
 init
 
     round = new Round()
@@ -78,6 +83,16 @@ init
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(1)
+
+//================================================================================================================================================================================================
+// STATS SCALING
+
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == WARLOCK or id == DEMON )
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
+
 
 
 //=========================================================================================================================================================
@@ -292,7 +307,7 @@ function castSummonDemon()
     GetSpellAbilityUnit().summonDemon()
 
 
-IterableMap<unit, unit> instances = new IterableMap<unit, unit>
+let instances = new IterableMap<unit, unit>
 
 function unit.summonDemon()
 
@@ -349,22 +364,34 @@ function unitDies()
         if dyingUnit.hasDemon() or dyingUnit.isDemonFromSummoner()
             dyingUnit.removeInstance()
 
+
 init 
     registerSpellEffectEvent('A01B', function castDrainLife)
     registerSpellEffectEvent('A01D', function castSummonDemon)
-    UnitVisuals.addUnitType('n00F')
-    ..setPlayerColor(PLAYER_COLOR_PURPLE)
 
-    UnitVisuals.addUnitType('n00G')
-    ..setPlayerColor(PLAYER_COLOR_MAROON)
+    // Unit Colors
+    UnitVisuals.addUnitType(WARLOCK).setPlayerColor(PLAYER_COLOR_PURPLE)
+    UnitVisuals.addUnitType(DEMON).setPlayerColor(PLAYER_COLOR_MAROON)
 
     registerPlayerUnitEventForPlayer(EVENT_PLAYER_UNIT_DEATH, function unitDies, ENEMY)
 
-
-    addAutoCastAbilityToUnitType('n00F', new AutoCastSummonDemon())
-    addAutoCastAbilityToUnitType('n00F', new AutoCastDrainLife())
-    addAutoCastAbilityToUnitType('n00F', new AutoCast_CheckDrainLife( 'A01A', Orders.deathcoil, TargetType.ENEMY_UNIT, 600, FELFIREBOLT_STARTCOOLDOWN, FELFIREBOLT_COOLDOWN ))
-    
+    addAutoCastAbilityToUnitType(WARLOCK, new AutoCastSummonDemon())
+    addAutoCastAbilityToUnitType(WARLOCK, new AutoCastDrainLife())
+    addAutoCastAbilityToUnitType(WARLOCK, new AutoCast_CheckDrainLife( 'A01A', Orders.deathcoil, TargetType.ENEMY_UNIT, 600, FELFIREBOLT_STARTCOOLDOWN, FELFIREBOLT_COOLDOWN ))
     
 
-    
+//================================================================================================================================================================================================
+// FEL BOLT
+
+let FEL_BOLT = compiletime( defineSingleTarget1(
+    "Fel Bolt", "", Icons.bTNBanish, "Q", 0, 0, 1000, "", false
+))
+
+init
+    registerSpellEffectEvent(FEL_BOLT) ->
+        let caster = GetSpellAbilityUnit()
+        
+        let damage = caster.getPower() * FEL_BOLT_DMG_FACTOR
+        
+        new Projectile(caster.getPos().withTerrainZ(60))
+        

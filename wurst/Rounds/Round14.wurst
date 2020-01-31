@@ -141,6 +141,16 @@ init
     UnitVisuals.addUnitType(DRAGON_ID).setPlayerColor(PLAYER_COLOR_PEANUT)
     UnitVisuals.addUnitType(GROWNDRAGON_ID).setPlayerColor(PLAYER_COLOR_BROWN)
 
+//================================================================================================================================================================================================
+// STATS SCALING
+
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == DRAGON_ID or id == GROWNDRAGON_ID or id == BROODER_ID or id == PROTECTOR_ID or id == EGG_ID)
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
+
+
 
 function generateEggs()
 

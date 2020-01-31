@@ -6,9 +6,9 @@ import initlater HalfBreedMasteries
 //================================================================================================================================================================================================
 // Settings
 
-let CHARGE      = 30
+let CHARGE      = 25
 let DMG_FACTOR  = 2.
-let DURATION    = 8.
+let DURATION    = 10.
 let ARMOR_RED   = 6.
 
 
@@ -21,10 +21,11 @@ public let HALF_BREED_WRECKING_STRIKE = compiletime(defineSingleTarget3(
     ),
     Icons.bTNCorpseExplode,
     "E",
-    8,      // Cooldown
-    10,     // Mana
+    6,      // Cooldown
+    25,     // Mana
     MELEE_RANGE,    // Range
-    "attack"
+    "attack",
+    false
 ))
 
 public let HALF_BREED_WRECKING_STRIKE_BUFF = compiletime(defineBuff(

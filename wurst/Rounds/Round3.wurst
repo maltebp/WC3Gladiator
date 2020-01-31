@@ -16,7 +16,6 @@ import RegisterEvents
 import Projectile
 import GroupUtils
 import HashMap
-import UnitIndexer
 import OnUnitEnterLeave
 
 

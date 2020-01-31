@@ -18,7 +18,6 @@ Todo:
     Half-Breed Gladiator:
         ✔ Create unit
         ✔ Charge mechanic (rage)
-        
         Masteries:
             ✔ Sleight of Hand: axe cooldown reset
             ✔ Bloodthirst: Dealing damage heals you
@@ -28,8 +27,7 @@ Todo:
             ✔ Death Wish: Increases power but also damage taken
             ✔ Charge: Causes your frenzy to increase movement speed
             ✔ Victory Rush: Successful executes increases power for a short period
-            ☐ Endless Rage
-            
+            ✔ Endless Rage
         
         Abilities:
             ✔ done
@@ -49,8 +47,16 @@ Todo:
 
     If time:
         ☐ Fix projectile pivoting
-        ☐ Add arena soundtrack (commanding the fury)
+        ☐ Gladiator selection lock
+        ✔ Add arena soundtrack (commanding the fury)
+        ☐ Prevent certain item stats from stacking
 
+
+
+
+
+
+        
 
 Voodoo: Too much and you get stunned
 - Soul Siphon -

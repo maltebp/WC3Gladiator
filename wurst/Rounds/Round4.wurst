@@ -3,10 +3,16 @@ package Round4
 import public Round3
 
 import UnitVisualsUtils
+import AbilityTools
+import AutoCastAbility
 
 let FOOTMAN = 'h000'
 let MEDIC = 'n00A'
 let WIZARD ='n009'
+
+let HEAL_COOLDOWN   = 2.
+let HEAL_AOE        = 200.
+let HEAL_DMG_FACTOR = 2.
 
 Round round = null
 
@@ -89,8 +95,14 @@ init
     ..setSoundOnSpawn(Sounds.knightNoRiderWhat1)
 
 
+//================================================================================================================================================================================================
+// STATS SCALING
 
-
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == MEDIC or id == FOOTMAN or id == WIZARD )
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
 
 
 // SETUP COLOR
@@ -107,4 +119,80 @@ init
 
     
 
+//================================================================================================================================================================================================
+// Heal
+
+let HEAL = compiletime(defineAOE1(
+    "Heal",
+    "Heal allies",
+    Icons.bTNReplenishHealth,
+    "Q", 
+    0,
+    0,
+    2000,
+    HEAL_AOE,
+    "attack"
+))
     
+
+public class AutoCastHeal extends AutoCastAbilityType
+    construct()
+        super( HEAL, Orders.dispel, TargetType.ENEMY_POINT, 3000, 0, 2 )
+
+    override function findTarget(unit caster) returns boolean
+        let owner = caster.getOwner()
+        let targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), 3000)
+        
+        let healPower = caster.getPower() * HEAL_DMG_FACTOR
+        targets.removeUnit(caster)        
+        for target in targets
+            if not target.isAlive() or target.isEnemyOf(owner) or target.getHP() > target.getMaxHP()-5
+                targets.removeUnit(target)
+
+        // Find best target
+        // Score is the amount of healing it the caster will do (i.e. targets' missing health)
+        if targets.size() > 0
+            var bestTargetPos = vec2(0,0)
+            var bestTargetScore = -1. 
+
+            for primaryTarget in targets
+                let targetPos = primaryTarget.getPos()
+                var score = 0.
+                for secondaryTarget in targets
+                    if secondaryTarget != primaryTarget and targetPos.distanceTo(primaryTarget.getPos()) < HEAL_AOE
+                        var healAmount = secondaryTarget.getMaxHP() - secondaryTarget.getHP()
+                        healAmount = healAmount > healPower ? healPower : healAmount // Adjust to how much the spell can heal
+                        score += healAmount
+                if score > bestTargetScore
+                    bestTargetScore = score
+                    bestTargetPos = targetPos
+            
+            caster.issuePointOrderById(orderId, bestTargetPos)
+            targets.clear()
+
+            return true
+        return false
+
+
+init    
+    addAutoCastAbilityToUnitType(MEDIC, new AutoCastHeal() )
+
+    registerSpellEffectEvent(HEAL) ->
+        let caster = GetSpellAbilityUnit()
+        let targetPos = vec2( GetSpellTargetX(), GetSpellTargetY() )
+        let healAmount = caster.getPower() * HEAL_DMG_FACTOR
+
+        addEffect(Abilities.replenishHealthCaster, targetPos.withTerrainZ(50))
+        ..setScale(1.20)
+        ..setDuration(4)
+        
+        let targets = alliesInRange(caster.getOwner(), targetPos, HEAL_AOE)
+        ..removeUnit(caster)
+
+        for target in targets
+            target.addHP( healAmount )
+            target.addEffect(Abilities.healTarget, "origin")
+            ..setDuration(4)
+
+        
+            

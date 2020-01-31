@@ -3,6 +3,7 @@ package UnitSpawner
 import TimerUtils
 import public SoundUtils
 import LinkedList
+import OnUnitEnterLeave
 
 
 /*
@@ -47,8 +48,8 @@ public class UnitSpawner
     private vec2 spawnPos
     private real spawnFacing = -1
     private rect spawnRect
-    protected group spawnedUnits
-    protected group summonedUnits
+    protected let spawnedUnits = new LinkedList<unit>
+    protected let summonedUnits = new LinkedList<unit>
     private unit lastSpawnedUnit
     private timer timer_Spawn
     private boolean isActivated = ACTIVATEONCONSTRUCT
@@ -84,8 +85,9 @@ public class UnitSpawner
     ondestroy
         deactivate()
         allSpawners.remove(this)
+        destroy spawnedUnits
+        destroy summonedUnits
         if codeOnSpawn != null
-            
             destroy codeOnSpawn
 
     /** Starts the spawner spawning units. The first spawn will happen after spawnDelay, and all
@@ -110,12 +112,12 @@ public class UnitSpawner
         // I.e. if the unit has no decay
 
         if spawnedUnits.size() > 0
-            for spawnedUnit from spawnedUnits
+            for spawnedUnit in spawnedUnits
                 if spawnedUnit != null
                     spawnedUnit.remove()
 
         if summonedUnits.size() > 0
-            for summonedUnit from summonedUnits
+            for summonedUnit in summonedUnits
                 if summonedUnit != null
                     summonedUnit.remove()
             
@@ -126,23 +128,24 @@ public class UnitSpawner
     function activate()
         isActivated = true
         timer_Spawn = getTimer()..setData(this castTo int)
-        spawnedUnits = CreateGroup()
-        summonedUnits = CreateGroup()
     
     /** Releases timers and destroys triggers. Calls clear function. */
     function deactivate()
         isActivated = false
         clear()
         timer_Spawn.release()
-        spawnedUnits.destr()
-        summonedUnits.destr()
 
     function killAll()
         if spawnedUnits.size() > 0
-            for spawnedUnit from spawnedUnits
+            for spawnedUnit in spawnedUnits
                 if spawnedUnit != null
                     spawnedUnit.kill()
         
+
+    
+    function removeUnit(unit u)
+        spawnedUnits.remove(u)
+        summonedUnits.remove(u)
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Setters
@@ -225,7 +228,7 @@ public class UnitSpawner
         this.codeOnSpawn = codeOnSpawn
 
     function addSummonedUnit( unit whichUnit )
-        summonedUnits.addUnit(whichUnit)
+        summonedUnits.add(whichUnit)
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Getters
@@ -327,7 +330,7 @@ public class UnitSpawner
         // Spawning units
         let spawnFacing = (instance.spawnFacing==-1) ? angle(GetRandomReal(0, 2*PI)) : angle(instance.spawnFacing)
         let spawnedUnit = createUnit(instance.owner, instance.unitId, spawnPos, spawnFacing)
-        instance.spawnedUnits.addUnit(spawnedUnit)
+        instance.spawnedUnits.add(spawnedUnit)
         instance.lastSpawnedUnit = spawnedUnit
 
         // Find target to attack on spawn
@@ -378,20 +381,22 @@ public class UnitSpawner
             for i = 0 to spawnCount
                 timer_Spawn.start(0,function spawn ) 
 
+        
+
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Other Stuff
 
 /** Checks if the unit is spawned by any spawner*/
 public function unit.isFromAnySpawner() returns boolean
     for spawner in UnitSpawner.allSpawners
-        if spawner.spawnedUnits.contains(this)
+        if spawner.spawnedUnits.has(this)
             return true
 
     return false
 
 /** Checks if unit is spawned by a specific spawner */
 public function unit.isFromSpawner(UnitSpawner whichSpawner) returns boolean
-    return whichSpawner.spawnedUnits.contains(this) or whichSpawner.summonedUnits.contains(this)
+    return whichSpawner.spawnedUnits.has(this) or whichSpawner.summonedUnits.has(this)
 
 
 /** Gets the unit spawner which the unit comes from. Returns null if it doesn't come from any spawner */
@@ -400,10 +405,19 @@ public function unit.getSpawner() returns UnitSpawner
 
         for spawner in UnitSpawner.allSpawners
 
-            if spawner.spawnedUnits.contains(this)
+            if spawner.spawnedUnits.has(this)
                 return spawner
         
     return null
 
 public interface RemoteFunction<UnitSpawner>
     function run(UnitSpawner unitSpawner)
+
+
+init
+    onLeave() ->
+        let u = getEnterLeaveUnit()
+        let spawner = u.getSpawner()
+    
+        if( spawner != null )
+            spawner.removeUnit(u)

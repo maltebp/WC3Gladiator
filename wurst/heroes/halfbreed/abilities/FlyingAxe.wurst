@@ -3,7 +3,6 @@ package FlyingAxe
 import AbilityTools
 import Projectile
 import initlater HalfBreedMasteries
-import Mastery
 
 //================================================================================================================================================================================================
 // Settings
@@ -14,6 +13,7 @@ let DMG_REDUCTION       = 0.15 // Per target
 let TRAVEL_RANGE        = 700.
 let TRAVEL_SPEED        = 800.
 let AOE_RANGE           = 125.
+let ENERGY_COST           = 40
 
 
 public let HALF_BREED_FLYING_AXE = compiletime(defineTargetPoint1(
@@ -22,7 +22,7 @@ public let HALF_BREED_FLYING_AXE = compiletime(defineTargetPoint1(
     Icons.bTNOrcMeleeUpThree,
     "Q",
     10,      // Cooldown
-    40,     // Mana
+    ENERGY_COST,     // Mana
     TRAVEL_RANGE,    // Range
     "attack"
 ))
@@ -58,6 +58,7 @@ function onCast()
     // Create Missile
     let projectile = new AxeProjectile( caster.getPos().withTerrainZ(80), Abilities.rexxarMissile, startDamage)      
     ..firePoint(actualPos.withTerrainZ(80), TRAVEL_SPEED, 0)
+
     
     projectile.getEffect()
     projectile.setCollisionAction(AOE_RANGE, true) target ->
@@ -80,7 +81,7 @@ function onCast()
         let roll = GetRandomReal(0, 1)
         if( roll < sleightOfHandLvl * HALF_BREED_SLEIGHT_OF_HAND_PROC_CHANCE)
             caster.resetAbilityCooldown(HALF_BREED_FLYING_AXE)
-
+            caster.addMana(ENERGY_COST * HALF_BREED_SLEIGHT_OF_HAND_ENERGY_RESTORE)
 
 
 

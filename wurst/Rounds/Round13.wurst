@@ -1,18 +1,20 @@
-// ======================================================================================================================================
 
 package Round13
-
-// -------------------------------------------------------------------------------------------------------------------------------------
 
 import public Round12
 
 import DiseaseCloud
 import UnitVisualsUtils
 
+//================================================================================================================================================================================================
+
+let GHOUL = 'u004'
+let ZOMBIE = 'n00D'
+let GHOST = 'u005'
+
 constant real DISEASEDAMAGE = 35
 
 
-constant int GHOUL = 'u004'
 
 Round round = null
 
@@ -61,7 +63,7 @@ init
     end
 
     // Zombie - 1
-    round.addSpawner(new UnitSpawner('n00D', ENEMY, vec2(527,1025), 15))
+    round.addSpawner(new UnitSpawner(ZOMBIE, ENEMY, vec2(527,1025), 15))
     ..setStartDelay(10)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -75,7 +77,7 @@ init
     end
 
     // Zombie - 2
-    round.addSpawner(new UnitSpawner('n00D', ENEMY, vec2(527,1025), 20))
+    round.addSpawner(new UnitSpawner(ZOMBIE, ENEMY, vec2(527,1025), 20))
     ..setStartDelay(40)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -85,7 +87,7 @@ init
     ..setCodeOnSpawn(func)
 
     // Ghost - 1
-    round.addSpawner(new UnitSpawner('u005', ENEMY, vec2(527,1025), 18))
+    round.addSpawner(new UnitSpawner(GHOST, ENEMY, vec2(527,1025), 18))
     ..setStartDelay(20)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -94,15 +96,23 @@ init
     ..setSpawnEffect("Abilities\\Spells\\NightElf\\Blink\\BlinkCaster.mdl")
 
     // Ghost - 1
-    round.addSpawner(new UnitSpawner('u005', ENEMY, vec2(527,1025), 30))
+    round.addSpawner(new UnitSpawner(GHOST, ENEMY, vec2(527,1025), 30))
     ..setStartDelay(80)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(2)
-    ..setSpawnEffect("Abilities\\Spells\\NightElf\\Blink\\BlinkCaster.mdl")
+        ..setSpawnEffect("Abilities\\Spells\\NightElf\\Blink\\BlinkCaster.mdl")
 
-    
+//================================================================================================================================================================================================
+// STATS SCALING
+
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == GHOUL or id == GHOST or id == ZOMBIE )
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
+
     
 
 function removeClouds()

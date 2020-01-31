@@ -132,6 +132,15 @@ init
     UnitVisuals.addUnitType(WOLFRIDER)
     ..setPlayerColor(PLAYER_COLOR_COAL)
 
+//================================================================================================================================================================================================
+// STATS SCALING
+
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == BERSERKER or id == WOLFRIDER or id == DOOMSAYER )
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
+
 
 //=========================================================================================================================================================
 // 

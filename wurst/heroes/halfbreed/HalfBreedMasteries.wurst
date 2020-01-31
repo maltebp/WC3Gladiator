@@ -47,14 +47,15 @@ public function unit.activateBloodthirst()
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // SLEIGHT OF HAND
-
+public let HALF_BREED_SLEIGHT_OF_HAND_ENERGY_RESTORE = 0.5
 public let HALF_BREED_SLEIGHT_OF_HAND_PROC_CHANCE = 0.06
 public let HALF_BREED_SLEIGHT_OF_HAND = compiletime(defineMastery(
     "Sleight of Hand",
     Icons.bTNOrcMeleeUpTwo,
     HALF_BREED_COLOR,
-    rank -> "Gives you a {0} chance for your Flying Axe ability to get its cooldown reset when you use it.".format(
-        (HALF_BREED_SLEIGHT_OF_HAND_PROC_CHANCE*rank).toPercentageString()
+    rank -> "When using your Flying Axe ability, there is a {0} to immediately reset its cooldown at restore {1} of its energy cost.".format(
+        (HALF_BREED_SLEIGHT_OF_HAND_PROC_CHANCE*rank).toPercentageString(),
+        (HALF_BREED_SLEIGHT_OF_HAND_ENERGY_RESTORE*rank).toPercentageString()
     ),
     2
 ))
@@ -98,6 +99,42 @@ init
         ..adjustStatFlat(STAT_DAMAGE_TAKEN, HALF_BREED_DEATH_WISH_DMG_TAKEN_INC)
         
 
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// OGRE LUNGS
+
+public let HALF_BREED_OGRE_LUNGS_DMG_INC = 0.50
+public let HALF_BREED_OGRE_LUNGS = compiletime(defineMastery(
+    "Ogre Lungs",
+    Icons.bTNAvatarOff,
+    HALF_BREED_COLOR,
+    rank -> "Increases the damage done by your Impeding Shout by {0}".format(
+        (rank*HALF_BREED_OGRE_LUNGS_DMG_INC).toPercentageString()
+    ),
+    5
+))
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ENDLESS RAGE
+
+public let HALF_BREED_ENDLESS_RAGE_DEREGEN_DEC = 0.05
+public let HALF_BREED_ENDLESS_RAGE = compiletime(defineMastery(
+    "Endless Rage",
+    Icons.bTNAncestralSpirit,
+    HALF_BREED_COLOR,
+    rank -> "Reduces the rate at which your rage degenerate by {0}.".format(
+        (rank*HALF_BREED_ENDLESS_RAGE_DEREGEN_DEC).toPercentageString()
+    ),
+    6
+))
+
+init
+    onResearchSkillChanged(HALF_BREED_ENDLESS_RAGE) (p, rank) ->
+        p.getGladiator().getUnit().adjustStatPercentage(STAT_CHARGE_DEREGEN, -HALF_BREED_ENDLESS_RAGE_DEREGEN_DEC)
+        
+
+
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // VICTORY RUSH
@@ -112,45 +149,9 @@ public let HALF_BREED_VICTORY_RUSH = compiletime(defineMastery(
         (rank*HALF_BREED_VICTORY_RUSH_POWER_INC).toPercentageString(),
         HALF_BREED_VICTORY_RUSH_DURATION.toInt().toString()
     ),
-    5
-))
-
-
-
-
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// OGRE LUNGS
-
-public let HALF_BREED_OGRE_LUNGS_DMG_INC = 0.50
-public let HALF_BREED_OGRE_LUNGS = compiletime(defineMastery(
-    "Ogre Lungs",
-    Icons.bTNAvatarOff,
-    HALF_BREED_COLOR,
-    rank -> "Increases the damage done by your Impeding Shout by {0}".format(
-        (rank*HALF_BREED_OGRE_LUNGS_DMG_INC).toPercentageString()
-    ),
-    6
-))
-
-
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// ENDLESS RAGE
-
-public let HALF_BREED_ENDLESS_RAGE_DEREGEN_DEC = 0.05
-public let HALF_BREED_ENDLESS_RAGE = compiletime(defineMastery(
-    "Endless Rage",
-    Icons.bTNAncestralSpirit,
-    HALF_BREED_COLOR,
-    rank -> "Reduces the rate at which your rage degenerate by {0}.".format(
-        (rank*HALF_BREED_ENDLESS_RAGE_DEREGEN_DEC).toPercentageString()
-    ),
     7
 ))
 
-init
-    onResearchSkillChanged(HALF_BREED_ENDLESS_RAGE) (p, rank) ->
-        p.getGladiator().getUnit().adjustStatPercentage(STAT_CHARGE_DEREGEN, -HALF_BREED_ENDLESS_RAGE_DEREGEN_DEC)
-        
 
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -183,9 +184,9 @@ function defineShop()
         HALF_BREED_SLEIGHT_OF_HAND,
         HALF_BREED_HAVOC,
         HALF_BREED_DEATH_WISH,
-        HALF_BREED_VICTORY_RUSH,
         HALF_BREED_OGRE_LUNGS,
         HALF_BREED_ENDLESS_RAGE,
+        HALF_BREED_VICTORY_RUSH,
         HALF_BREED_CHARGE
     )
 

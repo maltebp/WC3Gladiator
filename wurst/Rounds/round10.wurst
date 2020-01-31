@@ -180,6 +180,18 @@ init
     onUnitTypeEnter( STORMCALLER_ID) enteringUnit ->
         StormChargeBuff.applyToUnit(enteringUnit, STORMCHARGE_DAMAGE, STORMCHARGE_RANGE)
 
+
+//================================================================================================================================================================================================
+// STATS SCALING
+
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == WATERBEING_ID or id == MYRMIDON_ID or id == STORMCALLER_ID or  id == WATERCALLER_ID )
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
+
+
+
 // ======================================================================================================================================
 // TORNADO
 

@@ -52,8 +52,8 @@ public let DIFFICULTY_INSANE_HEALTH   = 0.30
 
 // // Health Orbs
 public let ORB_INSTANT_FLAT = 75
-public let ORB_INSTANT_PERC = 0.1
-public let ORB_HOT_FLAT = 50
+public let ORB_INSTANT_PERC = 0.15
+public let ORB_HOT_FLAT = 25
 public let ORB_HOT_PERC = 0.02
 public let ORB_HEAL_DURATION = 10.
 public let ORB_SPAWN_FREQ = 33. // For one player

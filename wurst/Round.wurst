@@ -425,6 +425,9 @@ public interface Round_RemoteFunction
  
                 
 init
+
+
+
     CreateTrigger()
     ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_DEATH)
     ..addAction(function Round.anyUnitDies)

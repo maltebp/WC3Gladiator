@@ -28,7 +28,7 @@ public let HALF_BREED_IMPEDING_ROAR = compiletime(defineImmediate1(
     Icons.bTNMaskOfDeath,
     "D",
     12,         // Cooldown
-    10,         // Mana
+    40,         // Mana
     "spell,slam"
 ))
 

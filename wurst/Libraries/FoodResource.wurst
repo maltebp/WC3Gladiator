@@ -70,6 +70,7 @@ public function player.removeFood()
 function defineUnit()
     
     new UnitDefinition(UNIT_ID, 'hfoo')
+    ..setName("Food Resource Unit")
     ..setCanFlee(false)
     ..setHideMinimapDisplay(true)
     ..setFoodCost(1)

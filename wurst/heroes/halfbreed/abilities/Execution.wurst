@@ -17,9 +17,10 @@ public let HALF_BREED_EXECUTION = compiletime(defineSingleTarget2(
     Icons.bTNCleavingAttack,
     "R",
     20,      // Cooldown
-    10,     // Mana
+    50,     // Mana
     MELEE_RANGE,    // Range
-    "attack"
+    "attack",
+    false
 ))
 
 let SND_ON_ATTACK = [

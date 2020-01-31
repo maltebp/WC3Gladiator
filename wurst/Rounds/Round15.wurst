@@ -14,6 +14,8 @@ import UnitVisualsUtils
 import InstantDummyCaster
 import Damage
 
+let STORM_LOAD = 'n00E'
+let STORM_WARD = 'h003'
 
 let LIGHTNINGWARD_DAMAGE = 40.
 
@@ -52,6 +54,18 @@ init
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(2)
+
+
+//================================================================================================================================================================================================
+// STATS SCALING
+
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id ==  STORM_LOAD or id == STORM_WARD)
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
+
+
     
 
 

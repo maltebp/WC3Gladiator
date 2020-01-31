@@ -11,7 +11,13 @@ import AutoCastAbility
 import Damage
 import LinkedList
 
+
+let FIRE_LORD = 'n00B'
+let FIRE_SPAWN = 'n00C'
+
 LinkedList<Flame> flames = new LinkedList<Flame>
+
+let BURN_DMG_BASE = 30
 
 constant real BURNDAMAGE = 60
 
@@ -73,6 +79,18 @@ init
 
 
 
+    //================================================================================================================================================================================================
+    // STATS SCALING
+
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == FIRE_LORD or id == FIRE_SPAWN )
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
+
+
+        
+
 
 class Flame extends GroundEffect
 
@@ -109,11 +127,13 @@ class Flame extends GroundEffect
     override function doEffect()
         
         ENUM_GROUP.enumUnitsInRange(pos, range)
+
+        let burnDamage = BURN_DMG_BASE * (1 + (round.getLevel()-1) * ROUND_LVL_SCALE_POWER) 
         
         for target from ENUM_GROUP
             if target.isAlive() and target.getOwner().isEnemyOf(ENEMY) and not targetsHit.contains(target)
                 target.addEffect("Abilities\\Spells\\Items\\AIfb\\AIfbSpecialArt.mdl", "chest")
-                dummy.damageTargetSpell(target, BURNDAMAGE)
+                dummy.damageTargetSpell(target, burnDamage)
                 targetsHit.addUnitTimed(target, 0.99)
 
 

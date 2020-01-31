@@ -1,7 +1,7 @@
 package Round8
 
 //=========================================================================================================================================================
-//  Engineer (Boss)
+//  Tinker (Boss)
 
 import public Round7
 
@@ -12,50 +12,53 @@ import TimedSpecialEffects
 import UnitVisualsUtils
 import ErrorHandling
 import HomingRockets
-import Stats
+import Damage
+import AbilityTools
+import ClosureTimers
+import ObjectIds
 
 
-int BOSSID = 'n00H'
-int BOSSID_TANK = 'n00I'
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Unit Ids 
 
-int EXPLODINGGOBLIN = 'n00J'
-int MINITANK = 'h004'
-int MECHANIC = 'o001'
+let TINKER = 'n00H'
+let TINKER_TANK = 'n00I'
+let EXPLODINGGOBLIN = 'n00J'
+let MINITANK = 'h004'
+let MECHANIC = 'o001'
 
-int HOMINGROCKETS_DAMAGE = 80
-real HOMINGROCKETS_FREQ     = 0.5
-real HOMINGROCKETS_DURATION = 7
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+let HOMING_ROCKETS_DMG_BASE = 80.
+let HOMINGROCKETS_FREQ     = 0.5
+let HOMING_ROCKETS_DURATION = 7.
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-real EXPLODINGGOBLIN_DAMAGE = 80
-real EXPLODINGGOBLIN_RANGE  = 350
-real EXPLODINGGOBLIN_BOSSDAMAGE = 650
-real EXPLODINGGOBLIN_DELAY = 2
+let EXPLODING_GOBLIN_DMG_BASE = 80.
+let EXPLODING_GOBLIN_DMG_TINKER = 0.15 // Percentage of total
+let EXPLODINGGOBLIN_RANGE  = 350.
+let EXPLODINGGOBLIN_DELAY = 2.
 
-SoundDefinition snd_BossSpawn = new SoundDefinition(Sounds.heroTinkerWhat4, false)
-SoundDefinition snd_RocketBarrage = new SoundDefinition(Sounds.heroTinkerPissed7, false)
-SoundDefinition snd_RobotExplode = new SoundDefinition(Sounds.ironGolemYes1, false)
-SoundDefinition snd_HeroDeath = new SoundDefinition(Sounds.heroTinkerYesAttack2, false)
-SoundDefinition snd_BossDeath = new SoundDefinition(Sounds.tinkerDeathAlt1, false)
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-// ================================================================================================================================
-// Settings
+let REPAIR_AMOUNT   = 0.008 // Percentage per half a second (approx)
+let REPAIR_FREQ     = 0.6 
 
-Round round = null
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+let snd_BossSpawn       = new SoundDefinition(Sounds.heroTinkerWhat4, false)
+let snd_RocketBarrage   = new SoundDefinition(Sounds.heroTinkerPissed7, false)
+let snd_RobotExplode    = new SoundDefinition(Sounds.ironGolemYes1, false)
+let snd_HeroDeath       = new SoundDefinition(Sounds.heroTinkerYesAttack2, false)
+let snd_BossDeath       = new SoundDefinition(Sounds.tinkerDeathAlt1, false)
 
 
 //=========================================================================================================================================================
 //  Setup
-
+Round round = null
 init
-
-    BOSSID
-    ..setUnitTypeStat(STAT_RESISTANCE, 0.9)
-
-    BOSSID_TANK
-    ..setUnitTypeStat(STAT_RESISTANCE, 0.9)
-    
-
     round = new Round()
     ..setReward(30, 3)
     ..addItemRewards(ITEM_POCKETROCKETGENERATOR, ITEM_DEFLECTIVEDISCDEVICE, ITEM_TINKERSPERSONALHAMMER)
@@ -73,8 +76,11 @@ init
     
     // Prepare
     roundFunction = (Round round) -> begin
-        Round.setBossUnit(createUnit(ENEMY, BOSSID, vec2(14,1000), angle(PIHALF+PI)))
+        let boss = createUnit(ENEMY, TINKER, vec2(14,1000), angle(PIHALF+PI))
+        Round.setBossUnit(boss)
         Round.bossUnit.pause()
+        round.scaleUnitStats(boss)
+        boss.adjustToDifficulty()
     end
 
     round.codeOnPrepare = roundFunction
@@ -150,52 +156,31 @@ init
     ..setSoundOnSpawn(Sounds.steamTankWhat3)
 
 
-    // Auto Cast Abilities
-    addAutoCastAbilityToUnitType(MECHANIC, new AutoRepair() )
-
     // Unit Colors
     UnitVisuals.addUnitType(MECHANIC)..setPlayerColor(PLAYER_COLOR_COAL)
-    UnitVisuals.addUnitType('n00H')..setPlayerColor(PLAYER_COLOR_AQUA)
-    UnitVisuals.addUnitType('n00I')..setPlayerColor(PLAYER_COLOR_AQUA)
+    UnitVisuals.addUnitType(TINKER)..setPlayerColor(PLAYER_COLOR_AQUA)
+    UnitVisuals.addUnitType(TINKER_TANK)..setPlayerColor(PLAYER_COLOR_AQUA)
     UnitVisuals.addUnitType(EXPLODINGGOBLIN)..setPlayerColor(PLAYER_COLOR_MAROON)
     UnitVisuals.addUnitType(MINITANK)..setPlayerColor(PLAYER_COLOR_WHEAT)
 
+    TINKER
+    ..setUnitTypeStat(STAT_DAMAGE_TAKEN, -10.00)
+    ..setUnitTypeStat(STAT_RESISTANCE, 10.)
 
-//=========================================================================================================================================================
+    TINKER_TANK
+    ..setUnitTypeStat(STAT_DAMAGE_TAKEN, -10.00)
+    ..setUnitTypeStat(STAT_RESISTANCE, 10.)
 
-
-class AutoRepair extends AutoCastAbilityType
     
-    construct()
-        super( 'A00R', Orders.chainlightning, TargetType.FRIENDLY_UNIT, 3000, 0, 0.6 )
+    //================================================================================================================================================================================================
+    // STATS SCALING
 
-    override function findTarget(unit caster) returns boolean
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == TINKER or id == TINKER_TANK or id == MECHANIC or id == EXPLODINGGOBLIN or id == MINITANK )
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
 
-        // Checks if caster is already casting
-        if not caster.getCurrentOrder() == orderId
-
-            let targets = ENUM_GROUP
-            
-            targets.enumUnitsInRange(caster.getPos(), triggerRange)
-
-            for target in targets
-                if target.getOwner().isEnemyOf(caster.getOwner()) or target.getTypeId() != BOSSID_TANK or not target.isAliveTrick()
-                    targets.removeUnit(target)
-
-            if targets.size() > 0
-                if targets.size() == 1
-                    caster.issueTargetOrderById(orderId, targets.getRandomUnit())
-                    return true
-                else
-                    error("More than 1 engineer!")
-                    return false
-                    
-
-            else
-                return false
-
-        else
-            return false
 
 
 // =============================================================================================================================
@@ -287,7 +272,8 @@ class RocketBarrage
     
 function rocketBarrage()
     snd_RocketBarrage.play()
-    new RocketBarrage(GetSpellAbilityUnit(), HOMINGROCKETS_DAMAGE, 5000, HOMINGROCKETS_FREQ, HOMINGROCKETS_DURATION)
+    let damage = HOMING_ROCKETS_DMG_BASE * (1 + (1-round.getLevel() * ROUND_LVL_SCALE_POWER))
+    new RocketBarrage(GetSpellAbilityUnit(), damage.toInt(), 5000, HOMINGROCKETS_FREQ, HOMING_ROCKETS_DURATION)
    
 
 init
@@ -302,15 +288,17 @@ function explode(unit explodingUnit)
     let targets = ENUM_GROUP..enumUnitsInRange(explodingUnit.getPos(), EXPLODINGGOBLIN_RANGE)
 
     for target in targets
-        if not target.isAlive() or target == explodingUnit or (target.getOwner().isAllyOf(explodingUnit.getOwner()) and target.getTypeId() != BOSSID_TANK)
+        if not target.isAlive() or target == explodingUnit or (target.getOwner().isAllyOf(explodingUnit.getOwner()) and target.getTypeId() != TINKER_TANK)
             targets.removeUnit(target)
 
     if targets.size() > 0
         for target from targets
-            if target.getTypeId() == BOSSID_TANK
-                explodingUnit.damageTarget(target, EXPLODINGGOBLIN_BOSSDAMAGE)
+            if target.getTypeId() == TINKER_TANK
+                // Damage percentage of boss health
+                target.addHP( - (target.getMaxHP() * EXPLODING_GOBLIN_DMG_TINKER))
             else
-                explodingUnit.damageTarget(target, EXPLODINGGOBLIN_DAMAGE)
+                let damage = EXPLODING_GOBLIN_DMG_BASE * (1 + (1-round.getLevel() * ROUND_LVL_SCALE_POWER))
+                explodingUnit.damageTargetPhysical(target, damage)
 
     addEffect("Abilities\\Weapons\\Mortar\\MortarMissile.mdl", explodingUnit.getPos())
     ..setScale(2)
@@ -320,6 +308,7 @@ function explode(unit explodingUnit)
     addEffect("Abilities\\Spells\\Orc\\WarStomp\\WarStompCaster.mdl", explodingUnit.getPos())
     ..setScale(0.5)
     ..setDuration(3)
+
 
 class RobotExplosion
     private unit robot
@@ -370,3 +359,67 @@ function goblinExplodes()
 
 init
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function goblinExplodes )
+
+
+
+
+//================================================================================================================================================================================================
+// Tank
+
+init
+    registerSpellEffectEvent('A01C') ->
+        let caster = GetSpellAbilityUnit()
+        doAfter(2.2) ->
+            caster.adjustStatPercentage(STAT_DAMAGE, 0.001)
+            print(caster.getName() + " {0}".format( caster.getTypeId().toRawCode()) )
+            for stat in StatType.getAllTypes()
+                print(caster.getStatInstance(stat).toString())
+
+
+//=========================================================================================================================================================
+// REPAIR
+
+let REPAIR = compiletime( defineSingleTarget1(
+    "Repar", "",
+    Icons.bTNRepair, "Q",
+    0, 0, 250, "stand,work", true
+))
+
+init
+    registerSpellEffectEvent(REPAIR) ->
+        let target = GetSpellTargetUnit()
+        let repairAmount = target.getMaxHP() * REPAIR_AMOUNT
+        target.addHP(repairAmount)
+
+    
+    // Auto Cast Abilities
+    addAutoCastAbilityToUnitType(MECHANIC, new AutoRepair() )
+
+class AutoRepair extends AutoCastAbilityType
+    
+    construct()
+        super( REPAIR, Orders.chainlightning, TargetType.FRIENDLY_UNIT, 3000, 0, 0.6 )
+
+    override function findTarget(unit caster) returns boolean
+        if( caster.getAbilityLevel(REPAIR) <= 0 )
+            caster.addAbility(REPAIR)
+
+        // Checks if caster is already casting
+        if not caster.getCurrentOrder() == orderId
+            let targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
+
+            for target in targets
+                if target.getTypeId() != TINKER_TANK or not target.isAliveTrick()
+                    targets.removeUnit(target)
+
+            if targets.size() > 0
+                if targets.size() == 1
+                    caster.issueTargetOrderById(orderId, targets.getRandomUnit())
+                    return true
+                else
+                    error("More than 1 engineer!")
+                    return false
+            else
+                return false
+        else
+            return false

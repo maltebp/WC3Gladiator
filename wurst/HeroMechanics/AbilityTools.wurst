@@ -20,8 +20,10 @@ import ObjectIds
 
 
 
-public function defineSingleTarget1( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation ) returns int
+public function defineSingleTarget1( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation, bool friendly ) returns int
     let abilId = ABIL_ID_GEN.next()
+    let targetsAllowed = (friendly ? "friend" : "enemy") + ",ground"
+
     new AbilityDefinitionChainLightningcreep(abilId)
     ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
     ..setDamageperTarget(1, 0)
@@ -32,11 +34,14 @@ public function defineSingleTarget1( string name, string description, string ico
     ..setArtTarget("")
     ..setMissileArt("")
     ..setLightningEffects("")
+    ..setTargetsAllowed(1, targetsAllowed)
     return abilId
 
 
 
-public function defineSingleTarget2( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation ) returns int
+
+public function defineSingleTarget2( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation, bool friendly ) returns int
+    let targetsAllowed = (friendly ? "friend" : "enemy") + ",ground"
     let abilId = ABIL_ID_GEN.next()
     new AbilityDefinitionSeaWitchForkedLightning(abilId)
     ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
@@ -51,9 +56,11 @@ public function defineSingleTarget2( string name, string description, string ico
     ..setNumberofTargetsHit(1, 0)
     ..setArtSpecial("")
     ..setLightningEffects("")
+    ..setTargetsAllowed(1, targetsAllowed)
     return abilId
 
-public function defineSingleTarget3( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation ) returns int
+public function defineSingleTarget3( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation, bool friendly ) returns int
+    let targetsAllowed = (friendly ? "friend" : "enemy") + ",ground"
     let abilId = ABIL_ID_GEN.next()
     new AbilityDefinitionFingerofDeath(abilId)
     ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
@@ -65,7 +72,7 @@ public function defineSingleTarget3( string name, string description, string ico
     ..setDamage(1, 0)
     ..setLightningEffects("")
     ..setGraphicDuration(1, 0.01)
-    ..setTargetsAllowed(1, "enemy,ground")
+    ..setTargetsAllowed(1, targetsAllowed)
     return abilId
 
 
@@ -128,6 +135,23 @@ public function defineImmediate1( string name, string description, string icon, 
     return abilId
 
 
+// AOE target point (like dispel, ward etc)
+public function defineAOE1( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, real aoe, string animation ) returns int
+    let abilId = ABIL_ID_GEN.next()
+    new AbilityDefinitionDispelMagiccreep(abilId)
+    ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
+    ..setAnimationNames(animation)
+    ..setCastRange(1, range)
+    ..setAreaofEffect(1, aoe)
+    ..setTargetsAllowed(1, "none")
+    ..setArtTarget("")
+    ..setArtSpecial("")
+    ..setSummonedUnitDamage(1, 0)
+
+    return abilId
+
+
+
 public function AbilityDefinition.setupGenerics(string name, string description, string icon, string hotkey, real cooldown, int manaCost)
     if( not compiletime )
         error("Ability {0} is not being setup during compiletime!".format(name))
@@ -180,7 +204,7 @@ public function AbilityDefinition.setupHotkey( string hotkey )
 
 
 //================================================================================================================================================================================================
-// Runtime Functions
+// Runtime Functions    
 
 /** Groups alive units in range who are enemy of p. Uses ENUM_GROUP */
 public function enemiesInRange(player p, vec2 origin, real range) returns group
@@ -193,6 +217,19 @@ public function enemiesInRange(player p, vec2 origin, real range) returns group
             g.removeUnit(u)
 
     return g
+
+/** Groups alive units in range who are ally of p. Uses ENUM_GROUP */
+public function alliesInRange(player p, vec2 origin, real range) returns group
+    let g = ENUM_GROUP
+    ..clear()
+    ..enumUnitsInRange(origin, range)
+    for u in g
+        if( not u.isAlive() or u.isEnemyOf(p) )
+            g.removeUnit(u)
+    return g
+
+
+
 
 
 
