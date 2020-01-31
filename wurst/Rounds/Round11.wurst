@@ -20,21 +20,26 @@ import Preloader
 // ================================================================================================================================
 // Settings
 
-constant ROCKGIANT = 'e000'
-constant SHARDLING = 'n00O'
+let ROCKGIANT = 'e000'
+let SHARDLING = 'n00O'
 
-constant let SHARDLINGS_SPAWNNUMBER = 4
-constant let SHOCKWAVE_STARTCOOLDOWN = 5.
-constant let SHOCKWAVE_COOLDOWN = 15.
-constant let SHOCKWAVE_DAMAGE = 300.
-constant let SHOCKWAVE_SPEED = 800.
-constant let SHOCKWAVE_WIDTH = 175.
-constant let SHOCKWAVE_CASTDELAY = 2.
-constant let EARTHQUAKE_DURATION = 30.
-constant let EARTHQUAKE_COOLDOWN = 120.
-constant let EARTHQUAKE_STARTCOOLDOWN = 10.
-constant let EARTHQUAKE_SLOWFACTOR = 0.4
-constant let EARTHQUAKE_RANGE = 250.
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+let SHARDLINGS_SPAWNNUMBER = 4
+let SHOCKWAVE_STARTCOOLDOWN = 5.
+let SHOCKWAVE_COOLDOWN = 15.
+let SHOCKWAVE_DAMAGE = 300.
+let SHOCKWAVE_SPEED = 800.
+let SHOCKWAVE_WIDTH = 175.
+let SHOCKWAVE_CASTDELAY = 2.
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+let EARTHQUAKE_DURATION = 30.
+let EARTHQUAKE_COOLDOWN = 120.
+let EARTHQUAKE_STARTCOOLDOWN = 10.
+let EARTHQUAKE_SLOWFACTOR = 0.4
+let EARTHQUAKE_RANGE = 250.
 // For other earthquake adjustments see the dummy spell
 
 constant let snd_Shockwave = new SoundDefinition(Sounds.mountainGiantPissed1, false)

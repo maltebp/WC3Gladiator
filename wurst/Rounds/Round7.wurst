@@ -279,7 +279,7 @@ function onPoisonSpit()
 
 class PoisonedUnit extends Updater
     private static let TEXTSIZE = 11.
-    private static let TEXT_Z_OFFSET = 160.
+    private static let TEXT_Z_OFFSET = 200.
     
     private static let instances = new LinkedList<thistype>
     private static let units = new IterableMap<unit, thistype>

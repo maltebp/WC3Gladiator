@@ -72,7 +72,7 @@ let VICTORY_RUSH_BUFF = compiletime(defineBuff(
     "Increased power",
     Icons.bTNReincarnation,
     Abilities.spiritLinkTarget,
-    "origin",""))
+    "chest",""))
     
 class VictoryRushBuff extends Buff
     var lvl = 0

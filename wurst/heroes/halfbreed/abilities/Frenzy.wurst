@@ -8,13 +8,9 @@ import initlater HalfBreedMasteries
 //================================================================================================================================================================================================
 // Settings
 
-let CHARGE              = 20
-let DMG_FACTOR          = 0.75
-let TRAVEL_RANGE        = 700.
-let TRAVEL_SPEED        = 800.
-let AOE_RANGE           = 125.
-let ATTACK_SPEED_INC    = 1.
-let DURATION            = 5.
+let CHARGE              = 25
+let ATTACK_SPEED_INC    = 1.5
+let DURATION            = 6.
 
 
 public let HALF_BREED_FRENZY = compiletime(defineInstantCast1(
@@ -23,7 +19,7 @@ public let HALF_BREED_FRENZY = compiletime(defineInstantCast1(
     Icons.bTNBerserk,
     "F",
     12,      // Cooldown
-    10      // Mana
+    30      // Mana
 ))
 
 public let HALF_BREED_FRENZY_BUFF = compiletime(defineBuff(

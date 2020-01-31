@@ -33,17 +33,20 @@ import Projectile
 let WARLOCK = 'n00F'
 let DEMON = 'n00G'
 
-let LIFEDRAIN_AMOUNT = 15.
-let LIFEDRAIN_FACTOR      = 2.5
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+let LIFEDRAIN_AMOUNT      = 0.07 // Percentage amount
+let LIFEDRAIN_FACTOR      = 3.
 let LIFEDRAIN_TRIGGERHP   = 0.5
 let LIFEDRAIN_FREQ        = 0.5
 let LIFEDRAIN_COOLDOWN    = 15.
 
-let FELFIREBOLT_COOLDOWN = 10.
-let FELFIREBOLT_STARTCOOLDOWN = 5.
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-let FEL_BOLT_DMG_FACTOR = 2.5
-
+let FEL_BOLT_COOLDOWN = 10.
+let FEL_BOLT_START_COOLDOWN = 5.
+let FEL_BOLT_RANGE = 700.
+let FEL_BOLT_DMG_FACTOR = 2.75
 
 
 //=========================================================================================================================================================
@@ -96,12 +99,10 @@ init
 
 
 //=========================================================================================================================================================
-// 
-//
+
 
 // Drain Life --------------------------------------------------------------------------------------------------------
 public class DrainLife extends ChannelOnUnit
-
     private static constant real DRAIN_RATIO = 1
     private static constant real DRAIN_FREQ = 1
 
@@ -114,10 +115,8 @@ public class DrainLife extends ChannelOnUnit
 
         this.lifeToDrain = (lifeToDrain >= 0) ? lifeToDrain : 0
         this.drainRatio = (lifeToDrain >= 0 ) ? drainRatio : 0
-
         this.duration = duration
         
-
 
     static function cast(unit caster, unit target, real duration, real lifeToDrain) returns thistype
         return cast(caster, target, duration, lifeToDrain, DRAIN_RATIO, DRAIN_FREQ )
@@ -130,16 +129,12 @@ public class DrainLife extends ChannelOnUnit
         caster.issueImmediateOrder("stop")
 
     override function periodicEffect()
-        
         real drainedLife
-
         let targetCurrentHP = target.getHP()
-
 
         if targetCurrentHP > lifeToDrain
             drainedLife = lifeToDrain
             target.setHP(targetCurrentHP-lifeToDrain)
-
         else
             drainedLife = targetCurrentHP
             target.kill()
@@ -162,8 +157,6 @@ public class DrainLife extends ChannelOnUnit
         else
             destroy this
             
-        
-        // Drain life
 
     override function updateExtension()
         if caster.getCurrentOrder() != Orders.drain
@@ -232,8 +225,9 @@ public class AutoCast_CheckDrainLife extends AutoCastAbilityType
                                 return true
                             
                         ENUM_GROUP.clear()
-
         return false
+
+
 
 // ** This is custom in order to make sure the warlock doesn't try to cast any spells while channeling drain life.1
 public class AutoCastSummonDemon extends AutoCastAbilityType
@@ -301,7 +295,7 @@ public class AutoCastDrainLife extends AutoCastAbilityType
 
 
 function castDrainLife()
-    DrainLife.cast(GetSpellAbilityUnit(), GetSpellTargetUnit(), 0, LIFEDRAIN_AMOUNT, LIFEDRAIN_FACTOR, LIFEDRAIN_FREQ)
+    DrainLife.cast(GetSpellAbilityUnit(), GetSpellTargetUnit(), 0, GetSpellTargetUnit().getMaxHP() * LIFEDRAIN_AMOUNT, LIFEDRAIN_FACTOR, LIFEDRAIN_FREQ)
     
 function castSummonDemon()
     GetSpellAbilityUnit().summonDemon()
@@ -377,7 +371,6 @@ init
 
     addAutoCastAbilityToUnitType(WARLOCK, new AutoCastSummonDemon())
     addAutoCastAbilityToUnitType(WARLOCK, new AutoCastDrainLife())
-    addAutoCastAbilityToUnitType(WARLOCK, new AutoCast_CheckDrainLife( 'A01A', Orders.deathcoil, TargetType.ENEMY_UNIT, 600, FELFIREBOLT_STARTCOOLDOWN, FELFIREBOLT_COOLDOWN ))
     
 
 //================================================================================================================================================================================================
@@ -387,11 +380,32 @@ let FEL_BOLT = compiletime( defineSingleTarget1(
     "Fel Bolt", "", Icons.bTNBanish, "Q", 0, 0, 1000, "", false
 ))
 
+
 init
+    // Effect
     registerSpellEffectEvent(FEL_BOLT) ->
         let caster = GetSpellAbilityUnit()
+        let target = GetSpellTargetUnit()
         
         let damage = caster.getPower() * FEL_BOLT_DMG_FACTOR
         
-        new Projectile(caster.getPos().withTerrainZ(60))
-        
+        new Projectile(caster.getPos().withTerrainZ(60), Abilities.greenDragonMissile)
+        ..fireUnit(target, 60, true, 1100, 0)
+        ..addActionOnFinish() ->
+            caster.damageTargetSpell(target, damage)
+            target.addEffect(Abilities.deathCoilSpecialArt, "chest")
+            ..setDuration(4)
+
+    // Auto Cast
+    addAutoCastAbilityToUnitType(WARLOCK, new AutoCast_CheckDrainLife(
+        FEL_BOLT,
+        Orders.chainlightning,
+        TargetType.ENEMY_UNIT,
+        FEL_BOLT_RANGE,
+        FEL_BOLT_START_COOLDOWN,
+        FEL_BOLT_COOLDOWN
+    ))
+
+
+            
+    

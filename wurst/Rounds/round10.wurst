@@ -20,6 +20,7 @@ import Assets
 import RandomAngle
 import ClosureTimers
 import LinkedList
+import Gladiator
 
 // ======================================================================================================================================
 
@@ -31,18 +32,18 @@ let MYRMIDON_ID     = 'n00X'
 
 
 // Tornado
-let TORNADO_DAMAGE = 35. // Per second
+let TORNADO_DMG_FACTOR = 3.
 let TORNADO_RANGE   = 125.
 let TORNADO_SPEED   = 50.
 
 // Storm Charge
-let STORMCHARGE_DAMAGE = 15.
+let STORMCHARGE_DMG_FACTOR = 1.
 let STORMCHARGE_RANGE = 175.
 let STORMCHARGE_DAMAGEFREQ = 1.
 
 // Wounding Strike
-let WOUNDINGSTRIKE_DAMAGE_INITIAL = 15.
-let WOUNDINGSTRIKE_DAMAGE_OVERTIME = 8.
+let WOUNDINGSTRIKE_DMG_INIT_FACTOR = 1.
+let WOUNDINGSTRIKE_DMG_DOT_FACTOR = 1.5
 let WOUNDINGSTRIKE_COOLDOWN = 15.
 let WOUNDINGSTRIKE_DURATION = 6.
 let WOUNDINGSTRIKE_ATTACKSPEEDRED = 0.
@@ -53,9 +54,9 @@ let WOUNDINGSTRIKE_MOVESPEEDRED = 0.4
 let SUMMONELEMENTAL_COOLDOWN = 15.
 
 // Elemental Attack
+let ELEMENTAL_DMG_BASE = 7. 
 let ELEMENTAL_RANGE = 700.
-let ELEMENTAL_COOLDOWN = 2.
-let ELEMENTAL_DAMAGE = 35.
+let ELEMENTAL_COOLDOWN = 1.25
 let ELEMENTAL_DISTANCE = 1000.
 let ELEMENTAL_WIDTH = 200.
 let ELEMENTAL_SPEED = 350.
@@ -78,10 +79,7 @@ Round round = null
 
 // ======================================================================================================================================
 
-init
-
-    Round round
-    
+init    
     round = new Round()
     ..setReward(30, 3)
     ..setTitle("Naga")
@@ -145,22 +143,29 @@ init
     ..setPlayerColor(PLAYER_COLOR_AQUA)
 
 
-    // Ability triggers
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Ability triggers
+
     registerSpellEffectEvent(TORNADOES_ID, () -> new TornadoAbility(GetSpellAbilityUnit()))
+
+    // Wounding Strike
     registerSpellEffectEvent( WOUNDINGSTRIKE_ABIL_ID) ->
         let caster = GetSpellAbilityUnit()
         let target = GetSpellTargetUnit()
 
-        flashEffect(Abilities.stampedeMissileDeath, target, "chest")
+        let dmgInstant = caster.getPower() * WOUNDINGSTRIKE_DMG_INIT_FACTOR
+        let dmgOverTime = caster.getPower() * WOUNDINGSTRIKE_DMG_DOT_FACTOR
 
-        caster.damageTargetPhysical( target, WOUNDINGSTRIKE_DAMAGE_INITIAL )
-        WoundingStrikeBuff.applyToUnit( target, caster, WOUNDINGSTRIKE_DAMAGE_OVERTIME, WOUNDINGSTRIKE_DURATION )
+        flashEffect(Abilities.stampedeMissileDeath, target, "chest")
+        caster.damageTargetPhysical( target, dmgInstant )
+        WoundingStrikeBuff.applyToUnit( target, caster, dmgOverTime, WOUNDINGSTRIKE_DURATION )
+
 
     registerSpellEffectEvent( SUMMONELEMENTAL_ID, function summonElemental )
 
     registerSpellEffectEvent( ELEMENTAL_ATTACK_ID ) ->
-        
-        new WaveAttack( GetSpellTargetUnit().getPos(), GetSpellAbilityUnit(), ELEMENTAL_DAMAGE, ELEMENTAL_DISTANCE, ELEMENTAL_WIDTH, ELEMENTAL_SPEED )
+        let damage = ELEMENTAL_DMG_BASE * (1 + (round.getLevel()-1) * ROUND_LVL_SCALE_POWER )
+        new WaveAttack( GetSpellTargetUnit().getPos(), GetSpellAbilityUnit(), damage, ELEMENTAL_DISTANCE, ELEMENTAL_WIDTH, ELEMENTAL_SPEED )
 
     // Auto Cast Abilities
     addAutoCastAbilityToUnitType( STORMCALLER_ID, 
@@ -178,7 +183,7 @@ init
 
 
     onUnitTypeEnter( STORMCALLER_ID) enteringUnit ->
-        StormChargeBuff.applyToUnit(enteringUnit, STORMCHARGE_DAMAGE, STORMCHARGE_RANGE)
+        StormChargeBuff.applyToUnit(enteringUnit, STORMCHARGE_RANGE)
 
 
 //================================================================================================================================================================================================
@@ -195,10 +200,7 @@ init
 // ======================================================================================================================================
 // TORNADO
 
-
-// Ability Class
 class TornadoAbility
-
     private static let UPDATE_FREQ = 0.1
     private static let ANIMATION_FREQ = 1.167
     private static let instances = new IterableMap<unit, thistype>
@@ -208,13 +210,11 @@ class TornadoAbility
     private timer timer_Animation
 
     construct( unit caster )
-
         this.caster = caster
 
         if instances.has(caster)
             destroy this
             error("Caster already exists in instances")
-
         else
             instances.put(caster, this)
 
@@ -228,10 +228,13 @@ class TornadoAbility
 
             doAnimation()
 
-            // TODO: Fix this
-            // let spawnPos = caster.getPos().moveTowards(hero.getPos(), 150)
-            // new Tornado(caster, hero, spawnPos, TORNADO_SPEED, TORNADO_DAMAGE, TORNADO_RANGE)
-            // ..destroyOnSourceDeath(true)
+            for gladiator in getAllGladiators()
+                let gladUnit = gladiator.getUnit()
+                if( gladUnit.isAliveTrick() )
+                    let spawnPos = caster.getPos().moveTowards(gladUnit.getPos(), 150)
+                    let damage = caster.getPower() * TORNADO_DMG_FACTOR
+                    new Tornado(caster, gladUnit, spawnPos, TORNADO_SPEED, damage, TORNADO_RANGE)
+                    ..destroyOnSourceDeath(true)
 
 
     ondestroy
@@ -388,62 +391,52 @@ function generateTornadoAbility()
 
 
 // ====================================================================================================================================
+// STORM CHARGE
 
 let STORMCHARGE_BUFF = compiletime(createDummyBuffObject("Storm Charged", "This unit is charge with the power of the storm. All enemies around it takes damage periodically.",
      Icons.bTNOrbOfLightning, Abilities.purgeBuffTarget, "origin"))
 
 class StormChargeBuff extends Updater
-
     private static let instances = new IterableMap<unit,thistype>
 
     private unit chargedUnit
-    private real damage
     private real range
 
-    construct( unit chargedUnit, real damage, real range )
+    construct( unit chargedUnit, real range )
         this.chargedUnit = chargedUnit
-        this.damage = damage
         this.range = range
     
         chargedUnit.addAbility( STORMCHARGE_BUFF.abilId )
 
         updateFreq = STORMCHARGE_DAMAGEFREQ
-
         startUpdate()
 
         instances.put(chargedUnit, this)
     
 
     ondestroy
-
         if chargedUnit != null
             instances.remove(chargedUnit)
-
         else
             instances.removeValue(this, true)
 
 
     override function update()
-        
         if chargedUnit == null or not chargedUnit.isAliveTrick()
             destroy this
-
         else
+            let damage = chargedUnit.getPower() * STORMCHARGE_DMG_FACTOR
             let targets = ENUM_GROUP..enumUnitsInRange(chargedUnit.getPos(), range)
-
             for target in targets
                 if target != chargedUnit and target.isEnemyOf(chargedUnit) and target.isAliveTrick()
                     chargedUnit.damageTargetSpell(target, damage)
                     flashEffect( Abilities.farseerMissile, target, "chest")
 
 
-    
-    static function applyToUnit( unit whichUnit, real damage, real range )
-        
+    static function applyToUnit( unit whichUnit, real range )
         if instances.has(whichUnit)
             destroy instances.get(whichUnit)
-
-        new StormChargeBuff( whichUnit, damage, range )
+        new StormChargeBuff( whichUnit, range )
 
 
 

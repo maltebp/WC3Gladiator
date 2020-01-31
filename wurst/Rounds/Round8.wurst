@@ -245,14 +245,12 @@ class RocketBarrage
         
 
     protected function fireOnAll()
-        
         if not shouldDestroy()
             let targets = getTargets()
 
             if targets.size() > 0 
                 for target from targets 
                     fire(target)
-        
         else
             destroy this
     
