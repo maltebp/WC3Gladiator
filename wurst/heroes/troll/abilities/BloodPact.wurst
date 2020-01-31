@@ -1,0 +1,37 @@
+
+package BloodPact
+
+import AbilityTools
+
+
+//================================================================================================================================================================================================
+// Settings
+
+let VOODOO_GAINED   = 40
+let HEALTH_COST     = 0.05
+
+public let TROLL_BLOOD_PACT = compiletime(defineInstantCast1(
+    "Blood Pact",
+    "Charge yourself with {0} voodo power, but at the cost of {1} of your maximum health.".format(
+        VOODOO_GAINED.toString(),
+        HEALTH_COST.toPercentageString()
+    ),
+    Icons.bTNOrbofSlowness,
+    "F",
+    1.,
+    10
+)) 
+
+//================================================================================================================================================================================================
+init
+    registerSpellEffectEvent(TROLL_BLOOD_PACT) ->
+        onCast()
+
+function onCast()
+    let caster = GetSpellAbilityUnit()
+
+    addEffect(Abilities.aIilTarget, caster.getPos().withTerrainZ(20))..setDuration(3)
+    caster.addEffect(Abilities.stampedeMissileDeath, "chest")..setDuration(3)
+    caster.adjustCharge(VOODOO_GAINED)
+    caster.addHP(-(caster.getMaxHP() * HEALTH_COST))
+    

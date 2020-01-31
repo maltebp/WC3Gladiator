@@ -19,6 +19,7 @@ import TrainingPoints
 import Attempts
 import TestUnit
 import HalfBreed
+import Troll
 
 constant boolean    SPAWNHEROINARENA        = false
 constant boolean    ARENACORNERSPAWN        = true
@@ -139,7 +140,7 @@ function delayedSetup()
             p.toggleCinematicMode(false, 0)
             p.setCameraPosition(vec2(0,0))
             p.enableMasteryShop()
-            let gladiator = p.newGladiator(HALF_BREED, vec2(600,100), angle(0))
+            let gladiator = p.newGladiator(TROLL, vec2(600,100), angle(0))
 
             if( TEST_MODE_UNLOCK_ABIL )
                 for i=1 to 6

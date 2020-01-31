@@ -33,17 +33,29 @@ Todo:
             ✔ done
 
     Troll Gladiator:
-        ☐ Create unit
+        ✔ Create unit
         ☐ Charge mechanic
         ☐ Handful masteries
 
         Abilities:
-            ☐ 1
-            ☐ 2
-            ☐ 3
-            ☐ 4
-            ☐ 5
-            ☐ 6
+            ☐ Soul Siphon - (Voodoo: Increase amount healed)
+            ☐ Vile Spirit - (Voodoo: Increase duration)
+            ☐ Voodoo Link - (Voodoo: Increase number of target)
+            ✔ Flaming Potion: (Voodoo: increases damage)
+            ☐ Mojo: Apply mojo to an ally (or self), increasing its energy pool by X (Voodoo: increases its effect)
+            ✔ Blood Pact: Increases your voodoo, in exchange of hp. If you get too much, then you'll get stunned
+
+        Masteries:
+            ☐ Soul Harvest: Soul siphon additional nearby targets, but is less effective
+            ☐ Greed: Casting blood pact again within X seconds increases amount gained
+            ☐ Tribal Mojo: Reduces the cooldown of mojo
+            ☐ Volatile Concoctions: Increase AOE
+            ☐ Euphoria: Mojo increases movement speed
+            ☐ Voodoo Link: Increase effectivenesss
+            ☐ Vengeful Spirits: Casting vile spirit within 5 seconds of soul siphon will spawn a spirit to attack enemies
+            ☐ Wildfire: You flaming potion applies a dot on targets hit, which spread to nearby enemies
+
+        
 
     If time:
         ☐ Fix projectile pivoting
@@ -59,12 +71,6 @@ Todo:
         
 
 Voodoo: Too much and you get stunned
-- Soul Siphon -
-- Vile Spirit -
-- Cursing Ward
-- Voodoo Link -
-- Flaming Potion
-- Mojo + (Ally buff)
-- Blood Pact: Reduces your voodoo but you take damage
+
 
 

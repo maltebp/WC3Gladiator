@@ -106,6 +106,7 @@ public function defineInstantCast1( string name, string description, string icon
         ..setTargetAttachmentPoint0(1, "")
         ..setTargetAttachmentPoint1(1, "")
         ..setArtTarget(1, "")
+        instantCast1_BuffDefined = true
 
     let abilId = ABIL_ID_GEN.next()
     new AbilityDefinitionBeserk(abilId)

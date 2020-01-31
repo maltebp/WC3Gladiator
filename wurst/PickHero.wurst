@@ -27,7 +27,7 @@ public function player.isPickingGladiator() returns bool
 
 
 public function player.startPickHero()
-    if( not DEBUG and not SKIP_HERO_SELECTION)
+    if( not DEBUG or not SKIP_HERO_SELECTION)
         playersPickingHero.add(this)
 
         let callback = doPeriodically(0.04) cb ->

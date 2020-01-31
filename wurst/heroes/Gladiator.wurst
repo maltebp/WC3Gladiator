@@ -5,6 +5,9 @@ package Gladiator
 // -----------------------------------------------------------------------------------------------------------------------------
 
 
+import public ObjectIdGenerator
+import public HeroDefaults
+import public Icons
 import public Charge
 import public initlater Artifact
 
@@ -13,11 +16,9 @@ import public   SoundUtils
 import          LinkedList
 import          ErrorHandling
 import ComboSystem
-import UnitTypeStats
 import AbilityObjEditing
 import CompileTimeData
 import ObjectIds
-import Soundsets
 import UtilCommands
 import MapBounds
 import ClosureForGroups
@@ -326,7 +327,7 @@ public function defineGladiatorUnit( int newId, int originId, string name, strin
     ..setIntelligencePerLevel(0)
     ..setHitPointsRegenerationRate(0)
     ..setCollisionSize(25)
-    ..setArmorType(ArmorType.Medium)
+    ..setArmorType(ArmorType.Medium)    
     ..setAttack1AttackType(AttackType.Normal)
     ..setSelectionScale(1.4)
     ..setHeroAbilities("")

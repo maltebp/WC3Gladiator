@@ -1,0 +1,41 @@
+package Voodoo
+
+import HashMap
+import OnUnitEnterLeave
+import Charge
+import AbilityObjEditing
+import ObjectIdGenerator
+import DummyCaster
+import Orders
+
+//================================================================================================================================================================================================
+// Settings
+
+let HEX = compiletime(ABIL_ID_GEN.next())
+let HEX_DURATION = 4.
+
+//================================================================================================================================================================================================
+
+
+public function unit.consumeVoodoo() returns real
+    let voodoo = this.getCharge()
+    this.setCharge(0)
+    return voodoo.toReal()
+
+public function unit.voodooFull()
+    this.setCharge(0)
+    new DummyCaster()
+    ..owner(Player(PLAYER_NEUTRAL_AGGRESSIVE))
+    ..delay(5)
+    ..castTarget(HEX, 1, Orders.hex, this)
+
+
+@compiletime
+function defineHex()
+    
+    new AbilityDefinitionHexCreep(HEX)
+    ..setCooldown(1, 0)
+    ..setManaCost(1, 0)
+    ..setDurationHero(1, HEX_DURATION)
+    ..setDurationNormal(1, HEX_DURATION)
+    

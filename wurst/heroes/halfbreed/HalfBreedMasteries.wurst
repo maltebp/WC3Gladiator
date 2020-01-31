@@ -2,7 +2,6 @@ package HalfBreedMasteries
 
 import public Mastery
 
-import ObjectIdGenerator
 import HalfBreed
 import GladiatorSystem
 import Stats

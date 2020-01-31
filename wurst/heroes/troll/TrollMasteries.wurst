@@ -1,0 +1,27 @@
+package TrollMasteries
+
+import public Mastery
+
+import ObjectIdGenerator
+import HalfBreed
+import GladiatorSystem
+import Stats
+import Abilities
+import Troll
+
+
+
+
+//================================================================================================================================================================================================
+// Shop definition
+
+public let TROLL_MASTERY_SHOP = compiletime( UNIT_ID_GEN.next() )
+    
+@compiletime
+function defineShop()
+    defineMasteryShop(TROLL_MASTERY_SHOP)
+    ..defineAsResearchSkillShop(
+    )
+
+init
+    TROLL.setMasteryShopType(TROLL_MASTERY_SHOP)

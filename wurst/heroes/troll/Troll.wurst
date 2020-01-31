@@ -1,0 +1,55 @@
+package Troll
+
+import Gladiator
+import Units
+import Abilities
+import Voodoo
+import BloodPact
+import FieryConcoction
+import VoodooLink
+
+public let TROLL = new GladiatorType("Troll")
+public let TROLL_UNIT_ID = compiletime(HERO_ID_GEN.next())
+public let TROLL_COLOR = color(113,78,168)
+
+init
+    TROLL
+    ..setUnitType(TROLL_UNIT_ID)
+    ..setSoundOnSpawn(Sounds.headHunterWarcry1)
+    ..setSoundOnRespawn(Sounds.rokhanReady1)
+    ..setSoundOnNewAbility(Sounds.spiritLodgeWhat1)
+    ..setColor(TROLL_COLOR)
+    ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED, DEFAULT_ENERGY, DEFAULT_ENERGY_REGEN)
+    ..addAbilities(
+        TROLL_BLOOD_PACT,
+        TROLL_FIERY_CONCOCTION,
+        TROLL_VOODOO_LINK
+    )
+
+    TROLL
+    ..addActionOnSpawn() gladiator ->
+        gladiator.enableCharge()
+        gladiator.onFullCharge() (unit chargeUnit) ->
+            chargeUnit.voodooFull()
+
+
+//================================================================================================================================================================================================
+// Unit Definition
+@compiletime
+function defineUnit()
+    defineGladiatorUnit(TROLL_UNIT_ID, 'Oshd', "Troll", Icons.bTNForestTrollShadowPriest)
+    ..setTooltipBasic(TROLL.getNameColored())
+    ..setTooltipExtended("Trolls deal in wicked magic, and this one is no difference. With his voodoo he will curse and trick his enemies into submission.")
+    ..setModelFile(Units.witchDoctor1)
+    ..setScalingValue(1.15)
+    ..setNormalAbilities("AInv,A020")
+    ..setAnimationCastBackswing(0.520)
+    ..setAnimationCastPoint(0.350)
+    ..setAnimationRunSpeed(200)
+    ..setAnimationWalkSpeed(200)
+    ..setAttack1AnimationBackswingPoint(0.600)
+    ..setAttack1AnimationDamagePoint(0.730)
+    ..setAttack1ProjectileArt(Abilities.voidWalkerMissile)
+    ..setAttack1ProjectileArc(0)
+    ..setAttack1ProjectileHomingEnabled(true)
+    
