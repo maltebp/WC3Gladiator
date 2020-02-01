@@ -12,6 +12,7 @@ import ShopIntro
 import GladiatorSystem
 import GameSettings
 import HalfBreed
+import Troll
 
 let CAMERA = gg_cam_Barracks
 public let BARRACKS_RECT = gg_rct_BarracksFog
@@ -47,7 +48,7 @@ public function player.startPickHero()
     
     else
         this.toggleCinematicMode(false, 0)
-        this.startShopIntro(HALF_BREED)
+        this.startShopIntro(TROLL)
 
     
 function player.lockToShop()

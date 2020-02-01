@@ -174,9 +174,7 @@ init
         let u = getEnterLeaveUnit()
         if( u.getTypeId() == ARCANE_BEING )
             let growInstance = Grow.instances.get(u)
-            if( growInstance == null )
-                Log.warn("Grow instance for Arcane Being is null")
-            else
+            if( growInstance != null )
                 destroy growInstance
             
             

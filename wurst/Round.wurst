@@ -346,7 +346,7 @@ public class Round
     static function setRoundReady()
         aRoundIsRunning = false
 
-    private static function roundLost()
+    protected static function roundLost()
         roundWon = false
         if bossUnit != null
             bossUnit.setInvulnerable(true)
@@ -425,9 +425,6 @@ public interface Round_RemoteFunction
  
                 
 init
-
-
-
     CreateTrigger()
     ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_DEATH)
     ..addAction(function Round.anyUnitDies)
@@ -485,3 +482,9 @@ init
 
         p.print("\nSet next round to {0}".format(Round.currentRound.getTitle().highlight()), 5)
         SND_CLICK.playForPlayer(p)
+
+
+    cmd.addSubCommand("reset")
+    ..setAction() (p, args, opts) ->
+        if( Round.isARoundRunning() )
+            Round.roundLost()

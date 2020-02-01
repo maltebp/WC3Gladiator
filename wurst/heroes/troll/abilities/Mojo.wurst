@@ -1,0 +1,83 @@
+
+package Mojo
+
+import AbilityTools
+import Voodoo
+import initlater TrollMasteries
+
+//================================================================================================================================================================================================
+// Settings
+
+let ENERGY_INC = 30.
+let DURATION = 20.
+let VOODOO_FACTOR = 0.01
+let COOLDOWN = 20.
+
+// // =========================================================================================================
+
+
+public let TROLL_MOJO = compiletime(defineSingleTarget4(
+    "Mojo",
+    ("Increase the maximum Energy of you or one of your allies by {0} for {1} seconds.\n\n"+
+        "This ability consumes all your voodoo, and its effect is increase by {2} for each charge consumed.").format(
+        ENERGY_INC.toInt().toString(),
+        DURATION.toInt().toString(),
+        VOODOO_FACTOR.toPercentageString()
+    ),
+    Icons.bTNBigBadVoodooSpell,
+    "D",
+    COOLDOWN,
+    50,
+    600,
+    "spell",
+    true
+))
+
+let MOJO_BUFF = compiletime(defineBuff("Mojo", "Maximum energy increased", Icons.bTNBigBadVoodooSpell, Abilities.crippleTarget, "origin", ""))
+
+
+//================================================================================================================================================================================================
+init
+    registerSpellEffectEvent(TROLL_MOJO) ->
+        onCast()
+
+function onCast()
+    let caster = GetSpellAbilityUnit()
+    let target = GetSpellTargetUnit()
+
+    let voodoo = caster.consumeVoodoo()
+    let energyInc = ENERGY_INC * (1 + voodoo * VOODOO_FACTOR)
+    let energyRegen = caster.getOwner().getMasteryLevel(EUPHORIA) * EUPHORIA_ENERGY_REGEN_INC
+
+    let tribalMojoLvl = caster.getOwner().getMasteryLevel(TRIBAL_MOJO)
+    
+    let cooldown = COOLDOWN * (1 - tribalMojoLvl*TRIBAL_MOJO_COOLDOWN_DEC)
+    caster.setAbilityCooldown(TROLL_MOJO, 0, cooldown)
+
+    let duration = DURATION * (1+tribalMojoLvl*TRIBAL_MOJO_DURATION_INC)
+    
+    target.applyBuff( new MojoBuff(energyInc, energyRegen), caster, duration )
+    
+
+
+
+class MojoBuff extends Buff
+
+    real energyInc
+    real energyRegen
+
+    construct(real energyInc, real energyRegenInc)
+        super(MOJO_BUFF, false)
+        this.energyInc = energyInc
+        this.energyRegen = energyRegenInc
+    
+    override function onApply()
+        if( target != null )
+            target.adjustStatFlat(STAT_ENERGY, energyInc)
+            target.adjustStatPercentage(STAT_ENERGY_REGEN, energyRegen)
+    
+    override function onRemove()
+        if( target != null )
+            target.adjustStatFlat(STAT_ENERGY, -energyInc)
+            target.adjustStatPercentage(STAT_ENERGY_REGEN, -energyRegen)
+    

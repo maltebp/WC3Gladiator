@@ -155,9 +155,10 @@ public function unit.applyBuff(Buff buffObject, unit source, real duration)
     buffObject.onApply()
 
     // Add duration
-    buffObject.durationCb = doAfter(duration) ->
-        buffObject.durationCb = null
-        destroy buffObject
+    if( duration > 0)
+        buffObject.durationCb = doAfter(duration) ->
+            buffObject.durationCb = null
+            destroy buffObject
 
 
 /** Remove ALL buffs of the particular type from this unit. This
@@ -217,12 +218,14 @@ public abstract class Buff
     /** Is run when a buff of this type is applied to a unit. Use
         the internal variables 'source' and 'target' to get the
         buff source and target. These MAY BE NULL */
-    abstract function onApply()
+    function onApply()
+        skip
 
     /** Is run when a buff of this type is removed from a unit. Use
         the internal variables 'source' and 'target' to get the
         buff source and target. These MAY BE NULL */
-    abstract function onRemove()
+    function onRemove()
+        skip
 
 
 function unit.removeAllBuffs()
@@ -235,6 +238,16 @@ function unit.removeAllBuffs()
                 destroy unitBuff
             destroy buffList
         destroy buffMap
+
+
+function unit.removeAllBuffs(int buffId)
+    if( unitBuffMap.has(this))
+        let buffMap = unitBuffMap.getAndRemove(this)
+        if( buffMap.has(buffId) )
+            let buffList = buffMap.get(buffId)  
+            for unitBuff in buffList
+                unitBuff.onRemove()
+                destroy unitBuff
     
 
 init

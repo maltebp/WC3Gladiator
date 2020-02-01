@@ -32,8 +32,8 @@ public let HALF_BREED_WRECKING_STRIKE_BUFF = compiletime(defineBuff(
     "Wrecking Strike",
     "Reduced armor.",
     Icons.bTNCorpseExplode,
-    Abilities.crippleTarget,
-    "origin",
+    Abilities.cryptFiendMissileTarget,
+    "chest",
     ""
 ))
 

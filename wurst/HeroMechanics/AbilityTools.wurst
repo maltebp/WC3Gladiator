@@ -22,7 +22,7 @@ import ObjectIds
 
 public function defineSingleTarget1( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation, bool friendly ) returns int
     let abilId = ABIL_ID_GEN.next()
-    let targetsAllowed = (friendly ? "friend" : "enemy") + ",ground"
+    let targetsAllowed = (friendly ? "friend,self" : "enemy") + ",ground"
 
     new AbilityDefinitionChainLightningcreep(abilId)
     ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
@@ -41,7 +41,7 @@ public function defineSingleTarget1( string name, string description, string ico
 
 
 public function defineSingleTarget2( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation, bool friendly ) returns int
-    let targetsAllowed = (friendly ? "friend" : "enemy") + ",ground"
+    let targetsAllowed = (friendly ? "friend,self" : "enemy") + ",ground"
     let abilId = ABIL_ID_GEN.next()
     new AbilityDefinitionSeaWitchForkedLightning(abilId)
     ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
@@ -60,7 +60,7 @@ public function defineSingleTarget2( string name, string description, string ico
     return abilId
 
 public function defineSingleTarget3( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation, bool friendly ) returns int
-    let targetsAllowed = (friendly ? "friend" : "enemy") + ",ground"
+    let targetsAllowed = (friendly ? "friend,self" : "enemy") + ",ground"
     let abilId = ABIL_ID_GEN.next()
     new AbilityDefinitionFingerofDeath(abilId)
     ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
@@ -72,6 +72,35 @@ public function defineSingleTarget3( string name, string description, string ico
     ..setDamage(1, 0)
     ..setLightningEffects("")
     ..setGraphicDuration(1, 0.01)
+    ..setTargetsAllowed(1, targetsAllowed)
+    return abilId
+
+
+let singleTarget4_Buff = BUFF_ID_GEN.next()
+var singleTarget4_BuffDefined = false
+public function defineSingleTarget4( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation, bool friendly ) returns int
+    let targetsAllowed = (friendly ? "friend,self" : "enemy") + ",ground"
+    let abilId = ABIL_ID_GEN.next()
+    
+    if( not singleTarget4_BuffDefined )
+        singleTarget4_BuffDefined = true
+        new BuffDefinition(singleTarget4_Buff, 'Blsh')
+        ..setName(1, "")
+        ..setTooltipNormal(1, "Hidden buff")
+        ..setTooltipNormalExtended(1, "Nothing to see here")
+        ..setIcon(Icons.bTNAcorn)
+        ..setTargetAttachments(1, 0)
+        ..setTargetAttachmentPoint0(1, "")
+        ..setTargetAttachmentPoint1(1, "")
+        ..setArtTarget(1, "")
+
+    new AbilityDefinitionLightningShieldcreep(abilId)
+    ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
+    ..setCastRange(1, range)
+    ..setAnimationNames(animation)
+    ..setDamageperSecond(1, 0)
+    ..setDurationHero(1, 0.01)
+    ..setDurationNormal(1, 0.01)
     ..setTargetsAllowed(1, targetsAllowed)
     return abilId
 

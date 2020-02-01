@@ -9,20 +9,21 @@ import Projectile
 import MyLibrary
 import GroundEffect
 import Voodoo
+import initlater TrollMasteries
 
 
 //================================================================================================================================================================================================
 // Settings
 
 
-let DMG_FACTOR  = 1.
+let DMG_FACTOR  = 1.5
 let RADIUS      = 150.
 
 let VOODOO_DMG_FACTOR = 0.01
 
 let BURN_RADIUS         = 150.
-let BURN_DMG_FACTOR     = 0.5
-let BURN_DURATION       = 5.
+let BURN_DMG_FACTOR     = 0.3
+let BURN_DURATION       = 7.
 let BURN_FREQ           = 1.
 
 // // =========================================================================================================
@@ -42,7 +43,7 @@ public let TROLL_FIERY_CONCOCTION = compiletime(defineAOE1(
     Icons.bTNLiquidFire,
     "Q",
     6.,
-    30,
+    40,
     600,
     RADIUS,
     "attack"
@@ -67,6 +68,7 @@ function onCast()
 
     projectile
     ..addActionOnFinish() ->
+        let radiusFactor = (1 + caster.getOwner().getMasteryLevel(WILDFIRE) * WILDFIRE_RADIUS_FACTOR)
         SND_EXPLODE.playOnPoint(targetPos.withTerrainZ())
 
         addEffect( Abilities.fireLordDeathExplode, targetPos.withTerrainZ(100))
@@ -77,12 +79,12 @@ function onCast()
         ..setScale(1)
         ..setTime(0.5)
         ..setTimeScale(2.)
-
+        
         let baseDmg = caster.getPower() * (1+voodoo*VOODOO_DMG_FACTOR)
 
         // Effect
         let explodeDmg = baseDmg * DMG_FACTOR
-        forEnemiesInRange( caster.getOwner(), targetPos, RADIUS ) target ->
+        forEnemiesInRange( caster.getOwner(), targetPos, RADIUS * radiusFactor ) target ->
             caster.damageTargetSpell( target, explodeDmg )
             target.addEffect( Abilities.incinerateBuff,  "chest" )
             ..destr()
@@ -90,7 +92,7 @@ function onCast()
         /* Note: Apparently it bugs out if you create a new instance of class
             withing this function. Therefor I created this doAfter thingy. */
         doAfter(0.01) ->
-            new Flames( caster, targetPos, baseDmg * BURN_DMG_FACTOR, BURN_DURATION, BURN_FREQ)
+            new Flames( caster, targetPos, baseDmg * BURN_DMG_FACTOR, BURN_DURATION, BURN_FREQ, RADIUS * radiusFactor )
 
 
 
@@ -100,26 +102,30 @@ class Flames extends GroundEffect
     private unit sourceUnit
     private real damage 
     private real freq
+    private real radius
 
-    construct( unit sourceUnit, vec2 pos, real damage, real duration, real freq )
+    construct( unit sourceUnit, vec2 pos, real damage, real duration, real freq, real radius )
         super( pos, Abilities.flameStrikeDamageTarget )
         
         this.sourceUnit = sourceUnit
         this.damage = damage
         this.freq = freq
+        this.radius = radius
 
         baseSfxScale = 1
 
-        addLayer(20, 1)
-        addLayer(70, 4)
-        addLayer(100, 5)
+        let layers = radius.toInt() div 50
+        let layerDistance = radius / layers
+
+        for i=1 to layers
+            addLayer( i*layerDistance - 25, i.squared() + 2 )
 
         setFrequency( freq )
         addDuration( duration )
         
         
     override function doEffect()
-        forEnemiesInRange( sourceUnit.getOwner(), pos, BURN_RADIUS ) target ->
+        forEnemiesInRange( sourceUnit.getOwner(), pos, radius ) target ->
             sourceUnit.damageTargetSpell( target, damage )
             hitTargets.add(target)
             doAfter( freq-0.01) ->

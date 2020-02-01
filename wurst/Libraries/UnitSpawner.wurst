@@ -4,6 +4,8 @@ import TimerUtils
 import public SoundUtils
 import LinkedList
 import OnUnitEnterLeave
+import UtilCommands
+import StringUtils
 
 
 /*
@@ -404,10 +406,11 @@ public function unit.getSpawner() returns UnitSpawner
     if UnitSpawner.allSpawners.size() > 0
 
         for spawner in UnitSpawner.allSpawners
-
             if spawner.spawnedUnits.has(this)
                 return spawner
-        
+            if( spawner.summonedUnits.has(this) )
+                return spawner
+                
     return null
 
 public interface RemoteFunction<UnitSpawner>
@@ -421,3 +424,24 @@ init
     
         if( spawner != null )
             spawner.removeUnit(u)
+
+
+
+    defineUtilCommand("spawners")
+    ..setAction() (p,args,opts) ->
+        print("\nChecking spawners")
+        for spawner in UnitSpawner.allSpawners
+            if( spawner.spawnedUnits.size() > 0 or spawner.spawnedUnits.size() > 0)
+                print("\nSpawner---------".highlight())
+                print("Regular units:".withColor(color(200,200,200)))
+                for u in spawner.spawnedUnits
+                    print("    {0} ({1})".format(
+                        u.getName(),
+                        u.isAlive() ? "alive" : "dead"
+                    ))
+                print("Summoned units:".withColor(color(200,200,200)))   
+                for u in spawner.summonedUnits
+                    print("    {0} ({1})".format(
+                        u.getName(),
+                        u.isAlive() ? "alive" : "dead"
+                    ))

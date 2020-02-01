@@ -7,6 +7,10 @@ import Voodoo
 import BloodPact
 import FieryConcoction
 import VoodooLink
+import Stats
+import VileSpirit
+import SoulSiphon
+import Mojo
 
 public let TROLL = new GladiatorType("Troll")
 public let TROLL_UNIT_ID = compiletime(HERO_ID_GEN.next())
@@ -22,13 +26,18 @@ init
     ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED, DEFAULT_ENERGY, DEFAULT_ENERGY_REGEN)
     ..addAbilities(
         TROLL_BLOOD_PACT,
+        TROLL_SOUL_SIPHON,
         TROLL_FIERY_CONCOCTION,
-        TROLL_VOODOO_LINK
+        
+        TROLL_VOODOO_LINK,
+        TROLL_MOJO,
+        TROLL_VILE_SPIRIT
     )
 
     TROLL
     ..addActionOnSpawn() gladiator ->
         gladiator.enableCharge()
+        gladiator.setStatBase(STAT_CHARGE_DEREGEN, 5)
         gladiator.onFullCharge() (unit chargeUnit) ->
             chargeUnit.voodooFull()
 
@@ -39,7 +48,7 @@ init
 function defineUnit()
     defineGladiatorUnit(TROLL_UNIT_ID, 'Oshd', "Troll", Icons.bTNForestTrollShadowPriest)
     ..setTooltipBasic(TROLL.getNameColored())
-    ..setTooltipExtended("Trolls deal in wicked magic, and this one is no difference. With his voodoo he will curse and trick his enemies into submission.")
+    ..setTooltipExtended("Trolls deal in wicked magic, and this one is no difference. With his voodoo he will curse and trick his enemies into submission, and aid himself and his allies with his mojo.")
     ..setModelFile(Units.witchDoctor1)
     ..setScalingValue(1.15)
     ..setNormalAbilities("AInv,A020")

@@ -1,0 +1,406 @@
+package Taskmaster
+
+
+import public Round4
+import UnitVisualsUtils
+import UtilCommands
+import RandomAngle
+import AbilityTools
+import ClosureTimers
+import OnUnitTypeEnter
+import HashMap
+import LinkedList
+import GladiatorSystem
+
+
+//================================================================================================================================================================================================
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+let TASKMASTER = 'n019'
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+let CHARGE_SPEED = 900
+let CHARGE_RADIUS = 175.
+let CHARGE_DMG_FACTOR = 100.
+let CHARGE_WALL_HIT_SLOW = 0.90
+let CHARGE_WALL_HIT_DURATION = 20.
+
+let WARSTOMP_DMG_FACTOR = 5.
+let WARSTOMP_RADIUS    = 400.
+let WARSTOMP_MOVE_SPEED_RED = 0.5
+let WARSTOMP_DURATION = 8. 
+
+let MUSHROOM_RADIUS = 250.
+let MUSHROOM_DMG_INC = 0.4
+
+
+Round round = null
+
+
+init
+
+
+//     round = new Round
+//     ..setReward(30, 3)
+//     ..addArtifactRewards(1)
+//     ..addItemRewards(ITEM_SOULSTONE)
+
+//     ..setTitle("Ghosts 'n' Stuff")
+//     ..setDescription("It seems like somebody's watching you.")
+//     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
+//     ..setCodeOnClear() r ->
+//         removeClouds()
+
+
+
+//     // Ghoul - 1
+//     round.addSpawner(new UnitSpawner(GHOUL, ENEMY, vec2(-639,1025), 8))
+//     ..setStartDelay(4)
+//     ..setFrequencyDeviation(0.1)
+//     ..setRandomSpawn(gg_rct_Arena_Spawn1)
+//     ..setNearestTargetOnSpawn(GetPlayableMapRect())
+//     ..setSpawnCount(15)
+//     ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
+    
+
+//     // Ghoul - 2
+//     round.addSpawner(new UnitSpawner(GHOUL, ENEMY, vec2(527,1025), 15))
+//     ..setStartDelay(40)
+//     ..setFrequencyDeviation(0.03)
+//     ..setRandomSpawn(gg_rct_Arena_Spawn1)
+//     ..setNearestTargetOnSpawn(GetPlayableMapRect())
+//     ..setSpawnCount(5)
+//     ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
+    
+//     RemoteFunction<UnitSpawner> func
+
+//     func = (UnitSpawner spawner) -> begin
+//         Disease.addUnit(spawner.getLastSpawnedUnit(), DISEASEDAMAGE, 0, 150)
+//     end
+
+//     // Zombie - 1
+//     round.addSpawner(new UnitSpawner(ZOMBIE, ENEMY, vec2(527,1025), 15))
+//     ..setStartDelay(10)
+//     ..setFrequencyDeviation(0.03)
+//     ..setRandomSpawn(gg_rct_Arena_Spawn1)
+//     ..setNearestTargetOnSpawn(GetPlayableMapRect())
+//     ..setSpawnCount(8)
+//     ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
+//     ..setCodeOnSpawn(func)
+
+//     func = (UnitSpawner spawner) -> begin
+//         Disease.addUnit(spawner.getLastSpawnedUnit(), DISEASEDAMAGE, 0, 150)
+//     end
+
+//     // Zombie - 2
+//     round.addSpawner(new UnitSpawner(ZOMBIE, ENEMY, vec2(527,1025), 20))
+//     ..setStartDelay(40)
+//     ..setFrequencyDeviation(0.03)
+//     ..setRandomSpawn(gg_rct_Arena_Spawn1)
+//     ..setNearestTargetOnSpawn(GetPlayableMapRect())
+//     ..setSpawnCount(4)
+//     ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
+//     ..setCodeOnSpawn(func)
+
+//     // Ghost - 1
+//     round.addSpawner(new UnitSpawner(GHOST, ENEMY, vec2(527,1025), 18))
+//     ..setStartDelay(20)
+//     ..setFrequencyDeviation(0.03)
+//     ..setRandomSpawn(gg_rct_Arena_Spawn1)
+//     ..setNearestTargetOnSpawn(GetPlayableMapRect())
+//     ..setSpawnCount(6)
+//     ..setSpawnEffect("Abilities\\Spells\\NightElf\\Blink\\BlinkCaster.mdl")
+
+//     // Ghost - 1
+//     round.addSpawner(new UnitSpawner(GHOST, ENEMY, vec2(527,1025), 30))
+//     ..setStartDelay(80)
+//     ..setFrequencyDeviation(0.03)
+//     ..setRandomSpawn(gg_rct_Arena_Spawn1)
+//     ..setNearestTargetOnSpawn(GetPlayableMapRect())
+//     ..setSpawnCount(2)
+//         ..setSpawnEffect("Abilities\\Spells\\NightElf\\Blink\\BlinkCaster.mdl")
+
+// //================================================================================================================================================================================================
+// // STATS SCALING
+
+//     round.setStatScalingCallback() (unit u) ->
+//         let id = u.getTypeId()
+//         if( id == GHOUL or id == GHOST or id == ZOMBIE )
+//             round.scaleUnitStats(u)
+//             u.adjustToDifficulty()
+
+    
+
+// function removeClouds()
+//     DiseaseCloud.destroyAll()
+        
+
+// // SETUP COLOR
+// init
+//     UnitVisuals.addUnitType(GHOUL)
+//     ..setPlayerColor(PLAYER_COLOR_COAL)
+        
+
+
+
+
+
+//================================================================================================================================================================================================
+// WARSTOMP
+
+let WARSTOMP = compiletime( defineImmediate1( "Stomp", "", Icons.bTNWarStomp, "W", 0, 0, "slam"))
+let WARSTOMP_BUFF = compiletime( defineBuff("Stomp", "You're slowed.", Icons.bTNWarStomp, Abilities.stasisTotemTarget, "overhead",""))
+      
+class WarstompBuff extends Buff
+    construct()
+        super( WARSTOMP_BUFF, false)
+    
+    override function onApply()
+        if( target != null )
+            target.adjustStatPercentage(STAT_MOVESPEED, -WARSTOMP_MOVE_SPEED_RED)
+
+    override function onRemove()
+        if( target != null )
+            target.adjustStatPercentage(STAT_MOVESPEED, WARSTOMP_MOVE_SPEED_RED)
+
+init
+    onUnitTypeEnter(TASKMASTER) u ->
+        u.addAbility(WARSTOMP)
+    registerSpellEffectEvent(WARSTOMP) ->
+        let caster = GetSpellAbilityUnit()
+        let targets = enemiesInRange(caster.getOwner(), caster.getPos(), WARSTOMP_RADIUS)
+        let damage = caster.getPower() * WARSTOMP_DMG_FACTOR
+
+        for target from targets
+            caster.damageTargetPhysical(target, damage)
+            target.applyBuff(new WarstompBuff(), caster, WARSTOMP_DURATION)
+
+        addEffect(Abilities.warStompCaster, caster.getPos() )
+        ..setScale(1.8)
+        ..setDuration(4)
+        addEffect(Objects.impaleTargetDust, caster.getPos().withTerrainZ(125))
+        ..setScale(3)
+        ..destr()
+        
+
+
+//================================================================================================================================================================================================
+// Charge
+
+let CHARGE = compiletime(defineSingleTarget1("Charge","",Icons.bTNMagnataurBrown, "Q", 0, 0, 4000, "attack", false))
+let CHARGE_SLOW_BUFF = compiletime( defineBuff("Dizzy", "This unit is slowed.", Icons.bTNWarStomp, Abilities.stasisTotemTarget, "overhead",""))
+
+
+init
+
+    onUnitTypeEnter(TASKMASTER) u ->
+        u.addAbility(CHARGE)
+    registerSpellEffectEvent(CHARGE) ->
+        new ChargeInstance(GetSpellAbilityUnit(), GetSpellTargetUnit().getPos())
+
+
+class ChargeInstance
+    static let UPDATE_FREQ = 0.01
+    static let ANIMATION_SPEED = 2.
+
+    CallbackPeriodic moveCb
+    CallbackPeriodic animationCb
+
+    unit caster
+    real speed 
+    angle direction
+
+    construct(unit caster, vec2 target)
+        this.caster = caster 
+        
+        direction = caster.getPos().angleTo(target)
+        
+        caster.pause()
+        caster.setInvulnerable(true)
+        caster.setPathing(false)
+        caster.setTimeScale(2)
+
+        speed = CHARGE_SPEED * UPDATE_FREQ
+
+        animate()
+
+        moveCb = doPeriodically(UPDATE_FREQ, (cb) -> move())
+        animationCb = doPeriodically(0.666 / 2, (cb) -> animate())
+
+    
+    ondestroy
+        if( caster != null )
+            caster.unpause()
+            caster.setInvulnerable(false)
+            caster.setPathing(true)
+            caster.setTimeScale(1)
+            caster.setAnimation("stand")
+
+        destroy moveCb
+        destroy animationCb 
+
+
+    function move()
+        let newPos = caster.getPos().polarOffset(direction, speed)
+
+        if( newPos.isInRect(gg_rct_ArenaBounds) )
+            caster.setPos(newPos)
+
+            let targets = enemiesInRange(caster.getOwner(), newPos, CHARGE_RADIUS)
+            if( targets.size() > 0 )
+                let target = targets.getNearestUnit(newPos)
+                hitTarget(target)
+                targets.clear()
+                destroy this
+        else
+            hitWall()
+            destroy this
+
+
+    function animate()
+        caster.setAnimation(3)
+        let currentPos = caster.getPos()
+
+        let roll = GetRandomReal(0,PI2)
+        let sizeFactor = 1+GetRandomReal(0,0.2)
+
+        addEffect("Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl", currentPos)
+        ..setOrientation(0,0, roll)
+        ..setScale(1.2*sizeFactor)
+        ..destr()
+        addEffect("Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl", currentPos)
+        ..setOrientation(0,0, roll)
+        ..setScale(1.2*sizeFactor)
+        ..destr()
+
+
+    function hitTarget(unit target)
+        caster.damageTargetPhysical(target, caster.getPower() * CHARGE_DMG_FACTOR )
+        
+        addEffect(Abilities.warStompCaster, target.getPos() )
+        ..setScale(1.5)
+        ..setDuration(4)
+        addEffect(Abilities.ancientProtectorMissile, target.getPos())
+        ..setScale(1.5)
+        ..destr()
+    
+        
+    function hitWall()
+        doAfter(0.1) ->
+            caster.applyBuff(new WallHitBuff(), caster, CHARGE_WALL_HIT_DURATION)
+        addEffect(Abilities.warStompCaster, caster.getPos() )
+        ..setScale(1.5)
+        ..setDuration(4)
+        addEffect(Abilities.ancientProtectorMissile, caster.getPos().withTerrainZ(150))
+        ..setScale(2.0)
+        ..destr()
+
+    
+class WallHitBuff extends Buff
+    construct()
+        super( CHARGE_SLOW_BUFF, false)
+    
+    override function onApply()
+        if( target != null )
+            target.adjustStatPercentage(STAT_MOVESPEED, -CHARGE_WALL_HIT_SLOW)
+
+    override function onRemove()
+        if( target != null )
+            target.adjustStatPercentage(STAT_MOVESPEED, CHARGE_WALL_HIT_SLOW)
+
+        
+        
+
+//================================================================================================================================================================================================
+// MUSHROOM
+
+let MUSHROOM = 'h00C'        
+let MUSHROOM_BUFF = compiletime( defineBuff("Blue Mushroom", "You're power is increased", Icons.bTNCharm, Abilities.frostArmorTarget, "chest",""  ))
+let SND_MUSHROOM_EXPLODE = new SoundDefinition(Sounds.eggSackDeath1, false, true)
+
+class Mushroom
+    static let instances = new LinkedList<thistype>
+    unit mushroom
+    
+    construct(vec2 pos) 
+        instances.add(this)
+        mushroom = createUnit(ENEMY, MUSHROOM, pos, randomAngle())
+
+    ondestroy
+        instances.remove(this)
+        mushroom.remove()
+
+    function kill()
+        let pos = mushroom.getPos()
+
+        let targets = ENUM_GROUP..enumUnitsInRange(pos, MUSHROOM_RADIUS)
+        for target in targets
+            if( target.isAlive() and (target.getTypeId() == TASKMASTER or target.isGladiator()))
+                target.applyBuff(new MushroomBuff(), mushroom, 0)
+
+        addEffect(Objects.nEDeathSmall, pos)
+        ..setScale(0.75)..setDuration(5)
+        addEffect(Units.wispExplode, pos)..setDuration(5)
+        addEffect(Abilities.cloudOfFog, pos.withTerrainZ(-50))
+        ..setScale(0.5)
+        ..destr()
+        
+        destroy this
+
+
+class MushroomBuff extends Buff
+    construct()
+        super(MUSHROOM_BUFF, true)
+
+    override function onApply()
+        if( target != null )
+            target.adjustStatPercentage(STAT_DAMAGE, MUSHROOM_DMG_INC)
+
+    override function onRemove()
+        if( target != null )
+            target.adjustStatPercentage(STAT_DAMAGE, -MUSHROOM_DMG_INC)
+
+    
+init
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH) ->
+        let dyingUnit = GetDyingUnit()
+        if( dyingUnit.getTypeId() == MUSHROOM )
+            for instance in Mushroom.instances
+                if( instance.mushroom == dyingUnit )
+                    instance.kill()
+                    break
+            
+
+function clearMushroomBuffs()
+    for gladiator in getAllGladiators()
+        if( gladiator.getUnit().isAlive() )
+            gladiator.getUnit().removeBuff(MUSHROOM_BUFF)
+            
+
+//================================================================================================================================================================================================
+// Unit colors
+init
+    // Unit Colors
+    UnitVisuals.addUnitType(TASKMASTER)..setPlayerColor(PLAYER_COLOR_COAL)
+    
+    
+
+//================================================================================================================================================================================================
+// Test commands
+init
+    let cmd = defineUtilCommand("taskmaster")
+    ..setAction() (p, args, opts ) ->
+        createUnit( p, TASKMASTER, p.getMousePos(), randomAngle() )
+
+    var sub = cmd.addSubCommand("mushroom")
+    ..setAction() (p, args, opts ) ->
+        new Mushroom( p.getMousePos() )
+
+    sub.addSubCommand("clear")
+    ..setAction() (p, args, opts ) ->
+        clearMushroomBuffs()

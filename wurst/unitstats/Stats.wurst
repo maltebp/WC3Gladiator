@@ -53,7 +53,7 @@ init
             u.setMoveSpeed(movespeed)
         end)
         ..setValueToStringCallback( value -> value.toString(0) )
-        ..setMinValue(250)
+        ..setMinValue(150)
         ..setMaxValue(450)
 
     // Measured in attacks per second (not attack cooldown)

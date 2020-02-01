@@ -1,18 +1,20 @@
 package Voodoo
 
-import HashMap
-import OnUnitEnterLeave
 import Charge
 import AbilityObjEditing
 import ObjectIdGenerator
 import DummyCaster
 import Orders
+import SoundUtils
+import ClosureTimers
 
 //================================================================================================================================================================================================
 // Settings
 
 let HEX = compiletime(ABIL_ID_GEN.next())
 let HEX_DURATION = 4.
+
+let SND_HEX = new SoundDefinition(Sounds.rokhanWarcry1, false, true)
 
 //================================================================================================================================================================================================
 
@@ -24,10 +26,13 @@ public function unit.consumeVoodoo() returns real
 
 public function unit.voodooFull()
     this.setCharge(0)
+    doAfter(0.5) ->
+        SND_HEX.playOnPoint(this.getPos().withTerrainZ(200))
     new DummyCaster()
     ..owner(Player(PLAYER_NEUTRAL_AGGRESSIVE))
     ..delay(5)
     ..castTarget(HEX, 1, Orders.hex, this)
+
 
 
 @compiletime

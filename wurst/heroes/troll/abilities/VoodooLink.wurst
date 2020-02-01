@@ -1,62 +1,39 @@
 package VoodooLink
 
-import HeroDefaults
-import ComboSystem
-import HoverAbility
-import TrollAnimations
-import AbilityCreation
-import Assets
 import MyLibrary
 import DamageDetection
 import LightningBounce
-import GroupUtils
 import LinkedList
 import FadeAndFilters
-import Damage
-import ErrorHandling
-import DamageType
-import SoulDrainData
-import Artifact
 import Updater
 
 import AbilityTools
 import Voodoo
-import UnitIndexer
-
-
+import Mastery
+import initlater TrollMasteries
 
 
 //================================================================================================================================================================================================
 // Settings
 
-
-let DMG_FACTOR = 0.25
+let DMG_FACTOR = 0.20
 let DURATION = 10.
 
 let JUMP_RANGE = 400.
-let JUMP_COUNT = 4
+let JUMP_COUNT = 5
 
-let RADIUS      = 150.
-
-let VOODOO_DMG_FACTOR = 0.01
-
-let BURN_RADIUS         = 150.
-let BURN_DMG_FACTOR     = 0.5
-let BURN_DURATION       = 5.
-let BURN_FREQ           = 1.
+let VOODOO_STEP_SIZE = 20
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 public let TROLL_VOODOO_LINK = compiletime(defineSingleTarget1(
     "Voodoo Link",
-    ("Throw a fiery concoction, which deals {0} of your power as damage to all enemies it hits."+
-        "The concoction leaves the ground fiery, and deals {1} of your power as damage to any enemies"
-        +" standing within it, every second for {2} seconds."+
-        "\n\nThis ability consumes all your voodoo, and its damage is increased by {0} for each charge consumed.").format(
+    ("Link an enemy with {0} nearby enemies for {1} seconds. Whenever you deal damage to a linked target, all other linked targets take {2} of the damage."+
+        "\n\nThis ability consumes all your voodoo, and the number of targets it hits is increased by 1 for each {3} charge consumed.").format(
+        JUMP_COUNT.toString(),
+        DURATION.toInt().toString(),
         DMG_FACTOR.toPercentageString(),
-        BURN_DMG_FACTOR.toPercentageString(),
-        BURN_DURATION.toInt().toString(),
-        VOODOO_DMG_FACTOR.toPercentageString()
+        VOODOO_STEP_SIZE.toString()
     ),
     Icons.bTNShadowPact,
     "R",
@@ -77,10 +54,13 @@ function onCast()
     let target = GetSpellTargetUnit()
 
     let voodoo = caster.consumeVoodoo()
-    new VoodooLink(
-        caster, target, DMG_FACTOR, DURATION, JUMP_COUNT, JUMP_RANGE
-    )
+    let extraJumps = voodoo.toInt() div VOODOO_STEP_SIZE
     
+    let damageFactor = DMG_FACTOR + (caster.getOwner().getMasteryLevel(WICKED_VOODOO) * WICKED_VOODOO_EFFECT_INC )
+
+    new VoodooLink(
+        caster, target, DMG_FACTOR, DURATION, JUMP_COUNT + extraJumps, JUMP_RANGE
+    )
     
     
 
@@ -120,6 +100,7 @@ public function unit.castLink( unit target, real duration, real damageFactor )
     /* Spread factor will update for all the linked units */
     VoodooLinkCaster.getInstance(this).addLinkUnit( target, damageFactor, duration )
     
+
 
 class VoodooLinkCaster
     private static let instances = new LinkedList<thistype>
@@ -179,7 +160,7 @@ public function unit.applyLink( real damageFactor, real duration ) returns Voodo
     return instance
     
 
-
+// TODO: Implement this as Buff class
 class VoodooLinkBuff extends Updater
 
     private static let instances = new LinkedList<thistype>
@@ -245,10 +226,11 @@ class VoodooLinkBuff extends Updater
 init    
     addOnDamageFunc() ->
         let damage = GetEventDamage()
-
-        let buffInstance = VoodooLinkBuff.getInstance(GetTriggerUnit())
+    
+        var buffInstance = VoodooLinkBuff.getInstance(GetTriggerUnit())
         if( buffInstance != null )
-            buffInstance.damageTaken(damage)
+            if( GetEventDamageSource().getOwner() == buffInstance.casterInstance.caster.getOwner() )
+                buffInstance.damageTaken(damage)
             
         
     
