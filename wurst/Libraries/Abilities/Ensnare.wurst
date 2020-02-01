@@ -5,10 +5,10 @@ import RegisterEvents
 import ErrorHandling
 import TimerUtils
 import ClosureTimers
+import UnitStats
+import Stats
 
 class Ensnare
-
-
     private static let DUMMYID = 'o004'
     private static let updateFreq = 0.1
     private static let instances = new IterableMap<unit,thistype>
@@ -73,8 +73,10 @@ class Ensnare
         let owningPlayer = (source != null) ? source.getOwner() : Player(PLAYER_NEUTRAL_AGGRESSIVE)
 
         net = createUnit(owningPlayer, DUMMYID, target.getPos(), angle(0))
-        ..setMaxHP(R2I(definition.ensnareHp), true)
+        ..setStatBase(STAT_HEALTH, definition.ensnareHp )
         ..setVertexColor(0,0,0,0)
+
+
 
         if definition.duration > 0
             timer_Duration.start( updateFreq, () -> destroy GetExpiredTimer().getData() castTo thistype )

@@ -1,423 +1,145 @@
 package Round8
 
+
 //=========================================================================================================================================================
-//  Tinker (Boss)
+// Rock Giants
 
 import public Round7
 
-import TimerUtils
 import RegisterEvents
 import AutoCastAbility
-import TimedSpecialEffects
 import UnitVisualsUtils
-import ErrorHandling
-import HomingRockets
-import Damage
-import AbilityTools
+import OnUnitTypeEnter
+import DeathSpawn
+import Shockwave
 import ClosureTimers
-import ObjectIds
+import EarthquakeNoChannel
+import Preloader
 
 
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Unit Ids 
+// ================================================================================================================================
+// Settings
 
-let TINKER = 'n00H'
-let TINKER_TANK = 'n00I'
-let EXPLODINGGOBLIN = 'n00J'
-let MINITANK = 'h004'
-let MECHANIC = 'o001'
+let ROCKGIANT = 'e000'
+let SHARDLING = 'n00O'
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-let HOMING_ROCKETS_DMG_BASE = 80.
-let HOMINGROCKETS_FREQ     = 0.5
-let HOMING_ROCKETS_DURATION = 7.
+let SHARDLINGS_SPAWNNUMBER = 4
+let SHOCKWAVE_STARTCOOLDOWN = 5.
+let SHOCKWAVE_COOLDOWN = 15.
+let SHOCKWAVE_DMG_FACTOR  = 15.
+let SHOCKWAVE_SPEED = 800.
+let SHOCKWAVE_WIDTH = 175.
+let SHOCKWAVE_CASTDELAY = 2.
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+let EARTHQUAKE_DURATION = 30.
+let EARTHQUAKE_COOLDOWN = 120.
+let EARTHQUAKE_STARTCOOLDOWN = 10.
+let EARTHQUAKE_SLOWFACTOR = 0.4
+let EARTHQUAKE_RANGE = 250.
+// For other earthquake adjustments see the dummy spell
 
-let EXPLODING_GOBLIN_DMG_BASE = 80.
-let EXPLODING_GOBLIN_DMG_TINKER = 0.15 // Percentage of total
-let EXPLODINGGOBLIN_RANGE  = 350.
-let EXPLODINGGOBLIN_DELAY = 2.
+constant let snd_Shockwave = new SoundDefinition(Sounds.mountainGiantPissed1, false)
 
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-let REPAIR_AMOUNT   = 0.008 // Percentage per half a second (approx)
-let REPAIR_FREQ     = 0.6 
-
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-let snd_BossSpawn       = new SoundDefinition(Sounds.heroTinkerWhat4, false)
-let snd_RocketBarrage   = new SoundDefinition(Sounds.heroTinkerPissed7, false)
-let snd_RobotExplode    = new SoundDefinition(Sounds.ironGolemYes1, false)
-let snd_HeroDeath       = new SoundDefinition(Sounds.heroTinkerYesAttack2, false)
-let snd_BossDeath       = new SoundDefinition(Sounds.tinkerDeathAlt1, false)
+Round round = null
 
 
 //=========================================================================================================================================================
 //  Setup
-Round round = null
+
 init
+
     round = new Round()
     ..setReward(30, 3)
-    ..addItemRewards(ITEM_POCKETROCKETGENERATOR, ITEM_DEFLECTIVEDISCDEVICE, ITEM_TINKERSPERSONALHAMMER)
-    ..setMusic(Sounds.pursuitTheme)
-    ..setTitle("Tinker (Boss)")
-    ..setDescription("Explosions will be both your friend and enemy")
+    ..addItemRewards(ITEM_STONEDOLL, ITEM_GIANTSSKIN)
+    ..addArtifactRewards(1)
+    ..setTitle("Rock Giants")
+    ..setDescription("It's probably best if you clean up the rubbles you smash them into.")
     ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
-    ..addAbilityReward(1)
+    ..setCodeOnClear() r ->
+        Earthquake.clearAll()
 
-
-        // Note: Boss Round spawn 1 more orb
-
-    // Setting up Round-remote functions
-    Round_RemoteFunction roundFunction
-    
-    // Prepare
-    roundFunction = (Round round) -> begin
-        let boss = createUnit(ENEMY, TINKER, vec2(14,1000), angle(PIHALF+PI))
-        Round.setBossUnit(boss)
-        Round.bossUnit.pause()
-        round.scaleUnitStats(boss)
-        boss.adjustToDifficulty()
-    end
-
-    round.codeOnPrepare = roundFunction
-
-    // On Start
-    let rocketBarrage = new AutoCastAbilityType('A01F', Orders.tranquility, TargetType.ENEMY_IMMEDIATE, 6000, 10, 30)
-    roundFunction = (Round round) -> begin
-        Round.bossUnit.unpause()
-        Round.bossUnit.issueImmediateOrderById(Orders.robogoblin)
-        snd_BossSpawn.play()
-        Round.bossUnit.addAutoCastAbility(rocketBarrage)
-    end
-    round.codeOnStart = roundFunction
-
-    // On Boss Death
-    roundFunction = (Round round) -> begin
-        snd_BossDeath.play()
-    end
-    round.codeOnLastUnitDeath = roundFunction
-    
-
-    // On Hero Death
-    roundFunction = (Round round) -> begin
-        snd_HeroDeath.play()
-    end
-    round.codeOnHeroDeath = roundFunction
-
-
-    // Mechanic
-    round.addSpawner(new UnitSpawner(MECHANIC, ENEMY, vec2(-639,1025), 24))
-    ..setStartDelay(20)
-    ..setFrequencyDeviation(0)
+    // Spawner 1
+    round.addSpawner(new UnitSpawner(ROCKGIANT, ENEMY, vec2(-639,1025), 15))
+    ..setStartDelay(3)
+    ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.mountainGiantYes3)
+    ..setSpawnEffect("Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl")
+    ..setSpawnCount(8)
 
-    // Mechanic
-    round.addSpawner(new UnitSpawner(MECHANIC, ENEMY, vec2(-639,1025), 24))
-    ..setStartDelay(20)
-    ..setFrequencyDeviation(0)
+    // Spawner 2
+    round.addSpawner(new UnitSpawner(ROCKGIANT, ENEMY, vec2(-639,1025), 30))
+    ..setStartDelay(50)
+    ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.mountainGiantYes3)
+    ..setSpawnEffect("Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl")
+    ..setSpawnCount(2)
 
-    // Exploding Robot
-    round.addSpawner(new UnitSpawner(EXPLODINGGOBLIN, ENEMY, vec2(0,0), 12))
-    ..setStartDelay(10)
-    ..setFrequencyDeviation(0)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSoundOnSpawn(Sounds.clockwerkGoblinYesAttack1)
+    // Other setup
 
-    // Exploding Robot
-    round.addSpawner(new UnitSpawner(EXPLODINGGOBLIN, ENEMY, vec2(0,0), 20))
-    ..setStartDelay(100)
-    ..setFrequencyDeviation(0)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSoundOnSpawn(Sounds.clockwerkGoblinYesAttack1)
+    UnitVisuals.addUnitType(ROCKGIANT)
+    ..setPlayerColor(PLAYER_COLOR_LIGHT_GRAY)
 
-    // Mini Tank
-    round.addSpawner(new UnitSpawner(MINITANK, ENEMY, vec2(0,0), 8))
-    ..setStartDelay(5)
-    ..setFrequencyDeviation(0)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSoundOnSpawn(Sounds.steamTankWhat3)
+    UnitVisuals.addUnitType(SHARDLING)
+    ..setPlayerColor(PLAYER_COLOR_LIGHT_GRAY)
 
-    // Mini Tank
-    round.addSpawner(new UnitSpawner(MINITANK, ENEMY, vec2(0,0), 18))
-    ..setStartDelay(120)
-    ..setFrequencyDeviation(0)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSoundOnSpawn(Sounds.steamTankWhat3)
+    onUnitTypeEnter(ROCKGIANT) rockGiant ->
+        new DeathSpawnData(rockGiant, SHARDLING, SHARDLINGS_SPAWNNUMBER)
+        ..setEffectOnSpawn("Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl")
+        ..setCodeOnUnitSpawn() spawnedUnit ->
+            rockGiant.getSpawner().addSummonedUnit(spawnedUnit)
 
-
-    // Unit Colors
-    UnitVisuals.addUnitType(MECHANIC)..setPlayerColor(PLAYER_COLOR_COAL)
-    UnitVisuals.addUnitType(TINKER)..setPlayerColor(PLAYER_COLOR_AQUA)
-    UnitVisuals.addUnitType(TINKER_TANK)..setPlayerColor(PLAYER_COLOR_AQUA)
-    UnitVisuals.addUnitType(EXPLODINGGOBLIN)..setPlayerColor(PLAYER_COLOR_MAROON)
-    UnitVisuals.addUnitType(MINITANK)..setPlayerColor(PLAYER_COLOR_WHEAT)
-
-    TINKER
-    ..setUnitTypeStat(STAT_DAMAGE_TAKEN, -10.00)
-    ..setUnitTypeStat(STAT_RESISTANCE, 10.)
-
-    TINKER_TANK
-    ..setUnitTypeStat(STAT_DAMAGE_TAKEN, -10.00)
-    ..setUnitTypeStat(STAT_RESISTANCE, 10.)
-
+    addAutoCastAbilityToUnitType(ROCKGIANT, new AutoCastAoePoint('A01U', Orders.carrionswarm, TargetType.ENEMY_POINT, 600, SHOCKWAVE_STARTCOOLDOWN, SHOCKWAVE_COOLDOWN))
     
-    //================================================================================================================================================================================================
-    // STATS SCALING
-
-    round.setStatScalingCallback() (unit u) ->
-        let id = u.getTypeId()
-        if( id == TINKER or id == TINKER_TANK or id == MECHANIC or id == EXPLODINGGOBLIN or id == MINITANK )
-            round.scaleUnitStats(u)
-            u.adjustToDifficulty()
-
-
-
-// =============================================================================================================================
-
-class RocketBarrage
-
-    private static constant int ORDERID = Orders.tranquility
+    addAutoCastAbilityToUnitType(ROCKGIANT, new AutoCastAoePoint('A01W', Orders.dispel, TargetType.ENEMY_POINT, 800, EARTHQUAKE_STARTCOOLDOWN, EARTHQUAKE_COOLDOWN))
     
-    protected unit caster
-    protected int damage
-    protected real range
-    protected real duration
-    protected real fireFreq
 
-    private timer timer_Duration
-    private timer timer_FireFreq
+    registerSpellEffectEvent('A01U', function shockWaveEffect)
 
-    construct(unit caster, int damage, real range, real fireFreq, real duration)
-        this.caster = caster
-        this.damage = damage
-        this.range = range
-        this.fireFreq = fireFreq
-        this.duration = duration
-
-        timer_Duration = getTimer()
-        ..setData(this castTo int)
-        ..start(1.5, function callback_delayedStart )
-
-        
-    ondestroy
-        caster.issueImmediateOrder("stop")
-
-        if timer_Duration != null
-            timer_Duration.release()
-
-        if timer_FireFreq != null
-            timer_FireFreq.release()
-
-    protected function delayedStart()
-        if shouldDestroy()
-            destroy this
-        else
-            timer_Duration.start(duration, function callback_EndDuration )
-
-            timer_FireFreq = getTimer()
-            ..setData(this castTo int)
-            ..startPeriodic(fireFreq, function callback_FireOnAll )
-
-    private static function callback_delayedStart()
-        GetExpiredTimer().getData() castTo thistype.delayedStart()
-
-    /** Filters targets from the group. Does not create a new group, but returns the same one */
-    protected function getTargets() returns group
-        let targets = ENUM_GROUP
-        ..enumUnitsInRange(caster.getPos(), range)
-
-        for target in targets
-            if target.getOwner().isAllyOf(caster.getOwner()) or not target.isAlive()
-                targets.removeUnit(target)
-
-        return targets
-        
-
-    protected function fireOnAll()
-        if not shouldDestroy()
-            let targets = getTargets()
-
-            if targets.size() > 0 
-                for target from targets 
-                    fire(target)
-        else
-            destroy this
-    
-        
-    protected function shouldDestroy() returns boolean
-        return caster == null or not caster.isAlive() or caster.getCurrentOrder() != ORDERID
-
-    private  static function callback_FireOnAll()
-        GetExpiredTimer().getData() castTo thistype.fireOnAll()
-
-    private static function callback_EndDuration()
-        destroy GetExpiredTimer().getData() castTo thistype 
-
-    protected function fire(unit target)
-        new HomingRocketGenerator(caster.getPos(), caster.getOwner(), target, damage)
-
-    
-function rocketBarrage()
-    snd_RocketBarrage.play()
-    let damage = HOMING_ROCKETS_DMG_BASE * (1 + (1-round.getLevel() * ROUND_LVL_SCALE_POWER))
-    new RocketBarrage(GetSpellAbilityUnit(), damage.toInt(), 5000, HOMINGROCKETS_FREQ, HOMING_ROCKETS_DURATION)
-   
-
-init
-    registerSpellEffectEvent('A01F', function rocketBarrage )
+    registerSpellEffectEvent('A01W', function earthquakeCast)
 
 
-//=========================================================================================================================================================
-
-function explode(unit explodingUnit)
-
-
-    let targets = ENUM_GROUP..enumUnitsInRange(explodingUnit.getPos(), EXPLODINGGOBLIN_RANGE)
-
-    for target in targets
-        if not target.isAlive() or target == explodingUnit or (target.getOwner().isAllyOf(explodingUnit.getOwner()) and target.getTypeId() != TINKER_TANK)
-            targets.removeUnit(target)
-
-    if targets.size() > 0
-        for target from targets
-            if target.getTypeId() == TINKER_TANK
-                // Damage percentage of boss health
-                target.addHP( - (target.getMaxHP() * EXPLODING_GOBLIN_DMG_TINKER))
-            else
-                let damage = EXPLODING_GOBLIN_DMG_BASE * (1 + (1-round.getLevel() * ROUND_LVL_SCALE_POWER))
-                explodingUnit.damageTargetPhysical(target, damage)
-
-    addEffect("Abilities\\Weapons\\Mortar\\MortarMissile.mdl", explodingUnit.getPos())
-    ..setScale(2)
-    ..destr()
-    ..setTimeScale(0.5)
-
-    addEffect("Abilities\\Spells\\Orc\\WarStomp\\WarStompCaster.mdl", explodingUnit.getPos())
-    ..setScale(0.5)
-    ..setDuration(3)
-
-
-class RobotExplosion
-    private unit robot
-    private timer timer_Delay
-    private timer timer_Animation
-
-    construct(unit robot)
-        snd_RobotExplode.play()
-
-        this.robot = robot
-        ..setVertexColor(color(255,120,120))
-        ..setAnimation(0)
-        ..setTimeScale(2)
-
-        timer_Delay = getTimer()
-        ..setData(this castTo int)
-        ..start(EXPLODINGGOBLIN_DELAY, function callback_Explode )
-
-        timer_Animation = getTimer()
-        ..setData(this castTo int)
-        ..startPeriodic(0.3, function callback_Animation )
-
-    ondestroy
-        explode(robot)
-
-        robot.setAnimation("death")
-
-        timer_Delay.release()
-        timer_Animation.release()
-
-
-    private function animation()
-        robot.setAnimation(0)
-
-    private static function callback_Animation()
-        GetExpiredTimer().getData() castTo thistype.animation()
-
-    private static function callback_Explode()
-        destroy GetExpiredTimer().getData() castTo thistype
-
-function goblinExplodes()
-    let dyingUnit = GetTriggerUnit()
-    
-    if dyingUnit.getTypeId() == EXPLODINGGOBLIN
-
-        new RobotExplosion(dyingUnit)
-        
-
-init
-    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH, function goblinExplodes )
-
-
+    preloadAbility('A01U')
+    preloadAbility('A01W')
 
 
 //================================================================================================================================================================================================
-// Tank
+// STATS SCALING
 
-init
-    registerSpellEffectEvent('A01C') ->
-        let caster = GetSpellAbilityUnit()
-        doAfter(2.2) ->
-            caster.adjustStatPercentage(STAT_DAMAGE, 0.001)
-            print(caster.getName() + " {0}".format( caster.getTypeId().toRawCode()) )
-            for stat in StatType.getAllTypes()
-                print(caster.getStatInstance(stat).toString())
-
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == ROCKGIANT or id == SHARDLING)
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
 
 //=========================================================================================================================================================
-// REPAIR
+// 
+//
 
-let REPAIR = compiletime( defineSingleTarget1(
-    "Repar", "",
-    Icons.bTNRepair, "Q",
-    0, 0, 250, "stand,work", true
-))
+function earthquakeCast()
+    new Earthquake(GetSpellAbilityUnit(), vec2(GetSpellTargetX(), GetSpellTargetY()), EARTHQUAKE_DURATION, EARTHQUAKE_RANGE, EARTHQUAKE_SLOWFACTOR)
 
-init
-    registerSpellEffectEvent(REPAIR) ->
-        let target = GetSpellTargetUnit()
-        let repairAmount = target.getMaxHP() * REPAIR_AMOUNT
-        target.addHP(repairAmount)
+
+function shockWaveEffect()
+    let caster = GetSpellAbilityUnit()
+    let targetPos = vec2(GetSpellTargetX(), GetSpellTargetY())
+
+    caster.setAnimation("spell")
+    snd_Shockwave.play() 
+
+    doAfter(SHOCKWAVE_CASTDELAY) ->
+        if caster.isAlive()
+            caster.setAnimation("attack")
+            caster.castShockwave(targetPos, caster.getPower() * SHOCKWAVE_DMG_FACTOR, 2500, SHOCKWAVE_WIDTH, SHOCKWAVE_SPEED)
+
+   
+
 
     
-    // Auto Cast Abilities
-    addAutoCastAbilityToUnitType(MECHANIC, new AutoRepair() )
-
-class AutoRepair extends AutoCastAbilityType
-    
-    construct()
-        super( REPAIR, Orders.chainlightning, TargetType.FRIENDLY_UNIT, 3000, 0, 0.6 )
-
-    override function findTarget(unit caster) returns boolean
-        if( caster.getAbilityLevel(REPAIR) <= 0 )
-            caster.addAbility(REPAIR)
-
-        // Checks if caster is already casting
-        if not caster.getCurrentOrder() == orderId
-            let targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
-
-            for target in targets
-                if target.getTypeId() != TINKER_TANK or not target.isAliveTrick()
-                    targets.removeUnit(target)
-
-            if targets.size() > 0
-                if targets.size() == 1
-                    caster.issueTargetOrderById(orderId, targets.getRandomUnit())
-                    return true
-                else
-                    error("More than 1 engineer!")
-                    return false
-            else
-                return false
-        else
-            return false
