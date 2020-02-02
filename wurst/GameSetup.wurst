@@ -94,12 +94,13 @@ function delayedSetup()
     initializeGladiatorShop()
     initializeAttemptsWindow()
 
+    for p in allPlayers
+        CreateFogModifierRect(p, FOG_OF_WAR_VISIBLE, BARRACKS_RECT, false, false).start()
+        CreateFogModifierRect(p, FOG_OF_WAR_VISIBLE, gg_rct_Shop_Visibility, false, false).start()
+        CreateFogModifierRect(p, FOG_OF_WAR_VISIBLE, gg_rct_Arena_Visibility, false, false).start()
+        CreateFogModifierRect(p, FOG_OF_WAR_MASKED, GetPlayableMapRect(), false, false).start()
     
-    CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, BARRACKS_RECT, false, false).start()
-    CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Shop_Visibility, false, false).start()
-    CreateFogModifierRect(Player(0), FOG_OF_WAR_VISIBLE, gg_rct_Arena_Visibility, false, false).start()
-    CreateFogModifierRect(Player(0), FOG_OF_WAR_MASKED, GetPlayableMapRect(), false, false).start()
-    SetTimeOfDay(12)
+        SetTimeOfDay(12)
     SetTimeOfDayScale(0)
 
 

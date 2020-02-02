@@ -342,6 +342,7 @@ public function defineGladiatorUnit( int newId, int originId, string name, strin
     ..setFoodCost(0)
     ..setStockMaximum(1)
     ..setStockStartDelay(0)
+    ..setStockReplenishInterval(1)
     ..setButtonPositionX(0)
     ..setButtonPositionY(0)
     ..setUnitSoundSet("")

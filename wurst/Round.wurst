@@ -327,7 +327,7 @@ public class Round
 
     static function printNextRound(player p)
         snd_RoundInfo.playForPlayer(p)
-        printTimed("\nNext round: \n\n{0}".format(currentRound.toString()),7)
+        p.print("\nNext round: \n\n{0}".format(currentRound.toString()),7)
         
 
     function toString() returns string
@@ -405,14 +405,14 @@ public class Round
 
     function scaleUnitStats(unit u)
         var dmgInc = u.getStatInstance(STAT_DAMAGE).getBaseValue()
-        dmgInc *= (level-1) * ROUND_LVL_SCALE_POWER
+        dmgInc *= (1+(level-1) * ROUND_LVL_SCALE_POWER)
         dmgInc *= (1+ (playerCount-1) * ROUND_PLAYER_SCALE_POWER)
-        u.adjustStatFlat(STAT_DAMAGE, dmgInc)
+        u.setStatBase(STAT_DAMAGE, dmgInc)
 
         var hpInc = u.getStatInstance(STAT_HEALTH).getBaseValue()
-        hpInc *= (level-1) * ROUND_LVL_SCALE_HEALTH
+        hpInc *= (1 +(level-1) * ROUND_LVL_SCALE_HEALTH)
         hpInc *= (1+ (playerCount-1) *  ROUND_PLAYER_SCALE_HEALTH)
-        u.adjustStatFlat(STAT_HEALTH, hpInc)
+        u.setStatBase(STAT_HEALTH, hpInc)
         
 
     function getNumberOfItemRewards() returns int

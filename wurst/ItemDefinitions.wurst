@@ -31,7 +31,7 @@ init
 
     // Enchanted Sword
     'I00L'
-    ..setStatFlat(STAT_DAMAGE, 10) 
+    ..setStatFlat(STAT_DAMAGE, 8) 
     ..setStatPercentage(STAT_ATTACKSPEED, 0.25)
 
     // Gargoyle's Cloak
@@ -50,7 +50,7 @@ init
 
     // Lava Tempered Boots 
     'I01G'
-    ..setStatFlat(STAT_DAMAGE, 10) 
+    ..setStatFlat(STAT_DAMAGE, 8) 
     ..setStatFlat(STAT_MOVESPEED,50)
     
 

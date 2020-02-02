@@ -7,6 +7,8 @@ package ItemReward
 
 import LinkedList
 import ErrorHandling
+import StatType
+import MapBounds
 
 
 // ================================================================================================================================
@@ -32,10 +34,10 @@ public class ItemReward
         this.shop = shop
 
         setupItemName()
-
+     
     /** Setup the name variable */
     private function setupItemName()
-        item tempItem = createItem(itemId, vec2(0,0))
+        item tempItem = createItem(itemId, boundMax )
         name = tempItem.getName()
         tempItem.remove()
 

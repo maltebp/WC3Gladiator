@@ -1,5 +1,10 @@
 
+//================================================================================================================================================================================================
+ //  LIGHTNING LORDS
+
 package Round12
+
+//================================================================================================================================================================================================
 
 import public Round11
 
@@ -14,8 +19,14 @@ import UnitVisualsUtils
 import InstantDummyCaster
 import Damage
 
+
+//=========================================================================================================================================================
+// Settings 
+
 let STORM_LOAD = 'n00E'
 let STORM_WARD = 'h003'
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 let LIGHTNINGWARD_DMG_FACTOR = 1.5
 
@@ -23,13 +34,11 @@ let LIGHTNINGCHARGE_DMG_FACTOR = 10.
 let LIGHTNINGCHARGE_RANGE = 350.
 let LIGHTNINGCHARGE_DURATION = 8.
 
+//================================================================================================================================================================================================
+
 Round round = null
-
-
 init
-    //=========================================================================================================================================================
-    //  Lightning Lords
-
+  
     round = new Round()
     ..setReward(30, 4)
     ..addItemRewards(ITEM_STORMLORDCROWN)
@@ -177,7 +186,7 @@ public class SummonLightningWard
         let caster = GetSpellAbilityUnit()
         let ward = createUnit( caster.getOwner(), 'h003', vec2(GetSpellTargetX(), GetSpellTargetY()), angle(GetRandomReal(0, PI2)) )
 
-        new LightningWard(ward, 75, 2, 4000, caster.getPower()*LIGHTNINGCHARGE_DMG_FACTOR)
+        new LightningWard(ward, 75, 2, 4000, caster.getPower() * LIGHTNINGWARD_DMG_FACTOR)
 
         caster.getSpawner().addSummonedUnit(ward)
 

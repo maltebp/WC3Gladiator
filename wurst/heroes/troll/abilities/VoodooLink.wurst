@@ -9,7 +9,6 @@ import Updater
 
 import AbilityTools
 import Voodoo
-import Mastery
 import initlater TrollMasteries
 
 
@@ -17,9 +16,9 @@ import initlater TrollMasteries
 // Settings
 
 let DMG_FACTOR = 0.20
-let DURATION = 10.
+let DURATION = 15.
 
-let JUMP_RANGE = 400.
+let JUMP_RANGE = 600.
 let JUMP_COUNT = 5
 
 let VOODOO_STEP_SIZE = 20
@@ -38,7 +37,7 @@ public let TROLL_VOODOO_LINK = compiletime(defineSingleTarget1(
     Icons.bTNShadowPact,
     "R",
     10.,
-    45,
+    40,
     600,
     "spell",
     false
@@ -59,10 +58,11 @@ function onCast()
     let damageFactor = DMG_FACTOR + (caster.getOwner().getMasteryLevel(WICKED_VOODOO) * WICKED_VOODOO_EFFECT_INC )
 
     new VoodooLink(
-        caster, target, DMG_FACTOR, DURATION, JUMP_COUNT + extraJumps, JUMP_RANGE
+        caster, target, damageFactor, DURATION, JUMP_COUNT + extraJumps, JUMP_RANGE
     )
     
     
+
 
 class VoodooLink extends LightningBounce
     private unit caster
@@ -78,7 +78,6 @@ class VoodooLink extends LightningBounce
         range = bounceRange
         lightningType = LIGHTNING_SPIRIT_LINK
         lightningColor = colorA(80, 40, 130, 255)
-
 
     override function targetFilter( unit target) returns boolean
         return target.isValidEnemyTarget(caster.getOwner()) and not target.isType(UNIT_TYPE_ANCIENT)

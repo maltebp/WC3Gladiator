@@ -82,7 +82,8 @@ function unit.siphon(unit target, real drain, real heal, bool small)
     projectile.getEffect().setScale( small ? 0.25 : 1)
     projectile.addActionOnFinish() ->
         if this != null and this.isAlive()
-            this.setHP( this.getHP()+heal)
+            
+            this.setHP( this.getHP()+ (small ? heal*0.5 : heal ) )
 
         if( not small )
             let vengefulSpiritLvl = this.getOwner().getMasteryLevel(VENGEFUL_SPIRIT)

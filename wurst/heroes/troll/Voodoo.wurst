@@ -3,15 +3,17 @@ package Voodoo
 import Charge
 import AbilityObjEditing
 import ObjectIdGenerator
-import DummyCaster
-import Orders
 import SoundUtils
 import ClosureTimers
+import DummyCaster
+import GameSettings
+import Orders
 
 //================================================================================================================================================================================================
 // Settings
 
 let HEX = compiletime(ABIL_ID_GEN.next())
+let STUN = compiletime(ABIL_ID_GEN.next())
 let HEX_DURATION = 4.
 
 let SND_HEX = new SoundDefinition(Sounds.rokhanWarcry1, false, true)
@@ -28,19 +30,28 @@ public function unit.voodooFull()
     this.setCharge(0)
     doAfter(0.5) ->
         SND_HEX.playOnPoint(this.getPos().withTerrainZ(200))
-    new DummyCaster()
-    ..owner(Player(PLAYER_NEUTRAL_AGGRESSIVE))
-    ..delay(5)
-    ..castTarget(HEX, 1, Orders.hex, this)
 
+    new DummyCaster()
+    ..owner(ENEMY)
+    ..delay(5)
+    ..castTarget(STUN, 1, Orders.thunderbolt, this)
 
 
 @compiletime
 function defineHex()
     
-    new AbilityDefinitionHexCreep(HEX)
-    ..setCooldown(1, 0)
+    // new AbilityDefinitionHexCreep(HEX)
+    // ..setCooldown(1, 999)
+    // ..setManaCost(1, 0)
+    // ..setDurationHero(1, HEX_DURATION)
+    // ..setDurationNormal(1, HEX_DURATION)
+
+    new AbilityDefinitionThunderBoltCreep(STUN)
+    ..setDamage(1, 0)
     ..setManaCost(1, 0)
-    ..setDurationHero(1, HEX_DURATION)
-    ..setDurationNormal(1, HEX_DURATION)
+    ..setCooldown(1, 100)
+    ..setDurationHero(1, 4)
+    ..setDurationNormal(1,4)
+    ..setCastRange(1,1000)
+
     

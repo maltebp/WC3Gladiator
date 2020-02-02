@@ -57,9 +57,11 @@ function onCast()
     doAfter(0.05) ->
         if( not target.isAlive() )
             caster.resetAbilityCooldown(HALF_BREED_EXECUTION)
+
             let victoryRushLvl = caster.getOwner().getMasteryLevel(HALF_BREED_VICTORY_RUSH)
-            caster.applyBuff(new VictoryRushBuff(victoryRushLvl), caster, HALF_BREED_VICTORY_RUSH_DURATION)
-            SND_VICTORY_RUSH.playOnPoint(caster.getPos3Real())
+            if( victoryRushLvl > 0 )
+                caster.applyBuff(new VictoryRushBuff(victoryRushLvl), caster, HALF_BREED_VICTORY_RUSH_DURATION)
+                SND_VICTORY_RUSH.playOnPoint(caster.getPos3Real())
 
 
 

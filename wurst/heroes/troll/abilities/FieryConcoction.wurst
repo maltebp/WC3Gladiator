@@ -22,8 +22,8 @@ let RADIUS      = 150.
 let VOODOO_DMG_FACTOR = 0.01
 
 let BURN_RADIUS         = 150.
-let BURN_DMG_FACTOR     = 0.3
-let BURN_DURATION       = 7.
+let BURN_DMG_FACTOR     = 0.4
+let BURN_DURATION       = 10.
 let BURN_FREQ           = 1.
 
 // // =========================================================================================================
@@ -42,7 +42,7 @@ public let TROLL_FIERY_CONCOCTION = compiletime(defineAOE1(
     ),
     Icons.bTNLiquidFire,
     "Q",
-    6.,
+    10.,
     40,
     600,
     RADIUS,
