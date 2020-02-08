@@ -14,10 +14,11 @@ public function unit.reduceEnergyRegen(real percentReduction)
 public function unit.increaseEnergyRegen( real percentIncrease)
     EnergySystem.adjustRegen(this, percentIncrease, 0)
     
-/** Increases the units energy regeneration by flatIncrease
-    per second */
-public function unit.increaseEnergyRegen( int flatIncrease )
-
+// /** Increases the units energy regeneration by flatIncrease
+//     per second */
+// public function unit.increaseEnergyRegen( int flatIncrease )
+// TODO: Implement this
+    
 /** Restores a flat amount of energy for the unit once */
 public function unit.restoreEnergy(real energyToRestore)
     if EnergySystem.containsUnit(this)
@@ -58,7 +59,7 @@ public class EnergySystem
         
         thistype instance = units.get(whichUnit)  
 
-        real energyToRegen = (DEFAULTREGEN+instance.energyRegenFlatInc)*(1+instance.energyRegenPercInc)
+        let energyToRegen = (DEFAULTREGEN+instance.energyRegenFlatInc)*(1+instance.energyRegenPercInc)
         instance.regenFreq = (1/energyToRegen)*2
         
         instance.timer_Regen.startPeriodic(instance.regenFreq, function regen)
@@ -83,7 +84,6 @@ public class EnergySystem
         if containsUnit(whichUnit)
             return units.get(whichUnit)
         return null
-        
         
         
     /** Checks if a unit is in the system already*/

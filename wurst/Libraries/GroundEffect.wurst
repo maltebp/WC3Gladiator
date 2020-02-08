@@ -12,8 +12,8 @@ public abstract class GroundEffect
     protected string                    sfxModel
     protected LinkedList<effect>        sfx
     protected real              baseSfxScale = 1
-    protected timer             timer_Duration
-    protected timer             timer_Effect
+    protected timer             timer_Duration = null
+    protected timer             timer_Effect = null
     protected real              sfxSizeDeviation = 0.1 // Decimal percent
     protected real              sfxAngleDeviation = 0.1 // Decimal percent
 
@@ -46,6 +46,7 @@ public abstract class GroundEffect
         if frequency > 0
             timer_Effect.startPeriodic(frequency, function callback_doEffect )
 
+            
     /** Adds a duration the effect */
     protected function addDuration(real duration)
         if duration > 0
@@ -63,11 +64,11 @@ public abstract class GroundEffect
     protected function addLayer(real distanceFromCenter, int numberOfSfx, real sfxBaseSize )
         
         if numberOfSfx > 0
-            real angleOffset = PI2 / numberOfSfx
+            let angleOffset = PI2 / numberOfSfx
             for i=0 to numberOfSfx
-                angle sfxAngle = angle(angleOffset*i * GetRandomReal((1-sfxAngleDeviation), (1+sfxAngleDeviation)))
-                vec2 sfxPos = this.pos.polarOffset(sfxAngle, distanceFromCenter)
-                effect sfx = addEffect(sfxModel, sfxPos)
+                let sfxAngle = angle(angleOffset*i * GetRandomReal((1-sfxAngleDeviation), (1+sfxAngleDeviation)))
+                let sfxPos = this.pos.polarOffset(sfxAngle, distanceFromCenter)
+                let sfx = addEffect(sfxModel, sfxPos)
                 ..setScale(sfxBaseSize*GetRandomReal((1-sfxSizeDeviation), (1+sfxSizeDeviation)))
 
                 this.sfx.add(sfx)

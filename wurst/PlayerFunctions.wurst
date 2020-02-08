@@ -1,0 +1,21 @@
+package PlayerFunctions
+import GameSettings
+import LinkedList
+import RegisterEvents
+
+
+public let activePlayers = new LinkedList<player>
+
+
+/** Checks which players are playing, and adds them to the list of players */
+public function initializePlayerList()
+    for i=0 to NUM_OF_PLAYERS-1
+        if( players[i].getSlotState() == PLAYER_SLOT_STATE_PLAYING )
+            activePlayers.add(players[i])
+
+init
+    registerPlayerEvent(EVENT_PLAYER_LEAVE) ->
+        activePlayers.remove(GetTriggerPlayer())
+    
+        
+

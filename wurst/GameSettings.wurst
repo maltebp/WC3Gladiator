@@ -1,0 +1,106 @@
+package GameSettings
+
+
+import SoundUtils
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Test Switches
+public let DEBUG = true 
+
+public let SKIP_INTRO       = true 
+public let SKIP_DIFFICULTY  = true 
+public let SKIP_SHOP_INTRO  = true 
+public let SKIP_HERO_SELECTION = true 
+
+public let LOCK_CAM_BOUNDS  = false
+public let INSTANT_SPAWN    = false   // Toggle rounds to spawn all units at the same time!
+
+public let TEST_MODE        = false   // Test mode skips the entire intro and just puts you in the map
+public let TEST_DUMMIES     = 10    // Number of test dummies to spawn in the arena in TEST_MODE
+public let TEST_MODE_UNLOCK_ABIL = true // Unlock all abilities in test mode
+
+
+
+
+public let VERSION = "0.1.2a (Alpha)"
+
+public let NUM_OF_PLAYERS       = 5
+
+public let START_TRAININGPOINTS = 8
+public let START_GOLD           = 50
+public let START_MASTERY        = 0
+public let ATTEMPTS             = 5
+public let ENEMY                = Player(11)
+public let FINAL_ROUND       = 15
+public let MASTERY_MAX_LEVEL = 4
+public let MASTERY_PER_ROUND = 2
+public let TRAINING_POINTS_PER_ROUND = 3
+public let GOLD_PER_ROUND = 30
+
+public let MELEE_RANGE = 125.
+
+
+/* 
+    Lists of round numbers which unlocks artifacts and abilities
+    - Round 0 is when the Gladiator is created
+    - They are both unlocked in the order they're added when defining the GladiatorType. */
+public let UNLOCK_ABILITY_ROUNDS = [0,0,2,5,7,10] // Total: 6
+public let UNLOCK_ARTIFACT_ROUNDS = [1,2,4,5,6,7,8,9,10,11,12,13] // Total: 12
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Round Scaling
+
+public let ROUND_PLAYER_SCALE_HEALTH = 1.0
+public let ROUND_PLAYER_SCALE_POWER  = 0.60
+
+public let ROUND_LVL_SCALE_HEALTH = 0.25
+public let ROUND_LVL_SCALE_POWER  = 0.25
+
+
+// Difficulties
+public let DIFFICULTY_HILARIOUS_POWER    = -0.30
+public let DIFFICULTY_HILARIOUS_HEALTH   = -0.30
+public let DIFFICULTY_EASY_POWER    = -0.15
+public let DIFFICULTY_EASY_HEALTH   = -0.15
+public let DIFFICULTY_NORMAL_HEALTH = 0.
+public let DIFFICULTY_NORMAL_POWER  = 0.
+public let DIFFICULTY_HARD_POWER    = 0.15
+public let DIFFICULTY_HARD_HEALTH   = 0.15
+public let DIFFICULTY_INSANE_POWER    = 0.30
+public let DIFFICULTY_INSANE_HEALTH   = 0.30
+
+
+// // Health Orbs
+public let ORB_INSTANT_FLAT = 75
+public let ORB_INSTANT_PERC = 0.15
+public let ORB_HOT_FLAT = 25
+public let ORB_HOT_PERC = 0.02
+public let ORB_HEAL_DURATION = 10.
+public let ORB_SPAWN_FREQ = 33. // For one player
+public let ORB_ROUND_LVL_SCALE = 0.10
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// SOUNDS
+public let SND_MESSAGE = new SoundDefinition(Sounds.questActivateWhat1, false)
+public let SND_ERROR = new SoundDefinition(Sounds.error, false)
+public let SND_CLICK = new SoundDefinition(Sounds.mouseClick1, false)
+
+public let MUSIC_SHOP = "InTheGiantsShadow.mp3"
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Points and rects
+public let SHOP_SPAWN = vec2(-8129,-8198)
+public let ARENA_SPAWN = vec2(173,501)
+
+
+//================================================================================================================================================================================================
+// Colors
+public let COLOR_HIGHLIGHT = color(255,204,0)
+public let COLOR_ACCENT = color(132, 190, 204)
+public let COLOR_GREY = color(172, 172, 172)
+

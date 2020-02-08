@@ -1,0 +1,52 @@
+package OnEscape
+
+import RegisterEvents
+import LinkedList
+import HashMap
+
+/*//================================================================================================================================================================================================
+    
+    Allows for stacking functionality which runs when escape is pressed.
+    Adding a new callback will push it to the stack, and if its removed
+    the next callback in the stack will be the one getting the call.
+
+*///================================================================================================================================================================================================
+
+
+//OnEscapeCallback array callbacks
+
+let callbacks = new LinkedList<OnEscapeCallback>
+let playerCallbacks = new HashMap<player, LinkedList<OnEscapeCallback>>
+
+public interface OnEscapeCallback
+    function run(player p)
+
+public function player.onEscapePressed( OnEscapeCallback callback ) returns OnEscapeCallback
+
+    if( not playerCallbacks.has(this) )
+        playerCallbacks.put(this, new LinkedList<OnEscapeCallback>)
+
+    let callbackList = playerCallbacks.get(this)
+    callbackList.add(callback)
+    return callback
+
+
+public function player.removeEscapePressedCallback( OnEscapeCallback callback ) returns OnEscapeCallback
+    if( playerCallbacks.has(this) )
+        let callbackList = playerCallbacks.get(this)
+        if( callbackList.has(callback)) 
+            callbackList.remove(callback)
+            return callback
+    return null
+    
+
+function action()
+    let p = GetTriggerPlayer()
+
+    if( playerCallbacks.has(p) )
+        let callbackList = playerCallbacks.get(p)
+        if( callbackList.size() > 0 ) 
+            callbackList.peek().run(p)
+
+init
+    registerPlayerEvent(EVENT_PLAYER_END_CINEMATIC, function action )

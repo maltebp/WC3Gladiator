@@ -2,13 +2,11 @@ package MagicMissile
 
 import LinkedList
 import TimerUtils
-import HashMap
 import Abilities
 import RegisterEvents
 import SoundUtils
 import ClosureForGroups
 import Damage
-import MyLibrary
 
 
 
@@ -25,9 +23,7 @@ class MagicMissile
     private static LinkedList<thistype> instances = new LinkedList<thistype>
     
     private effect missile
-    private effect missileSfx
     private effect missileSfx1
-    private real percentDamage
     private vec2 pos
     private real speed
     private real finalDistance
@@ -36,7 +32,6 @@ class MagicMissile
     private angle direction
     private player sourcePlayer
     private real damage
-    private int numberOfHits = 0
     private let hitTargets = new LinkedList<unit>
     private timer timer_Move
     private real width // Radius
@@ -85,7 +80,7 @@ class MagicMissile
 
 
     function targetFilter(unit target) returns boolean
-        return not hitTargets.contains(target) and target != null and target.isAliveTrick() and target.isEnemyOf(sourceUnit)
+        return not hitTargets.has(target) and target != null and target.isAliveTrick() and target.isEnemyOf(sourceUnit)
 
 
     function targetEffect( unit target)
@@ -116,38 +111,4 @@ class MagicMissile
 
 
 
-
-
-class TargetBuffGroup
-
-    private static IterableMap<unit, thistype> instances  = new IterableMap<unit, thistype>
-
-    private LinkedList<MagicMissileBuff> buffs = new LinkedList<MagicMissileBuff> 
-    private unit target
-
-
-    static function getUnitInstance(unit whichUnit)
-
-
-IterableMap<unit, LinkedList<MagicMissileBuff> > targetBuffs 
-
-
-class MagicMissileBuff
-    
-
-    private TargetBuffGroup target
-    
-
-    construct()
-
-
-    ondestroy
-
-
-
-    
-    
-    
-    
-    
 

@@ -1,0 +1,53 @@
+package Players
+
+import LinkedList
+import RegisterEvents
+
+public let allPlayers = new LinkedList<player>
+public var mapMaker = Player(0)
+
+
+init
+    for i=0 to 21
+        if(Player(i).isIngame())
+            allPlayers.add(Player(i))
+
+
+/** Adds "test" players to the of all players. The calling player
+    will gain control of the other players.
+    WARNING: SHould not be called at exact game init */
+public function player.addTestPlayers(vararg player players)
+    for p in players
+        if( not allPlayers.has(p) )
+            allPlayers.add(p)
+            p.setPlayerAlliance(this, ALLIANCE_SHARED_CONTROL, true)
+            
+    // Sort the new player list
+    allPlayers.sortWith( (p1, p2) -> p1.getId() - p2.getId() )
+
+
+/** Currently, host is just first player. But using this function, allows
+for easier implementation of getting the host down the line */
+public function getHost() returns player
+    return allPlayers.getFirst()
+
+
+
+
+// ----------------------------------------------------------------------------------------------------------------------------------------
+// This functionality has NOT BEEN TESTED
+
+public interface PlayerLeftFunction
+    function run(player leavingPlayer)
+
+let onPlayerLeaveFunctions = new LinkedList<PlayerLeftFunction>
+
+init
+    registerPlayerEvent(EVENT_PLAYER_LEAVE) ->
+        let leavingPlayer = GetTriggerPlayer()
+        allPlayers.remove(leavingPlayer)
+        for func in onPlayerLeaveFunctions
+            func.run(leavingPlayer)
+
+public function onPlayerLeaving(PlayerLeftFunction func)
+    onPlayerLeaveFunctions.add(func)

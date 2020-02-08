@@ -1,0 +1,27 @@
+package TrollAnimations
+import ActionAnimation
+
+public let ANIM_TROLL_ATTACK = new Animation( 4, 1.333, 0.4)
+public let ANIM_TROLL_SPELL = new Animation( 5, 0.867, 0.4 )
+public let ANIM_TROLL_VICTORY = new Animation( 9, 1.500, 0.5 )
+
+/* 
+
+Witch Doctor Animations
+
+    0   Stand - Normal (looping)
+    1   Stand - Looking around (looping)
+    2   Stand - Scratching back (looping)
+    3   Stand - Puts staff in ground, and puts a skull in his backpack (looping)
+    4   Attack 1 - Regular attack animation (1.333 sec) (not looping)
+    5   Spell - With a magic sparke thing (0.867) not looping
+    6   Death
+    7   Decay
+    8   Walk
+    9   Victory - jumping in the air (1.500 second) (looping)
+
+
+
+
+
+*/

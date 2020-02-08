@@ -1,0 +1,135 @@
+package FieryConcoction
+
+
+import AbilityTools
+import LinkedList
+import ClosureTimers
+import Projectile
+
+import MyLibrary
+import GroundEffect
+import Voodoo
+import initlater TrollMasteries
+
+
+//================================================================================================================================================================================================
+// Settings
+
+
+let DMG_FACTOR  = 1.5
+let RADIUS      = 150.
+
+let VOODOO_DMG_FACTOR = 0.01
+
+let BURN_RADIUS         = 150.
+let BURN_DMG_FACTOR     = 0.4
+let BURN_DURATION       = 10.
+let BURN_FREQ           = 1.
+
+// // =========================================================================================================
+
+
+public let TROLL_FIERY_CONCOCTION = compiletime(defineAOE1(
+    "Fiery Concoction",
+    ("Throw a fiery concoction, which deals {0} of your power as damage to all enemies it hits."+
+        "The concoction leaves the ground fiery, and deals {1} of your power as damage to any enemies"
+        +" standing within it, every second for {2} seconds.\n\n"+
+        "This ability consumes all your voodoo, and its damage is increased by {0} for each charge consumed.").format(
+        DMG_FACTOR.toPercentageString(),
+        BURN_DMG_FACTOR.toPercentageString(),
+        BURN_DURATION.toInt().toString(),
+        VOODOO_DMG_FACTOR.toPercentageString()
+    ),
+    Icons.bTNLiquidFire,
+    "Q",
+    10.,
+    40,
+    600,
+    RADIUS,
+    "attack"
+))
+
+let SND_EXPLODE = new SoundDefinition(Sounds.alchemistAcidBurnMissileDeath1, false, true)
+
+//================================================================================================================================================================================================
+init
+    registerSpellEffectEvent(TROLL_FIERY_CONCOCTION) ->
+        onCast()
+
+function onCast()
+    let caster = GetSpellAbilityUnit()
+    let targetPos = vec2(GetSpellTargetX(), GetSpellTargetY())
+    
+    let voodoo = caster.consumeVoodoo()
+
+    let projectile = new Projectile(caster.getPos().withTerrainZ(60), Abilities.batTrollMissile)
+    ..firePoint(targetPos.withTerrainZ(), 700, 0.4)
+    projectile.getEffect().setScale(1.25)
+
+    projectile
+    ..addActionOnFinish() ->
+        let radiusFactor = (1 + caster.getOwner().getMasteryLevel(WILDFIRE) * WILDFIRE_RADIUS_FACTOR)
+        SND_EXPLODE.playOnPoint(targetPos.withTerrainZ())
+
+        addEffect( Abilities.fireLordDeathExplode, targetPos.withTerrainZ(100))
+        ..setScale(1)
+        ..destr()
+
+        addEffect( Objects.smallFlameSpawn, targetPos)
+        ..setScale(1)
+        ..setTime(0.5)
+        ..setTimeScale(2.)
+        
+        let baseDmg = caster.getPower() * (1+voodoo*VOODOO_DMG_FACTOR)
+
+        // Effect
+        let explodeDmg = baseDmg * DMG_FACTOR
+        forEnemiesInRange( caster.getOwner(), targetPos, RADIUS * radiusFactor ) target ->
+            caster.damageTargetSpell( target, explodeDmg )
+            target.addEffect( Abilities.incinerateBuff,  "chest" )
+            ..destr()
+
+        /* Note: Apparently it bugs out if you create a new instance of class
+            withing this function. Therefor I created this doAfter thingy. */
+        doAfter(0.01) ->
+            new Flames( caster, targetPos, baseDmg * BURN_DMG_FACTOR, BURN_DURATION, BURN_FREQ, RADIUS * radiusFactor )
+
+
+
+class Flames extends GroundEffect
+
+    private static let hitTargets = new LinkedList<unit>
+    private unit sourceUnit
+    private real damage 
+    private real freq
+    private real radius
+
+    construct( unit sourceUnit, vec2 pos, real damage, real duration, real freq, real radius )
+        super( pos, Abilities.flameStrikeDamageTarget )
+        
+        this.sourceUnit = sourceUnit
+        this.damage = damage
+        this.freq = freq
+        this.radius = radius
+
+        baseSfxScale = 1
+
+        let layers = radius.toInt() div 50
+        let layerDistance = radius / layers
+
+        for i=1 to layers
+            addLayer( i*layerDistance - 25, i.squared() + 2 )
+
+        setFrequency( freq )
+        addDuration( duration )
+        
+        
+    override function doEffect()
+        forEnemiesInRange( sourceUnit.getOwner(), pos, radius ) target ->
+            sourceUnit.damageTargetSpell( target, damage )
+            hitTargets.add(target)
+            doAfter( freq-0.01) ->
+                if hitTargets.has(target)
+                    hitTargets.remove(target)
+
+    

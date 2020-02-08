@@ -1,0 +1,96 @@
+package ImpedingRoar
+
+
+import AbilityTools
+import initlater HalfBreedMasteries
+
+
+//================================================================================================================================================================================================
+// Settings
+
+let CHARGE          = 30
+let DMG_FACTOR      = 0.25
+let AOE_RANGE       = 300.
+let ATTACKSPEED_RED = 0.20
+let MOVESPEED_RED   = 0.3
+let DURATION        = 10.
+
+
+public let HALF_BREED_IMPEDING_ROAR = compiletime(defineImmediate1(
+    "Impeding Roar",
+    ("Let out deafening roar, which damages all nearby enemies for {0} of your power."+
+    " Additionally, the roar impedes the enemies, reducing their attack speed by {1} and their movement speed by {2} for {3} seconds. ").format(
+        DMG_FACTOR.toPercentageString(),
+        ATTACKSPEED_RED.toPercentageString(),
+        MOVESPEED_RED.toPercentageString(),
+        DURATION.toInt().toString()        
+    ),
+    Icons.bTNMaskOfDeath,
+    "D",
+    12,         // Cooldown
+    40,         // Mana
+    "spell,slam"
+))
+
+public let HALF_BREED_IMPEDING_ROAR_BUFF = compiletime(defineBuff(
+    "Impeding Roar",
+    "Movement and attack speed is slowed.",
+    Icons.bTNMaskOfDeath,
+    Abilities.stasisTotemTarget,
+    "overhead",
+    ""
+))
+
+let SND_ON_ATTACK = [
+    new SoundDefinition(Sounds.metalHeavyBashMetal1, false, true),
+    new SoundDefinition(Sounds.metalHeavyBashMetal2, false, true),
+    new SoundDefinition(Sounds.metalHeavyBashMetal3, false, true)
+]
+
+let SND_ON_ATTACK_2 = new SoundDefinition(Sounds.shockwave, false, true)
+
+let SND_ROAR = new SoundDefinition(Sounds.howlOfTerror, false, true)
+
+
+
+//================================================================================================================================================================================================
+
+init
+    registerSpellEffectEvent(HALF_BREED_IMPEDING_ROAR) ->
+        onCast()
+
+function onCast()
+    let caster = GetSpellAbilityUnit()
+    caster.activateBloodthirst()
+
+    // Adjust charge
+    caster.adjustCharge(CHARGE)
+    
+    caster.addEffect(Abilities.roarCaster, "origin")..setDuration(5)
+    SND_ROAR.playOnPoint(caster.getPos().withTerrainZ())
+
+    let ogreLungsLvl = caster.getOwner().getMasteryLevel(HALF_BREED_OGRE_LUNGS)
+    let damage = caster.getPower() * DMG_FACTOR * (1 + ogreLungsLvl * HALF_BREED_OGRE_LUNGS_DMG_INC)
+
+    let targets = enemiesInRange(caster.getOwner(), caster.getPos(), AOE_RANGE)
+    for target from targets
+        caster.damageTargetPhysical(target, damage)
+        target.addEffect(Abilities.spellStealMissile, "chest").destr()
+        target.applyBuff(new ImpedingRoarBuff(), caster, DURATION)
+
+
+class ImpedingRoarBuff extends Buff
+
+    construct()
+        super(HALF_BREED_IMPEDING_ROAR_BUFF, false)
+        
+    override function onApply()
+        if( target != null )
+            target.adjustStatPercentage(STAT_MOVESPEED, -MOVESPEED_RED) 
+            target.adjustStatPercentage(STAT_ATTACKSPEED, -ATTACKSPEED_RED) 
+
+    override function onRemove()
+        if( target != null )
+            target.adjustStatPercentage(STAT_MOVESPEED, MOVESPEED_RED) 
+            target.adjustStatPercentage(STAT_ATTACKSPEED, ATTACKSPEED_RED) 
+            

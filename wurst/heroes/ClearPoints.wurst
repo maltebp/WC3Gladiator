@@ -1,0 +1,25 @@
+// package ClearPoints
+// import AbilityCreation
+// import RegisterEvents
+// import ClosureTimers
+// import AutoCastAbility
+// import ComboSystem
+// import AttackCooldown
+
+// public let CLEAR_POINTS_ABIL_ID = compiletime(createF(Icons.bTNCancel, "Remove Combos", "Remove all current combo points"))
+
+// public let COOLDOWN_REDUCTION_PER_POINT = 0.2
+
+
+// init
+//     registerSpellEffectEvent( CLEAR_POINTS_ABIL_ID) ->
+//         let caster = GetSpellAbilityUnit()
+//         doAfter(0.001) ->
+//             caster.issueImmediateOrderById(Orders.unimmolation)
+            
+//             let numberOfPoints = caster.getNumberOfComboPoints()
+//             if numberOfPoints > 0
+//                 caster.clearCombo()
+//                 caster.reduceCooldownFlat( COOLDOWN_REDUCTION_PER_POINT * numberOfPoints )
+
+            

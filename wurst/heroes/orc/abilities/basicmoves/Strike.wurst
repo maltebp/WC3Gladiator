@@ -1,0 +1,51 @@
+// package Strike
+// import AbilityCreation
+// import HoverAbility
+// import OrcAnimations
+// import SoundDefinitions
+// import LinkedList
+// import ClosureTimers
+// import DamageType
+// import DamageDetection
+// import Damage
+// import MyLibrary
+// import GroupUtils
+// import AttackCooldown
+// import UnitStatsSystem
+// import ComboSystem
+
+
+
+
+// let RANGE = 100.
+// let AIMASSIST = 50.
+// let DAMAGE_FACTOR = 1.
+
+// public let ORC_W_ID = compiletime( createW( Icons.bTNSteelMelee, "Strike", "Strike an enemy dealing damage to it.")  )
+
+// let ABIL_DEF = new PointAbility( ORC_W_ID, RANGE, ANIM_ORC_STAB)
+
+// init
+//     ABIL_DEF
+//     ..queueStandReady()
+
+//     ABIL_DEF.setCastCritera() caster ->
+//         return caster.attemptAttack( SND_SORCERESS_MISSILE_DEATH )
+
+//     ABIL_DEF
+//     ..onEffect() (caster, pos) ->
+//         let targets = ENUM_GROUP..enumEnemyTargets( caster.getOwner(), pos, AIMASSIST)
+        
+//         let target = targets.getNearestUnit(pos)
+
+//         if target != null
+//             SND_METAL_SLICE_HEAVY_FLESH[GetRandomInt(0, 2)].playOnPoint(pos.withTerrainZ())
+//             dealCodeDamage(caster, target, caster.getDamage()*DAMAGE_FACTOR )
+//             caster.addComboPoint(COMBO_POINT_W)
+//         // else
+//         //     caster.missAttack()
+
+//         targets.clear()
+                
+        
+            

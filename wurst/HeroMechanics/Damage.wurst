@@ -1,6 +1,9 @@
 package Damage
 
-constant boolean TESTMODE = false
+import Stats
+import DamageDetection
+
+constant boolean TESTMODE = true
 
 
 
@@ -11,15 +14,28 @@ public function unit.damageTargetPhysical(unit target, real damage)
 
 /** Deals damage to the target which is adjusted as spell damage (reduced by spell reduction and Elune's Grace)*/
 public function unit.damageTargetSpell(unit target, real damage)
-    UnitDamageTarget(this, target, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, WEAPON_TYPE_WHOKNOWS)
+    this.damageTargetUniversal(target, (1-target.getStat(STAT_RESISTANCE)) * damage)
 
 /** Deals damage to the target which is not adjusted by anything */
 public function unit.damageTargetUniversal(unit target, real damage)
     UnitDamageTarget(this, target, damage, false, false, ATTACK_TYPE_MELEE, DAMAGE_TYPE_UNIVERSAL, WEAPON_TYPE_WHOKNOWS)
 
 
+init
+    addOnDamageFunc() ->
+        let target = GetTriggerUnit()
+        let dmg = GetEventDamage()
+
+        // Adjust to damage taken
+        let adjustedDamage = dmg * target.getStat(STAT_DAMAGE_TAKEN)
+        BlzSetEventDamage(adjustedDamage)
+        
+
+        // print(target.getName() + " damaged with {0} damage".format(dmg.toString(1)))
 
 
+
+    
 // Bonus info on damage: Elune's Grace reduces Magic Damage (from regular attacks) AND Spell Damage taken
 
 
@@ -30,7 +46,7 @@ public function unit.damageTargetUniversal(unit target, real damage)
 
 // ========================================================================================================================================================================================
 // TEST AREA 
-enum DamageType
+enum DmgType
     PHYSICAL
     SPELL
     UNIVERSAL
@@ -39,20 +55,19 @@ enum DamageType
 unit testUnit
 
 
-function damage(DamageType damageType, real damage)
-    real startHp = testUnit.getHP()
-    
-    unit dummy = createUnit(Player(2), 'h002', testUnit.getPos(), angle(0))
+function damage(DmgType damageType, real damage)
+    let startHp = testUnit.getHP()
+    let dummy = createUnit(Player(2), 'h002', testUnit.getPos(), angle(0))
 
-    if damageType == DamageType.SPELL
+    if damageType == DmgType.SPELL
         UnitDamageTarget(dummy, testUnit, damage, false, false, ATTACK_TYPE_NORMAL, DAMAGE_TYPE_MAGIC, WEAPON_TYPE_WHOKNOWS)
         
     
-    else if damageType == DamageType.PHYSICAL
+    else if damageType == DmgType.PHYSICAL
         UnitDamageTarget(dummy, testUnit, damage, false, false, ATTACK_TYPE_MELEE, DAMAGE_TYPE_NORMAL, WEAPON_TYPE_WHOKNOWS)
 
 
-    else if damageType == DamageType.UNIVERSAL
+    else if damageType == DmgType.UNIVERSAL
         UnitDamageTarget(dummy, testUnit, damage, false, false, ATTACK_TYPE_MELEE, DAMAGE_TYPE_UNIVERSAL, WEAPON_TYPE_WHOKNOWS)
 
     print("Dealt "+(startHp-testUnit.getHP()).toString(1) + " damage.")
@@ -60,38 +75,38 @@ function damage(DamageType damageType, real damage)
     
 
 function damagePhysical()
-    string input = GetEventPlayerChatString()
+    let input = GetEventPlayerChatString()
 
     if input.length() > 16
         
-        real numberInput = input.ltrim("damage physical ").toReal()
+        let numberInput = input.ltrim("damage physical ").toReal()
     
-        damage(DamageType.PHYSICAL, numberInput)
+        damage(DmgType.PHYSICAL, numberInput)
 
     else
         print("wrong input")
 
 function damageSpell()
-    string input = GetEventPlayerChatString()
+    let input = GetEventPlayerChatString()
 
     if input.length() > 12
         
-        real numberInput = input.ltrim("damage spell ").toReal()
+        let numberInput = input.ltrim("damage spell ").toReal()
     
-        damage(DamageType.SPELL, numberInput)
+        damage(DmgType.SPELL, numberInput)
 
     else
         print("wrong input")    
     
         
 function damageUniversal()
-    string input = GetEventPlayerChatString()
+    let input = GetEventPlayerChatString()
 
     if input.length() > 17
-        
-        real numberInput = input.ltrim("damage universal ").toReal()
     
-        damage(DamageType.UNIVERSAL, numberInput)
+        let numberInput = input.ltrim("damage universal ").toReal()
+    
+        damage(DmgType.UNIVERSAL, numberInput)
 
     else
         print("wrong input")    

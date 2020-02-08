@@ -1,0 +1,75 @@
+
+package BloodPact
+
+import AbilityTools
+import initlater TrollMasteries
+
+
+//================================================================================================================================================================================================
+// Settings
+
+let VOODOO_GAINED   = 40
+let HEALTH_COST     = 0.04
+
+public let TROLL_BLOOD_PACT = compiletime(defineInstantCast1(
+    "Blood Pact",
+    "Charge yourself with {0} voodo power, but at the cost of {1} of your maximum health.".format(
+        VOODOO_GAINED.toString(),
+        HEALTH_COST.toPercentageString()
+    ),
+    Icons.bTNOrbofSlowness,
+    "F",
+    1.,
+    10
+)) 
+
+
+
+let SND_CAST = new SoundDefinition(Sounds.deathCoilSpecialArt1, false, true )
+
+//================================================================================================================================================================================================
+init
+    registerSpellEffectEvent(TROLL_BLOOD_PACT) ->
+        onCast()
+
+function onCast()
+    let caster = GetSpellAbilityUnit()
+    let greedLvl = caster.getOwner().getMasteryLevel(GREED)
+
+    SND_CAST.playOnPoint(caster.getPos().withTerrainZ(70))
+    addEffect(Abilities.aIilTarget, caster.getPos().withTerrainZ(20))
+    ..setColor(255, 0, 50)
+    ..setDuration(3)
+    caster.addEffect(Objects.orcBloodWitchDoctor, "origin")
+    ..setDuration(3)
+    ..setTime(0.25)
+    ..setTimeScale(1.5)
+    
+
+    var voodoo = VOODOO_GAINED
+    if( caster.hasAbility(GREED_BUFF))
+        caster.removeBuff(GREED_BUFF)
+        voodoo = (voodoo *  (1 + greedLvl * GREED_INC)).toInt()
+    else
+        if( greedLvl > 0 )
+            caster.applyBuff(new GreedBuff(), caster, GREED_DURATION)
+            
+    caster.adjustCharge(voodoo)
+    caster.addHP(-(caster.getMaxHP() * HEALTH_COST))
+
+    
+    
+
+
+//================================================================================================================================================================================================
+
+let GREED_BUFF = compiletime(defineBuff(
+    "Greed", "Gain extra voodoo next time you use Blood Pact",
+    Icons.bTNBerserkForTrolls,
+    Abilities.phoenix_Missile_mini, "weapon",""
+))
+    
+
+class GreedBuff extends Buff
+    construct()
+        super(GREED_BUFF, false)

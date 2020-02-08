@@ -1,0 +1,418 @@
+// ================================================================================================================================
+
+package Gladiator
+
+// -----------------------------------------------------------------------------------------------------------------------------
+
+
+import public ObjectIdGenerator
+import public HeroDefaults
+import public Icons
+import public Charge
+import public initlater Artifact
+
+import public   SoundUtils
+
+import          LinkedList
+import          ErrorHandling
+import ComboSystem
+import AbilityObjEditing
+import CompileTimeData
+import ObjectIds
+import UtilCommands
+import MapBounds
+import ClosureForGroups
+import Stats
+
+
+//================================================================================================================================================================================================
+// Settings
+
+let MASTERY_SHOP_POSITIONS = boundMax + vec2(-1000, 1000)
+
+
+//================================================================================================================================================================================================
+public function getAllGladiators() returns LinkedList<Gladiator>
+    return Gladiator.instances
+
+
+// ================================================================================================================================
+public class Gladiator
+    protected static let instances = new LinkedList<thistype>
+
+    private unit            gladiatorUnit
+    private GladiatorType   gladiatorType
+    private player          owner
+    private unit masteryShop = null
+    private var abilitiesReleased = 0
+
+
+    construct(GladiatorType gladiatorType, player owner, vec2 spawnPos, angle facing )
+        this.owner = owner
+        this.gladiatorType = gladiatorType
+        gladiatorUnit = gladiatorType.createGladiatorUnit(owner, spawnPos, facing)
+
+
+        if( gladiatorType.masteryShopType == 0 ) 
+            error("Mastery shop type for {0} has not been set!".format(gladiatorType.getName()))
+        masteryShop = createUnit(owner, gladiatorType.masteryShopType, MASTERY_SHOP_POSITIONS, angle(0))
+        instances.add(this)
+
+
+    /** Releases an ability, adding it to the gladiator unit. The abilityNumber is the number in the list */
+    function unlockNextAbility() returns string
+        let abilities = gladiatorType.getAllAbilities()
+        if( abilities.size() <= abilitiesReleased)
+            Log.warn("{0}'s {1} should release ability {2}, but the gladiator only has {3} abilities".format(
+                owner.getNameColored(), gladiatorUnit.getName(), abilitiesReleased.toString(), abilities.size().toString() ))
+            return ""
+    
+        let abilityId = abilities.get(abilitiesReleased)
+
+        if( gladiatorUnit.getAbilityLevel(abilityId) > 0 )
+            Log.error("{0}'s {1} already has that ability".format(owner.getNameColored(), gladiatorUnit.getName()))
+        else
+            gladiatorUnit.addAbility(abilityId)
+
+        abilitiesReleased++
+        return GetAbilityName(abilityId)
+
+
+    function getUnit() returns unit
+        return gladiatorUnit
+
+
+    function getSpawnSound() returns SoundDefinition
+        return gladiatorType.getSoundOnSpawn()
+
+
+    function getRespawnSound() returns SoundDefinition
+        return gladiatorType.getSoundOnRespawn()
+
+
+    function getSoundOnNewAbility() returns SoundDefinition
+        return gladiatorType.getSoundOnNewAbility()
+
+    /** Refreshes the gladiator, healing it and running all RefreshFunctions defined for the 
+        GladiatorType (refresh cooldowns i.e.) */ 
+        // TODO: Implement refresh functions
+    function refresh()
+        if( gladiatorUnit.isAlive() )
+            gladiatorUnit.setMaxHP(gladiatorUnit.getMaxHP().toInt())
+            gladiatorUnit.setMana(gladiatorUnit.getMaxMana())
+
+    
+    function getOwner() returns player
+        return owner
+
+    function getColor() returns color
+        return gladiatorType.getColor()
+
+    function getGladiatorType() returns GladiatorType
+        return gladiatorType
+
+        
+    function getMasteryShop() returns unit
+        return masteryShop
+    
+
+    static function isUnitGladiator(unit whichUnit) returns boolean
+        return getInstance(whichUnit) != null
+
+    static function getInstance(unit  whichUnit) returns Gladiator
+        for instance in instances
+            if instance.gladiatorUnit == whichUnit
+                return instance
+        return null
+
+    static function getInstance(player whichPlayer) returns Gladiator
+        for instance in instances
+            if instance.owner == whichPlayer
+                return instance
+        return null
+
+
+
+
+// ================================================================================================================================
+interface GladiatorAction
+    function run(unit gladiator)
+
+public class GladiatorType
+
+    private static let allTypes = new LinkedList<thistype>
+
+    private static boolean hasBeenInitialized
+
+    private int unitType
+
+    private string name
+
+    private color col
+
+    protected int masteryShopType = 0
+
+    protected int QAbility
+    protected int WAbility
+    protected int EAbility
+
+    private let abilities = new LinkedList<int>
+    private let artifacts = new LinkedList<Artifact>
+
+    private SoundDefinition snd_Spawn = null
+    private SoundDefinition snd_Respawn = null
+    private SoundDefinition snd_NewAbility = null
+    
+    private LinkedList<GladiatorAction> actions_OnSpawn = null
+
+    construct(string name)
+        allTypes.add(this)
+        this.name = name
+
+    
+    function setUnitType(int unitType)
+        this.unitType = unitType
+
+        let tempUnit = createUnit(Player(PLAYER_NEUTRAL_PASSIVE), unitType, vec2(0,0),angle(0))
+        name = tempUnit.getName()
+        tempUnit.remove()
+
+
+    function setBaseStats( real damage, real armor, real health, real attackSpeed, real moveSpeed, real energy, real energyRegen  )
+        unitType
+        ..setUnitTypeStat(STAT_DAMAGE, damage)
+        ..setUnitTypeStat(STAT_ARMOR, armor)
+        ..setUnitTypeStat(STAT_HEALTH, health)
+        ..setUnitTypeStat(STAT_ATTACKSPEED, attackSpeed)
+        ..setUnitTypeStat(STAT_MOVESPEED, moveSpeed)
+        ..setUnitTypeStat(STAT_ENERGY, energy )
+        ..setUnitTypeStat(STAT_ENERGY_REGEN, energyRegen )
+        ..setUnitTypeStat(STAT_RESISTANCE, 0)
+        
+
+    function setSoundOnSpawn(string soundPath)
+        snd_Spawn = new SoundDefinition(soundPath, false)
+
+
+    function setSoundOnRespawn(string soundPath)
+        snd_Respawn = new SoundDefinition(soundPath, false)
+
+
+    function setSoundOnNewAbility(string soundPath)
+        snd_NewAbility = new SoundDefinition(soundPath, false)
+    
+
+    function setColor(color col)
+        this.col = col
+
+    function setMasteryShopType(int masteryShopType)
+        this.masteryShopType = masteryShopType
+
+    function addAbilities(vararg int abilities)
+        for abil in abilities
+            this.abilities.add(abil)
+
+
+    function getSoundOnSpawn() returns SoundDefinition
+        checkInit()
+        return snd_Spawn 
+
+
+    function getSoundOnRespawn() returns SoundDefinition
+        checkInit()
+        return snd_Respawn
+
+
+    function getSoundOnNewAbility() returns SoundDefinition
+        checkInit()     
+        return snd_NewAbility
+
+
+    function getAbility(int number) returns int
+        checkInit()
+        return abilities.size() >= number ? 0 : abilities.get(number)         
+    
+
+    function getAllAbilities() returns LinkedList<int>
+        checkInit() 
+        return abilities
+
+
+    function getUnitType() returns int
+        checkInit() 
+        return unitType
+
+    function getColor() returns color
+        return col
+
+    function setBaseAbilities( int q, int w, int e)
+        QAbility = q
+        WAbility = w
+        EAbility = e
+
+
+    function addActionOnSpawn( GladiatorAction action )
+        if actions_OnSpawn == null
+            actions_OnSpawn = new LinkedList<GladiatorAction>
+        actions_OnSpawn.add(action)
+
+    private static function checkInit()
+        if not hasBeenInitialized
+            initialize()
+
+    function createGladiatorUnit(player owner, vec2 spawnPos, angle facing) returns unit
+        let gladiatorUnit = createUnit(owner, unitType, spawnPos, facing)
+        ..suspendXp(true)
+        ..enableCharge()
+        
+        if actions_OnSpawn != null
+            for action in actions_OnSpawn
+                action.run(gladiatorUnit)
+    
+        return gladiatorUnit
+
+    
+    function getName() returns string
+        return name
+
+    function getNameColored() returns string
+        return col.toColorString() + name + "|r"
+
+    function addArtifacts(vararg Artifact artifacts)
+        for artifact in artifacts
+            this.artifacts.add(artifact)
+
+    function releaseNextArtifact() returns Artifact
+        for artifact in artifacts
+            if not artifact.isReleased()
+                artifact.release()
+                return artifact
+        return null
+
+    function unlockComboMove() returns string
+        return ComboUnitDefinition.getDefinition(unitType).unlockMove().getName()
+
+    static function getAllTypes() returns LinkedList<thistype>
+        return allTypes
+        
+// ================================================================================================================================
+// GLADIATOR TYPE SETUP
+
+    private static function initialize()
+        hasBeenInitialized = true
+
+                    
+    
+//================================================================================================================================================================================================
+// OBJECT DEFINITIONS
+
+public let allGladiatorIds = new LinkedList<int>
+let data_GladiatorUnitIds = compiletime(defineDataObj())
+
+/** Defines the generics of a gladiator unit (hide minimap, set attack type etc. ) */
+public function defineGladiatorUnit( int newId, int originId, string name, string icon ) returns HeroDefinition
+    
+    let definition = new HeroDefinition(newId, originId)
+    ..setName(name)
+    ..setProperNames(name)
+    ..setIconGameInterface(icon)
+    ..setSightRadiusNight(1800)
+    ..setSightRadiusNight(1800)
+    ..setManaMaximum(100)
+    ..hideHeroMinimapDisplay(true)
+    ..setCanFlee(false)
+    ..setSpeedBase(250)
+    ..setAgilityPerLevel(0)
+    ..setStrengthPerLevel(0)
+    ..setIntelligencePerLevel(0)
+    ..setHitPointsRegenerationRate(0)
+    ..setCollisionSize(25)
+    ..setArmorType(ArmorType.Medium)    
+    ..setAttack1AttackType(AttackType.Normal)
+    ..setSelectionScale(1.4)
+    ..setHeroAbilities("")
+    ..setNormalAbilities("AInv")
+    ..hideHeroDeathMsg(true)
+    ..hideHeroInterfaceIcon(true)
+    ..setTooltipBasic(name)
+    ..setDescription("")
+    ..setTooltipExtended("")
+    ..setGoldCost(0)
+    ..setLumberCost(0)
+    ..setFoodCost(0)
+    ..setStockMaximum(1)
+    ..setStockStartDelay(0)
+    ..setStockReplenishInterval(1)
+    ..setButtonPositionX(0)
+    ..setButtonPositionY(0)
+    ..setUnitSoundSet("")
+    ..setRequirements("")
+    ..setAttacksEnabled(1)
+    ..setAttack1AttackType(AttackType.Normal)
+    ..setAttack1DamageBase(1)
+    ..setAttack1DamageSidesperDie(1)
+    ..setAttack1DamageNumberofDice(1)
+    ..setAttack1AttackType(AttackType.Normal)
+
+    ..setTurnRate(3)
+    ..setOrientationInterpolation(0) // Allows for almost instant visual turning
+
+    data_GladiatorUnitIds.addData(newId.toRawCode())
+
+    return definition
+
+init
+    for stringId in data_GladiatorUnitIds.getData()
+        allGladiatorIds.add(stringId.fromRawCode())
+        
+
+//================================================================================================================================================================================================
+// Chat Commands
+init    
+    let cmd = defineUtilCommand("gladiator")
+
+    var sub = cmd.addSubCommand("getall")
+    ..setAction() (p, args, opts) ->
+        var gladiatorNames = ""
+        for gladiator in getAllGladiators()
+            gladiatorNames += "\n    " + gladiator.getOwner().getNameColored() + ": " + gladiator.getUnit().getProperName()
+        p.print("\nGladiators:" + gladiatorNames)
+
+
+    // Spawn Gladiator
+    sub = cmd.addSubCommand("new")
+    ..addArgument(ArgumentType.STRING)
+    ..setAction() (p, args, opts) ->
+        GladiatorType gladType = null
+        let gladName = args.getString()
+        var allNames = ""
+        for gladiator in GladiatorType.getAllTypes()
+            let adjustedName = gladiator.getName().replace(" ", "").replace("-", "").toLowerCase()
+            if( adjustedName == gladName )
+                gladType = gladiator
+            if(allNames != "")
+                allNames += ", "
+            allNames += adjustedName
+        
+        if( gladType == null )
+            p.print("Couldn't find gladiator type '{0}'. Available types are: {1}".format(gladName.highlight(), allNames))
+        else
+            new Gladiator(gladType, p, p.getMousePos(), angle(0))
+
+    sub.addHelpCommand("Spawns a Gladiator for of a given gladiator type. The type is name in lower-case without spaces and '-'. (i.e. Half-Breed -> halfbreed)")
+
+    // Unlock abilites for selected gladiators
+    sub  = cmd.addSubCommand("unlockability")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p,args,opts) ->
+        forUnitsSelected(p) u ->
+            let abilitiesToUnlock = args.getInt()
+            if( not Gladiator.isUnitGladiator(u) )
+                p.print("{0} is not a gladiator".format(u.getName().highlight()))
+            else
+                let gladiator = Gladiator.getInstance(u)
+                let name = gladiator.getGladiatorType().getNameColored()
+                for i=0 to abilitiesToUnlock
+                    let abilityName = gladiator.unlockNextAbility()
+                    if( abilityName != "" )
+                        p.print("Unlocked {0} for {1}.".format(abilityName.highlight(), name), 8)

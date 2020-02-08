@@ -10,7 +10,7 @@ public function group.getNearestUnit( vec2 origin ) returns unit
     if this.size() > 0
         real shortestDist = 999999
         for u in this
-            real distance = u.getPos().distanceTo(origin)
+            let distance = u.getPos().distanceTo(origin)
             if distance < shortestDist
                 shortestDist = distance
                 nearestUnit = u
@@ -26,7 +26,7 @@ public function group.getLowestHpUnit() returns unit
         real lowestHp = 1 // Percent
         
         for u in this
-            real hp = u.getHP()/u.getMaxHP()
+            let hp = u.getHP()/u.getMaxHP()
             if hp < lowestHp
                 lowestHpUnit = u
                 lowestHp = hp
@@ -44,7 +44,7 @@ public function group.getHighestHpUnit() returns unit
         real highestHp = 0 // Percent
         
         for u in this
-            real hp = u.getHP()/u.getMaxHP()
+            let hp = u.getHP()/u.getMaxHP()
             if hp > highestHp
                 highestHpUnit = u
                 highestHp = hp
@@ -52,6 +52,8 @@ public function group.getHighestHpUnit() returns unit
         return highestHpUnit
 
     return null
+
+
 
 
 /** Adds a unit to the group for certain amount of time */

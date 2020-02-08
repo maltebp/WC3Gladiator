@@ -1,0 +1,35 @@
+// package OrcMasteries
+// import ObjectIdGenerator
+// import Mastery
+// import OrcGladiator
+// import Gladiator
+
+
+// public let ORC_MASTERY_SHOP = compiletime( UNIT_ID_GEN.next() )
+
+// public let ORC_DEATH_WISH_DMG_INC = 1.0 
+// public let ORC_DEATH_WISH_DMG_TAKEN_INC = 1.0 
+// public let ORC_DEATH_WISH_DURATION = 15.
+// public let ORC_DEATH_WISH_UNLOCK = 1
+
+// public let ORC_DEATH_WISH = compiletime(defineMastery(
+//     "Death Wish",
+//     Icons.bTNBloodLust,
+//     ORC_COLOR,
+//     rank -> "Increases damage done by {0} and damage taken by {1} for {2} seconds after casting any abilities.".format(
+//         (ORC_DEATH_WISH_DMG_INC*rank).toPercentageString(),
+//         (ORC_DEATH_WISH_DMG_TAKEN_INC*rank).toPercentageString(),
+//         (ORC_DEATH_WISH_DURATION).toString(0)
+//     ),
+//     ORC_DEATH_WISH_UNLOCK
+// ))
+    
+// init
+//     GLADIATOR_ORC.setMasteryShopType(ORC_MASTERY_SHOP)
+
+// @compiletime
+// function defineShop()
+//     defineMasteryShop(ORC_MASTERY_SHOP)
+//     ..defineAsResearchSkillShop(
+//         ORC_DEATH_WISH
+//     )

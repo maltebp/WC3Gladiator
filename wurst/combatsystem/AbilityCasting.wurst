@@ -1,0 +1,134 @@
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+package AbilityCasting
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+/*
+    A system which adds the mechanic of ordering a unit to cast a spell (or any other action),
+    at a certain point. It checks their movement, stop the order if the unit is interrupted
+    by being issued another ordered or the like.
+*/
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+
+import RegisterEvents
+import Orders
+import LinkedList
+import Updater
+
+       
+
+public interface CastAction
+    function run()
+        
+
+public function unit.cast( vec2 targetPos, real castRange, boolean facingRequired, CastAction action )
+    let currentInstance = CastObserver.getInstance(this)
+
+    if currentInstance != null
+        destroy currentInstance
+
+    new CastObserver( this, targetPos, castRange, facingRequired, action )
+
+
+public function unit.cancelCast()
+
+
+class CastObserver extends Updater
+
+    static let instances = new LinkedList<thistype>
+    static let FACING_DEVIATION = 1.25
+
+    unit caster
+    vec2 targetPos
+    real castRange
+    boolean facingRequired
+    CastAction action
+
+    boolean orderedToStop = false
+    boolean hasStopped = false
+    boolean success = false
+
+    construct( unit caster, vec2 targetPos, real castRange, boolean facingRequired, CastAction action )
+        this.caster = caster
+        this.targetPos = targetPos
+        this.castRange = castRange
+        this.facingRequired = facingRequired
+        this.action = action
+        
+
+        if caster.getPos().distanceTo(targetPos) > castRange 
+            caster.issuePointOrderById(Orders.move, targetPos)
+
+                
+        instances.add(this)
+
+        updateFreq = 0.1
+
+        startUpdate()
+        update()
+
+
+    ondestroy
+        instances.remove(this)
+
+        if success
+            action.run()
+
+
+    override function update()
+
+        let casterPos = caster.getPos()
+
+        if casterPos.distanceTo(targetPos) < castRange 
+            
+            if not hasStopped
+                orderedToStop = true
+                hasStopped = true
+                caster.issueImmediateOrderById(Orders.stop)
+
+            let actualFacing = caster.getFacingAngle().radians()
+            let adjustedFacing = (actualFacing < 0 ? PI2+actualFacing : actualFacing) + 4
+
+            let actualDirection = casterPos.angleTo(targetPos).radians()
+            let adjustedDirection = (actualDirection < 0 ? PI2+actualDirection : actualDirection) + 4
+
+            caster.setFacing(angle(actualDirection))
+
+            if not facingRequired or (adjustedFacing >= (adjustedDirection-FACING_DEVIATION) and adjustedFacing <= (adjustedDirection+FACING_DEVIATION))
+                success = true
+                destroy this
+                
+            
+
+        
+    static function getInstance( unit caster ) returns thistype
+        for instance in instances
+            if instance.caster == caster
+                return instance
+        return null
+        
+        
+/** Interrupts the unit's current casting order. If it has no order, nothing will happen.  */        
+function unit.interruptCasting( int orderId )
+    let instance = CastObserver.getInstance(this)
+    
+    if instance != null
+        if instance.orderedToStop and orderId == Orders.stop
+            instance.orderedToStop = false
+        else
+            destroy instance
+        
+
+int array orderExceptions = [Orders.unimmolation] // REMEMBER TO INCREASE EXCEPTION LOOP
+
+function issuedOrder()
+    let orderId = GetIssuedOrderId()
+    for i = 0 to 0
+        if orderId == orderExceptions[i]
+            return
+    GetOrderedUnit().interruptCasting( orderId )
+
+init
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_ORDER, function issuedOrder )
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_ISSUED_POINT_ORDER, function issuedOrder )

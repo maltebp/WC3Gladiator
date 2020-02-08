@@ -1,0 +1,145 @@
+// package HealingPotion
+
+// import ComboSystem
+// import HoverAbility
+// import TrollAnimations
+// import AbilityCreation
+// import BuffObjEditing
+// import Assets
+// import ClosureTimers
+// import Projectile
+// import MyLibrary
+// import SoundDefinitions
+// import initlater TrollGladiator
+// import SoulDrainData
+// import LinkedList
+// import Artifact
+
+// // =========================================================================================================
+
+// let HEALING_FACTOR = 0.75
+// let SHIMMERWEED_INC = 1.5
+// let RADIUS = 250.
+// let CASTERBUFF_DURATION = 5.
+
+// let SHRINKHEAD_DURATION = CASTERBUFF_DURATION * 2
+
+// // =========================================================================================================
+
+// public let HEALINGPOTION_ID  = compiletime( createComboMove("Healing Potion", "Do a slam dunk!", Icons.bTNPotionOfRestoration, Icons.bTNPotionOfRestoration,2))
+// let ABIL_DEF = new NoTargetAbility( HEALINGPOTION_ID.useAbil, ANIM_TROLL_VICTORY )
+// public let COMBO_HEALINGPOTION = new ComboMove( HEALINGPOTION_ID, COMBO_POINT_Q, COMBO_POINT_E, null )
+
+// init
+//     ABIL_DEF
+//     ..onEffect() ( caster ) ->
+        
+//         caster.removePotionBuffs()
+
+//         let duration = caster.hasArtifact(ARTIFACT_TROLL_SHRINKHEAD) ? SHRINKHEAD_DURATION : CASTERBUFF_DURATION
+
+//         caster.applyBuff(duration)
+//         SND_ANCESTRALSPIRIT.playOnPoint(caster.getPos3Zero())
+        
+//         caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_3)
+
+//         caster.clearCombo()
+
+// public function unit.removeHealingPotionBuff()
+//     let instance = HealingPotionCaster.getInstance(this)
+//     if instance != null
+//         destroy instance
+
+
+// // =========================================================================================================================================
+// // Caster Buff
+
+// let casterBuff = compiletime( createDummyBuffObject("Healing Potion", "You're next Voodoo Potion will be enhanced with mojo.", Icons.bTNPotionOfRestoration, Abilities.faerieDragonMissile, "weapon") )
+
+// public function unit.applyBuff( real duration  ) 
+//     let instance = HealingPotionCaster.getInstance(this)
+//     if instance != null
+//         destroy instance
+//     new HealingPotionCaster(this, duration)
+
+// public function unit.hasHealingPotionBuff() returns boolean
+//     return HealingPotionCaster.getInstance(this) != null 
+
+
+
+// class HealingPotionCaster
+//     private static let instances = new LinkedList<thistype>
+
+//     private unit buffUnit
+//     private CallbackSingle durationCb = null
+
+//     construct( unit buffUnit, real duration )
+//         this.buffUnit = buffUnit
+
+//         buffUnit.addAbility(casterBuff.abilId)
+
+//         durationCb = doAfter( duration - 2 ) ->
+//             removeBuff()
+//             durationCb = doAfter(2) ->
+//                 this.durationCb = null
+//                 destroy this
+
+//         instances.add(this)
+
+
+//     function removeBuff()
+//         if buffUnit != null and buffUnit.isAliveTrick()
+
+//             // Sometimes the buff isnt removed if the unit is paused
+//             if buffUnit.isPaused()
+//                 doPeriodically(0.5) cb ->
+//                     if buffUnit != null and buffUnit.isAliveTrick() and not buffUnit.isPaused()
+//                         buffUnit.removeAbility(casterBuff.abilId)
+//             else
+//                 buffUnit.removeAbility(casterBuff.abilId)
+
+//     ondestroy
+//         if durationCb != null
+//             destroy durationCb
+
+//         instances.remove(this)
+
+//     static function getInstance( unit buffUnit ) returns thistype
+//         for instance in instances
+//             if instance.buffUnit == buffUnit
+//                 return instance
+//         return null
+
+
+
+// public function unit.castHealingPotion( vec2 pos )
+
+//     let originPos = this.getPos().withTerrainZ(60)
+    
+//     // Extra projectile only for visual effect
+//     new Projectile( originPos - vec3(0,0,160), Abilities.healingSalveTarget)
+//     ..firePoint(pos.withTerrainZ(-100), 700, 0.4)
+
+//     let projectile = new Projectile( originPos, Abilities.goldBottleMissile )
+//     ..firePoint(pos.withTerrainZ(), 700, 0.4)
+
+//     projectile
+//     ..addActionOnFinish() ->
+
+//         addEffect( Abilities.purificationTarget, pos)
+//         ..destr()
+
+//         SND_ACID_BOMB_EXPLODE.playOnPoint(pos.withTerrainZ())
+//         SND_HEALINGSPRAY_HIT.playOnPoint(pos.withTerrainZ())
+
+//         let targets = ENUM_GROUP..enumFriendlyTargets( this.getOwner(), pos, RADIUS)
+
+    
+//         var healAmount = this.getDamage() * HEALING_FACTOR
+//         healAmount = (this.hasArtifact(ARTIFACT_TROLL_SHIMMERWEED)) ? healAmount * SHIMMERWEED_INC : healAmount
+
+//         for target from targets
+//             target.addHP( healAmount)
+//             flashEffect(Abilities.healBottleMissile, target, "chest" )
+            
+

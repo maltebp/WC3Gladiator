@@ -56,8 +56,8 @@ constant boolean    DEBUG       = false
 /** Print a debugMsg, that is toggleable
     with the DEBUG variable*/
 function debugMsg(string stringToPrint)
-         if DEBUG
-             print(stringToPrint)
+    if DEBUG
+        print(stringToPrint)
 
 
 
@@ -147,7 +147,7 @@ public class Disease
 
     
     private static function orderDamage()
-        thistype instance = GetExpiredTimer().getData() castTo thistype
+        let instance = GetExpiredTimer().getData() castTo thistype
         damage(instance.unitWithAbility, instance.diseaseDamage, instance.diseaseRange)
         
 
@@ -180,7 +180,7 @@ public class Disease
             ..addCondition(Condition(function unitDies))
             ..disable()
 
-            region map = CreateRegion()..addRect(GetPlayableMapRect())
+            let map = CreateRegion()..addRect(GetPlayableMapRect())
             trg_UnitIsRemoved = CreateTrigger()
             ..registerLeaveRegion(map, Filter(function unitIsRemoved))
             ..disable()
@@ -188,7 +188,7 @@ public class Disease
 
     /** Destroys the instance if the unit is removed */
     private static function unitIsRemoved() returns boolean
-        unit removedUnit = GetLeavingUnit()
+        let removedUnit = GetLeavingUnit()
         if instances.has(removedUnit)
             destroy instances.get(removedUnit)
         return false
@@ -196,11 +196,11 @@ public class Disease
 
     /** Destroys the instance and creates a cloud if the unit dies*/
     private static function unitDies() returns boolean
-        unit dyingUnit = GetDyingUnit()
+        let dyingUnit = GetDyingUnit()
 
         if instances.has(dyingUnit)
             debugMsg("Disease: Unit in instance died!")
-            thistype instance = instances.get(dyingUnit)       
+            let instance = instances.get(dyingUnit)       
             if instance.leaveCloud
                 new DiseaseCloud(instance.unitWithAbility.getOwner(), instance.unitWithAbility.getPos(), instance.cloudDamage, instance.cloudDuration, instance.cloudRange)
             destroy instance
@@ -238,7 +238,7 @@ public class DiseaseCloud
         timer_Duration.release()
 
     static function orderDamage()
-        thistype instance = GetExpiredTimer().getData() castTo thistype
+        let instance = GetExpiredTimer().getData() castTo thistype
         damage(instance.dummy, instance.damage, instance.range)
 
 
@@ -299,8 +299,7 @@ public class DiseaseCloud
 /** Deals damage to all units from the source
     within a certain range.*/
 function damage( unit source, real damage, real range )
-    
-    group targets = ENUM_GROUP
+    let targets = ENUM_GROUP
     targets.enumUnitsInRange(source.getPos(), range)
 
     // Removing the units not to be hit
@@ -355,7 +354,7 @@ function unit.isHit() returns boolean
     be called with a Timer with the data set to
     units index in the list of hit targets.*/
 function removeFromHitTargets()
-    timer t = GetExpiredTimer()
+    let t = GetExpiredTimer()
     hitTargets[GetExpiredTimer().getData()] = null
     t.release()
     

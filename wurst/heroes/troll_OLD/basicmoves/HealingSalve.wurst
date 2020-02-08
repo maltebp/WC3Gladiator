@@ -1,0 +1,160 @@
+// package HealingSalve
+
+// import AbilityCreation
+// import HoverAbility
+// import SoundDefinitions
+// import AttackCooldown
+// import MyLibrary
+// import UnitStatsSystem
+// import TrollAnimations
+// import Assets
+// import GroupUtils
+// import HeroDefaults
+// import Updater
+// import BuffObjEditing
+// import ClosureTimers
+// import TimedSpecialEffects
+// import ComboSystem
+// import BloodPact
+// import LinkedList
+// import SoulDrainData
+// import VoodooPotion
+// import Artifact
+// import initlater TrollGladiator
+
+
+// // ==================================================================================================================================
+
+// let HEAL_FACTOR = 0.20
+// let INITIAL_HEAL_FACTOR = 0.8 // Only if voodoo is active
+// let DURATION = 8.
+// let HEAL_FREQ = 1.
+// let STACK_MAX = 2
+
+// let SHIMMERWEED_HEALINC = 1.5
+// let DOCTORSMASK_DURATION = 2. * DURATION
+
+// let RANGE = DEFAULT_CASTRANGE
+// let AIMASSIST = DEFAULT_AIMASSIST
+
+
+// // ==================================================================================================================================
+
+// public let TROLL_HEALINGSALVE_ID = compiletime( createE( Icons.bTNHealingSalve, "Healing Salve", "Strike an enemy dealing damage to it.")  )
+
+// let ABIL_DEF = new PointAbility( TROLL_HEALINGSALVE_ID, RANGE, ANIM_TROLL_VICTORY )
+
+
+// init
+//     ABIL_DEF
+//     ..queueStandReady()
+
+//     ABIL_DEF.setCastCritera() caster ->
+//         return caster.attemptAttack( SND_SORCERESS_MISSILE_DEATH )
+
+//     ABIL_DEF.addAdjustments() (caster, adjustments) ->
+//         adjustments.speed = caster.getAttackSpeed() * 1.4
+
+//     ABIL_DEF.onEffect() (caster, pos) ->
+    
+//         caster.activateBloodPact()  
+                    
+
+//         let targets = ENUM_GROUP..enumFriendlyTargets( caster.getOwner(), pos, AIMASSIST)
+        
+//         let target = targets.getNearestUnit(pos)
+
+//         if target != null
+
+//             if target.consumeVoodoo(caster)
+//                 target.addHP( caster.getDamage() * INITIAL_HEAL_FACTOR )
+
+//             var heal = caster.getDamage() * HEAL_FACTOR
+//             heal = (caster.hasArtifact(ARTIFACT_TROLL_SHIMMERWEED)) ? heal * SHIMMERWEED_HEALINC : heal 
+
+//             target.addEffect(Abilities.healTarget, "origin")
+//             ..setDuration(3)
+            
+//             caster.applyHealingSalve(target, heal, caster.hasArtifact(ARTIFACT_TROLL_DOCTORSMASK) ? DOCTORSMASK_DURATION : DURATION)
+//             caster.addComboPoint( COMBO_POINT_E )
+            
+//             SND_PRIESTCAST.playOnPoint(target.getPos3Real())
+
+//             caster.reduceCharge( SOUL_DRAIN_REGULARMOVE )
+
+
+//         targets.clear()
+
+
+// let healingSalveBuff = compiletime( createDummyBuffObject("Healing Salve", "You're being healed over time.", Icons.bTNHealingSalve, Abilities.healingSalveTarget, "origin") )
+
+// public function unit.applyHealingSalve( unit target, real healAmount, real duration  ) 
+//     var instance = HealingSalveBuff.getInstance(target, this)
+//     if instance == null
+//         instance = new HealingSalveBuff( target, this )
+//     instance.applyStack(healAmount, duration)
+
+    
+
+
+// class HealingSalveBuff extends Updater
+
+//     private static let instances = new LinkedList<thistype>
+
+//     private unit buffUnit
+//     private unit source
+//     private real healAmount = 0
+//     private int stacks = 0
+//     private CallbackSingle durationCb = null
+
+//     construct( unit buffUnit, unit source )
+//         this.source = source
+//         this.buffUnit = buffUnit
+
+//         buffUnit.addAbility(healingSalveBuff.abilId)
+
+//         this.updateFreq = HEAL_FREQ
+//         startUpdate()
+
+//         instances.add(this)
+
+//     ondestroy
+//         if durationCb != null
+//             destroy durationCb
+
+//         if buffUnit != null and buffUnit.isAliveTrick()
+//             buffUnit.removeAbility(healingSalveBuff.abilId)
+
+//         instances.remove(this)
+
+
+//     function applyStack( real healAmount, real duration)
+
+//         if stacks < STACK_MAX
+//             this.healAmount += healAmount
+//             stacks++
+
+//         if durationCb != null
+//             destroy durationCb
+
+//         durationCb = doAfter( duration+0.1 ) ->
+//             this.durationCb = null
+//             destroy this
+
+
+//     override function update()
+//         if buffUnit != null and buffUnit.isAliveTrick()
+//             let hpAfterHeal = buffUnit.getHP() + healAmount
+//             let finalHp = (buffUnit.getMaxHP() <= hpAfterHeal ) ? buffUnit.getMaxHP() : hpAfterHeal
+//             buffUnit.setHP(finalHp)
+
+//         else
+//             destroy this
+
+
+//     static function getInstance( unit buffUnit, unit source ) returns thistype
+//         for instance in instances
+//             if instance.buffUnit == buffUnit and instance.source == source
+//                 return instance
+//         return null
+

@@ -1,0 +1,76 @@
+package Frenzy
+
+import AbilityTools
+import initlater HalfBreedMasteries
+
+
+
+//================================================================================================================================================================================================
+// Settings
+
+let CHARGE              = 25
+let ATTACK_SPEED_INC    = 1.5
+let DURATION            = 6.
+
+
+public let HALF_BREED_FRENZY = compiletime(defineInstantCast1(
+    "Frenzy",
+    "Enter a Frenzy, increasing your attack speed by {0} for {1} seconds.".format(ATTACK_SPEED_INC.toPercentageString(), DURATION.toString(0)),
+    Icons.bTNBerserk,
+    "F",
+    12,      // Cooldown
+    30      // Mana
+))
+
+public let HALF_BREED_FRENZY_BUFF = compiletime(defineBuff(
+    "Frenzy",
+    "Increased attack speed.",
+    Icons.bTNBerserk,
+    Abilities.bloodLustTarget,
+    "hand,right",
+    "hand,left"))
+
+let SND_ROAR = new SoundDefinition(Sounds.gromYesAttack4, false, true)
+let SND_EFFECT = new SoundDefinition(Sounds.spiritLink1, false, true)
+
+
+//================================================================================================================================================================================================
+
+init
+    registerSpellEffectEvent(HALF_BREED_FRENZY) ->
+        onCast()
+
+function onCast()
+    let caster = GetSpellAbilityUnit()
+
+    caster.activateBloodthirst()
+
+    // Adjust charge
+    caster.adjustCharge(CHARGE)
+    
+    let chargeLvl = caster.getOwner().getMasteryLevel(HALF_BREED_CHARGE)
+    caster
+    ..applyBuff(new FrenzyBuff(chargeLvl), caster, DURATION)
+
+    SND_ROAR.playOnPoint(caster.getPos3Real())
+    SND_EFFECT.playOnPoint(caster.getPos3Real())
+
+    
+
+class FrenzyBuff extends Buff
+
+    int chargeLvl
+
+    construct(int chargeLvl)
+        super(HALF_BREED_FRENZY_BUFF, false)
+        this.chargeLvl = chargeLvl
+
+    override function onApply()
+        if( target != null )
+            target.adjustStatPercentage(STAT_ATTACKSPEED, ATTACK_SPEED_INC) 
+            target.adjustStatPercentage(STAT_MOVESPEED, (chargeLvl * HALF_BREED_CHARGE_MOVE_SPEED_INC) )
+
+    override function onRemove()
+        if( target != null )
+            target.adjustStatPercentage(STAT_ATTACKSPEED, -ATTACK_SPEED_INC)  
+            target.adjustStatPercentage(STAT_MOVESPEED, -(chargeLvl * HALF_BREED_CHARGE_MOVE_SPEED_INC) )       

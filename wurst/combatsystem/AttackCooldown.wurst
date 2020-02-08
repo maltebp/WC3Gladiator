@@ -1,0 +1,123 @@
+// package AttackCooldown
+// import LinkedList
+// import Updater
+// import ClosureTimers
+// import SoundUtils
+// import StandardTextTags
+// import UnitStatsSystem
+
+
+// let MANABAR_ENABLED = true
+// let FUMBLE_ENABLED = false
+// let FUMBLE_DELAY = 0.30 // Only the text
+
+
+// let fumblingUnits = new LinkedList<unit> 
+
+
+// public let FUMBLE_SND_SWORD = new SoundDefinition(Sounds.sorceressMissileLaunch1, false, true)
+
+
+// public function unit.fumble( SoundDefinition snd )
+//     //this.triggerAbilityFumble() Might be ridicioules to use
+//     if not fumblingUnits.has(this)
+//         standardTextTag(this.getPos()-vec2(50, 0), "fumble")
+//         ..setColor(150,150,150,200)
+//         snd.playOnPoint(this.getPos3Real())
+//         fumblingUnits.add(this)
+//         doAfter(FUMBLE_DELAY) ->
+//             if this != null 
+//                 fumblingUnits.remove(this)
+
+
+// public function unit.attemptAttack(real attackCooldown, SoundDefinition fumbleSound ) returns boolean
+//     var instance = AttackCooldown.getUnitInstance(this)
+//     if instance == null 
+//         new AttackCooldown(this)..start(attackCooldown)
+//         return true
+//     else
+//         if FUMBLE_ENABLED
+//             this.fumble(fumbleSound)
+//             instance.restart()
+//         return false
+
+
+
+// /** Reduces the unit's remaining cooldown by a flat amount */
+// public function unit.reduceCooldownFlat( real seconds )
+        
+//     if this.getMana() < this.getMaxMana()
+//         this.addMana(seconds * 100)
+
+
+// /** Reducing the unit's remaining cooldown by a percentage.
+//     ofTotal = true: it will be a percentage of the total cooldown (not the remaining) */
+// public function unit.reduceCooldownPerc( real percentage, boolean ofTotal )
+//     /* Currently it fixed by adjusting mana. For future this should be independant
+//         of the unit's mana. */
+//     let maxMana = this.getMaxMana()
+//     let currentMana = this.getMana()
+
+    
+//     if currentMana < maxMana
+//         var manaToAdjust = (ofTotal) ? maxMana * percentage : (maxMana-currentMana)*percentage
+//         this.addMana(manaToAdjust)
+
+    
+
+
+// /** Attempts an attack by the unit, restarting the attack cooldown time. If the attack is not ready, it returns false. */
+// public function unit.attemptAttack( SoundDefinition fumbleSound ) returns boolean
+//     let attackCooldown = this.getAttackCooldown() // Fix this to the unit's actual cooldown
+//     return this.attemptAttack(attackCooldown, fumbleSound )
+
+
+// // ===========================================================================================================
+
+// class AttackCooldown extends Updater
+
+//     private static let instances = new LinkedList<thistype>
+
+//     private unit u = null
+//     private real currentCooldown
+
+//     private CallbackSingle durationCb = null
+
+//     construct( unit u )
+//         this.u = u
+//         updateFreq = 0.01
+//         instances.add(this)
+
+//     ondestroy
+//         instances.remove(this)
+
+
+//     override function update()
+//         if u != null and u.isAliveTrick() and u.getMana() < u.getMaxMana()
+//             u.addMana(1)
+//         else
+//             destroy this
+
+//     function start(real cooldown)
+//         currentCooldown = cooldown
+//         if MANABAR_ENABLED
+//             u.setMaxMana( R2I(cooldown*100))
+//             u.setMana(0)                
+//             startUpdate()
+//         else
+//             if durationCb != null
+//                 destroy durationCb
+//             durationCb = doAfter(cooldown) ->
+//                 destroy this
+
+//     function restart()
+//         start(currentCooldown)
+        
+
+//     static function getUnitInstance( unit whichUnit ) returns thistype
+//         for instance in instances
+//             if instance.u == whichUnit
+//                 return instance
+//         return null
+
+// // ==============================================================================================================

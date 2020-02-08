@@ -1,0 +1,271 @@
+package AbilityTools
+
+import public AbilityObjEditing
+import public Assets
+import public RegisterEvents
+import public SoundUtils
+import public Damage
+import public GameSettings
+import public GroupUtils
+import public Stats
+import public TimedSpecialEffects
+import public StringUtils
+import public Buff
+import public Charge
+
+import ObjectIdGenerator
+import ErrorHandling
+import BuffObjEditing
+import ObjectIds
+
+
+
+public function defineSingleTarget1( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation, bool friendly ) returns int
+    let abilId = ABIL_ID_GEN.next()
+    let targetsAllowed = (friendly ? "friend,self" : "enemy") + ",ground"
+
+    new AbilityDefinitionChainLightningcreep(abilId)
+    ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
+    ..setDamageperTarget(1, 0)
+    ..setAreaofEffect(1, 0)
+    ..setCastRange(1, range)
+    ..setAnimationNames(animation)
+    ..setNumberofTargetsHit(1, 0)
+    ..setArtTarget("")
+    ..setMissileArt("")
+    ..setLightningEffects("")
+    ..setTargetsAllowed(1, targetsAllowed)
+    return abilId
+
+
+
+
+public function defineSingleTarget2( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation, bool friendly ) returns int
+    let targetsAllowed = (friendly ? "friend,self" : "enemy") + ",ground"
+    let abilId = ABIL_ID_GEN.next()
+    new AbilityDefinitionSeaWitchForkedLightning(abilId)
+    ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
+    ..setCastRange(1, range)
+    ..setAnimationNames(animation)
+    ..setLevels(1)
+    ..setHeroAbility(false)
+    ..setDistance(1, 0)
+    ..setFinalArea(1, 0)
+    ..setDamageperTarget(1, 0)
+    ..setAreaofEffect(1, 0)
+    ..setNumberofTargetsHit(1, 0)
+    ..setArtSpecial("")
+    ..setLightningEffects("")
+    ..setTargetsAllowed(1, targetsAllowed)
+    return abilId
+
+public function defineSingleTarget3( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation, bool friendly ) returns int
+    let targetsAllowed = (friendly ? "friend,self" : "enemy") + ",ground"
+    let abilId = ABIL_ID_GEN.next()
+    new AbilityDefinitionFingerofDeath(abilId)
+    ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
+    ..setCastRange(1, range)
+    ..setAnimationNames(animation)
+    ..setLevels(1)
+    ..setHeroAbility(false)
+    ..setArtTarget("")
+    ..setDamage(1, 0)
+    ..setLightningEffects("")
+    ..setGraphicDuration(1, 0.01)
+    ..setTargetsAllowed(1, targetsAllowed)
+    return abilId
+
+
+let singleTarget4_Buff = BUFF_ID_GEN.next()
+var singleTarget4_BuffDefined = false
+public function defineSingleTarget4( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation, bool friendly ) returns int
+    let targetsAllowed = (friendly ? "friend,self" : "enemy") + ",ground"
+    let abilId = ABIL_ID_GEN.next()
+    
+    if( not singleTarget4_BuffDefined )
+        singleTarget4_BuffDefined = true
+        new BuffDefinition(singleTarget4_Buff, 'Blsh')
+        ..setName(1, "")
+        ..setTooltipNormal(1, "Hidden buff")
+        ..setTooltipNormalExtended(1, "Nothing to see here")
+        ..setIcon(Icons.bTNAcorn)
+        ..setTargetAttachments(1, 0)
+        ..setTargetAttachmentPoint0(1, "")
+        ..setTargetAttachmentPoint1(1, "")
+        ..setArtTarget(1, "")
+
+    new AbilityDefinitionLightningShieldcreep(abilId)
+    ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
+    ..setCastRange(1, range)
+    ..setAnimationNames(animation)
+    ..setDamageperSecond(1, 0)
+    ..setDurationHero(1, 0.01)
+    ..setDurationNormal(1, 0.01)
+    ..setTargetsAllowed(1, targetsAllowed)
+    return abilId
+
+
+public function defineTargetPoint1( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, string animation ) returns int
+    let abilId = ABIL_ID_GEN.next()
+    new AbilityDefinitionCarrionSwarmcreep(abilId)
+    ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
+    ..setDamage(1, 0)
+    ..setDistance(1, 0)
+    ..setFinalArea(1, 0)
+    ..setAreaofEffect(1, 0)
+    ..setCastRange(1, range)
+    ..setAnimationNames(animation)
+    ..setMissileArt("")
+    ..setArtSpecial("")
+    return abilId
+
+
+let instantCast1_Buff = BUFF_ID_GEN.next()
+var instantCast1_BuffDefined = false
+
+public function defineInstantCast1( string name, string description, string icon, string hotkey, real cooldown, int manaCost ) returns int
+    
+    if( not instantCast1_BuffDefined) 
+        new BuffDefinition(instantCast1_Buff, 'Bbsk')
+        ..setName(1, "")
+        ..setTooltipNormal(1, "Hidden buff")
+        ..setTooltipNormalExtended(1, "Nothing to see here")
+        ..setIcon(Icons.bTNAcorn)
+        ..setTargetAttachments(1, 0)
+        ..setTargetAttachmentPoint0(1, "")
+        ..setTargetAttachmentPoint1(1, "")
+        ..setArtTarget(1, "")
+        instantCast1_BuffDefined = true
+
+    let abilId = ABIL_ID_GEN.next()
+    new AbilityDefinitionBeserk(abilId)
+    ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
+    ..setBuffs(1, instantCast1_Buff.toRawCode())
+    ..setDamageTakenIncrease(1, 0)
+    ..setAttackSpeedIncrease(1, 0)
+    ..setMovementSpeedIncrease(1, 0)
+    ..setDurationHero(1, 0.01)
+    ..setDurationNormal(1, 0.01)
+    ..setArtCaster("")
+
+    return abilId
+
+// Immediate cast has a small delay, whereas instant cast is instant
+public function defineImmediate1( string name, string description, string icon, string hotkey, real cooldown, int manaCost, string animation ) returns int
+    let abilId = ABIL_ID_GEN.next()
+    new AbilityDefinitionRoarcreep(abilId)
+    ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
+    ..setBuffs(1, instantCast1_Buff.toRawCode())
+    ..setTargetsAllowed(1, "none")
+    ..setArtCaster("")
+    ..setAreaofEffect(1, 0)
+    ..setDamageIncrease(1, 0)
+    ..setAnimationNames(animation)
+
+    return abilId
+
+
+// AOE target point (like dispel, ward etc)
+public function defineAOE1( string name, string description, string icon, string hotkey, real cooldown, int manaCost, real range, real aoe, string animation ) returns int
+    let abilId = ABIL_ID_GEN.next()
+    new AbilityDefinitionDispelMagiccreep(abilId)
+    ..setupGenerics(name, description, icon, hotkey, cooldown, manaCost)
+    ..setAnimationNames(animation)
+    ..setCastRange(1, range)
+    ..setAreaofEffect(1, aoe)
+    ..setTargetsAllowed(1, "none")
+    ..setArtTarget("")
+    ..setArtSpecial("")
+    ..setSummonedUnitDamage(1, 0)
+
+    return abilId
+
+
+
+public function AbilityDefinition.setupGenerics(string name, string description, string icon, string hotkey, real cooldown, int manaCost)
+    if( not compiletime )
+        error("Ability {0} is not being setup during compiletime!".format(name))
+    this
+    ..setName(name)
+    ..setEditorSuffix("")
+    ..setIconNormal(icon)
+    ..setTooltipNormal( 1, name + "  [" + hotkey.withColor(COLOR_HIGHLIGHT) + "]" )
+    ..setTooltipNormalExtended( 1, description + "\n\n" + "Cooldown: ".withColor(COLOR_HIGHLIGHT) + cooldown.toString(0) )
+    ..setupHotkey(hotkey)
+    ..setCooldown(1, cooldown)
+    ..setManaCost(1, manaCost)
+    
+
+
+public function AbilityDefinition.setupHotkey( string hotkey )
+    var x = 0
+    var y = 2
+    
+    switch hotkey
+        case "Q"
+            x = 0
+            y = 2
+        case "W"
+            x = 1
+            y = 2
+        case "E"
+            x = 2
+            y = 2
+        case "R"
+            x = 3
+            y = 2
+        case "D"
+            x = 1
+            y = 1
+        case "F"
+            x = 2
+            y = 1
+        case "G"
+            x = 3
+            y = 1
+
+        default
+            compileError("Wrong hotkey!")
+
+    this.setButtonPositionNormalX(x)
+    this.setButtonPositionNormalY(y)
+    this.setHotkeyNormal(hotkey)
+
+
+
+//================================================================================================================================================================================================
+// Runtime Functions    
+
+/** Groups alive units in range who are enemy of p. Uses ENUM_GROUP */
+public function enemiesInRange(player p, vec2 origin, real range) returns group
+    let g = ENUM_GROUP
+    ..clear()
+    ..enumUnitsInRange(origin, range)
+    
+    for u in g
+        if( not u.isAlive() or not u.isEnemyOf(p) )
+            g.removeUnit(u)
+
+    return g
+
+/** Groups alive units in range who are ally of p. Uses ENUM_GROUP */
+public function alliesInRange(player p, vec2 origin, real range) returns group
+    let g = ENUM_GROUP
+    ..clear()
+    ..enumUnitsInRange(origin, range)
+    for u in g
+        if( not u.isAlive() or u.isEnemyOf(p) )
+            g.removeUnit(u)
+    return g
+
+
+
+
+
+
+//================================================================================================================================================================================================
+// Buffs
+
+            
+        
+        

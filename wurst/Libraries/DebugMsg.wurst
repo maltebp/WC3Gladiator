@@ -1,0 +1,12 @@
+package DebugMsg
+
+let ENABLED = true
+let DURATION = 12.
+var counter = 0
+
+public function debugMsg(string msg)
+    if ENABLED
+        counter++
+        printTimed("|cff666666"+counter.toString()+":|r "+msg, DURATION)
+        
+        

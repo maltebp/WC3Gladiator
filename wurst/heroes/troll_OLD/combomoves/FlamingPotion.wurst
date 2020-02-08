@@ -1,0 +1,179 @@
+// package FlamingPotion
+// import ComboSystem
+// import HoverAbility
+// import TrollAnimations
+// import AbilityCreation
+// import BuffObjEditing
+// import Assets
+// import LinkedList
+// import ClosureTimers
+// import Projectile
+
+// import MyLibrary
+// import DamageType
+// import SoundDefinitions
+// import GroundEffect
+// import initlater TrollGladiator
+// import SoulDrainData
+// import initlater VoodooPotion
+// import Artifact
+
+// // =========================================================================================================
+
+// let DAMAGE_FACTOR = 0.75
+// let DAMAGE_FACTOR_VOODOO = 0.7
+// let RADIUS = 150.
+// let CASTERBUFF_DURATION = 5.
+
+// let BURN_RADIUS = 125.
+// let BURN_DAMAGE_FACTOR = 0.4
+// let BURN_DURATION = 5.
+// let BURN_DAMAGE_FREQ = 1.
+
+// let SHRINKHEAD_DURATION = CASTERBUFF_DURATION * 2
+
+// // =========================================================================================================
+
+
+// public let FLAMINGPOTION_ID  = compiletime( createComboMove("Flaming Potion", "Do a slam dunk!", Icons.bTNLiquidFire, Icons.pASBTNLiquidFire, 1))
+// let ABIL_DEF = new NoTargetAbility( FLAMINGPOTION_ID.useAbil, ANIM_TROLL_SPELL)
+// public let COMBO_FLAMINGPOTION = new ComboMove( FLAMINGPOTION_ID, COMBO_POINT_Q, COMBO_POINT_W, null )
+
+// init
+//     ABIL_DEF
+//     ..onEffect() ( caster ) ->
+//         caster.removePotionBuffs()
+
+//         let duration = caster.hasArtifact(ARTIFACT_TROLL_SHRINKHEAD) ? SHRINKHEAD_DURATION : CASTERBUFF_DURATION
+
+//         caster.clearCombo()
+//         caster.applyFlamingPotionBuff(duration)
+//         SND_FIREBALL_LAUNCH[GetRandomInt(0,2)].playOnPoint(caster.getPos3Real())
+        
+//         caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_2)
+
+
+
+// public function unit.castFlamingPotion( vec2 pos )
+    
+//     let projectile = new Projectile(this.getPos().withTerrainZ(60), Abilities.batTrollMissile)
+//     ..firePoint(pos.withTerrainZ(), 700, 0.4)
+    
+//     projectile.getEffect().setScale(1.25)
+
+//     projectile
+//     ..addActionOnFinish() ->
+//         //SND_ACID_BOMB_EXPLODE.playOnPoint(pos.withTerrainZ())
+
+//         addEffect( Abilities.fireLordDeathExplode, pos.withTerrainZ(100))
+//         ..setScale(1)
+//         ..destr()
+
+//         addEffect( Objects.smallFlameSpawn, pos)
+//         ..setScale(1)
+//         ..setTime(0.5)
+//         ..setTimeScale(2.)
+
+//         let casterDamage = this.getDamage()
+        
+//         /* Note: Apparently it bugs out if you create a new instance of class
+//             withing this function. Therefor I created this doAfter thingy. */
+//         doAfter(0.01) ->
+//             new Flames( this, pos, casterDamage * BURN_DAMAGE_FACTOR, BURN_DURATION, BURN_DAMAGE_FREQ)
+        
+
+//         // Effect
+//         forEnemiesInRange( this.getOwner(), pos, RADIUS ) target ->
+//             let damageFactor = (target.consumeVoodoo(this)) ? DAMAGE_FACTOR_VOODOO : DAMAGE_FACTOR
+//             dealCodeDamage( this, target, casterDamage * damageFactor)
+//             target.addEffect( Abilities.incinerateBuff,  "chest" )
+//             ..destr()
+
+
+
+
+// public function unit.removeFlamingPotionBuff()
+//     let instance = FlamingPotionBuff.getInstance(this)
+//     if instance != null
+//         destroy instance
+
+
+// let flamingPotionBuff = compiletime( createDummyBuffObject("Flaming Potion", "You're next Voodoo Potion wil be enchanted will liquid fire", Icons.bTNLiquidFire, Abilities.incinerateBuff, "weapon") )
+
+// public function unit.applyFlamingPotionBuff( real duration  ) 
+//     let instance = FlamingPotionBuff.getInstance(this)
+//     if instance != null
+//         destroy instance
+//     new FlamingPotionBuff(this, duration)
+
+
+// public function unit.hasFlamingPotionBuff() returns boolean
+//     return FlamingPotionBuff.getInstance(this) != null 
+
+
+// class FlamingPotionBuff
+//     private static let instances = new LinkedList<thistype>
+
+//     private unit buffUnit
+//     private CallbackSingle durationCb = null
+
+//     construct( unit buffUnit, real duration )
+//         this.buffUnit = buffUnit
+
+//         buffUnit.addAbility(flamingPotionBuff.abilId)
+
+//         durationCb = doAfter( duration ) ->
+//             this.durationCb = null
+//             destroy this
+
+//         instances.add(this)
+
+
+//     ondestroy
+//         if durationCb != null
+//             destroy durationCb
+
+//         if buffUnit != null and buffUnit.isAliveTrick()
+//             buffUnit.removeAbility(flamingPotionBuff.abilId)
+
+//         instances.remove(this)
+
+//     static function getInstance( unit buffUnit ) returns thistype
+//         for instance in instances
+//             if instance.buffUnit == buffUnit
+//                 return instance
+//         return null
+
+
+// class Flames extends GroundEffect
+
+//     private static let hitTargets = new LinkedList<unit>
+//     private unit sourceUnit
+//     private real damage 
+
+//     construct( unit sourceUnit, vec2 pos, real damage, real duration, real freq )
+//         super( pos, Abilities.flameStrikeDamageTarget )
+        
+//         this.sourceUnit = sourceUnit
+//         this.damage = damage
+
+//         baseSfxScale = 1
+
+
+//         addLayer(20, 1)
+//         addLayer(70, 4)
+//         addLayer(100, 5)
+
+//         setFrequency( freq )
+//         addDuration( duration )
+        
+        
+//     override function doEffect()
+//         forEnemiesInRange( sourceUnit.getOwner(), pos, BURN_RADIUS ) target ->
+//             dealCodeDamage( sourceUnit, target, damage )
+//             hitTargets.add(target)
+//             doAfter( BURN_DAMAGE_FREQ-0.01) ->
+//                 if hitTargets.has(target)
+//                     hitTargets.remove(target)
+
+    

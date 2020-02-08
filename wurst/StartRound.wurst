@@ -1,0 +1,69 @@
+package StartRound
+
+import Round
+import Players
+import Scene
+import GladiatorSystem
+import GameSettings
+import Abilities
+import TimedSpecialEffects
+import Mastery
+import Attempts
+
+//================================================================================================================================================================================================
+
+let SND_ROUND_INFO = new SoundDefinition(Sounds.rescue, false)
+
+
+public function startRound()
+
+    let round = Round.getCurrentRound()
+
+    let scene = new Scene()
+    ..do( p -> p.getGladiator().getUnit().pause())
+    ..do( p -> p.disableMasteryShop() )
+
+    ..do( p -> p.fadeOut(1.5))
+    ..do( p -> p.toggleCinematicMode(true, 1.5))
+    ..do( p -> p.toggleAttemptsWindow(false) )
+    ..wait(1.5)
+    ..do( p -> p.preparePlayer() )
+    ..do( -> round.prepare() )
+    ..do( -> ClearTextMessages() )
+
+    ..do( p -> p.fadeIn(1.5))
+    ..do( p -> p.toggleCinematicMode(false, 1.5))
+    ..wait(1.5)
+    ..do( p -> p.moveGladiator())
+    ..wait(1.5)
+    ..do( -> round.showInfo() )
+    ..wait(4)
+    ..do( p -> p.readyGladiator())
+    ..do( -> round.initialize())
+    scene.play(allPlayers)        
+        
+
+function player.preparePlayer()
+    this.setCameraBoundsToRect(gg_rct_Arena_CamBounds)
+    this.setCameraPosition(ARENA_SPAWN)
+    this.getGladiator().refresh()
+
+function player.moveGladiator()
+    let gladiator = this.getGladiator().getUnit()
+    gladiator.setPos(ARENA_SPAWN)
+    addEffect(Abilities.massTeleportCaster, gladiator.getPos())
+    ..setDuration(5)
+
+function player.readyGladiator()
+    let gladiator = this.getGladiator().getUnit()
+    this.selectSingle(gladiator)
+    gladiator.unpause()
+
+function Round.showInfo()
+    SND_ROUND_INFO.play()
+    print(Round.getCurrentRound().getTitle(), 6)
+
+        
+
+        
+    

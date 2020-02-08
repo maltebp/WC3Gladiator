@@ -1,0 +1,240 @@
+package VoodooLink
+
+import MyLibrary
+import DamageDetection
+import LightningBounce
+import LinkedList
+import FadeAndFilters
+import Updater
+
+import AbilityTools
+import Voodoo
+import initlater TrollMasteries
+
+
+//================================================================================================================================================================================================
+// Settings
+
+let DMG_FACTOR = 0.20
+let DURATION = 15.
+
+let JUMP_RANGE = 600.
+let JUMP_COUNT = 5
+
+let VOODOO_STEP_SIZE = 20
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+public let TROLL_VOODOO_LINK = compiletime(defineSingleTarget1(
+    "Voodoo Link",
+    ("Link an enemy with {0} nearby enemies for {1} seconds. Whenever you deal damage to a linked target, all other linked targets take {2} of the damage."+
+        "\n\nThis ability consumes all your voodoo, and the number of targets it hits is increased by 1 for each {3} charge consumed.").format(
+        JUMP_COUNT.toString(),
+        DURATION.toInt().toString(),
+        DMG_FACTOR.toPercentageString(),
+        VOODOO_STEP_SIZE.toString()
+    ),
+    Icons.bTNShadowPact,
+    "R",
+    10.,
+    40,
+    600,
+    "spell",
+    false
+))
+
+//================================================================================================================================================================================================
+init
+    registerSpellEffectEvent(TROLL_VOODOO_LINK) ->
+        onCast()
+
+function onCast()
+    let caster = GetSpellAbilityUnit()
+    let target = GetSpellTargetUnit()
+
+    let voodoo = caster.consumeVoodoo()
+    let extraJumps = voodoo.toInt() div VOODOO_STEP_SIZE
+    
+    let damageFactor = DMG_FACTOR + (caster.getOwner().getMasteryLevel(WICKED_VOODOO) * WICKED_VOODOO_EFFECT_INC )
+
+    new VoodooLink(
+        caster, target, damageFactor, DURATION, JUMP_COUNT + extraJumps, JUMP_RANGE
+    )
+    
+    
+
+
+class VoodooLink extends LightningBounce
+    private unit caster
+    private real dmgFactor 
+    private real duration
+
+    construct( unit caster, unit target, real dmgFactor, real duration, int bounceCount, real bounceRange )
+        super(caster, target, bounceCount)
+        this.caster = caster
+        this.dmgFactor = dmgFactor
+        this.duration = duration
+
+        range = bounceRange
+        lightningType = LIGHTNING_SPIRIT_LINK
+        lightningColor = colorA(80, 40, 130, 255)
+
+    override function targetFilter( unit target) returns boolean
+        return target.isValidEnemyTarget(caster.getOwner()) and not target.isType(UNIT_TYPE_ANCIENT)
+
+    override function findBestTarget( group potentialTargets ) returns unit
+        for target in potentialTargets
+            if VoodooLinkBuff.getInstance(target) == null
+                return target
+        return potentialTargets.getRandomUnit()
+
+    override function onHit( unit target )
+        caster.castLink(target, duration, DMG_FACTOR)
+        target.addEffect( Abilities.shadowStrikeMissile, "chest")
+        ..destr()
+
+        
+
+public function unit.castLink( unit target, real duration, real damageFactor )
+    /* Spread factor will update for all the linked units */
+    VoodooLinkCaster.getInstance(this).addLinkUnit( target, damageFactor, duration )
+    
+
+
+class VoodooLinkCaster
+    private static let instances = new LinkedList<thistype>
+    protected unit caster
+
+    private let links = new LinkedList<VoodooLinkBuff>
+
+    construct( unit caster )
+        this.caster = caster
+        instances.add(this)
+
+
+    ondestroy
+        
+        instances.remove(this)
+        destroy links
+
+
+    function addLinkUnit( unit target, real damageFactor, real duration )
+        let link = target.applyLink( damageFactor, duration )
+        if not links.has(link)
+            links.add(link)
+            link.casterInstance = this
+
+
+    function removeLink( VoodooLinkBuff link )
+        if links.has(link)
+            links.remove(link)
+        
+        if links.size() == 0
+            destroy this
+
+    function splitDamage( VoodooLinkBuff source, real damage  )
+        for buffInstance in links
+            if buffInstance != source
+                buffInstance.expectingLinkDamage = true
+                let adjustedDamage = damage * buffInstance.damageFactor
+                caster.damageTargetSpell( buffInstance.buffUnit, adjustedDamage)
+
+
+    static function getInstance( unit whichUnit ) returns thistype 
+        for instance in instances
+            if instance.caster == whichUnit
+                return instance
+        return new VoodooLinkCaster(whichUnit)
+
+
+
+
+public function unit.applyLink( real damageFactor, real duration ) returns VoodooLinkBuff
+    var instance = VoodooLinkBuff.getInstance(this)
+    if instance == null
+        instance = new VoodooLinkBuff(this)
+    instance.damageFactor = damageFactor
+    instance.durationTimer.start( duration ) ->
+        destroy GetExpiredTimer().getData() castTo VoodooLinkBuff
+    return instance
+    
+
+// TODO: Implement this as Buff class
+class VoodooLinkBuff extends Updater
+
+    private static let instances = new LinkedList<thistype>
+
+    private effect sfx
+
+    protected boolean expectingLinkDamage = false
+
+    protected real damageFactor // The amount of damage the unit take's when other unit's are damaged
+
+    protected unit buffUnit
+    protected VoodooLinkCaster casterInstance = null
+
+    protected timer durationTimer
+
+
+    construct( unit buffUnit )
+        this.buffUnit = buffUnit
+        sfx = buffUnit.addEffect(Abilities.howlTarget, "origin")
+
+        durationTimer = getTimer()..setData(this castTo int)
+
+        instances.add(this)
+
+        updateFreq = 0.5
+        startUpdate()
+        
+    ondestroy
+        durationTimer.release()
+        sfx.destr()
+        casterInstance.removeLink(this)
+        instances.remove(this)
+
+
+    function damageTaken(real damage)
+        if( expectingLinkDamage )
+            expectingLinkDamage = false
+            // print( "{0} ({1}) was expecting damage ({2})".format(
+            //     buffUnit.getName(),
+            //     buffUnit.getIndex().toString(),
+            //     damage.toString(1)
+            // ), 8)
+        else
+            // print( "{0} ({1}) wasn't expecting damage ({2})".format(
+            //     buffUnit.getName(),
+            //     buffUnit.getIndex().toString(),
+            //     damage.toString(1)
+            // ), 8)
+            casterInstance.splitDamage(this, damage)
+            
+
+    override function update()
+        if buffUnit == null or not buffUnit.isAlive()
+            destroy this
+
+    static function getInstance(unit whichUnit) returns thistype
+        for instance in instances
+            if instance.buffUnit == whichUnit
+                return instance
+        return null
+
+
+init    
+    addOnDamageFunc() ->
+        let damage = GetEventDamage()
+    
+        var buffInstance = VoodooLinkBuff.getInstance(GetTriggerUnit())
+        if( buffInstance != null )
+            if( GetEventDamageSource().getOwner() == buffInstance.casterInstance.caster.getOwner() )
+                buffInstance.damageTaken(damage)
+            
+        
+    
+
+
+
+
+

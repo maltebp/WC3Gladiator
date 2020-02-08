@@ -1,116 +1,128 @@
-// ======================================================================================================================================
 
-package Round13
+// package Round13
 
-// -------------------------------------------------------------------------------------------------------------------------------------
+// import public Round12
 
-import public Round12
+// import DiseaseCloud
+// import UnitVisualsUtils
 
-import DiseaseCloud
-import UnitVisualsUtils
+// //================================================================================================================================================================================================
 
-constant real DISEASEDAMAGE = 35
+// let GHOUL = 'u004'
+// let ZOMBIE = 'n00D'
+// let GHOST = 'u005'
 
-
-constant int GHOUL = 'u004'
-
-init
-//=========================================================================================================================================================
-//  Ghosts 'n' Stuff
-
-
-    round = new Round
-    ..setReward(30, 3)
-    ..addArtifactRewards(ARTIFACT_TOKENOFSAMURO)
-    ..addItemRewards(ITEM_SOULSTONE)
-
-
-    ..setTitle("Ghosts 'n' Stuff")
-    ..setDescription("It seems like somebody's watching you.")
-    ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
-    ..setCodeOnClear() r ->
-        removeClouds()
+// constant real DISEASEDAMAGE = 35
 
 
 
-    // Ghoul - 1
-    round.addSpawner(new UnitSpawner(GHOUL, ENEMYPLAYER, vec2(-639,1025), 8))
-    ..setStartDelay(4)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(15)
-    ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
+// Round round = null
+
+
+// init
+// //=========================================================================================================================================================
+// //  Ghosts 'n' Stuff
+
+
+//     round = new Round
+//     ..setReward(30, 3)
+//     ..addArtifactRewards(1)
+//     ..addItemRewards(ITEM_SOULSTONE)
+
+//     ..setTitle("Ghosts 'n' Stuff")
+//     ..setDescription("It seems like somebody's watching you.")
+//     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
+//     ..setCodeOnClear() r ->
+//         removeClouds()
+
+
+
+//     // Ghoul - 1
+//     round.addSpawner(new UnitSpawner(GHOUL, ENEMY, vec2(-639,1025), 8))
+//     ..setStartDelay(4)
+//     ..setFrequencyDeviation(0.1)
+//     ..setRandomSpawn(gg_rct_Arena_Spawn1)
+//     ..setNearestTargetOnSpawn(GetPlayableMapRect())
+//     ..setSpawnCount(15)
+//     ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
     
 
-    // Ghoul - 2
-    round.addSpawner(new UnitSpawner(GHOUL, ENEMYPLAYER, vec2(527,1025), 15))
-    ..setStartDelay(40)
-    ..setFrequencyDeviation(0.03)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(5)
-    ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
+//     // Ghoul - 2
+//     round.addSpawner(new UnitSpawner(GHOUL, ENEMY, vec2(527,1025), 15))
+//     ..setStartDelay(40)
+//     ..setFrequencyDeviation(0.03)
+//     ..setRandomSpawn(gg_rct_Arena_Spawn1)
+//     ..setNearestTargetOnSpawn(GetPlayableMapRect())
+//     ..setSpawnCount(5)
+//     ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
     
-    RemoteFunction<UnitSpawner> func
+//     RemoteFunction<UnitSpawner> func
 
-    func = (UnitSpawner spawner) -> begin
-        Disease.addUnit(spawner.getLastSpawnedUnit(), DISEASEDAMAGE, 0, 150)
-    end
+//     func = (UnitSpawner spawner) -> begin
+//         Disease.addUnit(spawner.getLastSpawnedUnit(), DISEASEDAMAGE, 0, 150)
+//     end
 
-    // Zombie - 1
-    round.addSpawner(new UnitSpawner('n00D', ENEMYPLAYER, vec2(527,1025), 15))
-    ..setStartDelay(10)
-    ..setFrequencyDeviation(0.03)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(8)
-    ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
-    ..setCodeOnSpawn(func)
+//     // Zombie - 1
+//     round.addSpawner(new UnitSpawner(ZOMBIE, ENEMY, vec2(527,1025), 15))
+//     ..setStartDelay(10)
+//     ..setFrequencyDeviation(0.03)
+//     ..setRandomSpawn(gg_rct_Arena_Spawn1)
+//     ..setNearestTargetOnSpawn(GetPlayableMapRect())
+//     ..setSpawnCount(8)
+//     ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
+//     ..setCodeOnSpawn(func)
 
-    func = (UnitSpawner spawner) -> begin
-        Disease.addUnit(spawner.getLastSpawnedUnit(), DISEASEDAMAGE, 0, 150)
-    end
+//     func = (UnitSpawner spawner) -> begin
+//         Disease.addUnit(spawner.getLastSpawnedUnit(), DISEASEDAMAGE, 0, 150)
+//     end
 
-    // Zombie - 2
-    round.addSpawner(new UnitSpawner('n00D', ENEMYPLAYER, vec2(527,1025), 20))
-    ..setStartDelay(40)
-    ..setFrequencyDeviation(0.03)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(4)
-    ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
-    ..setCodeOnSpawn(func)
+//     // Zombie - 2
+//     round.addSpawner(new UnitSpawner(ZOMBIE, ENEMY, vec2(527,1025), 20))
+//     ..setStartDelay(40)
+//     ..setFrequencyDeviation(0.03)
+//     ..setRandomSpawn(gg_rct_Arena_Spawn1)
+//     ..setNearestTargetOnSpawn(GetPlayableMapRect())
+//     ..setSpawnCount(4)
+//     ..setSpawnEffect("Abilities\\Spells\\Undead\\AnimateDead\\AnimateDeadTarget.mdl")
+//     ..setCodeOnSpawn(func)
 
-    // Ghost - 1
-    round.addSpawner(new UnitSpawner('u005', ENEMYPLAYER, vec2(527,1025), 18))
-    ..setStartDelay(20)
-    ..setFrequencyDeviation(0.03)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(6)
-    ..setSpawnEffect("Abilities\\Spells\\NightElf\\Blink\\BlinkCaster.mdl")
+//     // Ghost - 1
+//     round.addSpawner(new UnitSpawner(GHOST, ENEMY, vec2(527,1025), 18))
+//     ..setStartDelay(20)
+//     ..setFrequencyDeviation(0.03)
+//     ..setRandomSpawn(gg_rct_Arena_Spawn1)
+//     ..setNearestTargetOnSpawn(GetPlayableMapRect())
+//     ..setSpawnCount(6)
+//     ..setSpawnEffect("Abilities\\Spells\\NightElf\\Blink\\BlinkCaster.mdl")
 
-    // Ghost - 1
-    round.addSpawner(new UnitSpawner('u005', ENEMYPLAYER, vec2(527,1025), 30))
-    ..setStartDelay(80)
-    ..setFrequencyDeviation(0.03)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(2)
-    ..setSpawnEffect("Abilities\\Spells\\NightElf\\Blink\\BlinkCaster.mdl")
+//     // Ghost - 1
+//     round.addSpawner(new UnitSpawner(GHOST, ENEMY, vec2(527,1025), 30))
+//     ..setStartDelay(80)
+//     ..setFrequencyDeviation(0.03)
+//     ..setRandomSpawn(gg_rct_Arena_Spawn1)
+//     ..setNearestTargetOnSpawn(GetPlayableMapRect())
+//     ..setSpawnCount(2)
+//         ..setSpawnEffect("Abilities\\Spells\\NightElf\\Blink\\BlinkCaster.mdl")
+
+// //================================================================================================================================================================================================
+// // STATS SCALING
+
+//     round.setStatScalingCallback() (unit u) ->
+//         let id = u.getTypeId()
+//         if( id == GHOUL or id == GHOST or id == ZOMBIE )
+//             round.scaleUnitStats(u)
+//             u.adjustToDifficulty()
 
     
-    
 
-function removeClouds()
-    DiseaseCloud.destroyAll()
+// function removeClouds()
+//     DiseaseCloud.destroyAll()
         
 
-// SETUP COLOR
-init
-    UnitVisuals.addUnitType(GHOUL)
-    ..setPlayerColor(PLAYER_COLOR_COAL)
+// // SETUP COLOR
+// init
+//     UnitVisuals.addUnitType(GHOUL)
+//     ..setPlayerColor(PLAYER_COLOR_COAL)
         
 
 

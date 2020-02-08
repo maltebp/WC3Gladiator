@@ -16,51 +16,55 @@ package Round9
 
 import public Round8
 
-import TimerUtils
 import RegisterEvents
 import AutoCastAbility
 import GroupUtils
-import TimedSpecialEffects
 import UnitVisualsUtils
-import InstantDummyCaster
 import ChannelOnUnit
-import Orders
 import HashMap
 import ErrorHandling
+import AbilityTools
+import Projectile
 
 
 // ================================================================================================================================
 // Settings
 
-constant real LIFEDRAIN_AMOUNT      = 15
-constant real LIFEDRAIN_FACTOR      = 2.5
-constant real LIFEDRAIN_TRIGGERHP   = 0.5
-constant real LIFEDRAIN_FREQ        = 0.5
-constant real LIFEDRAIN_COOLDOWN    = 15
+let WARLOCK = 'n00F'
+let DEMON = 'n00G'
 
-constant real FELFIREBOLT_COOLDOWN = 10
-constant real FELFIREBOLT_STARTCOOLDOWN = 5
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+let LIFEDRAIN_AMOUNT      = 0.07 // Percentage amount
+let LIFEDRAIN_FACTOR      = 3.
+let LIFEDRAIN_TRIGGERHP   = 0.5
+let LIFEDRAIN_FREQ        = 0.5
+let LIFEDRAIN_COOLDOWN    = 15.
 
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+let FEL_BOLT_COOLDOWN = 10.
+let FEL_BOLT_START_COOLDOWN = 5.
+let FEL_BOLT_RANGE = 700.
+let FEL_BOLT_DMG_FACTOR = 2.75
 
 
 //=========================================================================================================================================================
 //  Setup
-
+Round round = null
 init
 
     round = new Round()
     ..setReward(30, 3)
-    ..addArtifactRewards(ARTIFACT_GIFTOFTHETAUREN)
+    ..addArtifactRewards(1)
     ..addItemRewards(ITEM_DEMONICFIGURINE)
-    ..addAbilityReward(3)
     ..setTitle("Warlocks")
     ..setDescription("They are ready to kill their own minions for their own benefit.")
     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.02)
 
     // Spawner 1
 
-    round.addSpawner(new UnitSpawner('n00F', ENEMYPLAYER, vec2(-639,1025), 20))
+    round.addSpawner(new UnitSpawner('n00F', ENEMY, vec2(-639,1025), 20))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -68,7 +72,7 @@ init
     ..setSpawnCount(6)
 
     //Spawner 2
-    round.addSpawner(new UnitSpawner('n00F', ENEMYPLAYER, vec2(0,0), 30))
+    round.addSpawner(new UnitSpawner('n00F', ENEMY, vec2(0,0), 30))
     ..setStartDelay(30)
     ..setFrequencyDeviation(0.05)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -76,21 +80,29 @@ init
     ..setSpawnCount(3)
     
     //Spawner 2
-    round.addSpawner(new UnitSpawner('n00F', ENEMYPLAYER, vec2(-639,1025), 1))
+    round.addSpawner(new UnitSpawner('n00F', ENEMY, vec2(-639,1025), 1))
     ..setStartDelay(100)
     ..setFrequencyDeviation(0)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(1)
 
+//================================================================================================================================================================================================
+// STATS SCALING
+
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == WARLOCK or id == DEMON )
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
+
+
 
 //=========================================================================================================================================================
-// 
-//
+
 
 // Drain Life --------------------------------------------------------------------------------------------------------
 public class DrainLife extends ChannelOnUnit
-
     private static constant real DRAIN_RATIO = 1
     private static constant real DRAIN_FREQ = 1
 
@@ -103,10 +115,8 @@ public class DrainLife extends ChannelOnUnit
 
         this.lifeToDrain = (lifeToDrain >= 0) ? lifeToDrain : 0
         this.drainRatio = (lifeToDrain >= 0 ) ? drainRatio : 0
-
         this.duration = duration
         
-
 
     static function cast(unit caster, unit target, real duration, real lifeToDrain) returns thistype
         return cast(caster, target, duration, lifeToDrain, DRAIN_RATIO, DRAIN_FREQ )
@@ -119,29 +129,25 @@ public class DrainLife extends ChannelOnUnit
         caster.issueImmediateOrder("stop")
 
     override function periodicEffect()
-        
         real drainedLife
-
-        real targetCurrentHP = target.getHP()
-
+        let targetCurrentHP = target.getHP()
 
         if targetCurrentHP > lifeToDrain
             drainedLife = lifeToDrain
             target.setHP(targetCurrentHP-lifeToDrain)
-
         else
             drainedLife = targetCurrentHP
             target.kill()
 
-        real casterCurrentHP = caster.getHP()
-        real casterMaxHP = caster.getMaxHP()
+        let casterCurrentHP = caster.getHP()
+        let casterMaxHP = caster.getMaxHP()
 
         if casterMaxHP != casterCurrentHP
             if drainedLife > 0
                 
                 drainedLife *= drainRatio
 
-                real casterNewHP = casterCurrentHP + drainedLife
+                let casterNewHP = casterCurrentHP + drainedLife
                 
                 if casterNewHP < casterMaxHP
                     caster.setHP(casterNewHP)
@@ -151,8 +157,6 @@ public class DrainLife extends ChannelOnUnit
         else
             destroy this
             
-        
-        // Drain life
 
     override function updateExtension()
         if caster.getCurrentOrder() != Orders.drain
@@ -210,7 +214,7 @@ public class AutoCast_CheckDrainLife extends AutoCastAbilityType
 
                         else
 
-                            unit finalTarget = ENUM_GROUP.getNearestUnit(caster.getPos())
+                            let finalTarget = ENUM_GROUP.getNearestUnit(caster.getPos())
 
                             if targetType == TargetType.FRIENDLY_UNIT or targetType == TargetType.ENEMY_UNIT
                                 caster.issueTargetOrderById(orderId, finalTarget)
@@ -221,8 +225,9 @@ public class AutoCast_CheckDrainLife extends AutoCastAbilityType
                                 return true
                             
                         ENUM_GROUP.clear()
-
         return false
+
+
 
 // ** This is custom in order to make sure the warlock doesn't try to cast any spells while channeling drain life.1
 public class AutoCastSummonDemon extends AutoCastAbilityType
@@ -255,7 +260,7 @@ public class AutoCastDrainLife extends AutoCastAbilityType
 
     override function findTarget(unit caster) returns boolean
         
-        real casterCurrentHp = caster.getHP()/caster.getMaxHP() 
+        let casterCurrentHp = caster.getHP()/caster.getMaxHP() 
 
         if casterCurrentHp <= LIFEDRAIN_TRIGGERHP
             if caster.getCurrentOrder() != Orders.drain
@@ -273,7 +278,7 @@ public class AutoCastDrainLife extends AutoCastAbilityType
                     if ENUM_GROUP.size() > 0
 
                         
-                        unit target = ENUM_GROUP.getHighestHpUnit()
+                        let target = ENUM_GROUP.getHighestHpUnit()
                         
                         if target.getHP() == target.getMaxHP()
                             target.setHP(target.getHP()-1)
@@ -290,26 +295,26 @@ public class AutoCastDrainLife extends AutoCastAbilityType
 
 
 function castDrainLife()
-    DrainLife.cast(GetSpellAbilityUnit(), GetSpellTargetUnit(), 0, LIFEDRAIN_AMOUNT, LIFEDRAIN_FACTOR, LIFEDRAIN_FREQ)
+    DrainLife.cast(GetSpellAbilityUnit(), GetSpellTargetUnit(), 0, GetSpellTargetUnit().getMaxHP() * LIFEDRAIN_AMOUNT, LIFEDRAIN_FACTOR, LIFEDRAIN_FREQ)
     
 function castSummonDemon()
     GetSpellAbilityUnit().summonDemon()
 
 
-IterableMap<unit, unit> instances = new IterableMap<unit, unit>
+let instances = new IterableMap<unit, unit>
 
 function unit.summonDemon()
 
     if not instances.has(this)
         
-        vec2 spawnPos = this.getPos().polarOffset(angle(GetRandomReal(0, 2*PI)), 100)
+        let spawnPos = this.getPos().polarOffset(angle(GetRandomReal(0, 2*PI)), 100)
 
-        rect rectBound = gg_rct_Arena_Spawn1
+        let rectBound = gg_rct_Arena_Spawn1
 
         while not rectBound.contains(spawnPos)
             spawnPos.moveTowards(rectBound.getCenter(), 50)
 
-        unit demon = createUnit(ENEMYPLAYER, 'n00G', spawnPos, angle(GetRandomReal(0, 2*PI)))
+        let demon = createUnit(ENEMY, 'n00G', spawnPos, angle(GetRandomReal(0, 2*PI)))
         this.getSpawner().addSummonedUnit(demon)
         addEffect("Abilities\\Spells\\Demon\\DarkPortal\\DarkPortalTarget.mdl", spawnPos)
 
@@ -347,28 +352,60 @@ function unit.hasDemon() returns boolean
         
 
 function unitDies()
-    unit dyingUnit = GetDyingUnit()
+    let dyingUnit = GetDyingUnit()
 
     if dyingUnit.getTypeId() == 'n00F' or dyingUnit.getTypeId() == 'n00G'
         if dyingUnit.hasDemon() or dyingUnit.isDemonFromSummoner()
             dyingUnit.removeInstance()
 
+
 init 
     registerSpellEffectEvent('A01B', function castDrainLife)
     registerSpellEffectEvent('A01D', function castSummonDemon)
-    UnitVisuals.addUnitType('n00F')
-    ..setPlayerColor(PLAYER_COLOR_PURPLE)
 
-    UnitVisuals.addUnitType('n00G')
-    ..setPlayerColor(PLAYER_COLOR_MAROON)
+    // Unit Colors
+    UnitVisuals.addUnitType(WARLOCK).setPlayerColor(PLAYER_COLOR_PURPLE)
+    UnitVisuals.addUnitType(DEMON).setPlayerColor(PLAYER_COLOR_MAROON)
 
-    registerPlayerUnitEventForPlayer(EVENT_PLAYER_UNIT_DEATH, function unitDies, ENEMYPLAYER)
+    registerPlayerUnitEventForPlayer(EVENT_PLAYER_UNIT_DEATH, function unitDies, ENEMY)
 
-
-    addAutoCastAbilityToUnitType('n00F', new AutoCastSummonDemon())
-    addAutoCastAbilityToUnitType('n00F', new AutoCastDrainLife())
-    addAutoCastAbilityToUnitType('n00F', new AutoCast_CheckDrainLife( 'A01A', Orders.deathcoil, TargetType.ENEMY_UNIT, 600, FELFIREBOLT_STARTCOOLDOWN, FELFIREBOLT_COOLDOWN ))
-    
+    addAutoCastAbilityToUnitType(WARLOCK, new AutoCastSummonDemon())
+    addAutoCastAbilityToUnitType(WARLOCK, new AutoCastDrainLife())
     
 
+//================================================================================================================================================================================================
+// FEL BOLT
+
+let FEL_BOLT = compiletime( defineSingleTarget1(
+    "Fel Bolt", "", Icons.bTNBanish, "Q", 0, 0, 1000, "", false
+))
+
+
+init
+    // Effect
+    registerSpellEffectEvent(FEL_BOLT) ->
+        let caster = GetSpellAbilityUnit()
+        let target = GetSpellTargetUnit()
+        
+        let damage = caster.getPower() * FEL_BOLT_DMG_FACTOR
+        
+        new Projectile(caster.getPos().withTerrainZ(60), Abilities.greenDragonMissile)
+        ..fireUnit(target, 60, true, 1100, 0)
+        ..addActionOnFinish() ->
+            caster.damageTargetSpell(target, damage)
+            target.addEffect(Abilities.deathCoilSpecialArt, "chest")
+            ..setDuration(4)
+
+    // Auto Cast
+    addAutoCastAbilityToUnitType(WARLOCK, new AutoCast_CheckDrainLife(
+        FEL_BOLT,
+        Orders.chainlightning,
+        TargetType.ENEMY_UNIT,
+        FEL_BOLT_RANGE,
+        FEL_BOLT_START_COOLDOWN,
+        FEL_BOLT_COOLDOWN
+    ))
+
+
+            
     

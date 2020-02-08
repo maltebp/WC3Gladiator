@@ -1,0 +1,81 @@
+package FoodResource
+
+import ObjectIdGenerator
+import UnitObjEditing
+import LinkedList
+import HashMap
+import ErrorHandling
+import MapBounds
+
+/*
+====================================================================================================================================================================================================
+
+    FOOD RESOURCE
+    Small library to allow using 'food supply' as an adjustable resource.
+
+====================================================================================================================================================================================================
+*/
+
+// Globals
+let UNIT_ID = compiletime(UNIT_ID_GEN.next())
+let UNIT_POS =  boundMin
+
+let playerUnits = new HashMap<player, LinkedList<unit>> 
+
+
+public function player.getFood() returns int
+    let food =  playerUnits.get(this)
+    if( food == null )
+        error("Life list hasnt been initialized for "+this.getName())
+    return food.size()
+
+
+public function player.setFood(int lives)
+    if( lives > 0)
+        if( playerUnits.get(this) != null)
+            for i=1 to playerUnits.size()
+                this.removeFood()
+        this.addFood(lives)
+        
+    
+
+public function player.addFood()
+    var food = playerUnits.get(this)
+
+    if(food == null)
+        food = new LinkedList<unit>
+        playerUnits.put(this, food)
+    
+    let foodUnit = createUnit(this, UNIT_ID, UNIT_POS, angle(0))
+    ..setInvulnerable(true)
+    ..pause()
+    
+    food.add(foodUnit)
+    
+
+public function player.addFood(int lives)
+    for i=1 to lives
+        this.addFood()
+
+
+public function player.removeFood()
+    let food =  playerUnits.get(this)
+    if( food == null )
+        error("Food unit list hasnt been initialized for "+this.getName())
+    if( food.size() > 0 )
+        food.pop().remove() 
+
+
+@compiletime
+function defineUnit()
+    
+    new UnitDefinition(UNIT_ID, 'hfoo')
+    ..setName("Food Resource Unit")
+    ..setCanFlee(false)
+    ..setHideMinimapDisplay(true)
+    ..setFoodCost(1)
+    ..setMovementType(MovementType.Fly)
+    ..setCollisionSize(0)
+    ..setModelFile("")
+    ..setAttacksEnabled(0)   
+    ..setNormalAbilities("Avul") 

@@ -1,159 +1,159 @@
-package AttackDamage
-import HashMap
-import RegisterEvents
-import TimerUtils
-import TimerUnitData
-import Game
-import ErrorHandling
+// package AttackDamage
+// import HashMap
+// import RegisterEvents
+// import TimerUtils
+// import TimerUnitData
+// import Game
+// import ErrorHandling
 
-HashMap<unit, int> unitDamage = new HashMap<unit, int>
-HashMap<int, int> attackDamageItems
+// HashMap<unit, int> unitDamage = new HashMap<unit, int>
+// HashMap<int, int> attackDamageItems
 
-/** Gets the total attack damage of the unit (base + bonus)
-    damage.*/
-public function unit.getTotalAttackDamage() returns int
-    return this.getBaseDamage(1) + this.getBonusAttackDamage()
+// /** Gets the total attack damage of the unit (base + bonus)
+//     damage.*/
+// public function unit.getTotalAttackDamage() returns int
+//     return this.getBaseDamage(1) + this.getBonusAttackDamage()
 
-/** Returns the bonus attack damage the unit has. It only
-    includes bonus damage set through this package.*/
-public function unit.getBonusAttackDamage() returns int
-    if unitDamage.has(this)
-        return unitDamage.get(this)
-    else
-        return 0
+// /** Returns the bonus attack damage the unit has. It only
+//     includes bonus damage set through this package.*/
+// public function unit.getBonusAttackDamage() returns int
+//     if unitDamage.has(this)
+//         return unitDamage.get(this)
+//     else
+//         return 0
 
-function unit.setBonusAttackDamage(int damage)
+// function unit.setBonusAttackDamage(int damage)
     
-    this.prepareAttackDamage()
+//     this.prepareAttackDamage()
     
-    int remainingDamage = damage
+//     int remainingDamage = damage
 
-    int dmg100 = 0
+//     int dmg100 = 0
 
-    if(remainingDamage >= 100)
-        dmg100 += remainingDamage div 100
-        remainingDamage -= dmg100*100
+//     if(remainingDamage >= 100)
+//         dmg100 += remainingDamage div 100
+//         remainingDamage -= dmg100*100
 
-    int dmg10 = 0
-    if remainingDamage >= 10
-        dmg10 += remainingDamage div 10
-        remainingDamage -= dmg10*10
-
-
-    int dmg1 = 0
-    if remainingDamage > 0 
-        dmg1 += remainingDamage div 1
-
-    this.setAbilityLevel('A003', (dmg100+1))
-    this.setAbilityLevel('A001', (dmg10+1))   
-    this.setAbilityLevel('A002', (dmg1+1))
+//     int dmg10 = 0
+//     if remainingDamage >= 10
+//         dmg10 += remainingDamage div 10
+//         remainingDamage -= dmg10*10
 
 
+//     int dmg1 = 0
+//     if remainingDamage > 0 
+//         dmg1 += remainingDamage div 1
 
-function updateAttackDamage()
-    timer expiredTimer = GetExpiredTimer()
-    unit unitToUpdate = expiredTimer.getUnitData()
-    expiredTimer.release()
+//     this.setAbilityLevel('A003', (dmg100+1))
+//     this.setAbilityLevel('A001', (dmg10+1))   
+//     this.setAbilityLevel('A002', (dmg1+1))
 
-    int totalDamage = 0
+
+
+// function updateAttackDamage()
+//     timer expiredTimer = GetExpiredTimer()
+//     unit unitToUpdate = expiredTimer.getUnitData()
+//     expiredTimer.release()
+
+//     int totalDamage = 0
         
-    for itemSlot=0 to 5
-        int itemInSlot = UnitItemInSlot(unitToUpdate, itemSlot).getTypeId()
-        if attackDamageItems.has(itemInSlot)
-            totalDamage += attackDamageItems.get(itemInSlot)            
+//     for itemSlot=0 to 5
+//         int itemInSlot = UnitItemInSlot(unitToUpdate, itemSlot).getTypeId()
+//         if attackDamageItems.has(itemInSlot)
+//             totalDamage += attackDamageItems.get(itemInSlot)            
 
-    // Updates the unit instance
-    if unitDamage.has(unitToUpdate)
-        unitDamage.getAndRemove(unitToUpdate)
-    unitDamage.put(unitToUpdate, totalDamage)
+//     // Updates the unit instance
+//     if unitDamage.has(unitToUpdate)
+//         unitDamage.getAndRemove(unitToUpdate)
+//     unitDamage.put(unitToUpdate, totalDamage)
 
-    // Update attack damage
-    unitToUpdate.setBonusAttackDamage(totalDamage)
+//     // Update attack damage
+//     unitToUpdate.setBonusAttackDamage(totalDamage)
 
 
-function item.givesAttackDamage() returns boolean
-    return attackDamageItems != null and attackDamageItems.has(this.getTypeId())
+// function item.givesAttackDamage() returns boolean
+//     return attackDamageItems != null and attackDamageItems.has(this.getTypeId())
         
 
-function manipulatesItem()
-    unit manipulatingUnit = GetManipulatingUnit()
-    item manipulatedItem = GetManipulatedItem()
+// function manipulatesItem()
+//     unit manipulatingUnit = GetManipulatingUnit()
+//     item manipulatedItem = GetManipulatedItem()
     
-    if manipulatingUnit.isType(UNIT_TYPE_HERO) and manipulatedItem.givesAttackDamage()
+//     if manipulatingUnit.isType(UNIT_TYPE_HERO) and manipulatedItem.givesAttackDamage()
 
-        /*  A small delay, that makes sure the item is actually removed from the inventory
-            before the damage is recalculated.*/
+//         /*  A small delay, that makes sure the item is actually removed from the inventory
+//             before the damage is recalculated.*/
 
-        getTimer()
-        ..setUnitData(GetManipulatingUnit())
-        ..start(0.01, function updateAttackDamage )
+//         getTimer()
+//         ..setUnitData(GetManipulatingUnit())
+//         ..start(0.01, function updateAttackDamage )
 
 
-/** Setup a type of item to give attack damage with the system */
-function int.setAttackDamage(int damage)
-    if damage > 0
-        if attackDamageItems == null
-            attackDamageItems = new HashMap<int,int>
-        if not attackDamageItems.has(this)
-            attackDamageItems.put(this, damage)
-        else
-            error("Item is having attack damage set more than once")
-    else
-        error("Adding attack damage item with no damage")
+// /** Setup a type of item to give attack damage with the system */
+// function int.setAttackDamage(int damage)
+//     if damage > 0
+//         if attackDamageItems == null
+//             attackDamageItems = new HashMap<int,int>
+//         if not attackDamageItems.has(this)
+//             attackDamageItems.put(this, damage)
+//         else
+//             error("Item is having attack damage set more than once")
+//     else
+//         error("Adding attack damage item with no damage")
 
         
-/** Prepares the unit for the Attack Damage system, by giving it the attack damage abilities. This is crucial in order for it NOT to bug out. */
-function unit.prepareAttackDamage()
-    if this.getAbilityLevel('A004') == 0
-        this.addAbility('A004')
+// /** Prepares the unit for the Attack Damage system, by giving it the attack damage abilities. This is crucial in order for it NOT to bug out. */
+// function unit.prepareAttackDamage()
+//     if this.getAbilityLevel('A004') == 0
+//         this.addAbility('A004')
     
-    while this.getAbilityLevel('A002') == 0 or this.getAbilityLevel('A001') == 0 or this.getAbilityLevel('A003') == 0
-        this.removeAbility('A004')
-        this.addAbility('A004')
+//     while this.getAbilityLevel('A002') == 0 or this.getAbilityLevel('A001') == 0 or this.getAbilityLevel('A003') == 0
+//         this.removeAbility('A004')
+//         this.addAbility('A004')
 
 
-// Test Trigger
-function displayDamage()
-    print("100: "+hero.getAbilityLevel('A003').toString())
-    print("10: "+hero.getAbilityLevel('A001').toString())
-    print("1: "+hero.getAbilityLevel('A002').toString())
+// // Test Trigger
+// function displayDamage()
+//     print("100: "+hero.getAbilityLevel('A003').toString())
+//     print("10: "+hero.getAbilityLevel('A001').toString())
+//     print("1: "+hero.getAbilityLevel('A002').toString())
 
 
-// Setup ===================================================================================================================
-init
-    // Makes spell book with attack damage abilities available to the player
-    Player(0).setAbilityAvailable('A004', false)
+// // Setup ===================================================================================================================
+// init
+//     // Makes spell book with attack damage abilities available to the player
+//     Player(0).setAbilityAvailable('A004', false)
     
 
-// ---------------------------------------
-// Setup Attack Damage Items
+// // ---------------------------------------
+// // Setup Attack Damage Items
 
-    'I000'.setAttackDamage(4) // Dull Blade
-    'I00L'.setAttackDamage(10) // Enchanted Sword
-    'I00F'.setAttackDamage(10) 
-    'I01G'.setAttackDamage(10) // Lava Tempered Boots 
-    'I00J'.setAttackDamage(8) // Magic Gem
-    'I00T'.setAttackDamage(14) // Demon Figurine
-    'I009'.setAttackDamage(10) // Demon Figurine
-    'I01R'.setAttackDamage(25) // Fel Stone
-    'I01T'.setAttackDamage(15)
-    'I01U'.setAttackDamage(5) // Spider BRacers
+//     'I000'.setAttackDamage(4) // Dull Blade
+//     'I00L'.setAttackDamage(10) // Enchanted Sword
+//     'I00F'.setAttackDamage(10) 
+//     'I01G'.setAttackDamage(10) // Lava Tempered Boots 
+//     'I00J'.setAttackDamage(8) // Magic Gem
+//     'I00T'.setAttackDamage(14) // Demon Figurine
+//     'I009'.setAttackDamage(10) // Demon Figurine
+//     'I01R'.setAttackDamage(25) // Fel Stone
+//     'I01T'.setAttackDamage(15)
+//     'I01U'.setAttackDamage(5) // Spider BRacers
 
-    // Editor's Items
-    'I00S'.setAttackDamage(30)
-    'I00P'.setAttackDamage(80)
+//     // Editor's Items
+//     'I00S'.setAttackDamage(30)
+//     'I00P'.setAttackDamage(80)
 
- // --------------------------------------
+//  // --------------------------------------
 
-    // Setup of item triggerrs
-    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_PAWN_ITEM, function manipulatesItem)
-    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function manipulatesItem)
-    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM, function manipulatesItem)
-    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SELL_ITEM, function manipulatesItem)
-    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_USE_ITEM, function manipulatesItem)
+//     // Setup of item triggerrs
+//     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_PAWN_ITEM, function manipulatesItem)
+//     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DROP_ITEM, function manipulatesItem)
+//     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM, function manipulatesItem)
+//     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_SELL_ITEM, function manipulatesItem)
+//     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_USE_ITEM, function manipulatesItem)
 
 
-    // Test Trigger
-    CreateTrigger()
-    ..registerPlayerChatEvent(Player(0), "dmg", true)
-    ..addAction(function displayDamage) 
+//     // Test Trigger
+//     CreateTrigger()
+//     ..registerPlayerChatEvent(Player(0), "dmg", true)
+//     ..addAction(function displayDamage) 

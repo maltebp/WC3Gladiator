@@ -1,70 +1,72 @@
 package Round
 
 import public UnitSpawner
+import public Artifact
+import public ItemReward
+import public Stats
+import public Difficulty
+
 import ErrorHandling
-import initlater Game
-import Transitions
 import TimerUtils
 import Orb
 import Music
-import public Artifact
-import public ItemReward
+
 import ClosureTimers
+import LinkedList
+import GladiatorSystem
+import GameSettings
+import initlater FinishRound
+import Players
+import TrainingPoints
+import Mastery
+import UtilCommands
+import ObjectIds
+
+
+//=========================================================================================================================================================
+ 
 
 public class Round
 
-//=========================================================================================================================================================
-
-//  Settings 
-
-    private static constant real HEALTHORB_SPAWNFREQ = 25 
-    private static constant real HEALTHORB_DURATION  = 8
-    private static constant real HEALTHORB_SPAWNDURATION = 200
-
-    private static constant string TEXTCOLOR_GOLD = "|cffffcc00"
-    private static constant string TEXTCOLOR_TRAINPOINT = "|cff00FA9A"
-    private static constant string TEXTCOLOR_ARTIFACT = "|cffb3b3ff"
-    private static constant string TEXTCOLOR_ITEM = "|cffd9b38c"
+    protected static let rounds = new LinkedList<Round>
+    protected static var nextId = 0
     
-
-//=========================================================================================================================================================
-
- 
-
-    private static LinkedList<Round> rounds = new LinkedList<Round>
-    
-    private static int nextRoundNumber = 1
     private static int totalNumberOfRounds = 0
     private static int currentRoundNumber = 0
     private static boolean roundWon = false
-    private static Round currentRound
+    protected static Round currentRound
     private static boolean isBossRound = false
     private static boolean instantSpawn = false
+
+
 
     
 
     private static boolean aRoundIsRunning = false
     static unit bossUnit = null
 
-    private LinkedList<UnitSpawner> spawners = new LinkedList<UnitSpawner>
-    private int number
-    private int goldReward
-    private int trainingPointsReward
-    private LinkedList<Artifact> artifactReward = new LinkedList<Artifact>
-    private LinkedList<ItemReward> itemRewards = new LinkedList<ItemReward>
-    private int abilityReward = -1 // Number
-    private real healthOrb_FlatToHealInstant
-    private real healthOrb_PercToHealInstant
-    private real healthOrb_FlatToHealOverTime
-    private real healthOrb_PercToHealOverTime
-    private real healthOrb_SpawnDuration
-    private timer timer_HealthOrbDuration
-    private timer timer_HealthOrbSpawn
-    private string title
-    private string description
-    private boolean bossRound = false
-    private unit boss = null
-    private string music = Sounds.orcVictory
+    protected let spawners = new LinkedList<UnitSpawner>
+    protected int id
+    protected int number
+    protected int goldReward
+    protected int trainingPointsReward
+    protected let itemRewards = new LinkedList<ItemReward>
+    protected int abilityReward = -1 // Number
+    protected real healthOrb_FlatToHealInstant
+    protected real healthOrb_PercToHealInstant
+    protected real healthOrb_FlatToHealOverTime
+    protected real healthOrb_PercToHealOverTime
+    protected real healthOrb_SpawnDuration
+    protected timer timer_HealthOrbDuration
+    protected timer timer_HealthOrbSpawn
+    protected string title
+    protected string description
+    protected string music = "TheAssassinLooms.mp3"
+    protected  int artifactsToRelease = 0 
+    protected var level = 0
+    protected var playerCount = 0
+
+    protected UnitStatCallback scaleStatsCallback = null
 
 
     Round_RemoteFunction codeOnClear = null
@@ -75,10 +77,7 @@ public class Round
     Round_RemoteFunction codeOnLastUnitDeath = null
 
 
-    private static SoundDefinition snd_GoldReward = new SoundDefinition(Sounds.receiveGold, false)
     private static SoundDefinition snd_RoundInfo = new SoundDefinition(Sounds.questLog, false)
-    private static SoundDefinition snd_StartRound = new SoundDefinition(Sounds.goodJob, false)
-    private static SoundDefinition snd_ItemReward = new SoundDefinition(Sounds.itemReceived, false)
 
 
 // ======================================================================================================================================
@@ -99,6 +98,9 @@ public class Round
 
         timer_HealthOrbDuration = getTimer()..setData(this castTo int)
         timer_HealthOrbSpawn = getTimer()..setData(this castTo int)
+
+        id = nextId
+        nextId++
         rounds.push(this)
     
     
@@ -149,12 +151,12 @@ public class Round
 
     function setMusic(string music)
         this.music = music
+
         
 
     /** Adds one or more artifacts as a reward, when winning the round */
-    function addArtifactRewards(vararg Artifact artifacts)
-        for artifact in artifacts
-            artifactReward.add(artifact)
+    function addArtifactRewards(int numberOfArtifacts)
+        this.artifactsToRelease = numberOfArtifacts
 
     /** Adds one or more artifacts as a reward, when winning the round */
     function addItemRewards(vararg ItemReward items)
@@ -175,6 +177,9 @@ public class Round
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Getters
+
+    function getId() returns int
+        return id
 
     function getNumber() returns int
         return number
@@ -197,6 +202,13 @@ public class Round
     static function getRounds() returns LinkedList<Round>
         return rounds.copy()
 
+    /** Round number the round is scaled with */
+    function getLevel() returns int
+        return level
+
+    /** Numbers of players the round is scaled with */
+    function getPlayerCount() returns int
+        return playerCount
     
 
 
@@ -212,6 +224,7 @@ public class Round
         isBossRound = true
             
     function initialize()
+        aRoundIsRunning = true
         activateSpawners()
         activateHealthOrbSpawn()
         playMusic(music)
@@ -221,7 +234,7 @@ public class Round
             
     function stopSpawners()
         for spawner in spawners
-            spawner.stop()
+            spawner.stopSpawning()
         
     private function activateSpawners()
 
@@ -229,7 +242,7 @@ public class Round
             for spawner in spawners
                 spawner.start()
 
-                if instantSpawn
+                if DEBUG and INSTANT_SPAWN
                     spawner.spawnAll()
         
     function clear()
@@ -254,30 +267,42 @@ public class Round
 
     private function activateHealthOrbSpawn()
         timer_HealthOrbDuration.start(healthOrb_SpawnDuration+0.1, function stopHealthOrbSpawn )
-        timer_HealthOrbSpawn.startPeriodic(HEALTHORB_SPAWNFREQ, function spawnHealthOrb)
+        timer_HealthOrbSpawn.startPeriodic(ORB_SPAWN_FREQ / playerCount, function spawnHealthOrb)
         
 
 
     private static function spawnHealthOrb()
-        thistype round = GetExpiredTimer().getData() castTo thistype
+        let round = GetExpiredTimer().getData() castTo thistype
 
-        vec2 spawnPos = gg_rct_Arena_Spawn1.randomPoint()
+        let scale = 1 + (round.level-1) * ORB_ROUND_LVL_SCALE 
 
+        let spawnPos = gg_rct_Arena_Spawn1.randomPoint()
         new HealthOrb(spawnPos)
-        ..setHealInstant(round.healthOrb_FlatToHealInstant, round.healthOrb_PercToHealInstant )
-        ..setHealOverTime(round.healthOrb_FlatToHealOverTime, round.healthOrb_PercToHealOverTime, HEALTHORB_DURATION )
-        ..addActivationUnit(hero)
+        ..setHealInstant(
+            ORB_INSTANT_FLAT * scale,
+            ORB_INSTANT_PERC
+        )
+        ..setHealOverTime(
+            ORB_HOT_FLAT * scale,
+            ORB_HOT_PERC,
+            ORB_HEAL_DURATION
+        )
         
 
     private static function stopHealthOrbSpawn()
-        thistype round = GetExpiredTimer().getData() castTo thistype
+        let round = GetExpiredTimer().getData() castTo thistype
         round.timer_HealthOrbSpawn.pause()
 
         
 
     private static function wasLastUnit() returns boolean
-        if hero.isAliveTrick()
-            Round round = rounds.get(currentRoundNumber-1)
+        var aliveGladiators = 0
+        for gladiator in getAllGladiators()
+            if( gladiator.getUnit().isAlive() )
+                aliveGladiators++
+
+        if( aliveGladiators > 0 )
+            let round = rounds.get(currentRoundNumber-1)
             for spawner in round.spawners
                 if not spawner.isFinished() or not spawner.allUnitsAreDead()
                     return false
@@ -285,118 +310,37 @@ public class Round
         return false
                 
 
-    private function reward()
-        snd_GoldReward.play()
-        printTimed(" ", 5)
-        printTimed("You've been granted "+TEXTCOLOR_GOLD+goldReward.toString()+"|r gold"+" and "+TEXTCOLOR_TRAINPOINT+trainingPointsReward.toString()+"|r training points.", 5)
-        Player(0).addGold(goldReward)
-        Player(0).addLumber(trainingPointsReward)
+    /** Rewards gold, training points and mastery points, and unlock
+        new masteries */
+    function rewardPoints()
+        for p in allPlayers
+            p.addGold(goldReward)
+            p.addTrainingPoints(TRAINING_POINTS_PER_ROUND)
+            p.addMasteryPoints(MASTERY_PER_ROUND)
+        unlockMasteryRoundRequirement(number)
 
 
-    /** Rewards items, including artifacts */
-    private function rewardItems() returns boolean
-        int numberOfArtifacts = artifactReward.size()
-        int numberOfItems = itemRewards.size()
-        int numberOfRewards = numberOfArtifacts + numberOfItems
-
-        if numberOfRewards > 0
-            
-            snd_ItemReward.play()
-            printTimed(" ", 8)
-            string text = "New items unlocked: \n"
-            
-            int i = 0
-
-            if numberOfItems > 0
-                
-                for itemReward in itemRewards
-
-                    text += TEXTCOLOR_ITEM+itemReward.getName()+"|r"
-                    
-                    i++
-
-                    if i < numberOfRewards
-                        text += ", "
-
-                    itemReward.release() 
-
-
-            if numberOfArtifacts > 0 
-                for artifact in artifactReward
-
-                    text += TEXTCOLOR_ARTIFACT+artifact.getName()+" (Artifact)|r"
-
-                    i++
-
-                    if i < numberOfRewards
-                        text += ", "
-
-                    artifact.release()
-
-            printTimed(text, 8)
-            return true
-
-        return false
-
-    function giveAbilityReward() returns boolean
-
-        if abilityReward > -1
-
-            printTimed(" ", 6)
-
-            string text = "New ability: "
-            text += gladiator.getColor()+gladiator.releaseAbility(abilityReward)+"|r"
-
-            printTimed(text, 6)
-
-            gladiator.getSoundOnNewAbility().playForPlayer(gladiator.getOwner())
-        
-            return true
-
-        else
-            return false
+    /** Releases all item rewards, and return a list of rewarded items*/
+    function rewardItems() returns LinkedList<ItemReward>
+        for reward in itemRewards
+            reward.release()
+        return itemRewards   
         
 
-    static function giveReward()
-        currentRound.reward()
-
-    static function giveItemReward() returns boolean
-        return currentRound.rewardItems()
-
-    function giveRewardNotFancy()
-        Player(0).addGold(goldReward)
-        Player(0).addLumber(trainingPointsReward)
-        for artifact in artifactReward
-            artifact.release()
-
-        for itemReward in itemRewards
-            itemReward.release()
-
-        if abilityReward > -1
-            gladiator.releaseAbility(abilityReward)
-
-    static function wonRound()
+    static function printNextRound(player p)
+        snd_RoundInfo.playForPlayer(p)
+        p.print("\nNext round: \n\n{0}".format(currentRound.toString()),7)
         
 
-    static function printNextRound()
-        snd_RoundInfo.play()
-        printTimed("Next round: ",7)
-        printTimed(" ",7)
-        currentRound.toString()
-
-
-    function toString()
-        printTimed("|cffffcc00Round "+number.toString() + " - '"+title+"'|r",7)
-        printTimed(description,7)
+    function toString() returns string
+        return "Round {0} - {1}\n".format(number.toString(),title).withColor(COLOR_HIGHLIGHT) + description
 
     
     static function setNextRound()
-
         if currentRoundNumber < totalNumberOfRounds
             currentRoundNumber++
             currentRound = rounds.get(currentRoundNumber-1)
             aRoundIsRunning = false
-            
         else
             error("No more rounds")
 
@@ -404,31 +348,34 @@ public class Round
     static function setRoundReady()
         aRoundIsRunning = false
 
-    private static function roundLost()
+    protected static function roundLost()
         roundWon = false
         if bossUnit != null
             bossUnit.setInvulnerable(true)
         currentRound.stopSpawners()
         if currentRound.codeOnHeroDeath != null
             currentRound.codeOnHeroDeath.run(currentRound)
-        stopMusic()
-        transitionToShop(false)
+        finishRound(false)
 
     private static function roundWon()
         roundWon =true
         currentRound.stopSpawners()
         if currentRound.codeOnLastUnitDeath != null
             currentRound.codeOnLastUnitDeath.run(currentRound)
-        stopMusic()
-        transitionToShop(true)
+        finishRound(true)
 
 
     protected static function anyUnitDies()
         if aRoundIsRunning and not roundWon
-            unit dying = GetDyingUnit()
+            let dying = GetDyingUnit()
             
-            if dying == hero
-                roundLost()
+            if( dying.isGladiator() )
+                var allDead = true
+                for gladiator in getAllGladiators()
+                    if( gladiator.getUnit().isAlive() ) 
+                        allDead = false
+                if( allDead )
+                    roundLost()
             
             else if isBossRound and dying == bossUnit
                 roundWon = true
@@ -439,39 +386,48 @@ public class Round
                 doAfter(0.1) ->
                     if wasLastUnit()
                         roundWon()
-            
 
-    static function startNextRound()
-        if totalNumberOfRounds != 0
-            
-            if not currentRoundNumber > totalNumberOfRounds
-
-                aRoundIsRunning = true
-                roundWon = false
-
-                snd_StartRound.play()
-                
-                stopMusic()
-
-                transitionToArena()
-
-            else
-                error("No more rounds")
-
-        else
-            error("No rounds added")
             
     
+    function setStatScalingCallback(UnitStatCallback callback)
+        scaleStatsCallback = callback
         
+
     function prepare()
+        if( level == 0)
+            level = number
+
+        if( playerCount == 0)
+            playerCount = allPlayers.size()
+
         isBossRound = false
         if codeOnPrepare != null
             codeOnPrepare.run(this)
-    
-        
 
 
+    function scaleUnitStats(unit u)
+        var dmgInc = u.getStatInstance(STAT_DAMAGE).getBaseValue()
+        dmgInc *= (1+(level-1) * ROUND_LVL_SCALE_POWER)
+        dmgInc *= (1+ (playerCount-1) * ROUND_PLAYER_SCALE_POWER)
+        u.setStatBase(STAT_DAMAGE, dmgInc)
+
+        var hpInc = u.getStatInstance(STAT_HEALTH).getBaseValue()
+        hpInc *= (1 +(level-1) * ROUND_LVL_SCALE_HEALTH)
+        hpInc *= (1+ (playerCount-1) *  ROUND_PLAYER_SCALE_HEALTH)
+        u.setStatBase(STAT_HEALTH, hpInc)
         
+
+    function getNumberOfItemRewards() returns int
+        return itemRewards.size()
+
+    /** Returns round with given ID (not level/number) */ 
+    static function getRound(int id) returns thistype
+        for round in rounds
+            if( round.id == id )
+                return round
+        return null
+
+
                
 public interface Round_RemoteFunction
     function run(Round round)
@@ -482,6 +438,94 @@ init
     ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_DEATH)
     ..addAction(function Round.anyUnitDies)
         
+
+    /*  Single listener on unit stats initialzied for all rounds, to improve
+        efficiency. This then call the approriate round's stat adjustment
+        callback. */
+    afterUnitStatsInitialized() u ->
+        if( Round.isARoundRunning() )
+            let round = Round.getCurrentRound()
+            if( round.scaleStatsCallback == null )
+                Log.warn("Stat scaling callback is null for round '{0}'".format(round.getTitle()))
+            else
+                round.scaleStatsCallback.run(u)
         
-        
-        
+
+
+//================================================================================================================================================================================================
+// CHAT COMMAND
+/* Chat commands to handle the rounds with */
+
+init
+    let cmd = defineUtilCommand("round")
+
+    cmd.addSubCommand("all")
+    ..setAction() (p,args,opts) ->
+        SND_CLICK.playForPlayer(p)
+        if( Round.rounds.size() == 0 )
+            p.print("There are no rounds...", 15)
+        else
+            p.print("\nPrinting {0} rounds:".format(Round.rounds.size().toString()).highlight(), 15)
+            for round in Round.rounds
+                p.print( "    {0} (ID: {1}, Level/Number: {2})".format(round.title, round.id.toString(), round.level.toString()), 15)
+
+    cmd.addSubCommand("level")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p,args,opts) ->
+        let round = Round.currentRound
+        round.level = args.getInt()
+        p.print("\nSet round level to: {0} for round {1}".format(
+            round.level.toString().highlight(), Round.currentRound.getTitle().highlight()), 5)
+        SND_CLICK.playForPlayer(p)
+
+    cmd.addSubCommand("players")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p,args,opts) ->
+        let round = Round.currentRound
+        round.playerCount = args.getInt()
+        p.print("\nSet player count to: {0} for round {1}".format(
+            round.playerCount.toString().highlight(), Round.currentRound.getTitle().highlight()), 5)
+        SND_CLICK.playForPlayer(p)
+
+    cmd.addSubCommand("next")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p,args,opts) ->
+        let nextRound = args.getInt()
+        while( Round.currentRound.number < nextRound )
+            Round.currentRound
+            ..rewardItems()
+            ..rewardPoints()
+            if( Round.currentRound.abilityReward > 0)
+                for gladiator in getAllGladiators()
+                    gladiator.unlockNextAbility()
+            Round.setNextRound()
+
+        p.print("\nSet next round to {0}".format(Round.currentRound.getTitle().highlight()), 5)
+        SND_CLICK.playForPlayer(p)
+
+
+    cmd.addSubCommand("reset")
+    ..addHelpCommand("Reset a running round by making you lose it.")
+    ..setAction() (p, args, opts) ->
+        if( Round.isARoundRunning() )
+            Round.roundLost()
+
+    cmd.addSubCommand("spawners")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p,args,opts) ->
+        let id = args.getInt()
+        if( id < 0 )
+            p.print("\nRound ID cannot be negative", 15)
+            SND_ERROR.playForPlayer(p)
+        else
+            let round = Round.getRound(id)
+            if( round == null )
+                p.print("\nCouldn't find round with ID {0}".format(id.toString().highlight()), 15)
+            else
+                SND_CLICK.playForPlayer(p)
+                p.print("\nPrinting IDs for {0} spawners for {1}".format(
+                     round.spawners.size().toString().highlight(),
+                     "Round {1} ({2})".format(round.title, id.toString()).highlight()
+                ), 15)
+                for spawner in round.spawners
+                    p.print("    {0} {1}".format(spawner.getId().toString(), spawner.getSpawnedUnitId().toRawCode().withColor(COLOR_GREY)), 15)

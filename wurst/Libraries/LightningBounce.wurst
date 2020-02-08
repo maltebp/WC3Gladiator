@@ -1,0 +1,111 @@
+package LightningBounce
+import ClosureTimers
+import public Lightning
+import LinkedList
+import LightningUtil
+
+
+public abstract class  LightningBounce
+
+    // Defaults
+    protected int bounceCount = 0
+    protected real bounceDelay = 0.25
+    protected real range = 200.
+
+    protected real zOffset = 80.
+    protected string lightningType =  LIGHTNING_CHAIN_LIGHTNING_SEECONDARY
+    protected colorA lightningColor = colorA(255,255,255,255)
+    protected real lightningDuration = 1.
+
+    protected unit previousTarget = null
+
+    private let hitTargets = new LinkedList<unit>
+
+    private CallbackCounted bounceCb = null
+
+    construct( unit source, unit initialTarget, int numberOfTargets )
+
+        doAfter( ANIMATION_PERIOD ) ->
+            previousTarget = source
+            jump(initialTarget)
+            bounceCb = doPeriodicallyCounted( bounceDelay, numberOfTargets-1) cb ->
+
+                if findTarget()
+                    if cb.isLast() 
+                        bounceCb = null
+                        destroy this
+                else
+                    destroy this
+                    
+                    /*  This caused some problems, since the instance (and extension the callback) could
+                        be destroyed in the findTarget() method, and therefor cause a null pointer exception
+                        when checking the cb.isLast() method.
+                    */
+                
+    ondestroy
+        if bounceCb != null
+            destroy bounceCb
+
+        destroy hitTargets
+
+    
+
+    // Returns whether or not it found a target (true it did, false it didn't)
+    private function findTarget() returns boolean
+        
+        let originPos = previousTarget.getPos()
+
+        let potentialTargets = ENUM_GROUP..enumUnitsInRange( originPos, range )
+        
+        for potentialTarget in potentialTargets
+            if hitTargets.has(potentialTarget) or not targetFilter(potentialTarget)
+                potentialTargets.removeUnit(potentialTarget)
+        
+        if potentialTargets.size() > 1
+            jump(findBestTarget(potentialTargets))
+            
+        else if potentialTargets.size() == 1
+            jump(potentialTargets.next())
+
+        else
+            potentialTargets.clear()
+            return false
+
+        potentialTargets.clear()
+        return true
+
+
+    protected abstract function targetFilter( unit target ) returns boolean
+
+
+    protected function findBestTarget( group potentialTargets ) returns unit
+        return potentialTargets.getRandomUnit()
+
+    /** Makes it possible to override how the z-offset is determined for the lightning */
+    protected function calculateZOffset(unit target) returns real
+        return zOffset
+
+
+    private function jump( unit target ) 
+
+        bounceCount++
+
+        // If the initial target is the caster, then there is no need to create a lightning effect
+        if target != previousTarget
+            let l = new Lightning(lightningType, lightningDuration)
+            ..setRemoveOnUnitDeath(true)
+            ..setTarget(target, calculateZOffset(target))
+            ..setSource(previousTarget, calculateZOffset(previousTarget))
+            l.getLightningSfx().setColor(lightningColor)
+
+        onHit(target)
+
+        previousTarget = target
+        hitTargets.add(target)
+
+
+    protected abstract function onHit( unit target )
+
+    
+    
+

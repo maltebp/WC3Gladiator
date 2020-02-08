@@ -1,0 +1,45 @@
+package Intro
+import GameSettings
+import StringUtils
+import PickHero
+import Scene
+import Players
+import Difficulty
+
+
+public function player.startIntro()
+
+    let scene = new Scene()
+
+    if( localPlayer == this)
+        ClearTextMessages()
+
+    if( not DEBUG or not SKIP_INTRO )
+        scene.wait(3)
+        scene.do() p ->
+            SND_MESSAGE.playForPlayer(p) 
+            p.print(
+                "Welcome Gladiator!".withColor(COLOR_HIGHLIGHT) + 
+                "\nYou will have to face fierce opponents, whose only goal is make you regret the day you "+
+                "stepped into the arena. To call yourself the true champion, you have to survive " + FINAL_ROUND.toString() +" merciless rounds of slaughter." +
+            "\nAt least you will die with honor."
+            , 12)
+        scene.wait(14)
+
+    if( not DEBUG or not SKIP_DIFFICULTY )
+        scene.do() p ->
+            if( p == getHost() )
+                p.print("\nChoose a difficulty", 1000)
+                p.showDifficultyDialog() difficulty ->
+                    new Scene()
+                    ..do(  -> ClearTextMessages() )
+                    ..do(p -> p.print("\nChosen difficulty: " + difficulty.toString().toLowerCase().firstUpper().withColor(COLOR_HIGHLIGHT), 3))
+                    ..wait(4)
+                    ..do(p -> p.startPickHero())
+                    ..play(allPlayers)
+            else
+                p.print( "\n" + getHost().getNameColored() + " is choosing a difficulty.", 6)
+    
+    else
+        scene.do( p -> p.startPickHero() )
+    scene.play(this)

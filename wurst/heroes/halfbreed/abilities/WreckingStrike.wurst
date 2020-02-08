@@ -1,0 +1,93 @@
+package WreckingStrike
+
+import AbilityTools
+import initlater HalfBreedMasteries
+
+//================================================================================================================================================================================================
+// Settings
+
+let CHARGE      = 25
+let DMG_FACTOR  = 2.
+let DURATION    = 10.
+let ARMOR_RED   = 6.
+
+
+public let HALF_BREED_WRECKING_STRIKE = compiletime(defineSingleTarget3(
+    "Wrecking Strike",
+    "Strike an enemy with a wrecking force, damaging the target for {0} of your power, and reduce its armor by {1} for {2} seconds.".format(
+        DMG_FACTOR.toPercentageString(),
+        ARMOR_RED.toInt().toString(),
+        DURATION.toInt().toString()
+    ),
+    Icons.bTNCorpseExplode,
+    "E",
+    6,      // Cooldown
+    25,     // Mana
+    MELEE_RANGE,    // Range
+    "attack",
+    false
+))
+
+public let HALF_BREED_WRECKING_STRIKE_BUFF = compiletime(defineBuff(
+    "Wrecking Strike",
+    "Reduced armor.",
+    Icons.bTNCorpseExplode,
+    Abilities.cryptFiendMissileTarget,
+    "chest",
+    ""
+))
+
+let SND_ON_ATTACK = [
+    new SoundDefinition(Sounds.metalHeavySliceMetal1, false, true),
+    new SoundDefinition(Sounds.metalHeavySliceMetal2, false, true),
+    new SoundDefinition(Sounds.metalHeavySliceMetal3, false, true)
+]
+
+let SND_ON_ATTACK_2 = new SoundDefinition(Sounds.shockwave, false, true)
+
+
+
+//================================================================================================================================================================================================
+
+init
+    registerSpellEffectEvent(HALF_BREED_WRECKING_STRIKE) ->
+        onCast()
+
+function onCast()
+    let caster = GetSpellAbilityUnit()
+    let target = GetSpellTargetUnit()
+
+    let ogreStrengthLvl = caster.getOwner().getMasteryLevel(HALF_BREED_HAVOC)
+    let damage = caster.getPower() * DMG_FACTOR * (1 + HALF_BREED_HAVOC_DMG_INC * ogreStrengthLvl)
+
+    // Adjust charge
+    caster.adjustCharge(CHARGE)
+    caster.activateBloodthirst()
+
+    caster.damageTargetPhysical(target, damage)
+    target.addEffect(Abilities.stampedeMissileDeath, "chest")..setDuration(3)
+    target.addEffect(Abilities.ancientProtectorMissile, "chest")..destr()
+    SND_ON_ATTACK[GetRandomInt(0, 2)].playOnPoint(target.getPos3Real())
+    SND_ON_ATTACK_2.playOnPoint(target.getPos3Real())
+
+    target.applyBuff(new WreckingStrikeBuff(), caster, DURATION)
+
+    
+
+class WreckingStrikeBuff extends Buff
+
+    construct()
+        super(HALF_BREED_WRECKING_STRIKE_BUFF, false)
+
+    override function onApply()
+        if( target != null )
+            target.adjustStatFlat(STAT_ARMOR, -ARMOR_RED)
+
+    override function onRemove()
+        if( target != null )
+            target.adjustStatFlat(STAT_ARMOR, ARMOR_RED)
+
+
+
+    
+

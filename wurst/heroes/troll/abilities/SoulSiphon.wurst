@@ -1,0 +1,178 @@
+
+package SoulSiphon
+
+
+import AbilityTools
+import Voodoo
+import Projectile
+import initlater TrollMasteries
+import Updater
+import ClosureTimers
+import LinkedList
+import RandomAngle
+import Orders
+import MyLibrary
+
+
+//================================================================================================================================================================================================
+// Settings
+
+let DRAIN_FACTOR = 2.5           // Equilavent to damage factor
+let TRANSFER_FACTOR = 0.25       // Amount healed by the caster
+
+let VOODOO_FACTOR = 0.015
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+public let TROLL_SOUL_SIPHON = compiletime(defineSingleTarget3(
+    "Soul Siphon",
+    ("Drain the soul of enemy target, dealing {0} of your power in damage, and healing you by {1} of the damage dealt."+
+        "\n\nThis ability consumes all your voodoo, and the amount drained is increased by {2} for each charge consumed.").format(
+        DRAIN_FACTOR.toPercentageString(),
+        TRANSFER_FACTOR.toPercentageString(),
+        VOODOO_FACTOR.toPercentageString()
+    ),
+    Icons.bTNManaDrain,
+    
+    "W",
+    2,
+    40,
+    600,
+    "attack",
+    false
+))
+
+public let SND_DRAIN = new SoundDefinition( Sounds.possessionMissileLaunch1, false, true )
+public let SND_VENGEFUL_SPIRIT = new SoundDefinition( Sounds.flashBackHalfSecondSecond, false, true)
+public let SND_VENGEFUL_SPIRIT_DESPAWN = new SoundDefinition( Sounds.flashBack1Second, false, true)
+
+//================================================================================================================================================================================================
+init
+    registerSpellEffectEvent(TROLL_SOUL_SIPHON) ->
+        onCast()
+
+function onCast()
+    let caster = GetSpellAbilityUnit()
+    let target = GetSpellTargetUnit()
+
+    SND_DRAIN.playOnPoint(target.getPos().withTerrainZ(60))
+
+    let voodoo = caster.consumeVoodoo()
+    let drainAmount =  caster.getPower() * DRAIN_FACTOR  * (1 + voodoo*VOODOO_FACTOR)
+    let heal = drainAmount * TRANSFER_FACTOR
+
+    caster.siphon(target, drainAmount, heal, false)
+
+    // Soul Harvest
+    let soulHarvestLvl = caster.getOwner().getMasteryLevel(SOUL_HARVEST)
+    if( soulHarvestLvl > 0)
+        let extraTargets = enemiesInRange(caster.getOwner(), target.getPos(), SOUL_HARVEST_RADIUS)
+        extraTargets.removeUnit(target)
+        for i=1 to SOUL_HARVEST_TARGETS
+            if( extraTargets.size() > 0)
+            let extraTarget = extraTargets.getRandomUnit()
+            caster.siphon(extraTarget, drainAmount * SOUL_HARVEST_FACTOR * soulHarvestLvl, heal * SOUL_HARVEST_FACTOR * soulHarvestLvl, true)
+            extraTargets.removeUnit(extraTarget)
+            
+
+function unit.siphon(unit target, real drain, real heal, bool small)
+    this.damageTargetSpell( target, drain )  
+    let projectile = new Projectile(target.getPos().withTerrainZ(60), Abilities.zigguratMissile)
+    ..fireUnit( this, 60, true, 1000, 0)
+    projectile.getEffect().setScale( small ? 0.25 : 1)
+    projectile.addActionOnFinish() ->
+        if this != null and this.isAlive()
+            
+            this.setHP( this.getHP()+ (small ? heal*0.5 : heal ) )
+
+        if( not small )
+            let vengefulSpiritLvl = this.getOwner().getMasteryLevel(VENGEFUL_SPIRIT)
+            if( vengefulSpiritLvl > 0)
+                let roll = VENGEFUL_SPIRIT_CHANCE
+                if( GetRandomReal(0,1) < roll )
+                    let spawnPos = this.getPos().polarOffset(randomAngle(), 125)
+                    new VengefulSpirit(this, target, spawnPos, (VENGEFUL_SPIRIT_DURATION * vengefulSpiritLvl).toReal())
+
+
+
+//================================================================================================================================================================================================
+// Vengeful Spirit
+
+
+let VENGEFUL_SPIRIT_UNIT = 'n018'
+
+class VengefulSpirit extends Updater
+    protected static let instances = new LinkedList<thistype>
+
+    protected unit spirit
+    protected unit target
+    protected unit caster
+
+
+    protected CallbackSingle durationCb = null
+
+    construct( unit caster, unit target, vec2 spawnPos, real duration )
+        instances.add(this)
+
+        spirit = createUnit( caster.getOwner(), VENGEFUL_SPIRIT_UNIT, spawnPos, randomAngle() )
+        ..setVertexColor(colorA(100,175,255,140))
+        addEffect( "Abilities\\Spells\\Undead\\UnholyFrenzyAOE\\UnholyFrenzyAOETarget.mdl", spawnPos.withTerrainZ(-10))
+        ..setScale(0.5)
+        ..setDuration(5)
+        SND_VENGEFUL_SPIRIT.playOnPoint(spawnPos.withTerrainZ())
+    
+        this.caster = caster
+        this.target = target
+
+        if target != null
+            spirit.issueTargetOrderById( Orders.attack, target)
+
+        updateFreq = 0.25
+        startUpdate()
+    
+        durationCb = doAfter(duration) ->
+            durationCb = null
+            destroy this
+            
+
+    ondestroy
+        if durationCb != null
+            destroy durationCb
+        
+        addEffect( Abilities.zigguratMissile, spirit.getPos().withTerrainZ(20))
+        ..setScale(1.5)
+        ..destr()
+        SND_VENGEFUL_SPIRIT_DESPAWN.playOnPoint(spirit.getPos().withTerrainZ())
+    
+        spirit.pause()
+        spirit.setTimeScale(0)
+        var alpha = 140.
+        doPeriodicallyCounted(0.05, 20) (CallbackCounted cb) ->
+            alpha *= 0.75
+            spirit.setVertexColor(colorA(100,175,255, alpha.toInt()))
+            if( cb.isLast() )
+                spirit.remove()
+            
+        instances.remove(this)
+
+
+    override function update()
+        if( caster != null and caster.isAlive() )
+            if target == null or not target.isAlive()
+                let targets = ENUM_GROUP..enumEnemyTargets( spirit.getOwner(), spirit.getPos(), 3000 )
+                if targets.size() > 0
+                    let target = targets.getNearestUnit( spirit.getPos())
+                    spirit.issueTargetOrderById(Orders.attack, target)
+        else
+            destroy this
+            
+
+//================================================================================================================================================================================================
+// RESET
+
+public function unit.resetSoulSiphon()
+
+function unit.removeSpirits()
+    for instance in VengefulSpirit.instances
+        if( instance.caster == this )
+            destroy instance

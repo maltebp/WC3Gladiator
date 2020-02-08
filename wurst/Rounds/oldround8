@@ -1,0 +1,649 @@
+package Round8
+
+import public Round7
+
+import Game
+import Abilities
+import AbilityObjEditing
+import UnitVisualsUtils
+import ObjectIdGenerator
+import Icons
+import BuffObjEditing
+import RegisterEvents
+import HashMap
+import FadeAndFilters
+import Orders
+import ErrorHandling
+import AutoCastAbility
+import Units
+import MyLibrary
+import Damage
+import OnUnitTypeEnter
+import Updater
+import TimedSpecialEffects
+import ObjectIds
+import Assets
+import RandomAngle
+import ClosureTimers
+import LinkedList
+
+// ======================================================================================================================================
+
+// SETTINGS
+let WATERBEING_ID   = 'n00Y'
+let STORMCALLER_ID  = 'n00V'
+let WATERCALLER_ID  = 'n00W'
+let MYRMIDON_ID     = 'n00X'
+
+
+// Tornado
+let TORNADO_DAMAGE = 35. // Per second
+let TORNADO_RANGE   = 125.
+let TORNADO_SPEED   = 50.
+
+// Storm Charge
+let STORMCHARGE_DAMAGE = 15.
+let STORMCHARGE_RANGE = 175.
+let STORMCHARGE_DAMAGEFREQ = 1.
+
+// Wounding Strike
+let WOUNDINGSTRIKE_DAMAGE_INITIAL = 15.
+let WOUNDINGSTRIKE_DAMAGE_OVERTIME = 8.
+let WOUNDINGSTRIKE_COOLDOWN = 15.
+let WOUNDINGSTRIKE_DURATION = 6.
+let WOUNDINGSTRIKE_ATTACKSPEEDRED = 0.
+let WOUNDINGSTRIKE_MOVESPEEDRED = 0.4
+
+
+// Summon Elemental
+let SUMMONELEMENTAL_COOLDOWN = 15.
+
+// Elemental Attack
+let ELEMENTAL_RANGE = 700.
+let ELEMENTAL_COOLDOWN = 2.
+let ELEMENTAL_DAMAGE = 35.
+let ELEMENTAL_DISTANCE = 1000.
+let ELEMENTAL_WIDTH = 200.
+let ELEMENTAL_SPEED = 350.
+
+
+
+// OTHER CONSTANTS
+let TORNADOES_ID = compiletime(ABIL_ID_GEN.next())
+
+let WOUNDINGSTRIKE_ABIL_ID = compiletime( ABIL_ID_GEN.next() )
+let WOUNDINGSTRIKE_BUFF_ID = compiletime( BUFF_ID_GEN.next() )
+
+let SUMMONELEMENTAL_ID = compiletime( ABIL_ID_GEN.next() )
+
+let ELEMENTAL_ATTACK_ID = compiletime( ABIL_ID_GEN.next() )
+
+
+
+
+// ======================================================================================================================================
+
+init
+
+    Round round
+    
+    round = new Round()
+    ..setReward(30, 3)
+    ..setTitle("Naga")
+    ..setDescription("Take care of the wind and the tide.")
+    ..setHealthOrbSpawn(100, 75, 0.1, 30, 0.02)
+    ..addItemRewards( ITEM_LIVINGWATER )
+    ..addAbilityReward(1) 
+    ..addArtifactRewards(1)
+
+    // Storm Caller 1
+    round.addSpawner(new UnitSpawner(STORMCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 24))
+    ..setStartDelay(30)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.nagaSirenYesAttack3)
+    ..setSpawnEffect(Abilities.crushingWaveDamage)
+    ..setSpawnCount(5)
+
+     // Water Caller 1
+    round.addSpawner(new UnitSpawner(WATERCALLER_ID, ENEMYPLAYER, vec2(-639,1025), 22))
+    ..setStartDelay(16)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.snapDragonYes2)
+    ..setSpawnEffect(Abilities.crushingWaveDamage)  
+    ..setSpawnCount(5)
+
+    // Myrmidon 1
+    round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMYPLAYER, vec2(548,1000), 30 ))
+    ..setStartDelay(2)
+    ..setFrequencyDeviation(0.01)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.giantSeaTurtleYes2)
+    ..setSpawnEffect(Abilities.crushingWaveDamage)
+    ..setSpawnCount(4)
+
+    // Myrmidon 2
+    round.addSpawner(new UnitSpawner(MYRMIDON_ID, ENEMYPLAYER, vec2(548,1000), 30))
+    ..setStartDelay(80)
+    ..setFrequencyDeviation(0.01)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.giantSeaTurtleYes2)
+    ..setSpawnEffect(Abilities.crushingWaveDamage)
+    ..setSpawnCount(2)
+
+    // Unit Visuals
+    UnitVisuals.addUnitType(STORMCALLER_ID)
+    ..setPlayerColor(PLAYER_COLOR_AQUA)
+
+    UnitVisuals.addUnitType(WATERCALLER_ID)
+    ..setPlayerColor(PLAYER_COLOR_AQUA)
+
+    UnitVisuals.addUnitType(MYRMIDON_ID)
+    ..setPlayerColor(PLAYER_COLOR_PEANUT)
+
+    UnitVisuals.addUnitType(WATERBEING_ID)
+    ..setPlayerColor(PLAYER_COLOR_AQUA)
+
+
+    // Ability triggers
+    registerSpellEffectEvent(TORNADOES_ID, () -> new TornadoAbility(GetSpellAbilityUnit()))
+    registerSpellEffectEvent( WOUNDINGSTRIKE_ABIL_ID) ->
+        let caster = GetSpellAbilityUnit()
+        let target = GetSpellTargetUnit()
+
+        flashEffect(Abilities.stampedeMissileDeath, target, "chest")
+
+        caster.damageTargetPhysical( target, WOUNDINGSTRIKE_DAMAGE_INITIAL )
+        WoundingStrikeBuff.applyToUnit( target, caster, WOUNDINGSTRIKE_DAMAGE_OVERTIME, WOUNDINGSTRIKE_DURATION )
+
+    registerSpellEffectEvent( SUMMONELEMENTAL_ID, function summonElemental )
+
+    registerSpellEffectEvent( ELEMENTAL_ATTACK_ID ) ->
+        
+        new WaveAttack( GetSpellTargetUnit().getPos(), GetSpellAbilityUnit(), ELEMENTAL_DAMAGE, ELEMENTAL_DISTANCE, ELEMENTAL_WIDTH, ELEMENTAL_SPEED )
+
+    // Auto Cast Abilities
+    addAutoCastAbilityToUnitType( STORMCALLER_ID, 
+        new AutoCastAbilityType(TORNADOES_ID, Orders.tranquility, TargetType.ENEMY_IMMEDIATE, 10000, 0.01, 1) )
+
+     // Auto Cast Abilities
+    addAutoCastAbilityToUnitType( MYRMIDON_ID, 
+        new AutoCastAbilityType(WOUNDINGSTRIKE_ABIL_ID, Orders.slow, TargetType.ENEMY_UNIT, 1000, 3, WOUNDINGSTRIKE_COOLDOWN) )
+
+    addAutoCastAbilityToUnitType( WATERCALLER_ID, 
+        new AutoCastAbilityType(SUMMONELEMENTAL_ID, Orders.roar, TargetType.ENEMY_IMMEDIATE, 1500, 6, SUMMONELEMENTAL_COOLDOWN ) )
+
+    addAutoCastAbilityToUnitType( WATERBEING_ID, 
+        new AutoCastAbilityType( ELEMENTAL_ATTACK_ID, Orders.fingerofdeath, TargetType.ENEMY_UNIT, 3000, 1, ELEMENTAL_COOLDOWN ) )
+
+
+    onUnitTypeEnter( STORMCALLER_ID) enteringUnit ->
+        StormChargeBuff.applyToUnit(enteringUnit, STORMCHARGE_DAMAGE, STORMCHARGE_RANGE)
+
+// ======================================================================================================================================
+// TORNADO
+
+
+// Ability Class
+class TornadoAbility
+
+    private static let UPDATE_FREQ = 0.1
+    private static let ANIMATION_FREQ = 1.167
+    private static let instances = new IterableMap<unit, thistype>
+    
+    private unit caster
+    private timer timer_Update
+    private timer timer_Animation
+
+    construct( unit caster )
+
+        this.caster = caster
+
+        if instances.has(caster)
+            destroy this
+            error("Caster already exists in instances")
+
+        else
+            instances.put(caster, this)
+
+            timer_Update = getTimer()
+            ..setData( this castTo int )
+            ..startPeriodic(UPDATE_FREQ, () -> GetExpiredTimer().getData() castTo thistype.update() )
+
+            timer_Animation = getTimer()
+            ..setData( this castTo int )
+            ..startPeriodic(ANIMATION_FREQ, () -> GetExpiredTimer().getData() castTo thistype.doAnimation() )
+
+            doAnimation()
+
+            let spawnPos = caster.getPos().moveTowards(hero.getPos(), 150)
+            new Tornado(caster, hero, spawnPos, TORNADO_SPEED, TORNADO_DAMAGE, TORNADO_RANGE)
+            ..destroyOnSourceDeath(true)
+
+
+    ondestroy
+        if caster == null
+            instances.removeValue(this, true)
+        else
+            instances.remove(caster)
+
+        timer_Update.release()
+        timer_Animation.release()
+
+    
+    private function doAnimation()
+        caster.setAnimation("spell")
+
+
+    private function update()
+        if caster == null or not caster.isAliveTrick() or caster.getCurrentOrder() != Orders.tranquility 
+            destroy this
+
+
+// Tornado
+class Tornado
+
+    private static let SOUND = new SoundDefinition(Sounds.cycloneLoop1, true, true)
+    private static let MOVEFREQ = 0.01
+    private static let DAMAGEFREQ = 1.
+    private static let instances = new LinkedList<thistype>
+    
+    private real movePerUpdate
+    private real speed
+    private real damage
+    private unit target
+    private real range
+    private unit source
+    private unit soundUnit
+
+    private sound snd
+
+    private effect tornado
+    private vec2 pos
+
+    private var destroyOnSourceDeath = false
+
+    private timer timer_Update
+    private timer timer_Damage
+
+    construct(unit source, unit target, vec2 spawnPos, real speed, real damage, real range)
+
+        this.target = target
+        this.pos = spawnPos
+        this.speed = speed
+        this.damage = damage
+        this.range = range
+        this.source = source
+
+        movePerUpdate = speed * MOVEFREQ
+
+        
+        soundUnit = createUnit(Player(PLAYER_NEUTRAL_PASSIVE), 'h002', pos, angle(0))
+        snd = SOUND.play(500000).snd
+        snd.setVolume(90)
+        AttachSoundToUnit(snd, soundUnit)
+        
+
+        tornado = addEffect(Abilities.tornadoElementalSmall, pos)
+        ..setScale(0.75)
+        ..setColor(175, 255, 230)
+        
+        timer_Update = getTimer()
+        ..setData(this castTo int)
+        ..start(1.1, () -> GetExpiredTimer().getData() castTo thistype.enableMove())
+
+        timer_Damage = getTimer()
+        ..setData(this castTo int)
+
+        instances.add(this)
+        
+
+    ondestroy
+        tornado
+        ..setTimeScale(2)
+        ..destr()
+        
+        soundUnit.remove()
+        snd.stop(false,true)
+
+        timer_Update.release()
+        timer_Damage.release()
+
+        instances.remove(this)
+        
+
+    private function enableMove()
+        timer_Update.startPeriodic(MOVEFREQ, () -> GetExpiredTimer().getData() castTo thistype.move() )
+        timer_Damage.startPeriodic(DAMAGEFREQ, () -> GetExpiredTimer().getData() castTo thistype.damage() )
+    
+
+    private function damage()
+        let targets = ENUM_GROUP
+        ..clear()
+        ..enumUnitsInRange(pos, range)
+
+        for target from targets
+            
+            if target.isAliveTrick() and target.isEnemyOf(source)
+                source.damageTargetSpell(target, damage)
+
+
+    private function move()
+
+        if target == null or not target.isAliveTrick()
+            destroy this
+
+        else if destroyOnSourceDeath and (source == null or not source.isAliveTrick())
+            destroy this
+
+        else
+            pos = pos.moveTowards(target.getPos(), movePerUpdate)
+            tornado.setPos(pos)
+            soundUnit.setPos(pos)
+            
+
+        
+    function destroyOnSourceDeath(boolean toggle)
+        destroyOnSourceDeath = toggle
+
+
+// Generating ability
+@compiletime
+function generateTornadoAbility()
+
+    new BuffDefinition(BUFF_ID_GEN.next(), 'xEtq')
+    ..setAreaEffect(1, "")
+
+    new AbilityDefinitionKeeperoftheGroveTranquility(TORNADOES_ID)
+    ..setName("Tornadoes")
+    ..setHeroAbility(false)
+    ..setManaCost(1, 0)
+    ..setAreaofEffect(1, 0)
+    ..setAnimationNames("stand")
+    ..setArtCaster("")
+    ..setArtTarget("")
+    ..setAreaEffect("")
+    ..setTargetsAllowed(1, "none")
+    ..setDurationHero(1, 1000)
+    ..setDurationNormal(1, 1000)
+    ..setCooldown(1, 0)
+    ..setTooltipNormal(1, "Tornadoes")
+    ..setTooltipNormalExtended(1, "")
+    ..setIconNormal(Icons.bTNTornado)
+    ..setEffects(1, "")
+
+
+
+// ====================================================================================================================================
+
+let STORMCHARGE_BUFF = compiletime(createDummyBuffObject("Storm Charged", "This unit is charge with the power of the storm. All enemies around it takes damage periodically.",
+     Icons.bTNOrbOfLightning, Abilities.purgeBuffTarget, "origin"))
+
+class StormChargeBuff extends Updater
+
+    private static let instances = new IterableMap<unit,thistype>
+
+    private unit chargedUnit
+    private real damage
+    private real range
+
+    construct( unit chargedUnit, real damage, real range )
+        this.chargedUnit = chargedUnit
+        this.damage = damage
+        this.range = range
+    
+        chargedUnit.addAbility( STORMCHARGE_BUFF.abilId )
+
+        updateFreq = STORMCHARGE_DAMAGEFREQ
+
+        startUpdate()
+
+        instances.put(chargedUnit, this)
+    
+
+    ondestroy
+
+        if chargedUnit != null
+            instances.remove(chargedUnit)
+
+        else
+            instances.removeValue(this, true)
+
+
+    override function update()
+        
+        if chargedUnit == null or not chargedUnit.isAliveTrick()
+            destroy this
+
+        else
+            let targets = ENUM_GROUP..enumUnitsInRange(chargedUnit.getPos(), range)
+
+            for target in targets
+                if target != chargedUnit and target.isEnemyOf(chargedUnit) and target.isAliveTrick()
+                    chargedUnit.damageTargetSpell(target, damage)
+                    flashEffect( Abilities.farseerMissile, target, "chest")
+
+
+    
+    static function applyToUnit( unit whichUnit, real damage, real range )
+        
+        if instances.has(whichUnit)
+            destroy instances.get(whichUnit)
+
+        new StormChargeBuff( whichUnit, damage, range )
+
+
+
+// ====================================================================================================================================
+// WOUNDING STRIKE
+
+class WoundingStrikeBuff extends Updater
+
+    private static let instances = new IterableMap<unit,thistype>
+
+    private unit target
+    private unit source
+    private real damage
+    private real duration
+
+    private timer durationTimer
+
+    construct( unit target, unit source, real damage, real duration )
+        this.target = target
+        this.source = source
+        this.damage = damage
+        this.duration = duration
+
+        durationTimer = getTimer()
+        ..setData( this castTo int )
+        ..start( duration, () -> destroy GetExpiredTimer().getData() castTo thistype )
+
+        updateFreq = 1
+
+        startUpdate()
+
+        instances.put(target, this)
+    
+
+    ondestroy
+
+        durationTimer.release()
+
+        if target != null
+            instances.remove(target)
+        else
+            instances.removeValue(this, true)
+
+
+    override function update()
+        
+        if target == null or not target.isAliveTrick()
+            destroy this
+
+        else
+            source.damageTargetPhysical(target, damage)
+            target.addEffect( Objects.humanBloodFootman, "chest")
+            ..setDuration(3)
+    
+            
+    static function applyToUnit( unit whichUnit, unit source, real damage, real duration )
+        
+        if instances.has(whichUnit)
+            destroy instances.get(whichUnit)
+
+        new WoundingStrikeBuff( whichUnit, source, damage, duration )
+
+
+
+@compiletime
+function generateWoundingStrike()
+
+    new BuffDefinition( WOUNDINGSTRIKE_BUFF_ID, 'Bslo' )
+    ..setIcon( Icons.bTNImpale )
+    ..setName(1, "Wounding Strike")
+    ..setTooltipNormal(1, "Wounding Strike")
+    ..setTooltipNormalExtended(1, "Slowed and takes damage over time!")
+    ..setArtTarget(1, "")
+
+    new AbilityDefinitionSlowCreep(WOUNDINGSTRIKE_ABIL_ID)
+    ..setArtCaster("")
+    ..setCasterAttachmentPoint("chest")
+    ..setAnimationNames("attack")
+    ..setName("Wounding Strike")
+    ..setDurationHero(1, WOUNDINGSTRIKE_DURATION)
+    ..setDurationNormal(1, WOUNDINGSTRIKE_DURATION)
+    ..setAttackSpeedFactor(1, WOUNDINGSTRIKE_ATTACKSPEEDRED)
+    ..setMovementSpeedFactor(1, WOUNDINGSTRIKE_MOVESPEEDRED)
+    ..setManaCost(1, 0)
+    ..setCastRange(1, 150)
+    ..setBuffs(1, WOUNDINGSTRIKE_BUFF_ID.toRawCode() )
+
+
+
+// ======================================================================================================================================
+
+
+// Summon the water elemental
+function summonElemental()
+    let caster = GetSpellAbilityUnit()
+
+    let spawnPos = caster.getPos().polarOffset( caster.getFacingAngle() + angle(PIHALF), 250 )
+    let finalPos = ( gg_rct_Arena_Spawn1.contains(spawnPos) ) ? spawnPos : gg_rct_Arena_Spawn1.getCenter()
+
+
+    let elemental = createUnit( ENEMYPLAYER, WATERBEING_ID, finalPos, randomAngle() )
+    ..setAnimation("birth")
+    ..queueAnimation("stand")
+    ..pause()
+    
+    doAfter(0.9) ->
+        elemental.unpause()
+
+    caster.getSpawner().addSummonedUnit(elemental)
+
+
+
+class WaveAttack extends Updater
+
+
+    private angle direction
+    private real damage
+    private real distance
+    private real width
+    private unit source
+    private vec2 currentPos
+    private real movePerUpdate
+    private effect wave
+    private real distanceTravelled = 0
+
+    private let targetsHit = new LinkedList<unit>
+
+    construct( vec2 targetPos, unit source, real damage, real distance, real width, real speed )
+        this.source = source
+        this.damage = damage
+        this.distance = distance
+        this.width = width
+
+        direction = source.getPos().angleTo(targetPos)
+        currentPos = source.getPos()
+
+        updateFreq = 0.01
+        movePerUpdate = updateFreq * speed
+
+        wave = addEffect( Abilities.crushingWaveMissile, currentPos )
+        ..setHeight(50)
+        ..setColor( 170, 255, 90)
+        ..setOrientation(0, 0, direction.radians() )
+        ..setScale(0.5)
+
+        startUpdate()
+        
+
+
+    ondestroy
+        wave.destr()
+        destroy targetsHit
+
+    override function update()
+        
+        currentPos = currentPos.polarOffset( direction, movePerUpdate )
+        wave.setPos( currentPos )
+
+        let targets = ENUM_GROUP..enumUnitsInRange(currentPos, width)
+
+        for target from targets
+            if target.isAliveTrick() and target.isEnemyOf(source) and not targetsHit.has(target)
+                source.damageTargetSpell(target, damage)
+                targetsHit.add(target)
+
+
+        distanceTravelled += movePerUpdate
+        if distanceTravelled >= distance
+            destroy this
+
+
+    
+
+
+
+
+@compiletime
+function generateSummonElementalAbil()
+
+    new AbilityDefinitionRoarcreep( SUMMONELEMENTAL_ID )
+    ..setName("Summon Sea Elemental")
+    ..setAreaofEffect(1, 0)
+    ..setArtCaster("")
+    ..setTargetsAllowed(1, "none")
+    ..setManaCost(1, 0)
+
+
+    new AbilityDefinitionFingerofDeath( ELEMENTAL_ATTACK_ID )
+    ..setName("Crushing Wave Attack")
+    ..setCastRange( 1, ELEMENTAL_RANGE )
+    ..setManaCost(1, 0)
+    ..setDamage(1, 0)
+    ..setTargetsAllowed(1, "ground,enemy,hero")
+    ..setLightningEffects("")
+    ..setArtTarget("")
+    ..setArtEffect("")
+    ..setAnimationNames("attack")
+    ..setCooldown(1, 0)
+
+
+
+
+
+
+
+
+// ======================================================================================================================================
+
+
+    
+

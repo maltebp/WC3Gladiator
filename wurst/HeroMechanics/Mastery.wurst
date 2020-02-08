@@ -1,0 +1,125 @@
+package Mastery
+
+import public ResearchSkill
+import public StringUtils
+import public Icons
+
+import AbilityObjEditing
+import CompileTimeData
+import ObjectIds
+import GameSettings
+import Players
+import OnEscape
+import GladiatorSystem
+import UtilCommands
+
+
+let SND_SELECT_SHOP = new SoundDefinition(Sounds.mouseClick1, false)
+let data_roundRequirements = compiletime(defineDataObj())
+int array roundRequirements 
+
+
+public function player.addMasteryPoints(int points)
+    this.addLumber(points)
+
+public function player.getMasteryLevel( int masteryId ) returns int
+    return this.getResearchSkillLevel(masteryId)
+
+public function int.onMasteryChanged( ResearchSkillChangedAction action )
+    onResearchSkillChanged(this, action)
+
+/** Toggle the number of rounds that has been unlocked (completed) */
+public function unlockMasteryRoundRequirement(int roundsCompleted)
+    for i=1 to FINAL_ROUND
+        for p in allPlayers
+            p.toggleRequirement(roundRequirements[i-1], i <= roundsCompleted)
+
+
+//================================================================================================================================================================================================
+// Shop Toggling
+
+OnEscapeCallback callback = p -> p.selectShop()    
+
+public function player.disableMasteryShop()
+    this.removeEscapePressedCallback(callback)
+
+public function player.enableMasteryShop()
+    this.onEscapePressed(callback)
+
+function player.selectShop()
+    let shop = this.getGladiator().getMasteryShop()
+
+    SND_SELECT_SHOP.playForPlayer(this)
+    this.selectSingle(shop)
+
+
+//================================================================================================================================================================================================
+// Setup
+
+@compiletime
+function setupRoundRequirements()
+    for i=1 to FINAL_ROUND
+        let requirementId = defineRequirement("Round "+i.toString() + " completed")
+        data_roundRequirements.addData( requirementId.toRawCode() )
+        roundRequirements[i-1] = requirementId
+
+// Load requirements
+init
+    var i = 0
+    let dataStrings = data_roundRequirements.getData()
+    for data in dataStrings
+        roundRequirements[i] = data.fromRawCode()
+        i++
+
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Helper Compiletime functions 
+
+public function defineMastery(string name, string icon, color accentColor, StringLevelClosure description, int requiredRound) returns int
+    let id = defineResearchSkill()
+
+    id.getSkillDefinition()
+    ..hideOnMaxLevel(false)
+    ..setCost(0, 1)
+    ..setLevels(MASTERY_MAX_LEVEL)
+    ..setName( lvl -> name )
+    ..setDescription( lvl ->    "Rank:  " +(lvl-1).toString() +"/" + MASTERY_MAX_LEVEL.toString() +"\n\n"
+                                + (lvl == 1 ? description.run(lvl) : description.run(lvl-1)) + 
+                                (lvl > MASTERY_MAX_LEVEL or lvl == 1 ? "" : "\n\nNext rank:\n".withColor(accentColor) + description.run(lvl)) )
+    ..setIcon(icon)
+
+    if( requiredRound > 0)
+        id.getSkillDefinition().setRequirements( roundRequirements[requiredRound-1] )
+
+    return id    
+
+
+// Compiletime helper function to define mastery shop
+public function defineMasteryShop(int id) returns BuildingDefinition
+    let shop = new BuildingDefinition(id, 'ngme')
+    ..setName("Masteries")
+    ..setModelFile("")
+    ..setItemsSold("")
+    ..setNormalAbilities(AbilityIds.invulnerable.toRawCode())
+    ..setHideMinimapDisplay(true)
+    ..setCollisionSize(0)
+    ..setPathingMap("")
+    return shop
+
+
+//================================================================================================================================================================================================
+// Chat Command
+let SND_LEVER = new SoundDefinition(Sounds.lever, false)
+
+init
+    let cmd = defineUtilCommand("mastery")
+    
+    var sub = cmd.addSubCommand("unlock")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p, args, opts) ->
+        let round = args.getInt()
+        unlockMasteryRoundRequirement(round)
+        p.print("\nUnlocked masteries up to Round {0}.".format(round.toString().highlight()), 8)
+        SND_LEVER.playForPlayer(p)

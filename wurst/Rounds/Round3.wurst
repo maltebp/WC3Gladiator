@@ -1,7 +1,6 @@
 package Round3
 
 import public Round2
-import TimerUtils
 import Updater
 import ClosureTimers
 import Assets
@@ -16,9 +15,14 @@ import AutoCastAbility
 import RegisterEvents
 import Projectile
 import GroupUtils
+import HashMap
+import OnUnitEnterLeave
 
 
-let EXPLOSION_DAMAGE = 50. // Base
+let ARCANE_BEING = 'n008'
+
+let EXPLOSION_DMG_FACTOR = 7.5 
+let EXPLOSION_DAMAGE = 75. // Base
 let EXPLOSION_COUNTDOWN = 3.
 let EXPLOSION_DELAY = 0.5
 let EXPLOSION_RANGE = 200 // BASE
@@ -31,16 +35,16 @@ let MISSILES_COOLDOWN = 10.
 let MISSILES_ID = compiletime(ABIL_ID_GEN.next() )
 let MISSILES_SOUND = new SoundDefinition(Sounds.shimmeringPortalEntrance, false, true)
 
+Round round = null
 
 init
     //=========================================================================================================================================================
-    //  Arcane Elementals (Round 2)
-
+    //  Arcane BEINGS (Round 2)
 
     round = new Round
     ..setReward(30, 3)
     ..addItemRewards(ITEM_MAGICTALISMAN, ITEM_MAGICGEM)
-
+    ..addArtifactRewards(1)
     ..setTitle("Arcane Beings")
     ..setDescription("These beings can grow big - but even though that sounds fascinating, you probably shouldn't let them.")
     ..setHealthOrbSpawn(100, 50, 0.1, 25, 0.02)
@@ -52,7 +56,7 @@ init
         new Grow(spawner.getLastSpawnedUnit(),1.1)
     end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(-639,1025), 12))
+    round.addSpawner(new UnitSpawner(ARCANE_BEING, ENEMY, vec2(-639,1025), 12))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.05)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -68,7 +72,7 @@ init
         new Grow(spawner.getLastSpawnedUnit(),1.1)
     end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 25))
+    round.addSpawner(new UnitSpawner(ARCANE_BEING, ENEMY, vec2(527,1025), 25))
     ..setStartDelay(20)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -84,7 +88,7 @@ init
         new Grow(spawner.getLastSpawnedUnit(),1.1)
     end
 
-    round.addSpawner(new UnitSpawner('n008', ENEMYPLAYER, vec2(527,1025), 25))
+    round.addSpawner(new UnitSpawner(ARCANE_BEING, ENEMY, vec2(527,1025), 25))
     ..setStartDelay(80)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -94,60 +98,85 @@ init
     ..setCodeOnSpawn(func)
     ..setSoundOnSpawn(Sounds.obsidianAvengerWhat2)
 
-    addAutoCastAbilityToUnitType('n008', new AutoCastAbilityType( MISSILES_ID, Orders.roar, TargetType.ENEMY_IMMEDIATE, MISSILES_RANGE, 5, MISSILES_COOLDOWN ))
+    addAutoCastAbilityToUnitType(ARCANE_BEING, new AutoCastAbilityType( MISSILES_ID, Orders.roar, TargetType.ENEMY_IMMEDIATE, MISSILES_RANGE, 5, MISSILES_COOLDOWN ))
+
+
+
+//================================================================================================================================================================================================
+// STATS SCALING
+
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == ARCANE_BEING )
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
 
 
 // ======================================================================================================================================
 // GROW
 
 class Grow extends Updater
+
+    protected static let instances = new IterableMap<unit, thistype>
     
-    private static constant real    GROWTH_DURATION = 30
-    private static constant real    GROWTH_SCALE = 0.75                  // Final scale increase in %
-    private static constant real    GROWTH_DMG = 3                    // Final DMG increase in %
+    private static let GROWTH_DURATION = 30
+    private static let GROWTH_SCALE = 0.75                  // Final scale increase in %
+    private static let GROWTH_DMG = 3.5                     // Final DMG increase in %
 
-    private static constant real    GROWTH_FREQ = 0.5
+    private static let GROWTH_FREQ = 0.5
 
-    private static constant integer GROWTH_MAXCOUNT = R2I(GROWTH_DURATION/GROWTH_FREQ)
+    private static let GROWTH_MAXCOUNT = (GROWTH_DURATION/GROWTH_FREQ).toInt()
 
-    private int startDamage
     private real startScale
 
     private real damagePerGrowth
     private real scalePerGrowth
 
     private integer growthCounter = 1 
-    private unit    mob
+    private unit    mob = null 
 
     construct(unit whichUnit, real startScale)
         mob = whichUnit
-
+    
         this.startScale = startScale
-        this.startDamage = mob.getBaseDamage(1)
         
         scalePerGrowth = (startScale * GROWTH_SCALE) / I2R(GROWTH_MAXCOUNT)
-        damagePerGrowth = (I2R(startDamage)*GROWTH_DMG) / I2R(GROWTH_MAXCOUNT)
+        damagePerGrowth = GROWTH_DMG / GROWTH_MAXCOUNT
         
         updateFreq = GROWTH_FREQ
+
+        instances.put(mob, this)
         startUpdate()
 
     ondestroy
-        if mob != null
-            new ArcaneExplosion(mob.getPos(), growthCounter)
+        if( mob == null )
+            Log.warn("Arcane being was null when trying to destroy")
+        else
+            instances.remove(mob)
+
 
     override function update()
-    
-        if( mob != null and mob.isAliveTrick() )
+        if( mob != null )
+            if( not mob.isAliveTrick() )
+                new ArcaneExplosion(mob.getPos(), growthCounter, mob.getPower() * EXPLOSION_DMG_FACTOR )
+                destroy this
 
-            if( growthCounter <= GROWTH_MAXCOUNT )
+            else if ( growthCounter <= GROWTH_MAXCOUNT )
                 growthCounter = growthCounter + 1
 
-                mob.setBaseDamage(startDamage+R2I(damagePerGrowth*growthCounter), 1)
+                mob.adjustStatPercentage(STAT_DAMAGE, damagePerGrowth) 
                 mob.setScale(startScale+scalePerGrowth*growthCounter)
-    
-
         else
             destroy this
+
+init
+    onLeave() ->
+        let u = getEnterLeaveUnit()
+        if( u.getTypeId() == ARCANE_BEING )
+            let growInstance = Grow.instances.get(u)
+            if( growInstance != null )
+                destroy growInstance
+            
             
 
 
@@ -160,13 +189,15 @@ class Grow extends Updater
 class ArcaneExplosion
     private vec3 pos
     private int growthCount
+    private real damage
 
     private effect array[2] sfx 
 
-    construct( vec2 pos, int growthCount )
+    construct( vec2 pos, int growthCount, real damage )
 
         this.pos = pos.withTerrainZ() - vec3(-20, 0, 0) // apparently the position is off by a lil bit
         this.growthCount = growthCount
+        this.damage = damage
 
         sfx[0] = addEffect( Units.wisp1, pos + vec3(0,0,30))
         ..setScale( 1 * (1. + growthCount/75.) )
@@ -204,19 +235,18 @@ class ArcaneExplosion
             ..setDuration(4)
 
             let scaledRange = EXPLOSION_RANGE * (1. + growthCount/75.)
-            let scaledDamage =  EXPLOSION_DAMAGE * (1. + growthCount/25.)
 
             let pos2 = pos.toVec2()
             let source = DummyRecycler.get(pos2, angle(0))
 
             forUnitsInRange(pos2, scaledRange) target ->
-                if target.getOwner().isEnemyOf(ENEMYPLAYER)
+                if target.getOwner().isEnemyOf(ENEMY)
                     flashEffect(Abilities.blackKeeperMissile, target, "chest")
 
                     let distance = target.getPos().distanceTo(pos2)
-                    let exactDamage = scaledDamage * (1 - (distance/scaledRange)*(1.-EXPLOSION_MINDAMAGE) )
+                    let adjustedDamage = damage * (1 - (distance/scaledRange) * (1.-EXPLOSION_MINDAMAGE) )
 
-                    source.damageTargetSpell(target, exactDamage)
+                    source.damageTargetSpell(target, adjustedDamage)
             
 
             destroy this
@@ -243,10 +273,10 @@ init
     registerSpellEffectEvent( MISSILES_ID) ->
         let caster = GetSpellAbilityUnit()
 
-        let casterDamage = caster.getBaseDamage(1)*MISSILES_DAMAGE_FACTOR
+        let casterDamage = caster.getPower() * MISSILES_DAMAGE_FACTOR
         MISSILES_SOUND.playOnPoint(caster.getPos3Real())
         
-        forEnemiesInRange( ENEMYPLAYER, caster.getPos(), MISSILES_RANGE ) target ->
+        forEnemiesInRange( ENEMY, caster.getPos(), MISSILES_RANGE ) target ->
             let projectile = new Projectile( caster.getPos().withTerrainZ(75), Abilities.druidoftheTalonMissile)
             ..fireUnit(target, 50, true, 800, 0)
             ..addActionOnFinish() ->
@@ -256,7 +286,6 @@ init
             projectile.getEffect().setScale(2)
 
             
-
         doAfter(1) ->
             let units = ENUM_GROUP..enumEnemyTargets(caster.getOwner(), caster.getPos(), 5000)
             caster.issueTargetOrderById(Orders.attack, units.getNearestUnit(caster.getPos()) )

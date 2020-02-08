@@ -1,0 +1,30 @@
+package FinishMap
+import Scene
+import Players
+import Music
+
+
+public function mapLost()
+    
+    new Scene()
+    ..wait(3)
+    ..do( -> playMusic(Sounds.orcDefeat ))
+    ..wait(3)
+    ..do( p -> p.toggleCinematicMode(true, 2))
+    ..do( p -> p.fadeOut(8))
+    ..wait(10)
+    ..do( p -> CustomDefeatBJ(p, "You have been defeated!"))
+    ..play(allPlayers)
+
+
+public function mapWon()
+
+    new Scene()
+    ..wait(3)
+    ..do( -> playMusic(Sounds.heroicVictory ))
+    ..wait(3)
+    ..do( p -> p.print("Congratulations, you've completed all rounds!"))
+    ..wait(5)
+    ..do( p -> CustomVictoryDialogBJ(p))
+    ..play(allPlayers)
+    

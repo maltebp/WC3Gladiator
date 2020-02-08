@@ -1,0 +1,109 @@
+
+//================================================================================================================================================================================================
+
+package Scene
+
+//================================================================================================================================================================================================
+/* 
+    Library to run a series of actions with time delays in between, without
+    getting tons of nested lambdas.
+
+    Example:
+        let scene = new Scene()
+        ..do( p -> p.fadeOut(1.5, null))
+        ..wait(3)
+        ..do( p -> p.print("Bam bam bam bam!!") )
+        ..wait( 3)
+        ..do( p -> p.fadeIn(1.5, null))
+
+*/
+//================================================================================================================================================================================================
+
+
+import LinkedList
+import ClosureTimers
+import public FadeUtil
+
+
+public interface SceneCallback
+    function run()
+
+public interface ScenePlayerCallback
+    function run(player p)
+
+public interface ActionContainer
+    function run(player p)
+
+
+
+enum Instruction
+    DO
+    FORPLAYERS
+    WAIT
+
+
+public class Scene
+    protected let instructions = new LinkedList<Instruction>
+    protected let actions = new LinkedList<SceneCallback>
+    protected let playerActions = new LinkedList<ScenePlayerCallback>
+    protected let waitTimes = new LinkedList<real>
+    protected var players =  new LinkedList<player>
+
+    ondestroy
+        destroy actions
+        destroy players
+        destroy waitTimes
+        destroy playerActions
+        destroy instructions
+    
+    /** Runs the scene for the player */
+    function play(vararg player players)
+        for p in players
+            this.players.add(p)
+        runNext()
+
+    function play(LinkedList<player> players)
+        destroy this.players
+        this.players = players.copy()
+        runNext()
+
+    /** Add an action to the scene.*/
+    function do(SceneCallback action)   
+        actions.add(action)
+        instructions.add(Instruction.DO)
+
+    /** Add an action to the scene.
+        The callback takes the player for which the scene is running. */
+    function do(ScenePlayerCallback action)   
+        playerActions.add(action)
+        instructions.add(Instruction.FORPLAYERS)
+        
+    /** Add a "wait action" to the scene */
+    function wait(real duration)
+        waitTimes.add(duration)
+        instructions.add(Instruction.WAIT)
+
+
+    private function runNext()
+        
+        if( instructions.size() == 0 )
+            destroy this
+        else
+            let instruction = instructions.dequeue()
+            switch instruction
+                case DO
+                    let action = actions.dequeue()
+                    action.run()
+                    destroy action
+                    runNext()
+                case FORPLAYERS
+                    let action = playerActions.dequeue()
+                    for p in players
+                        action.run(p)
+                    destroy action
+                    runNext()
+                case WAIT
+                    let waitTime = waitTimes.dequeue()
+                    doAfter(waitTime) ->
+                        runNext()
+

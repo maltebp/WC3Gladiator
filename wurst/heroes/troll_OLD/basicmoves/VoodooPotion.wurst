@@ -1,0 +1,164 @@
+// package VoodooPotion
+
+// import AbilityCreation
+// import HoverAbility
+// import SoundDefinitions
+// import AttackCooldown
+// import MyLibrary
+// import UnitStatsSystem
+// import TrollAnimations
+// import Projectile
+// import Assets
+// import HeroDefaults
+// import ComboSystem
+// import FlamingPotion
+// import Damage
+// import MojoPotion
+// import BloodPact
+// import LivingPlague
+// import HealingPotion
+// import SoulDrainData
+// import LinkedList
+// import ClosureTimers
+// import Updater
+
+
+// let RANGE = DEFAULT_CASTRANGE
+// let DAMAGE_FACTOR = 0.75
+// let RADIUS = 150.
+// let BUFF_DURATION = 10.
+
+
+// public let TROLL_VOODOOPOTION_ID = compiletime( createQ( Icons.bTNAcidBomb, "Voodoo Potion", "Strike an enemy dealing damage to it.")  )
+
+// let ABIL_DEF = new PointAbility( TROLL_VOODOOPOTION_ID, RANGE, ANIM_TROLL_ATTACK )
+
+
+// init
+//     ABIL_DEF
+//     ..queueStandReady()
+
+//     ABIL_DEF.setCastCritera() caster ->
+//         return caster.attemptAttack( SND_SORCERESS_MISSILE_DEATH )
+
+//     ABIL_DEF.onEffect() (caster, pos) ->
+
+//         caster.addComboPoint( COMBO_POINT_Q )
+//         caster.activateBloodPact()
+
+//         caster.reduceCharge( SOUL_DRAIN_REGULARMOVE)
+
+//         if caster.hasFlamingPotionBuff()
+//             // FLAMING POTION
+//             caster.castFlamingPotion(pos)
+
+//         else if caster.hasMojoPotionBuff()
+//             caster.castMojoPotion(pos)
+
+//         else if caster.hasLivingPlagueBuff()
+//             caster.castLivingPlaguePotion(pos)
+
+//         else if caster.hasHealingPotionBuff()
+//             caster.castHealingPotion(pos)
+
+//         else
+            
+//             let projectile = new Projectile(caster.getPos().withTerrainZ(60), Abilities.bottleMissile)
+//             ..firePoint(pos.withTerrainZ(), 700, 0.4)
+
+//             projectile
+//             ..addActionOnFinish() ->
+
+//                 projectile.getEffect()
+//                 ..setScale(0.05)
+        
+//                 // Additional purple effect
+//                 addEffect( Abilities.annihilationMissile, pos)
+//                 ..setScale(1.5) 
+//                 ..destr()
+
+//                 forEnemiesInRange(caster.getOwner(), pos, RADIUS) target ->
+//                     target.addEffect( Abilities.deathandDecayDamage, "chest")
+//                     ..destr()
+//                     caster.damageTargetSpell( target, caster.getDamage()*DAMAGE_FACTOR)
+
+
+
+//                 // OLD CODE FOR VOODOO BUFF
+//                 // forUnitsInRange(pos, AOE) target ->
+//                 //     if target.isAlive()
+//                 //         doAfter(ANIMATION_PERIOD) ->
+//                 //             target.applyVoodoBuff( caster, BUFF_DURATION)
+
+
+// class VoodooBuff extends Updater
+    
+//     static let instances = new LinkedList<thistype>
+
+//     static var instancesAvailable = false
+
+//     unit buffUnit
+//     unit source
+
+//     CallbackSingle durationCb = null
+    
+//     construct(unit buffUnit, unit source)
+
+//         this.buffUnit = buffUnit
+//         this.source = source
+
+//         instances.add(this)
+//         instancesAvailable = true
+
+//         update()
+//         updateFreq = 1
+//         startUpdate()
+
+
+//     ondestroy
+//         if durationCb != null
+//             destroy durationCb
+
+//         instances.remove(this)
+//         if instances.size() == 0
+//             instancesAvailable = false
+
+
+//     function startDuration(real duration)
+//         if durationCb != null
+//             destroy durationCb
+//         durationCb = doAfter(duration) ->
+//             durationCb = null
+//             destroy this
+
+//     override function update()
+//         if buffUnit == null or not buffUnit.isAlive()
+//             destroy this
+//         else
+//             buffUnit.addEffect(Abilities.deathandDecayDamage, "chest")
+//             ..destr()
+
+//     static function getInstance(unit buffUnit, unit source) returns thistype
+//         for instance in instances
+//             if instance.buffUnit == buffUnit and instance.source == source
+//                 return instance
+//         return null
+
+//     static function destroyUnitInstances(unit buffUnit)
+//         for instance in instances
+//             if instance.buffUnit == buffUnit
+//                 destroy instance
+        
+
+// public function unit.applyVoodoBuff( unit source, real duration )
+//     var instance = VoodooBuff.getInstance(this, source)
+//     if instance == null
+//         instance = new VoodooBuff(this, source)
+//     instance.startDuration(duration)
+
+// public function unit.consumeVoodoo( unit source ) returns boolean
+//     let instance = VoodooBuff.getInstance(this, source)
+//     if instance != null
+//         destroy instance
+//         return true
+//     return false

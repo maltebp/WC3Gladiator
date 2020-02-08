@@ -1,0 +1,76 @@
+
+
+
+Todo:
+    ✔ Change artifacts to masteries
+    ✔ Gladiator picking
+    ✔ Multiplayer transitions
+    ✔ Difficulty settings
+    ✔ Make Training work
+    ✔ Reimplement item stats
+    ✔ Fix energy regen
+
+    Multiplayer scaling:
+        ✔ Scaling system
+        ✔ Orb scaling
+        ☐ Implement scaling
+    
+    Half-Breed Gladiator:
+        ✔ Create unit
+        ✔ Charge mechanic (rage)
+        Masteries:
+            ✔ Sleight of Hand: axe cooldown reset
+            ✔ Bloodthirst: Dealing damage heals you
+            ✔ Crushing Blow: Increases damage by wrecking blow
+            ✔ Sharpened Cleaver: Increases damage done to cleaved units 
+            ✔ Ogre Lungs: Increase damage of Impeding Shout
+            ✔ Death Wish: Increases power but also damage taken
+            ✔ Charge: Causes your frenzy to increase movement speed
+            ✔ Victory Rush: Successful executes increases power for a short period
+            ✔ Endless Rage
+        
+        Abilities:
+            ✔ done
+
+    Troll Gladiator:
+        ✔ Create unit
+        ☐ Charge mechanic
+        ☐ Handful masteries
+
+        Abilities:
+            ✔ Soul Siphon - (Voodoo: Increase amount healed)
+            ✔ Vile Spirit - (Voodoo: Increase duration)
+            ✔ Voodoo Link - (Voodoo: Increase number of target)
+            ✔ Flaming Potion: (Voodoo: increases damage)
+            ✔ Mojo: Apply mojo to an ally (or self), increasing its energy pool by X (Voodoo: increases its effect)
+            ✔ Blood Pact: Increases your voodoo, in exchange of hp. If you get too much, then you'll get stunned
+
+            
+        Masteries:
+            ✔ Soul Harvest: Soul siphon additional nearby targets, but is less effective
+            ✔ Greed: Casting blood pact again within X seconds increases amount gained
+            ✔ Tribal Mojo: Reduces the cooldown of mojo
+            ✔ Euphoria: Mojo increases movement speed
+            ✔ Voodoo Link: Increase effectivenesss
+            ✔ Vengeful Spirits: Casting vile spirit within 5 seconds of soul siphon will spawn a spirit to attack enemies
+            ✔ Wildfire: You flaming potion applies a dot on targets hit, which spread to nearby enemies
+
+        
+
+    If time:
+        ☐ Fix projectile pivoting
+        ☐ Gladiator selection lock
+        ✔ Add arena soundtrack (commanding the fury)
+        ☐ Prevent certain item stats from stacking
+
+
+
+
+
+
+        
+
+Voodoo: Too much and you get stunned
+
+
+

@@ -74,11 +74,11 @@ class Shockwave
     
 
     protected function isValidTarget(unit filterUnit) returns boolean
-        return not hitTargets.contains(filterUnit) and filterUnit.isValidEnemyTarget(source.getOwner())
+        return not hitTargets.has(filterUnit) and filterUnit.isValidEnemyTarget(source.getOwner())
 
     protected function lineEffect()
-        real roll = GetRandomReal(0,PI2)
-        real sizeFactor = 1+GetRandomReal(0,0.2)
+        let roll = GetRandomReal(0,PI2)
+        let sizeFactor = 1+GetRandomReal(0,0.2)
 
         addEffect("Abilities\\Weapons\\AncientProtectorMissile\\AncientProtectorMissile.mdl", currentPos)
         ..setOrientation(0,0, roll)

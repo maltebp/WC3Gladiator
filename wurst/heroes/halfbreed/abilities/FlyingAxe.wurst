@@ -1,0 +1,100 @@
+package FlyingAxe
+
+import AbilityTools
+import Projectile
+import initlater HalfBreedMasteries
+
+//================================================================================================================================================================================================
+// Settings
+
+let CHARGE              = 40
+let DMG_FACTOR          = 2.0
+let DMG_REDUCTION       = 0.15 // Per target
+let TRAVEL_RANGE        = 700.
+let TRAVEL_SPEED        = 800.
+let AOE_RANGE           = 125.
+let ENERGY_COST           = 40
+
+
+public let HALF_BREED_FLYING_AXE = compiletime(defineTargetPoint1(
+    "Flying Axe",
+    "Throw an axe which damages enemies it hits by {0} of your power. The damage is reduced by {1} each hit, and the axe dissipates if the damage is reduced to 0%.".format( DMG_FACTOR.toPercentageString(), DMG_REDUCTION.toPercentageString()),
+    Icons.bTNOrcMeleeUpThree,
+    "Q",
+    10,      // Cooldown
+    ENERGY_COST,     // Mana
+    TRAVEL_RANGE,    // Range
+    "attack"
+))
+
+let SND_ON_ATTACK = [
+    new SoundDefinition(Sounds.metalHeavySliceFlesh1, false, true),
+    new SoundDefinition(Sounds.metalHeavySliceFlesh2, false, true),
+    new SoundDefinition(Sounds.metalHeavySliceFlesh3, false, true)
+]
+
+
+//================================================================================================================================================================================================
+
+init
+    registerSpellEffectEvent(HALF_BREED_FLYING_AXE) ->
+        onCast()
+
+function onCast()
+    let caster = GetSpellAbilityUnit()
+
+    caster.activateBloodthirst()
+
+    // Adjust charge
+    caster.adjustCharge(CHARGE)
+
+    // Calculate target pos
+    let spellTargetPos = vec2(GetSpellTargetX(), GetSpellTargetY())
+    let actualPos = caster.getPos().moveTowards(spellTargetPos, TRAVEL_RANGE)
+
+    // Damage
+    let startDamage = caster.getPower() * DMG_FACTOR
+
+    // Create Missile
+    let projectile = new AxeProjectile( caster.getPos().withTerrainZ(80), Abilities.rexxarMissile, startDamage)      
+    ..firePoint(actualPos.withTerrainZ(80), TRAVEL_SPEED, 0)
+
+    
+    projectile.getEffect()
+    projectile.setCollisionAction(AOE_RANGE, true) target ->
+        caster.damageTargetPhysical(target, startDamage * projectile.damageFactor)
+        target.addEffect(Objects.critterBloodAlbatross, "chest")..setDuration(3)
+        SND_ON_ATTACK[GetRandomInt(0, 2)].playOnPoint(target.getPos3Real())
+
+        projectile.damageFactor -= DMG_REDUCTION
+        if( projectile.damageFactor <= 0 )
+            projectile.stop()
+
+    projectile.setCollisionFilter() u ->
+        return u.isEnemyOf(caster) and u.isAlive()
+
+    
+
+    // Sleight of Hand
+    let sleightOfHandLvl = caster.getOwner().getMasteryLevel(HALF_BREED_SLEIGHT_OF_HAND)
+    if( sleightOfHandLvl > 0 )
+        let roll = GetRandomReal(0, 1)
+        if( roll < sleightOfHandLvl * HALF_BREED_SLEIGHT_OF_HAND_PROC_CHANCE)
+            caster.resetAbilityCooldown(HALF_BREED_FLYING_AXE)
+            caster.addMana(ENERGY_COST * HALF_BREED_SLEIGHT_OF_HAND_ENERGY_RESTORE)
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Only used to store number of targets hit
+class AxeProjectile extends Projectile
+    var damageFactor = 1.
+    var startDamage = 0.
+
+    construct(vec3 originPos, string sfxPath, real startDamage )
+        super(originPos, sfxPath)
+        this.startDamage = startDamage
+    
+    
+
+

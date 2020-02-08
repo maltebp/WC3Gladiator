@@ -1,0 +1,107 @@
+package Stats
+
+import public LakeStatSystem
+import StatType
+import UtilCommands
+import ClosureForGroups
+
+public StatType STAT_DAMAGE = null
+public StatType STAT_ARMOR = null
+public StatType STAT_HEALTH = null
+public StatType STAT_ENERGY = null
+public StatType STAT_ENERGY_REGEN = null
+public StatType STAT_MOVESPEED = null
+public StatType STAT_ATTACKSPEED = null
+public StatType STAT_RESISTANCE = null
+public StatType STAT_CHARGE_DEREGEN = null
+public StatType STAT_DAMAGE_TAKEN = null
+
+
+public function unit.getPower() returns real
+    return this.getStat(STAT_DAMAGE)
+
+init
+    STAT_DAMAGE = new StatType(
+        "Damage",
+         u -> u.getBaseDamage(0).toReal(),
+        (u, damage) -> u.setBaseDamage(damage.round()-1, 0))
+        ..setValueToStringCallback( value -> value.round().toString() )
+        ..setMinValue(1)
+
+    STAT_ARMOR = new StatType( "Armor", u -> u.getArmor(), (u, armor) -> u.setArmor(armor) )
+        ..setValueToStringCallback( value -> value.toString(1) )
+        ..setMinValue(-5)
+
+    STAT_HEALTH = new StatType( "Health", u -> u.getMaxHP(), (u, hp) -> u.setMaxHP(hp.round(), true) )
+        ..setValueToStringCallback( value -> value.round().toString() )
+        ..setMinValue(1)
+
+    STAT_ENERGY = new StatType( "Mana", u -> u.getMaxMana(), (u, mana) -> u.setMaxMana(mana.round(), true) )
+        ..setValueToStringCallback( value -> value.round().toString() )
+        ..setMinValue(0)
+
+    STAT_ENERGY_REGEN = new StatType( "Mana Regen",
+        u -> 0.,
+        (u, manaRegen) -> u.setField(UNIT_RF_MANA_REGENERATION, manaRegen))
+        ..setValueToStringCallback( value -> value.toString(2) )
+
+
+    STAT_MOVESPEED = new StatType( "Move Speed", u -> u.getMoveSpeed(),
+        (u, movespeed) -> begin
+            if( u.isType(UNIT_TYPE_HERO))
+                u.setAgi(movespeed.toInt())
+            u.setMoveSpeed(movespeed)
+        end)
+        ..setValueToStringCallback( value -> value.toString(0) )
+        ..setMinValue(150)
+        ..setMaxValue(450)
+
+    // Measured in attacks per second (not attack cooldown)
+    STAT_ATTACKSPEED = new StatType("Attack Speed",
+        u -> u.getBaseDamage(0) > 0 ?  1/u.getAttackCooldown(0) : 0,
+        (u, attackspeed) ->
+        begin
+            if(u.getBaseDamage(0) > 0)
+                u.setAttackCooldown( 1 / attackspeed, 0)
+            if( u.isType(UNIT_TYPE_HERO))
+                u.setStr((attackspeed * 60).toInt()) // attacks per minute
+        end) 
+        ..setValueToStringCallback( value -> value.toString(2) )
+        ..setMinValue(0.01)
+
+    STAT_RESISTANCE = new StatType(
+        "Resistance",
+        u -> 0.,
+        (u, resistance) -> begin
+            if( u.isType(UNIT_TYPE_HERO))
+                u.setInt( (resistance*100).toInt())
+        end)
+        ..setValueToStringCallback( value -> value.toString(2) )
+        ..setMaxValue(0.75)
+
+
+
+    STAT_CHARGE_DEREGEN = new StatType(
+        "Charge Deregen",
+        u -> 0, // base value
+        (u, regen) -> skip)
+        ..setValueToStringCallback( value -> value.toString(0) )
+
+
+    STAT_DAMAGE_TAKEN = new StatType( "Damage Taken", u -> 1., (u, damageTaken) -> skip )
+        ..setValueToStringCallback( value -> value.toString(2) )
+        ..setMinValue(0.25)
+
+
+//================================================================================================================================================================================================
+// CHAT COMMAND
+
+init
+    let cmd = defineUtilCommand("stats")
+    ..setAction() (p,args,opts) ->
+        forUnitsSelected(p) u ->
+            let name = u.isType(UNIT_TYPE_HERO) ? u.getProperName() : u.getName()
+            p.print("\n{0} stats:".format(name).highlight(), 10)
+            for statType in StatType.getAllTypes()
+                p.print("   " + u.getStatInstance(statType).toString() + "\n", 10)
+             

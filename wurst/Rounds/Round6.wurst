@@ -9,10 +9,19 @@ import GroupUtils
 import TimedSpecialEffects
 import AutoCastAbility
 import Damage
+import LinkedList
+
+
+let FIRE_LORD = 'n00B'
+let FIRE_SPAWN = 'n00C'
 
 LinkedList<Flame> flames = new LinkedList<Flame>
 
+let BURN_DMG_BASE = 30
+
 constant real BURNDAMAGE = 60
+
+Round round = null
 
 
 init
@@ -23,8 +32,7 @@ init
     round = new Round
     ..setReward(30, 3)
     ..addItemRewards(ITEM_CLOAKOFFLAME, ITEM_LAVATEMPEREDBOOTS)
-
-
+    ..addAbilityReward(1)
     ..setTitle("Through the Fire and Flames")
     ..setDescription("Should you stand in the fire?")
     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.02)
@@ -34,7 +42,7 @@ init
     
 
     // Fire Spawn - 1
-    round.addSpawner(new UnitSpawner('n00C', ENEMYPLAYER, vec2(-639,1025), 12))
+    round.addSpawner(new UnitSpawner('n00C', ENEMY, vec2(-639,1025), 12))
     ..setStartDelay(4)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -43,7 +51,7 @@ init
     ..setSpawnEffect("Abilities\\Spells\\Other\\Incinerate\\FireLordDeathExplode.mdl")
 
     // Fire Spawn - 2
-    round.addSpawner(new UnitSpawner('n00C', ENEMYPLAYER, vec2(527,1025), 16))
+    round.addSpawner(new UnitSpawner('n00C', ENEMY, vec2(527,1025), 16))
     ..setStartDelay(30)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -52,7 +60,7 @@ init
     ..setSpawnEffect("Abilities\\Spells\\Other\\Incinerate\\FireLordDeathExplode.mdl")
     
     // Flame Lord - 1
-    round.addSpawner(new UnitSpawner('n00B', ENEMYPLAYER, vec2(527,1025), 20))
+    round.addSpawner(new UnitSpawner('n00B', ENEMY, vec2(527,1025), 20))
     ..setStartDelay(15)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -61,7 +69,7 @@ init
     ..setSpawnEffect("Abilities\\Spells\\Other\\Incinerate\\FireLordDeathExplode.mdl")
 
     // Flame Lord - 2
-    round.addSpawner(new UnitSpawner('n00B', ENEMYPLAYER, vec2(527,1025), 50))
+    round.addSpawner(new UnitSpawner('n00B', ENEMY, vec2(527,1025), 50))
     ..setStartDelay(70)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -70,6 +78,18 @@ init
     ..setSpawnEffect("Abilities\\Spells\\Other\\Incinerate\\FireLordDeathExplode.mdl")
 
 
+
+    //================================================================================================================================================================================================
+    // STATS SCALING
+
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == FIRE_LORD or id == FIRE_SPAWN )
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
+
+
+        
 
 
 class Flame extends GroundEffect
@@ -107,11 +127,13 @@ class Flame extends GroundEffect
     override function doEffect()
         
         ENUM_GROUP.enumUnitsInRange(pos, range)
+
+        let burnDamage = BURN_DMG_BASE * (1 + (round.getLevel()-1) * ROUND_LVL_SCALE_POWER) 
         
         for target from ENUM_GROUP
-            if target.isAlive() and target.getOwner().isEnemyOf(ENEMYPLAYER) and not targetsHit.contains(target)
+            if target.isAlive() and target.getOwner().isEnemyOf(ENEMY) and not targetsHit.contains(target)
                 target.addEffect("Abilities\\Spells\\Items\\AIfb\\AIfbSpecialArt.mdl", "chest")
-                dummy.damageTargetSpell(target, BURNDAMAGE)
+                dummy.damageTargetSpell(target, burnDamage)
                 targetsHit.addUnitTimed(target, 0.99)
 
 

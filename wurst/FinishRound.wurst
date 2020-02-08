@@ -1,0 +1,183 @@
+package FinishRound
+
+import Scene
+import GladiatorSystem
+import GameSettings
+import Round
+import Abilities
+import TimedSpecialEffects
+import Music
+import Attempts
+import FinishMap
+import ReadyHandler
+import Players
+import Mastery
+import LinkedList
+
+//================================================================================================================================================================================================
+
+
+let SND_ROUND_WON = new SoundDefinition(Sounds.questCompleted, false)
+let SND_ROUND_LOST = new SoundDefinition(Sounds.questFailed, false)
+let SND_ROUND_COMPLETE = new SoundDefinition(Sounds.goodJob, false)
+
+
+let SND_REWARD_GOLD = new SoundDefinition(Sounds.receiveGold, false)
+let SND_REWARD_ITEMS = new SoundDefinition(Sounds.itemReceived, false)
+
+let COLOR_ITEM = color(217,179,140)
+let COLOR_GOLD = color(255,204,0)
+let COLOR_TRAINING_POINTS = color( 0,250,154)
+
+
+//================================================================================================================================================================================================
+
+
+
+public function finishRound(boolean hasWon)
+
+    stopMusic()
+
+    if( not hasWon )
+        removeAttempt()
+        
+    if( getAttemptsLeft() <= 0 )
+        mapLost()
+
+    else if( hasWon and Round.getCurrentRoundNumber() == FINAL_ROUND ) 
+        mapWon()
+
+    else
+        new Scene()
+        ..do( p -> p.saveGladiator() )
+        ..wait(4)
+        ..do( p -> p.pauseGladiator() )
+        ..do( p -> p.fadeOut(1) )
+        ..wait(1)
+        ..do( -> Round.clearCurrentRound())
+        ..do( p -> p.moveCam() )
+        ..wait(0.5)
+        ..do( p -> p.fadeIn(1) )
+        ..wait(2)
+        ..do( p -> p.moveGladiator() )
+        ..do( p -> p.toggleAttemptsWindow(true) )
+        ..do( p -> p.enableMasteryShop() )
+        ..wait(3)
+        ..addRoundReview(hasWon)
+        ..do( p -> p.enableReadyCommand() )
+        ..do( -> playMusic(MUSIC_SHOP))
+        ..play(allPlayers)
+
+function player.moveCam()
+    this.setCameraBoundsToRect(gg_rct_Shop_CamBounds)
+    this.setCameraPosition(SHOP_SPAWN)
+
+function player.saveGladiator()
+    let gladiator = this.getGladiator().getUnit()
+    if( gladiator.isAlive() )
+        gladiator.setInvulnerable(true)
+
+function player.pauseGladiator()
+    let gladiator = this.getGladiator().getUnit()
+    if( gladiator.isAlive() )
+        gladiator.pause()
+
+function player.moveGladiator()
+    let gladiator = this.getGladiator().getUnit()
+    if( gladiator.isAlive() )
+        gladiator.setPos(SHOP_SPAWN)
+        addEffect(Abilities.massTeleportCaster, gladiator.getPos())
+        ..setDuration(5)
+    else
+        gladiator
+        ..revive(SHOP_SPAWN, true)
+        this.getGladiator().getSpawnSound().play()
+
+    gladiator.unpause()
+    gladiator.setInvulnerable(false)
+    gladiator.setHP(gladiator.getMaxHP())
+    this.selectSingle(gladiator)
+    this.getGladiator().refresh()
+    
+
+function Scene.addRoundReview(boolean hasWon)
+    let currentRound = Round.getCurrentRound()
+
+    if( hasWon )
+    // Round Won
+        this
+        ..do( -> SND_ROUND_COMPLETE.play() )
+        ..do( -> print("|cff00cc66"+"Round "+Round.getCurrentRoundNumber().toString()+" completed!"+"|r",7))
+        ..wait(4)
+        ..do( -> rewardPoints(currentRound) )
+        ..wait(6)
+
+        // Reward Itemss
+        if( Round.getCurrentRound().getNumberOfItemRewards() > 0 )
+            this
+            ..do( -> rewardItems(currentRound))
+            ..wait(6)
+
+        // Reward Abilities
+        if( currentRound.abilitiesToReward() > 0)
+            this
+            ..do(p -> p.rewardAbility())
+            ..wait(6)
+        
+        // Next Round
+        this
+        ..do(   -> Round.setNextRound() )
+        ..do( p -> Round.printNextRound(p) )
+        
+    else
+    // Round Lost
+        this
+        ..do( -> SND_ROUND_LOST.play() )
+        ..do( -> print("|cffff3300"+"Round "+Round.getCurrentRoundNumber().toString()+" failed!"+"|r\n" + 
+                        "Remaining attempts: "+getAttemptsLeft().toString(),10 ))
+        ..wait(4)
+        ..do( -> print("\nTry again",10))
+
+
+
+function Round.abilitiesToReward() returns int
+    let roundNumber = this.getNumber()
+    var count = 0
+    for i=0 to UNLOCK_ABILITY_ROUNDS.length-1
+        if( UNLOCK_ABILITY_ROUNDS[i] == roundNumber )
+            count++        
+    return count
+
+
+function player.rewardAbility()
+    let gladiator = this.getGladiator()
+    let abilityName = gladiator.unlockNextAbility()
+    this.print( "\nNew ability: {0}".format(abilityName.withColor(gladiator.getColor())), 6)
+    gladiator.getSoundOnNewAbility().playForPlayer(this)
+
+
+
+
+function rewardPoints(Round round)
+    round.rewardPoints()
+    SND_REWARD_GOLD.play()
+    printTimed("\nYou've been granted {0} gold and {1} training points.".format(
+        GOLD_PER_ROUND.toString().withColor(COLOR_GOLD),
+        TRAINING_POINTS_PER_ROUND.toString().withColor(COLOR_TRAINING_POINTS)
+    ), 5)
+    
+
+
+/** Rewards items, including artifacts */
+function rewardItems(Round round)
+    let rewards = round.rewardItems()
+
+    if( rewards.size() > 0 )
+        var rewardNames = ""
+        for reward in rewards
+            if( rewardNames != "")
+                rewardNames += ", "
+            rewardNames += reward.getName().withColor(COLOR_ITEM)
+    
+        print("\nNew item{0} unlocked: \n{1}".format(rewards.size() > 1 ? "s" : "", rewardNames), 8)
+        SND_REWARD_ITEMS.play()

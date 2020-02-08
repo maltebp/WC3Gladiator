@@ -1,235 +1,291 @@
+
+//================================================================================================================================================================================================
+ //  LIGHTNING LORDS
+
 package Round12
 
-
-//=========================================================================================================================================================
-// FEL ORCS
+//================================================================================================================================================================================================
 
 import public Round11
 
+import TimerUtils
 import RegisterEvents
 import AutoCastAbility
+import LightningCharge
+import LightningUtil
+import GroupUtils
+import TimedSpecialEffects
 import UnitVisualsUtils
-import OnUnitTypeEnter
-import DeathSpawn
-import Shockwave
-import ClosureTimers
-import EarthquakeNoChannel
-import Preloader
-import AbilityObjEditing
-import ObjectIdGenerator
-import BuffObjEditing
-import Icons
-import ObjectIds
+import InstantDummyCaster
 import Damage
-import Assets
-import Ensnare
-
-
-// ================================================================================================================================
-// Settings
-
-
-let BERSERKER = 'n00Q'
-let WOLFRIDER = 'n00R'
-let DOOMSAYER = 'n00P'
-
-let BERSERK_DAMAGETAKENINC  = 3.
-let BERSERK_DAMAGEINC       = 25 // Flat bonus
-let BERSERK_STARTCOOLDOWN   = 20.
-let BERSERK_ATTACKSPEEDINC  = .5
-let BERSERK_MOVESPEEDINC    = .5
-
-let BERSERK_ABILITYID   = compiletime(ABIL_ID_GEN.next())
-let BERSERK_BUFFID      = compiletime( BUFF_ID_GEN.next() )
-let BERSERK_SND         = new SoundDefinition(Sounds.bloodlustTarget, false, true)
-
-let RAINOFFIRE_ABILITYID = compiletime(ABIL_ID_GEN.next())
-let RAINOFFIRE_DAMAGE_SHARD = 70.  
-let RAINOFFIRE_RANGE = 250.
-let RAINOFFIRE_CHANNELDURATION = 10 // Each wave is 1 second
-let RAINOFFIRE_COOLDOWN = 15.
-let RAINOFFIRE_STARTCOOLDOWN = 10.
-
-let ENSNARE_ABILITYID = compiletime( ABIL_ID_GEN.next() )
-let ENSNARE_BUFFID = compiletime( BUFF_ID_GEN.next() )
-let ENSNARE_STARTCOOLDOWN = 5.
-let ENSNARE_COOLDOWN = 30.
-let ENSNARE_HP =       250.
 
 
 //=========================================================================================================================================================
-//  Setup
+// Settings 
 
+let STORM_LOAD = 'n00E'
+let STORM_WARD = 'h003'
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+let LIGHTNINGWARD_DMG_FACTOR = 1.5
+
+let LIGHTNINGCHARGE_DMG_FACTOR = 10.
+let LIGHTNINGCHARGE_RANGE = 350.
+let LIGHTNINGCHARGE_DURATION = 8.
+
+//================================================================================================================================================================================================
+
+Round round = null
 init
-
+  
     round = new Round()
-    ..setReward(30, 3)
-    ..addArtifactRewards(ARTIFACT_MEMOIROFTHEPAST)
-    ..addItemRewards(ITEM_FELSTONE)
-    ..setTitle("Fel Orcs")
-    ..setDescription("Don't let them pin you down, or they'll burn you.")
-    ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
-    ..setCodeOnLastUnitDeath() r ->
-        Ensnare.clearAll()
+    ..setReward(30, 4)
+    ..addItemRewards(ITEM_STORMLORDCROWN)
+    ..addArtifactRewards(1)
+    ..setTitle("Stormlords")
+    ..setDescription("Don't go get thunder struck now.")
+    ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.05)
 
-    // BERSERKER 1
-    round.addSpawner(new UnitSpawner(BERSERKER, ENEMYPLAYER, vec2(-639,1025), 20))
-    ..setStartDelay(4)
+    // Spawner 1
+
+    round.addSpawner(new UnitSpawner('n00E', ENEMY, vec2(-639,1025), 23))
+    ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSoundOnSpawn(Sounds.gruntYesAttack2)
-    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
-    ..setSpawnCount(6)
+    ..setSpawnCount(5)
 
-    // BERSERKER 2
-    round.addSpawner(new UnitSpawner(BERSERKER, ENEMYPLAYER, vec2(-639,1025), 30))
+    //Spawner 2
+    round.addSpawner(new UnitSpawner('n00E', ENEMY, vec2(0,0), 50))
     ..setStartDelay(70)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSoundOnSpawn(Sounds.gruntYesAttack2)
-    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
     ..setSpawnCount(2)
 
-    // DOOM SAYER 1
-    round.addSpawner(new UnitSpawner(DOOMSAYER, ENEMYPLAYER, vec2(-639,1025), 30))
-    ..setStartDelay(15)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSoundOnSpawn(Sounds.shamanYesAttack3)
-    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
-    ..setSpawnCount(4)
 
-    // DOOM SAYER 2
-    round.addSpawner(new UnitSpawner(DOOMSAYER, ENEMYPLAYER, vec2(-639,1025), 30))
-    ..setStartDelay(90)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSoundOnSpawn(Sounds.shamanYesAttack3)
-    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
-    ..setSpawnCount(1)
+//================================================================================================================================================================================================
+// STATS SCALING
 
-    // WOLF RIDER 1
-    round.addSpawner(new UnitSpawner(WOLFRIDER, ENEMYPLAYER, vec2(-639,1025), 20))
-    ..setStartDelay(12)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSoundOnSpawn(Sounds.wolfriderYes2)
-    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
-    ..setSpawnCount(6)
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id ==  STORM_LOAD or id == STORM_WARD)
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
 
-    // Auto Casting
+
     
-    addAutoCastAbilityToUnitType(BERSERKER, new AutoCastAbilityType(BERSERK_ABILITYID, Orders.berserk, TargetType.SELF_IMMEDIATE, 1000, 30, 1000))
-    addAutoCastAbilityToUnitType(DOOMSAYER, new AutoCastAoePoint(RAINOFFIRE_ABILITYID, Orders.rainoffire, TargetType.ENEMY_POINT, 800, RAINOFFIRE_STARTCOOLDOWN, RAINOFFIRE_COOLDOWN))
-    addAutoCastAbilityToUnitType(WOLFRIDER, new AutoCastNoBuff(ENSNARE_ABILITYID, Orders.ensnare, TargetType.ENEMY_UNIT, 500, ENSNARE_STARTCOOLDOWN, ENSNARE_COOLDOWN, ENSNARE_BUFFID))
-
-    UnitVisuals.addUnitType(BERSERKER)
-    ..setPlayerColor(PLAYER_COLOR_COAL)
-
-    UnitVisuals.addUnitType(DOOMSAYER)
-    ..setPlayerColor(PLAYER_COLOR_PEANUT)
-
-    UnitVisuals.addUnitType(WOLFRIDER)
-    ..setPlayerColor(PLAYER_COLOR_COAL)
 
 
-//=========================================================================================================================================================
-// 
-//
+public class DelayedBloodlustCast
+
+    private unit target
+
+    construct(unit target, real delay)
+        this.target = target
+        getTimer()
+        ..setData(this castTo int)
+        ..start(delay, function castBloodLust)
 
 
+    private static function castBloodLust()
+        let t = GetExpiredTimer()
+        let instance = t.getData() castTo thistype
+
+        InstantDummyCaster.castTarget(instance.target.getOwner(), 'A015', 1, Orders.bloodlust, instance.target)
+
+        t.release()
+        destroy instance
 
 
-function berserk_OnCast()
-    unit caster = GetSpellAbilityUnit()
-    BERSERK_SND.playOnPoint(caster.getPos3with(100))
-    caster.addAbility('A023')
-    caster.setAbilityLevel('A023', BERSERK_DAMAGEINC)
-    caster.issueImmediateOrder("stop")
+function lightningChargeCast()
+
+    
+    let caster = GetSpellAbilityUnit()
+    
+    new DelayedBloodlustCast(caster, 0.25)
+    
+    
+    new LightningCharge(caster, caster.getPower() * LIGHTNINGCHARGE_DMG_FACTOR, LIGHTNINGCHARGE_RANGE, LIGHTNINGCHARGE_DURATION)
+
+
+function entersMap() returns boolean
+    return false
 
 
 init
-    registerSpellEffectEvent(BERSERK_ABILITYID, function berserk_OnCast)
+    registerSpellEffectEvent('A016', function lightningChargeCast )
+    registerSpellEffectEvent('A019', function SummonLightningWard.onCast )
 
-    preloadAbility('A023')
-
-    new EnsnareDefinition(ENSNARE_ABILITYID, ENSNARE_BUFFID, 0, ENSNARE_HP)
-
-@compiletime
-function createAbilities()
+    addAutoCastAbilityToUnitType('n00E', new AutoCastAbilityType( 'A016', Orders.roar, TargetType.ENEMY_IMMEDIATE, 200, 14, 30 ))
+    addAutoCastAbilityToUnitType('n00E', new AutoCastBoundWard( 1000, 6, 18, gg_rct_Arena_Spawn1 ))
 
 
+    let map = CreateRegion()..addRect(GetPlayableMapRect())
 
-// BERSERK
-    new BuffDefinition(BERSERK_BUFFID,'bbsk')
-    ..setName(1,"Berserk")
-    ..setArtTarget(1, Abilities.bloodLustTarget)
-    ..setTargetAttachmentPoint0(1, "right,hand")
-    ..setTargetAttachmentPoint1(1, "left,hand")
-    ..setTooltipNormal(1, "Berserk")
-    ..setTooltipNormalExtended(1, "Increased speed but also takes more damage.")
-    ..setIcon(Icons.bTNBerserk)
+    CreateTrigger()
+    ..registerEnterRegion(map, Condition(function entersMap))
 
-    new AbilityDefinitionBeserk(BERSERK_ABILITYID)
-    ..setName("Berserk")
-    ..setTooltipNormal(1, "Berserk")
-    ..setTooltipNormalExtended(1, "")
-    ..setAnimationNames("spell")
-    ..setBuffs(1, BERSERK_BUFFID.toRawCode())
-    ..setAttackSpeedIncrease(1, BERSERK_ATTACKSPEEDINC)
-    ..setMovementSpeedIncrease(1, BERSERK_MOVESPEEDINC)
-    ..setDamageTakenIncrease(1, BERSERK_DAMAGETAKENINC)
-    ..setCooldown(1, 0)
-    ..setDurationHero(1, 0)
-    ..setDurationNormal(1, 0)
-
-
-// RAIN OF FIRE
-    new AbilityDefinitionRainofFirecreep(RAINOFFIRE_ABILITYID)
-    ..setTooltipNormal(1, "Rain of Fire")
-    ..setTooltipNormalExtended(1, "")
-    ..setManaCost(1, 0)  
-    ..setNumberofWaves(1, RAINOFFIRE_CHANNELDURATION)   
-    ..setDamage(1, RAINOFFIRE_DAMAGE_SHARD)
-    ..setAreaofEffect(1, RAINOFFIRE_RANGE)
-    ..setCooldown(1, 0)
-    ..setDurationHero(1, 0.01)
-    ..setDurationNormal(1, 0.01)
-    ..setDamagePerSecond(1, 0)
-    ..setTargetsAllowed(1, "ground,enemy")
+    UnitVisuals.addUnitType('n00E')
+    ..setPlayerColor(PLAYER_COLOR_NAVY)
 
 
 
-// ENSNARE
+public class AutoCastBoundWard extends AutoCastAbilityType
+    /* --------------------------------------------------------------------------------
+    Bound Ward
+    A ward which is bound to be created within an area.
+    */
+
+    rect rectBound
+        
+    construct( real triggerRange, real startCooldown, real cooldown, rect whichRect )
+        super( 'A019', Orders.carrionswarm, TargetType.ENEMY_POINT, triggerRange, startCooldown, cooldown )
+
+        rectBound = whichRect
+            
+    override function findTarget(unit caster) returns boolean
+
+        let targets = ENUM_GROUP..enumUnitsInRange(caster.getPos(), triggerRange)
+                
+        if targets.size() > 0
+            
+            // Removing unfit targets
+            for target in targets
+
+                if not target.isAlive() or target == caster or not target.getOwner().isEnemyOf(caster.getOwner())
+                    targets.removeUnit(target)
+    
+
+        if targets.size() > 0
+
+            let casterPos = caster.getPos()
+            let casterFacing = caster.getFacingAngle()
+            let angleDirection = (GetRandomInt(0,2) == 1) ? -1 : 1
+            let direction = casterFacing.op_plus(angle(GetRandomReal(PIHALF*0.75, PIHALF*1.25)*angleDirection))
+            let targetPos = casterPos.polarOffset(direction, 400)
+            
+            while not rectBound.contains(targetPos)
+                targetPos.moveTowards(rectBound.getCenter(), 50)
+
+            caster.issuePointOrderById(orderId, targetPos)
+            targets.clear()
+        
+            return true
+
+        return false
 
 
-    int tempBuff = BUFF_ID_GEN.next()
+    
 
-    new BuffDefinition(ENSNARE_BUFFID,'Beng')
-    ..setTooltipNormal(1, "Ensnare")
-    ..setTooltipNormalExtended(1, "Can't move.")
-    new BuffDefinition(tempBuff,'Bena')
-    ..setTooltipNormal(1, "Ensnare")
-    ..setArtTarget(1, Abilities.ensnareTarget )
+// This is actually just a group of functions (not object funcitonality)
+public class SummonLightningWard
 
-    new AbilityDefinitionEnsnare(ENSNARE_ABILITYID)
-    ..setTooltipNormal(1, "Ensnare")
-    ..setTooltipNormalExtended(1, "")
-    ..setManaCost(1, 0)  
-    ..setCooldown(1, 0)
-    ..setDurationHero(1, 0.00)
-    ..setDurationNormal(1, 0.00)
-    ..setRequirements("")
-    ..setBuffs( 1, tempBuff.toRawCode()+","+ENSNARE_BUFFID.toRawCode())
+    static function onCast()
+        let caster = GetSpellAbilityUnit()
+        let ward = createUnit( caster.getOwner(), 'h003', vec2(GetSpellTargetX(), GetSpellTargetY()), angle(GetRandomReal(0, PI2)) )
+
+        new LightningWard(ward, 75, 2, 4000, caster.getPower() * LIGHTNINGWARD_DMG_FACTOR)
+
+        caster.getSpawner().addSummonedUnit(ward)
+
+    
+
+public class LightningWard
+
+    private unit    ward
+    private timer   timer_Effect
+    private real    zOffset
+    private real    range
+    private real    damage
+        
+
+    /** Creates a new instance, using an existing ward unit */
+    construct(unit ward, real zOffset, real effectFrequency, real range, real damage)
+        this.ward = ward
+        this.zOffset = zOffset 
+        this.range = range
+        this.damage = damage
+
+        timer_Effect = getTimer()
+        ..setData(this castTo int)
+        ..startPeriodic(effectFrequency, function callback_StartEffect )
+        
+
+    ondestroy
+        if timer_Effect != null
+            timer_Effect.release()    
 
 
+    /** Gets the ward unit */
+    protected function getWard() returns unit 
+        if ward != null
+            return ward
+        else
+            destroy this
+            return null
 
 
+    /** Makes the ward damage the unit */
+    protected function damage(unit target)
+
+        target.addEffect("Abilities\\Weapons\\Bolt\\BoltImpact.mdl", "chest")
+        ..setDuration(4.)
+
+        ward.addEffect("Abilities\\Spells\\Orc\\Purge\\PurgeBuffTarget.mdl", "origin" )
+        ..setDuration(2.)
+
+        addEffect("Abilities\\Weapons\\Bolt\\BoltImpact.mdl", ward.getPos().withTerrainZ(75) )
+        ..setDuration(4)
+
+        new Lightning(LIGHTNING_FORKED_LIGHTNING, 1)
+        ..setSource(ward, zOffset)
+        ..setTarget(target, 75)
+        ..setRemoveOnUnitDeath(true)
+
+        ward.damageTargetSpell(target, damage)
 
 
+    /** Finds the the target for the effect */
+    protected function findTarget() returns unit
 
+        let targets = ENUM_GROUP..enumUnitsInRange(ward.getPos(), range)
+        
+        for target in targets
+            if not target.getOwner().isEnemyOf(ward.getOwner()) or not target.isAlive()
+                targets.removeUnit(target)
+    
+        if targets.isEmpty()
+            return null
+        else
+            return targets.getNearestUnit(ward.getPos())
+
+    
+
+    /** Checks if the ward is still active */
+    protected function isAlive() returns boolean
+        return ward != null and ward.isAlive()
+
+
+    /** Starts whatever effect has been set to this ward */
+    protected function startEffect()
+
+        if isAlive()
+            let target = findTarget()
+
+            if target != null
+                damage(target)
+        
+        else
+            destroy this
+        
+        
+    /** Fires the startEffect() for the instance */
+    private static function callback_StartEffect()
+        GetExpiredTimer().getData() castTo thistype.startEffect()
+
+
+    
+
+    

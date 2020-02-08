@@ -5,11 +5,14 @@ import TimerUtils
 import Orders
 import UnitVisualsUtils
 
-constant int GARGOYLE = 'u002'
+let GARGOYLE = 'u002'
+let GARGOYLE_STONEFORM = 'u003'
+let STONEFORM_HPACTIVATE = 0.15 // % Percent
+let STONEFORM_HPDEACTIVATE = 0.95 // % Percent
+
+Round round = null
 
 
-constant real STONEFORM_HPACTIVATE = 0.25 // % Percent
-constant real STONEFORM_HPDEACTIVATE = 0.90 // % Percent
 
 init
     //=========================================================================================================================================================
@@ -18,11 +21,10 @@ init
 
     round = new Round
     ..setReward(30, 3)
-    ..addAbilityReward(2)
     ..addItemRewards(ITEM_GARGOYLECLOAK)
-
+    ..addArtifactRewards(1)
     ..setTitle("Gargoyles")
-    ..setDescription("Sturdy, life sucking bastards - don't let their numbers make you lose focus.")
+    ..setDescription("These sturdy, life sucking bastards will swarm you, but don't let their numbers make you lose focus.")
     ..setHealthOrbSpawn(100, 50, 0.1, 25, 0.02)
 
     RemoteFunction<UnitSpawner> func
@@ -32,12 +34,12 @@ init
         new StoneForm(spawner.getLastSpawnedUnit())
     end
 
-    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(-639,1025), 10))
+    round.addSpawner(new UnitSpawner('u002', ENEMY, vec2(-639,1025), 12))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(12)
+    ..setSpawnCount(10)
     ..setSpawnEffect("Abilities\\Spells\\Undead\\CarrionSwarm\\CarrionSwarmDamage.mdl")
     ..setCodeOnSpawn(func)
 
@@ -46,29 +48,45 @@ init
         new StoneForm(spawner.getLastSpawnedUnit())
     end
 
-    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(527,1025), 12))
+    round.addSpawner(new UnitSpawner('u002', ENEMY, vec2(527,1025), 20))
     ..setStartDelay(30)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(6)
+    ..setSpawnCount(4)
     ..setSpawnEffect("Abilities\\Spells\\Undead\\CarrionSwarm\\CarrionSwarmDamage.mdl")
     ..setCodeOnSpawn(func)
     
-    //Spawner 2
+    //Spawner 3
     func = (UnitSpawner spawner) -> begin
         new StoneForm(spawner.getLastSpawnedUnit())
     end
 
-    round.addSpawner(new UnitSpawner('u002', ENEMYPLAYER, vec2(527,1025), 10))
+    round.addSpawner(new UnitSpawner('u002', ENEMY, vec2(527,1025), 15))
     ..setStartDelay(60)
     ..setFrequencyDeviation(0.03)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(3)
+    ..setSpawnCount(2)
     ..setSpawnEffect("Abilities\\Spells\\Undead\\CarrionSwarm\\CarrionSwarmDamage.mdl")
     ..setCodeOnSpawn(func)
 
+    // Gargoyle Resistance
+    GARGOYLE
+    ..setUnitTypeStat(STAT_RESISTANCE, 0.25)
+
+    GARGOYLE_STONEFORM
+    ..setUnitTypeStat(STAT_RESISTANCE, 0.25)
+
+
+    //================================================================================================================================================================================================
+    // STATS SCALING
+
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == GARGOYLE )
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
 
 
 public class StoneForm
@@ -94,7 +112,7 @@ public class StoneForm
         stoneform = true
 
     private function checkHp()
-        real currentHp = gargoyle.getHP()
+        let currentHp = gargoyle.getHP()
         if not stoneform and currentHp <= gargoyle.getMaxHP() * STONEFORM_HPACTIVATE
             cast()
         else if stoneform and currentHp >= gargoyle.getMaxHP() * STONEFORM_HPDEACTIVATE
@@ -115,7 +133,6 @@ init
     UnitVisuals.addUnitType(GARGOYLE)
     ..setPlayerColor(PLAYER_COLOR_COAL)
         
-
 
     
 

@@ -8,7 +8,7 @@ public function timer.setUnitData(unit whichUnit)
     this.setData( new UnitData(whichUnit) castTo int )
 
 public function timer.getUnitData() returns unit
-    UnitData unitData = this.getData() castTo UnitData
+    let unitData = this.getData() castTo UnitData
     if unitData.dataUnit != null
         return unitData.dataUnit
     else

@@ -2,8 +2,12 @@ package UnitSpawner
 
 import TimerUtils
 import public SoundUtils
-import Orders
-import public LinkedList
+import LinkedList
+import OnUnitEnterLeave
+import UtilCommands
+import StringUtils
+import GameSettings
+import ObjectIds
 
 
 /*
@@ -16,7 +20,6 @@ import public LinkedList
     How To use:
     Create a new object. Doing this will grant you a ready spawner, but it may be altered with the set
     methods.
-
 
     To Be Updated:
     - Add several sound, and let it pick a random one (so it's not the same sound, again, again, again)
@@ -36,8 +39,10 @@ public class UnitSpawner
 
     // Class Variables
     protected static LinkedList<UnitSpawner> allSpawners = new LinkedList<UnitSpawner>
+    protected static var nextSpawnerId = 0
 
     // Instance Variables
+    protected int id
     private real spawnFrequency
     private int spawnCount
     private int currentSpawnCount = 0
@@ -48,13 +53,13 @@ public class UnitSpawner
     private vec2 spawnPos
     private real spawnFacing = -1
     private rect spawnRect
-    protected group spawnedUnits
-    protected group summonedUnits
+    protected let spawnedUnits = new LinkedList<unit>
+    protected let summonedUnits = new LinkedList<unit>
     private unit lastSpawnedUnit
     private timer timer_Spawn
     private boolean isActivated = ACTIVATEONCONSTRUCT
     private string spawnEffect
-    private boolean isRunning = false
+    private boolean spawning = false
     private unit targetOnSpawn
     private rect targetRect // The rect in which it has to search for a random target
     private boolean getNearestTarget = false
@@ -77,16 +82,19 @@ public class UnitSpawner
         this.spawnPos = spawnPos
         this.owner = owner
         
+        id = nextSpawnerId
+        nextSpawnerId++
         allSpawners.add(this)
 
-        if ACTIVATEONCONSTRUCT
+        if( ACTIVATEONCONSTRUCT )
             activate()
 
     ondestroy
         deactivate()
         allSpawners.remove(this)
+        destroy spawnedUnits
+        destroy summonedUnits
         if codeOnSpawn != null
-            
             destroy codeOnSpawn
 
     /** Starts the spawner spawning units. The first spawn will happen after spawnDelay, and all
@@ -94,14 +102,14 @@ public class UnitSpawner
     function start()
         if not isActivated
             activate()
-        isRunning = true
+        spawning = true
         currentSpawnCount = 0
         timer_Spawn.start(getRealWithDeviation(startDelay), function spawn) 
         
     /** Stops the unit spawner from spawning. Does not remove units or deactivate
         the spawner. Use deactivate() and clear() for that.*/
-    function stop()
-        isRunning = false
+    function stopSpawning()
+        spawning = false
         timer_Spawn.pause()
 
     /** Stops the spawner, and removes all the units that it has made */
@@ -111,39 +119,39 @@ public class UnitSpawner
         // I.e. if the unit has no decay
 
         if spawnedUnits.size() > 0
-            for spawnedUnit from spawnedUnits
+            for spawnedUnit in spawnedUnits
                 if spawnedUnit != null
                     spawnedUnit.remove()
 
         if summonedUnits.size() > 0
-            for summonedUnit from summonedUnits
+            for summonedUnit in summonedUnits
                 if summonedUnit != null
                     summonedUnit.remove()
             
         lastSpawnedUnit = null
-        stop()
+        stopSpawning()
      
     /** Sets up the spawner (creating timers and triggers) */
     function activate()
         isActivated = true
         timer_Spawn = getTimer()..setData(this castTo int)
-        spawnedUnits = CreateGroup()
-        summonedUnits = CreateGroup()
     
     /** Releases timers and destroys triggers. Calls clear function. */
     function deactivate()
         isActivated = false
         clear()
         timer_Spawn.release()
-        spawnedUnits.destr()
-        summonedUnits.destr()
 
     function killAll()
         if spawnedUnits.size() > 0
-            for spawnedUnit from spawnedUnits
+            for spawnedUnit in spawnedUnits
                 if spawnedUnit != null
                     spawnedUnit.kill()
         
+
+    function removeUnit(unit u)
+        spawnedUnits.remove(u)
+        summonedUnits.remove(u)
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Setters
@@ -226,19 +234,29 @@ public class UnitSpawner
         this.codeOnSpawn = codeOnSpawn
 
     function addSummonedUnit( unit whichUnit )
-        summonedUnits.addUnit(whichUnit)
+        summonedUnits.add(whichUnit)
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Getters
 
+    function getId() returns int
+        return id
+
+    function getSpawnedUnitId() returns int
+        return unitId
+
     /** Checks if the spawner is finished; it has been stopped (either by stop()
         or becuase it has spawned spawnCount units)*/
     function isFinished() returns boolean
-        return not isRunning
+        return not spawning
 
 
     
-        
+    static function getSpawner(int id) returns thistype
+        for spawner in allSpawners
+            if( spawner.id == id )
+                return spawner
+        return null
 
     /** Returns a list of ALL the spawners (deactivated, running, stopped etc.)
         @return: A copy of the list of all spawners as arraylist of UnitSpawner type.  */
@@ -252,7 +270,6 @@ public class UnitSpawner
 
     /** Checks if all spawned units and summoned units connected to this UnitSpawner are dead. */
     function allUnitsAreDead() returns boolean
-        
         if spawnedUnits.size() > 0
             for spawnedUnit in spawnedUnits
                 if spawnedUnit != null and spawnedUnit.isAlive()
@@ -274,22 +291,20 @@ public class UnitSpawner
         of the owner of the spawner. It returns null if no unit is found.*/
     private function getRandomTargetInRect() returns unit
         
-        group targets = ENUM_GROUP
-        targets.enumUnitsInRect(targetRect)
+        let targets = ENUM_GROUP..enumUnitsInRect(targetRect)
 
         // Removing the units not to be hit
         for u in targets
             if( not u.isAlive() or u.getOwner().isAllyOf(owner) )
                 targets.removeUnit(u)
 
-        unit target = targets.getRandomUnit()
+        let target = targets.getRandomUnit()
         targets.clear()
         return target
 
     /** Gets the unit nearest the spawnedUnit from the spawner's targetRect.*/
     private function getNearestTargetInRect(unit spawnedUnit) returns unit 
-        group targets = ENUM_GROUP
-        targets.enumUnitsInRect(targetRect)
+        let targets = ENUM_GROUP..enumUnitsInRect(targetRect)
 
         // Removing the units not to be hit
         for u in targets
@@ -299,9 +314,9 @@ public class UnitSpawner
         // Finding nearest target
         real shortestDist = 999999
         unit target = null
-        vec2 spawnedUnitPos = spawnedUnit.getPos()
+        let spawnedUnitPos = spawnedUnit.getPos()
         for u from targets
-            real distance = u.getPos().distanceTo(spawnedUnitPos)
+            let distance = u.getPos().distanceTo(spawnedUnitPos)
             if distance < shortestDist
                 shortestDist = distance
                 target = u
@@ -328,9 +343,9 @@ public class UnitSpawner
             spawnPos = instance.spawnPos
 
         // Spawning units
-        angle spawnFacing = (instance.spawnFacing==-1) ? angle(GetRandomReal(0, 2*PI)) : angle(instance.spawnFacing)
-        unit spawnedUnit = createUnit(instance.owner, instance.unitId, spawnPos, spawnFacing)
-        instance.spawnedUnits.addUnit(spawnedUnit)
+        let spawnFacing = (instance.spawnFacing==-1) ? angle(GetRandomReal(0, 2*PI)) : angle(instance.spawnFacing)
+        let spawnedUnit = createUnit(instance.owner, instance.unitId, spawnPos, spawnFacing)
+        instance.spawnedUnits.add(spawnedUnit)
         instance.lastSpawnedUnit = spawnedUnit
 
         // Find target to attack on spawn
@@ -339,11 +354,11 @@ public class UnitSpawner
 
         else if instance.targetRect != null
             if instance.getNearestTarget
-                unit nearestTarget = instance.getNearestTargetInRect(spawnedUnit)
+                let nearestTarget = instance.getNearestTargetInRect(spawnedUnit)
                 if nearestTarget != null
                     spawnedUnit.issueTargetOrder("attack", nearestTarget )
             else
-                unit randomTarget = instance.getRandomTargetInRect()
+                let randomTarget = instance.getRandomTargetInRect()
                 if randomTarget != null
                     spawnedUnit.issueTargetOrder("attack", randomTarget)        
 
@@ -363,12 +378,12 @@ public class UnitSpawner
         /*  Rerun Timer
             It first checks if it's restricted by a number of spawns,
             or if it has spawned what it should.*/
-        if instance.spawnCount != 0
+        if( instance.spawnCount > 0 )
             instance.currentSpawnCount++
-            if instance.currentSpawnCount < instance.spawnCount 
+            if( instance.currentSpawnCount < instance.spawnCount )
                 instance.timer_Spawn.start(instance.getRealWithDeviation(instance.spawnFrequency), function spawn)
             else
-                instance.stop()
+                instance.stopSpawning()
         else
             instance.timer_Spawn.start(instance.getRealWithDeviation(instance.spawnFrequency), function spawn)
   
@@ -381,20 +396,43 @@ public class UnitSpawner
             for i = 0 to spawnCount
                 timer_Spawn.start(0,function spawn ) 
 
+
+
+    function toString() returns string
+        return ("UnitSpawner {0}:\n".highlight() +
+                "   unitId = {1}\n" +
+                "   spawnCount = {2}\n" +
+                "   spawning = {3}\n" +
+                "   currentSpawnCount = {4}\n" +
+                "   spawned units = {5}\n" +
+                "   summoned units = {6}" ).format(
+                    id.toString(),
+                    unitId.toRawCode().withColor(COLOR_ACCENT),
+                    spawnCount.toString().withColor(COLOR_ACCENT),
+                    spawning.toString().withColor(COLOR_ACCENT),
+                    currentSpawnCount.toString().withColor(COLOR_ACCENT),
+                    spawnedUnits.size().toString().withColor(COLOR_ACCENT),
+                    summonedUnits.size().toString().withColor(COLOR_ACCENT)
+                )
+              
+
+    
+        
+
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Other Stuff
 
 /** Checks if the unit is spawned by any spawner*/
 public function unit.isFromAnySpawner() returns boolean
     for spawner in UnitSpawner.allSpawners
-        if spawner.spawnedUnits.contains(this)
+        if spawner.spawnedUnits.has(this)
             return true
 
     return false
 
 /** Checks if unit is spawned by a specific spawner */
 public function unit.isFromSpawner(UnitSpawner whichSpawner) returns boolean
-    return whichSpawner.spawnedUnits.contains(this) or whichSpawner.summonedUnits.contains(this)
+    return whichSpawner.spawnedUnits.has(this) or whichSpawner.summonedUnits.has(this)
 
 
 /** Gets the unit spawner which the unit comes from. Returns null if it doesn't come from any spawner */
@@ -402,11 +440,85 @@ public function unit.getSpawner() returns UnitSpawner
     if UnitSpawner.allSpawners.size() > 0
 
         for spawner in UnitSpawner.allSpawners
-
-            if spawner.spawnedUnits.contains(this)
+            if spawner.spawnedUnits.has(this)
                 return spawner
-        
+            if( spawner.summonedUnits.has(this) )
+                return spawner
+                
     return null
 
 public interface RemoteFunction<UnitSpawner>
     function run(UnitSpawner unitSpawner)
+
+
+init
+    onLeave() ->
+        let u = getEnterLeaveUnit()
+        let spawner = u.getSpawner()
+    
+        if( spawner != null )
+            spawner.removeUnit(u)
+
+
+
+
+//================================================================================================================================================================================================
+// Chat Command
+
+init
+    let cmd = defineUtilCommand("unitspawner")
+    
+    cmd.addSubCommand("all")
+    ..setAction() (p, args, opts) ->
+        SND_CLICK.playForPlayer(p)
+        p.print("\nPrinting all UnitSpawner ids:", 15)
+        if( UnitSpawner.allSpawners.size() == 0 )
+            p.print("   No spawners...", 15)
+        else
+            for spawner in UnitSpawner.allSpawners
+                p.print("    " + spawner.id.toString(), 15)
+    
+    cmd.addSubCommand("info")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p, args, opts) ->
+        let id = args.getInt()
+        if( id < 0 )
+            p.print("\nSpawner ID cannot be negative", 15)
+            SND_ERROR.playForPlayer(p)
+        else
+            let spawner = UnitSpawner.getSpawner(id)
+            if( spawner == null )
+                p.print("\nCouldn't find spawner with ID {0}".format(id.toString().highlight()), 15)
+            else
+                p.print("\n" + spawner.toString())
+                SND_CLICK.playForPlayer(p)
+            
+    cmd.addSubCommand("units")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p, args, opts) ->
+        let id = args.getInt()
+        if( id < 0 )
+            p.print("\nSpawner id must be 0 or positive!", 15)
+            SND_ERROR.playForPlayer(p)
+        else
+            let spawner = UnitSpawner.getSpawner(id)
+            if( spawner == null )
+                p.print("\nCouldn't find spawner with id {0}".format(id.toString()).highlight(), 15)
+            else
+                p.print("\nPrinting units for spawner {0}".format(id.toString()).highlight(), 15)
+
+                if( spawner.spawnedUnits.size() == 0)
+                    p.print("No spawned units", 15)
+                else
+                    p.print("{0} spawned units:".format(spawner.spawnedUnits.size().toString()), 15)
+                    for u in spawner.spawnedUnits
+                        p.print("    {0} ({1})".format(u.getName(), u.isAlive() ? "alive" : "dead" ), 15)
+
+                if( spawner.summonedUnits.size() == 0)
+                    p.print("No summoned units", 15)
+                else
+                    p.print("{0} summoned units:".format(spawner.summonedUnits.size().toString()), 15)
+                    for u in spawner.summonedUnits
+                        p.print("    {0} ({1})".format(u.getName(), u.isAlive() ? "alive" : "dead" ), 15)
+                   
+                   

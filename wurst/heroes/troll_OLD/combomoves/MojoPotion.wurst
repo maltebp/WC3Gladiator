@@ -1,0 +1,223 @@
+// package MojoPotion
+
+// import ComboSystem
+// import HoverAbility
+// import TrollAnimations
+// import AbilityCreation
+// import BuffObjEditing
+// import Assets
+// import LinkedList
+// import ClosureTimers
+// import Projectile
+// import TimedSpecialEffects
+// import MyLibrary
+// import SoundDefinitions
+// import initlater TrollGladiator
+// import SoulDrainData
+// import Artifact
+
+// // =========================================================================================================
+
+// let RADIUS = 250.
+// let CASTERBUFF_DURATION = 5.
+
+// let MOJO_DURATION = 25.
+// let MOJO_DURATION_VOODOO = 25.
+// let MOJO_ATTACKSPEED_INC = 0.3
+
+// let DOCTORSMASK_DURATION = 2 * MOJO_DURATION
+// let SHRINKHEAD_DURATION = CASTERBUFF_DURATION * 2
+
+// // =========================================================================================================
+
+
+// public let MOJOPOTION_ID  = compiletime( createComboMove("Mojo Potion", "Do a slam dunk!", Icons.bTNGreaterInvulneralbility, Icons.bTNGreaterInvulneralbility,7))
+// let ABIL_DEF = new NoTargetAbility( MOJOPOTION_ID.useAbil, ANIM_TROLL_VICTORY )
+// public let COMBO_MOJOPOTION = new ComboMove( MOJOPOTION_ID, COMBO_POINT_E, COMBO_POINT_Q, null )
+
+// init
+//     ABIL_DEF
+//     ..onEffect() ( caster ) ->
+        
+//         caster.removePotionBuffs()
+//         let duration = caster.hasArtifact(ARTIFACT_TROLL_SHRINKHEAD) ? SHRINKHEAD_DURATION : CASTERBUFF_DURATION
+
+//         caster.applyBuff(duration)
+//         SND_ANCESTRALSPIRIT.playOnPoint(caster.getPos3Zero())
+//         caster.clearCombo()
+
+//         caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_2)
+
+// public function unit.removeMojoPotionBuff()
+//     let instance = MojoPotionCaster.getInstance(this)
+//     if instance != null
+//         destroy instance
+
+
+// // =========================================================================================================================================
+// // Caster Buff
+
+// let mojoPotionBuff = compiletime( createDummyBuffObject("Mojo Potion", "You're next Voodoo Potion will be enhanced with mojo.", Icons.bTNGreaterInvulneralbility, Abilities.witchDoctorMissile, "weapon") )
+
+// public function unit.applyBuff( real duration  ) 
+//     let instance = MojoPotionCaster.getInstance(this)
+//     if instance != null
+//         destroy instance
+//     new MojoPotionCaster(this, duration)
+
+// public function unit.hasMojoPotionBuff() returns boolean
+//     return MojoPotionCaster.getInstance(this) != null 
+
+// class MojoPotionCaster
+//     private static let instances = new LinkedList<thistype>
+
+//     private unit buffUnit
+//     private CallbackSingle durationCb = null
+
+//     construct( unit buffUnit, real duration )
+//         this.buffUnit = buffUnit
+
+//         buffUnit.addAbility(mojoPotionBuff.abilId)
+
+//         durationCb = doAfter( duration - 2 ) ->
+//             removeBuff()
+//             durationCb = doAfter(2) ->
+//                 this.durationCb = null
+//                 destroy this
+
+//         instances.add(this)
+
+
+//     function removeBuff()
+//         if buffUnit != null and buffUnit.isAliveTrick()
+
+//             // Sometimes the buff isnt removed if the unit is paused
+//             if buffUnit.isPaused()
+//                 doPeriodically(0.5) cb ->
+//                     if buffUnit != null and buffUnit.isAliveTrick() and not buffUnit.isPaused()
+//                         buffUnit.removeAbility(mojoPotionBuff.abilId)
+//             else
+//                 buffUnit.removeAbility(mojoPotionBuff.abilId)
+
+//     ondestroy
+//         if durationCb != null
+//             destroy durationCb
+
+//         instances.remove(this)
+
+//     static function getInstance( unit buffUnit ) returns thistype
+//         for instance in instances
+//             if instance.buffUnit == buffUnit
+//                 return instance
+//         return null
+
+
+
+// public function unit.castMojoPotion( vec2 pos )
+    
+//     let projectile = new Projectile(this.getPos().withTerrainZ(60), Abilities.brewmasterMissile1)
+//     ..firePoint(pos.withTerrainZ(), 700, 0.4)
+    
+//     projectile.getEffect().setScale(1.3)
+
+//     projectile
+//     ..addActionOnFinish() ->
+
+//         addEffect( Abilities.disenchantSpecialArt, pos.withTerrainZ(40))
+//         ..setScale(1.5)
+//         ..setDuration(3)
+        
+//         SND_ACID_BOMB_EXPLODE.playOnPoint(pos.withTerrainZ())
+
+//         let targets = ENUM_GROUP..enumFriendlyTargets( this.getOwner(), pos, RADIUS)
+    
+//         let duration = (this.hasArtifact(ARTIFACT_TROLL_DOCTORSMASK)) ? DOCTORSMASK_DURATION : MOJO_DURATION 
+        
+//         for target from targets
+//             this.castBuff(target, MOJO_ATTACKSPEED_INC, duration)
+
+
+// // ==============================================================================================================================================
+
+// function unit.castBuff( unit target, real attackSpeed, real duration )
+//     var instance = MojoTargetBuff.getInstance(target)
+//     if instance == null
+//         instance = new MojoTargetBuff(target)
+//     instance.start(duration, attackSpeed)
+
+
+// let mojoBuff = compiletime( createDummyBuffObject("Mojo", "You're next Voodoo Potion will be enhanced with mojo.", Icons.bTNGreaterInvulneralbility, Abilities.spiritLinkTarget, "chest") )
+
+// class MojoTargetBuff
+
+//     private static let instances = new LinkedList<thistype>
+
+//     private unit buffUnit
+//     real attackSpeed = 0
+//     private CallbackSingle durationCb = null
+//     private boolean hasBuff = false
+
+
+
+//     construct( unit buffUnit )
+//         this.buffUnit = buffUnit
+//         instances.add(this)
+
+
+//     function start( real duration, real attackSpeed )
+
+//         if not hasBuff
+//             buffUnit.addAbility(mojoBuff.abilId)
+//             hasBuff = true
+
+//         if durationCb != null
+//             destroy durationCb
+
+        
+//         if this.attackSpeed != 0
+//             buffUnit.adjustAttackSpeed(-this.attackSpeed)
+        
+//         this.attackSpeed = attackSpeed
+//         buffUnit.adjustAttackSpeed(attackSpeed)
+
+//         durationCb = doAfter( duration - 2 ) ->
+//             removeBuff()
+//             durationCb = doAfter(2) ->
+//                 this.durationCb = null
+//                 destroy this
+        
+
+        
+
+//     function removeBuff()
+
+//         hasBuff = false
+
+//         if buffUnit != null and buffUnit.isAliveTrick()
+
+//             // Sometimes the buff isnt removed if the unit is paused
+//             if buffUnit.isPaused()
+//                 doPeriodically(0.25) cb ->
+//                     if buffUnit != null and buffUnit.isAliveTrick() and not buffUnit.isPaused()
+//                         buffUnit.removeAbility(mojoBuff.abilId)
+//                         destroy cb
+//             else
+//                 buffUnit.removeAbility(mojoBuff.abilId)
+
+//     ondestroy
+//         if durationCb != null
+//             destroy durationCb
+        
+//         if buffUnit != null
+//             buffUnit.adjustAttackSpeed(-attackSpeed)
+
+//         removeBuff()
+
+//         instances.remove(this)
+
+
+//     static function getInstance( unit buffUnit ) returns thistype
+//         for instance in instances
+//             if instance.buffUnit == buffUnit
+//                 return instance
+//         return null

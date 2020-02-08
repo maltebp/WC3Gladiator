@@ -7,10 +7,11 @@ import TimedSpecialEffects
 import UnitVisualsUtils
 
 
+let SKELETONWARRIOR = 'u001'
+let SKELETONARCHER = 'n007'
+let NECROMANCER = 'u000'
 
-constant int SKELETONWARRIOR = 'u001'
-constant int SKELETONARCHER = 'n007'
-constant int NECROMANCER = 'u000'
+Round round = null
 
 
 init
@@ -19,10 +20,8 @@ init
 
     round = new Round
     ..setReward(30, 3)
-    ..addArtifactRewards(ARTIFACT_KILMAIM)
     ..addAbilityReward(1)
     ..addItemRewards(ITEM_BONEGLOVES)
-
     ..setTitle("Necromancers")
     ..setDescription("If you think they stand alone, it will cost you dearly")
 
@@ -35,12 +34,12 @@ init
         new SummonSkeletons(spawner.getLastSpawnedUnit(), spawner)
     end
 
-    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(-639,1025), 10))
+    round.addSpawner(new UnitSpawner('u000', ENEMY, vec2(-639,1025), 12))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(12)
+    ..setSpawnCount(10)
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
     ..setCodeOnSpawn(func)
 
@@ -49,7 +48,7 @@ init
         new SummonSkeletons(spawner.getLastSpawnedUnit(), spawner)
     end
 
-    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(527,1025), 24))
+    round.addSpawner(new UnitSpawner('u000', ENEMY, vec2(527,1025), 24))
     ..setStartDelay(30)
     ..setFrequencyDeviation(0.01)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -63,7 +62,7 @@ init
         new SummonSkeletons(spawner.getLastSpawnedUnit(), spawner)
     end
 
-    round.addSpawner(new UnitSpawner('u000', ENEMYPLAYER, vec2(527,1025), 15))
+    round.addSpawner(new UnitSpawner('u000', ENEMY, vec2(527,1025), 15))
     ..setStartDelay(70)
     ..setFrequencyDeviation(0.01)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
@@ -72,13 +71,28 @@ init
     ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
     ..setCodeOnSpawn(func)
 
+
+//================================================================================================================================================================================================
+// STATS SCALING
+
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == NECROMANCER or id == SKELETONARCHER or id == SKELETONWARRIOR )
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
+
+
+
+//================================================================================================================================================================================================
+// Mechanics
+
     
 enum SkeletonType
     WARRIOR
     ARCHER
 
 class SummonSkeletons
-    private static real SUMMON_FREQ = 20
+    private static real SUMMON_FREQ = 22
     private static real SUMMON_STARTDELAY = 3
     private static real SUMMON_FREQDEVIATION = 1
     private static int SUMMONAMOUNT_ARCHER = 1
@@ -103,7 +117,7 @@ class SummonSkeletons
 
     /** Starts the instance's timer with deviation*/
     private function startTimer(boolean firstStart)
-        real spawnTime = (firstStart) ? GetRandomReal(SUMMON_STARTDELAY-SUMMON_FREQDEVIATION, SUMMON_STARTDELAY+SUMMON_FREQDEVIATION) : GetRandomReal(SUMMON_FREQ-SUMMON_FREQDEVIATION, SUMMON_FREQ+SUMMON_FREQDEVIATION)
+        let spawnTime = (firstStart) ? GetRandomReal(SUMMON_STARTDELAY-SUMMON_FREQDEVIATION, SUMMON_STARTDELAY+SUMMON_FREQDEVIATION) : GetRandomReal(SUMMON_FREQ-SUMMON_FREQDEVIATION, SUMMON_FREQ+SUMMON_FREQDEVIATION)
         timer_Summon.start(spawnTime, function timerExpires)
     
     private static function timerExpires()
@@ -111,11 +125,11 @@ class SummonSkeletons
     
     private function summon()
 
-        if caster != null and caster.isAliveTrick()
+        if caster != null and caster.isAlive()
             caster.setAnimation("attack")
 
             unit skeleton
-            vec2 spawnPos = caster.getPos().polarOffset(angle(GetRandomReal(0, 2*PI)), 100)
+            let spawnPos = caster.getPos().polarOffset(angle(GetRandomReal(0, 2*PI)), 100)
 
             for int i = 0 to SUMMONAMOUNT_ARCHER-1
                 skeleton = Skeleton.spawn(SkeletonType.ARCHER, spawnPos)
@@ -141,8 +155,8 @@ class Skeleton
 
     construct(SkeletonType whichType, vec2 whichPos)
         vec2 pos = whichPos
-        int unitId = (whichType == SkeletonType.WARRIOR) ? 'u001' : 'n007'
-        skeleton = createUnit(ENEMYPLAYER, unitId, pos, angle(GetRandomReal(0, 2*PI)))
+        let unitId = (whichType == SkeletonType.WARRIOR) ? 'u001' : 'n007'
+        skeleton = createUnit(ENEMY, unitId, pos, angle(GetRandomReal(0, 2*PI)))
         ..pause()
         ..setAnimation("birth")
 
@@ -159,11 +173,11 @@ class Skeleton
 
 
     protected static function spawn( SkeletonType whichType, vec2 pos) returns unit
-        thistype instance = new Skeleton(whichType, pos)
+        let instance = new Skeleton(whichType, pos)
         return instance.skeleton
 
     private static function unpause()
-        thistype instance = GetExpiredTimer().getData() castTo thistype
+        let instance = GetExpiredTimer().getData() castTo thistype
         if instance.skeleton != null and instance.skeleton.isAliveTrick()
             instance.skeleton.unpause()
             instance.skeleton.issueTargetOrder("attack", instance.skeleton.getNearestEnemyTargetInRect(gg_rct_Arena_Visibility))

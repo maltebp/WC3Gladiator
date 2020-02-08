@@ -1,0 +1,93 @@
+// package ItemStats
+
+// import RegisterEvents
+// import LinkedList
+// import UnitStatsSystem
+
+
+// public class ItemStats
+
+//     private static let instances = new LinkedList<thistype>
+
+//     private int itemId
+
+//     private real damagePerc = 0
+//     private int damageFlat = 0
+//     private real attackSpeed = 0
+//     private real armor = 0
+//     private real resistance = 0
+//     private real health = 0
+//     private real moveSpeed
+    
+//     construct( int itemId )
+//         this.itemId = itemId
+//         instances.add(this)
+        
+//     static function getInstance( int itemId ) returns thistype
+//         for instance in instances
+//             if instance.itemId == itemId
+//                 return instance
+//         return null
+
+//     function setDamageFlat( int damageFlat )
+//         this.damageFlat = damageFlat
+
+//     function setDamagePerc( real damagePerc )
+//         this.damagePerc = damagePerc
+
+//     function setAttackSpeed( real attackSpeed )
+//         this.attackSpeed = attackSpeed
+
+//     function setArmorFlat(real armor)
+//         this.armor = armor
+
+//     function setResistance(real resistance)
+//         this.resistance = resistance
+
+//     function setHealthFlat(real health)
+//         this.health = health
+
+//     function setMoveSpeedFlat(real moveSpeed)
+//         this.moveSpeed = moveSpeed
+
+//     function updateUnit( unit whichUnit, boolean acquired )
+//         let factor = acquired ? 1 : -1
+
+//         whichUnit.adjustDamagePerc( damagePerc * factor )
+//         whichUnit.adjustDamageFlat( (damageFlat * factor).toReal() )
+//         whichUnit.adjustAttackSpeed( attackSpeed * factor)
+//         whichUnit.adjustArmorFlat( armor * factor )
+//         whichUnit.adjustHealthFlat( health * factor )
+//         whichUnit.adjustMoveSpeedFlat( moveSpeed * factor)
+//         whichUnit.adjustResistance( -resistance * factor)
+
+
+// function itemAcquired()
+//     let manipulatingUnit = GetManipulatingUnit()
+//     let itemId = GetManipulatedItem().getTypeId()
+
+//     let itemStatInstance = ItemStats.getInstance(itemId)
+
+//     if itemStatInstance != null
+//         itemStatInstance.updateUnit(manipulatingUnit, true)
+
+
+// function itemLost()
+//     let manipulatingUnit = GetManipulatingUnit()
+//     let itemId = GetManipulatedItem().getTypeId()
+
+//     let itemStatInstance = ItemStats.getInstance(itemId)
+
+//     if itemStatInstance != null
+//         itemStatInstance.updateUnit(manipulatingUnit, false)
+    
+
+
+// init
+//     registerPlayerUnitEvent( EVENT_PLAYER_UNIT_PICKUP_ITEM, function itemAcquired )
+//     registerPlayerUnitEvent( EVENT_PLAYER_UNIT_DROP_ITEM, function itemLost )
+    
+//     /*
+//         It's been tested that these two events cover ALL cases of a unit acquiring an item
+//         and losing item, including selling/buying, pickup/drop and add/remove.
+//     */

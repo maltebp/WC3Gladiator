@@ -1,0 +1,48 @@
+package ComboSystem
+
+import public ComboUnit
+import public ComboPoint
+import public ComboMove
+import Assets
+import ErrorHandling
+
+
+public let COMBO_POINT_Q = new ComboPointType( "Q", Player(5), color(150,0,0), color(255,75,25), Units.wisp1 )
+public let COMBO_POINT_W = new ComboPointType( "W", Player(9), color(7, 46, 90), color(200,200,255), Units.wisp1)
+public let COMBO_POINT_E = new ComboPointType( "E", Player(10), color(123, 202, 32), color(100,150,30), Units.wisp1)
+
+public function unit.addComboPoint( ComboPointType comboType ) returns boolean
+    let definition = ComboUnitDefinition.getDefinition(this) 
+    if definition != null
+        if ComboUnit.getInstance(this).addComboPoint(comboType)
+    return false
+
+public function unit.removeLastComboPoint()
+    let instance = ComboUnit.getInstance(this)
+    if instance != null
+        instance.removeLastComboPoint()
+
+public function unit.isComboUnit() returns boolean
+    return ComboUnitDefinition.getDefinition(this) != null
+
+public function unit.hasComboMove( ComboMove move ) returns boolean
+    return this.hasAbility(move.getAbilityId())
+
+public function unit.getNumberOfComboPoints() returns int
+    let instance = ComboUnit.getInstance(this)
+    if instance != null
+        return instance.currentCombo.size()
+    return 0
+    
+public function unit.clearCombo()
+    let instance = ComboUnit.getInstance(this)
+    if instance != null
+        instance.clearMoves()
+        instance.removeAllComboPoints()
+
+public function unit.getComboMove() returns ComboMove
+    let instance = ComboUnit.getInstance(this)
+    if instance != null
+        return instance.getCurrentMove()
+    return null
+    

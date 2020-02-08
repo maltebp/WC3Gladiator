@@ -1,0 +1,216 @@
+package CursingWard
+import LinkedList
+import ClosureTimers
+import Assets
+import MyLibrary
+import ObjectIdGenerator
+import BuffObjEditing
+import AbilityObjEditing
+import ObjectIds
+import AbilityCreation
+import HoverAbility
+import HeroDefaults
+import TrollAnimations
+import ComboSystem
+import SoundDefinitions
+import SoundUtils
+
+import SoulDrainData
+
+
+let DAMAGE_RED = 0.3
+let RADIUS = 800.
+let DURATION = 45.
+let RANGE = DEFAULT_CASTRANGE
+
+
+
+
+public let CURSINGWARD_ID  = compiletime( createComboMove("Cursing Ward", "Do a slam dunk!", Icons.bTNBigBadVoodooSpell, Icons.bTNBigBadVoodooSpell,4))
+let ABIL_DEF = new PointAbility( CURSINGWARD_ID.useAbil, RANGE, ANIM_TROLL_ATTACK)
+public let COMBO_CURSINGWARD = new ComboMove( CURSINGWARD_ID,  COMBO_POINT_Q, COMBO_POINT_E, null )
+
+
+init
+    ABIL_DEF
+    ..onEffect() ( caster, pos ) ->
+        caster.placeWard(pos, RADIUS, DURATION)
+
+        caster.clearCombo()
+
+        // caster.reduceCharge( SOUL_DRAIN_COMBOMOVE_2)
+        
+
+
+function unit.placeWard( vec2 pos, real radius, real duration)
+    this.removeWard()
+    new CurseWard(this, pos, duration)
+
+
+function unit.removeWard()
+    let instance = CurseWard.getInstance(this)
+    if instance != null
+        destroy instance
+
+let CURSE_ID = compiletime(ABIL_ID_GEN.next())
+
+
+@compiletime
+function createAbility()
+
+    let buffId = BUFF_ID_GEN.next()
+
+    new BuffDefinition( buffId, 'BOac')
+    ..setIcon(Icons.bTNBigBadVoodooSpell)
+    ..setTooltipNormal(1, "Curse")
+    ..setTooltipNormalExtended(1, "You have reduced damage")
+    ..setArtTarget(1, Abilities.orbDarkness)
+    ..setTargetAttachmentPoint0(1, "chest")
+
+    
+    new AbilityDefinitionAuraCommandCreep(CURSE_ID)
+    ..setArtTarget(Abilities.obsidianRegenAura)
+    ..setTargetsAllowed(1, "ground,enemy,vuln,invu,organic")
+    ..setBuffs(1, buffId.toRawCode() )
+    ..setAttackDamageIncrease(1, -DAMAGE_RED)
+    ..setAreaofEffect(1, RADIUS)
+
+class CurseWard
+    static let instances = new LinkedList<thistype>
+    
+    unit caster
+    unit ward
+    real duration
+
+    sound snd
+
+    CallbackSingle durationCb
+
+    construct( unit caster, vec2 pos, real duration )
+
+        this.caster = caster
+        ward = createUnit( caster.getOwner(), 'n016', pos, angle(PI))
+        ..addAbility(CURSE_ID)
+        ..setAnimation("birth")
+        ..queueAnimation("stand")
+
+        snd = SND_UNSUMMONLOOP.playOnPoint( caster.getPos().withTerrainZ()).snd
+        ..setVolume(50)
+
+        instances.add(this)
+
+        durationCb = doAfter(duration) ->
+            durationCb = null
+            destroy this
+
+    ondestroy
+        if durationCb != null
+            destroy durationCb
+
+        ward.kill()
+        
+        snd.stop(false, true)
+
+        instances.remove(this)
+    
+    static function getInstance( unit caster ) returns thistype
+        for instance in instances
+            if instance.caster == caster
+                return instance
+        return null
+
+
+// ===========================================================================================================================================
+
+// OBS: All this is for when regular unit's get unit stats
+
+// class CursingWard
+
+//     private static let instances = new LinkedList<thistype>
+//     private static CallbackPeriodic updateCb
+
+//     private static let tempGroup = CreateGroup()
+
+//     CallbackSingle durationCb
+
+//     unit caster
+//     vec2 pos
+//     effect ward
+//     real radius
+//     effect sfx
+
+//     construct( unit caster, vec2 pos, real radius, real duration )
+//         this.caster = caster
+//         this.radius = radius
+//         this.pos = pos
+
+//         ward = addEffect( Units.watcherWard, pos.withTerrainZ())
+//         ..setColor(255, 100, 155)
+
+//         sfx = addEffect( Abilities.obsidianRegenAura, pos.withTerrainZ() )
+
+//         durationCb = doAfter(duration) ->
+//             durationCb = null
+//             destroy this
+
+//         instances.add(this)
+//         if instances.size() == 1
+//             updateCb = doPeriodically( 0.5) cb ->
+//                 updateBuffs()
+
+//     ondestroy
+//         if durationCb != null
+//             destroy durationCb
+
+//         ward.destr()
+//         sfx.destr()
+
+//         instances.remove(this)
+//         if instances.size() == 0
+//             destroy updateCb
+    
+//     function getInstance( unit caster ) returns thistype
+//         for instance in instances
+//             if instance.caster == caster
+//                 return instance
+//         return null
+
+//     static function updateBuffs()
+
+//         let totalTargets = tempGroup
+
+//         for instance in instances
+//             forEnemiesInRange(instance.caster.getOwner(), instance.pos, instance.radius ) target ->
+//                 if not totalTargets.contains(target)
+//                     totalTargets.addUnit(target)
+
+
+//         for instance in CurseBuff.instances
+//             if instance.buffUnit == null or not instance.buffUnit.isAlive() or totalTargets.contains(instance.buffUnit)
+//                 destroy instance
+//             else
+//                 totalTargets.removeUnit(instance.buffUnit)
+
+//         for newTarget from totalTargets
+
+
+        
+
+//         tempGroup.clear()
+
+
+
+// class CurseBuff
+    
+//     static let instances = new LinkedList<thistype>
+    
+//     unit buffUnit
+
+//     construct( unit buffUnit )
+//         this.buffUnit = buffUnit
+//         instances.add(this)
+
+//     ondestroy
+
+//         //buffUnit.adjustDamage
+//         instances.remove(this)

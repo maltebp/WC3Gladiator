@@ -1,0 +1,23 @@
+package SoundDefinitions
+
+import SoundUtils
+
+public let SND_METAL_SLICE_HEAVY_FLESH = [ new SoundDefinition(Sounds.metalHeavySliceFlesh1, false, true), new SoundDefinition(Sounds.metalHeavySliceFlesh2, false, true), new SoundDefinition(Sounds.metalHeavySliceFlesh3, false, true) ]
+public let SND_SORCERESS_MISSILE_DEATH = new SoundDefinition( Sounds.sorceressMissileHit3, false, true)
+public let SND_ACID_BOMB_EXPLODE = new SoundDefinition( Sounds.alchemistAcidBurnMissileDeath1, false, true)
+public let SND_FIREBALL_LAUNCH = [ new SoundDefinition( Sounds.fireBallMissileLaunch1, false, true), new SoundDefinition( Sounds.fireBallMissileLaunch2, false, true), new SoundDefinition( Sounds.fireBallMissileLaunch3, false, true)]
+public let SND_UNDEAD_DISSIPATE2 = new SoundDefinition(Sounds.undeadDissipate2, false, true)
+public let SND_LICH_CAST = [ new SoundDefinition( Sounds.lichAttackEffort1, false, true), new SoundDefinition( Sounds.lichAttackEffort2, false, true), new SoundDefinition( Sounds.lichAttackEffort3, false, true)]
+public let SND_SACRIFICE = new SoundDefinition(Sounds.sacrificeUnit, false, true)
+public let SND_POSSESSION = new SoundDefinition( Sounds.possessionMissileLaunch1, false, true )
+public let SND_BANISHCASTER = new SoundDefinition( Sounds.banishCaster, false, true)
+public let SND_BIGBADVOODOO = new SoundDefinition( Sounds.bigBadVoodooSpellBirth1, false, true)
+public let SND_ANCESTRALSPIRIT = new SoundDefinition( Sounds.ancestralSpirit, false, true)
+public let SND_PRIESTCAST       = new SoundDefinition( Sounds.priestCastAttack1, false, true)
+public let SND_BERSERK          = new SoundDefinition( Sounds.berserkerCaster, false, true)
+public let SND_UNSUMMONLOOP     = new SoundDefinition( Sounds.cityscapeCrystalShield1, true, true)
+public let SND_CORROSIVEBREATH_TARGET = new SoundDefinition( Sounds.corrosiveBreathMissileTarget1, false, true )
+public let SND_GRAVEYARDWHAT    = new SoundDefinition( Sounds.graveYardWhat1, false, true )
+public let SND_SPIRITWOLF_BIRTH = new SoundDefinition( Sounds.spiritWolfBirth1,  false, true)
+public let SND_HEALINGSPRAY_HIT = new SoundDefinition( Sounds.healingSprayDeath1, false, true)
+public let SND_UNDEAD_BUILDING_DEATH_LARGE = new SoundDefinition( Sounds.undeadBuildingDeathLarge1, false, true)

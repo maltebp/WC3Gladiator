@@ -1,0 +1,193 @@
+package HalfBreedMasteries
+
+import public Mastery
+
+import HalfBreed
+import GladiatorSystem
+import Stats
+import Abilities
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// SHARPENED CLEAVER
+
+public let HALF_BREED_SHARPENED_CLEAVER_PENALTY_RED = 0.25
+public let HALF_BREED_SHARPENED_CLEAVER = compiletime(defineMastery(
+    "Sharpened Cleaver",
+    Icons.bTNSpiritWalkerMasterTraining,
+    HALF_BREED_COLOR,
+    rank -> "Reduces your cleave ability's damage penalty by {0}.".format(
+        (rank*HALF_BREED_SHARPENED_CLEAVER_PENALTY_RED).toPercentageString()
+    ),
+    1
+))
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// BLOODTHIRST
+
+public let HALF_BREED_BLOODTHIRST_HEAL_FACTOR = 0.10
+public let HALF_BREED_BLOODTHIRST = compiletime(defineMastery(
+    "Bloodthirst",
+    Icons.bTNBloodLust,
+    HALF_BREED_COLOR,
+    rank -> "Each time you use an ability, you restore health equal to {0} of your power.".format(
+        (HALF_BREED_BLOODTHIRST_HEAL_FACTOR*rank).toPercentageString()
+    ),
+    1
+))
+
+public function unit.activateBloodthirst()
+    let bloodthirstLevel = this.getOwner().getMasteryLevel(HALF_BREED_BLOODTHIRST)
+    if( bloodthirstLevel > 0 )
+        this.addHP( this.getPower() * HALF_BREED_BLOODTHIRST_HEAL_FACTOR * bloodthirstLevel )
+        this.addEffect(Abilities.vampiricAuraTarget, "origin")
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// SLEIGHT OF HAND
+public let HALF_BREED_SLEIGHT_OF_HAND_ENERGY_RESTORE = 0.5
+public let HALF_BREED_SLEIGHT_OF_HAND_PROC_CHANCE = 0.06
+public let HALF_BREED_SLEIGHT_OF_HAND = compiletime(defineMastery(
+    "Sleight of Hand",
+    Icons.bTNOrcMeleeUpTwo,
+    HALF_BREED_COLOR,
+    rank -> "When using your Flying Axe ability, there is a {0} to immediately reset its cooldown at restore {1} of its energy cost.".format(
+        (HALF_BREED_SLEIGHT_OF_HAND_PROC_CHANCE*rank).toPercentageString(),
+        (HALF_BREED_SLEIGHT_OF_HAND_ENERGY_RESTORE*rank).toPercentageString()
+    ),
+    2
+))
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Havoc
+
+public let HALF_BREED_HAVOC_DMG_INC = 0.25
+public let HALF_BREED_HAVOC = compiletime(defineMastery(
+    "Havoc",
+    Icons.bTNGnollCommandAura,
+    HALF_BREED_COLOR,
+    rank -> "Increases damage done by your Wrecking Strike by {0}.".format(
+        (rank*HALF_BREED_HAVOC_DMG_INC).toPercentageString()
+    ),
+    3
+))
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// DEATH WISH
+
+public let HALF_BREED_DEATH_WISH_POWER_INC = 0.1
+public let HALF_BREED_DEATH_WISH_DMG_TAKEN_INC = 0.06
+public let HALF_BREED_DEATH_WISH = compiletime(defineMastery(
+    "Death Wish",
+    Icons.bTNDeathPact,
+    HALF_BREED_COLOR,
+    rank -> "Permanently increase your power by {0}, but also increases the damage you take by {1}".format(
+        (HALF_BREED_DEATH_WISH_POWER_INC*rank).toPercentageString(),
+        (HALF_BREED_DEATH_WISH_DMG_TAKEN_INC*rank).toPercentageString()
+    ),
+    4
+))
+
+init
+    onResearchSkillChanged(HALF_BREED_DEATH_WISH) (p,lvl) ->
+        p.getGladiator().getUnit()
+        ..adjustStatPercentage(STAT_DAMAGE, HALF_BREED_DEATH_WISH_POWER_INC)
+        ..adjustStatFlat(STAT_DAMAGE_TAKEN, HALF_BREED_DEATH_WISH_DMG_TAKEN_INC)
+        
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// OGRE LUNGS
+
+public let HALF_BREED_OGRE_LUNGS_DMG_INC = 0.50
+public let HALF_BREED_OGRE_LUNGS = compiletime(defineMastery(
+    "Ogre Lungs",
+    Icons.bTNAvatarOff,
+    HALF_BREED_COLOR,
+    rank -> "Increases the damage done by your Impeding Shout by {0}".format(
+        (rank*HALF_BREED_OGRE_LUNGS_DMG_INC).toPercentageString()
+    ),
+    5
+))
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ENDLESS RAGE
+
+public let HALF_BREED_ENDLESS_RAGE_DEREGEN_DEC = 0.05
+public let HALF_BREED_ENDLESS_RAGE = compiletime(defineMastery(
+    "Endless Rage",
+    Icons.bTNAncestralSpirit,
+    HALF_BREED_COLOR,
+    rank -> "Reduces the rate at which your rage degenerate by {0}.".format(
+        (rank*HALF_BREED_ENDLESS_RAGE_DEREGEN_DEC).toPercentageString()
+    ),
+    6
+))
+
+init
+    onResearchSkillChanged(HALF_BREED_ENDLESS_RAGE) (p, rank) ->
+        p.getGladiator().getUnit().adjustStatPercentage(STAT_CHARGE_DEREGEN, -HALF_BREED_ENDLESS_RAGE_DEREGEN_DEC)
+        
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// VICTORY RUSH
+
+public let HALF_BREED_VICTORY_RUSH_POWER_INC = 0.10
+public let HALF_BREED_VICTORY_RUSH_DURATION = 8.
+public let HALF_BREED_VICTORY_RUSH = compiletime(defineMastery(
+    "Victory Rush",
+    Icons.bTNReincarnation,
+    HALF_BREED_COLOR,
+    rank -> "After a successful execution, your power is increased by {0} for {1} seconds.".format(
+        (rank*HALF_BREED_VICTORY_RUSH_POWER_INC).toPercentageString(),
+        HALF_BREED_VICTORY_RUSH_DURATION.toInt().toString()
+    ),
+    7
+))
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// CHARGE
+
+public let HALF_BREED_CHARGE_MOVE_SPEED_INC = 0.10
+public let HALF_BREED_CHARGE = compiletime(defineMastery(
+    "Charge",
+    Icons.bTNUnholyFrenzy,
+    HALF_BREED_COLOR,
+    rank -> "Your Frenzy ability also increases your movement speed by {0}".format(
+        (rank*HALF_BREED_CHARGE_MOVE_SPEED_INC).toPercentageString()
+    ),
+    8
+))
+
+
+
+//================================================================================================================================================================================================
+// Shop definition
+
+public let HALF_BREED_MASTERY_SHOP = compiletime( UNIT_ID_GEN.next() )
+    
+@compiletime
+function defineShop()
+    defineMasteryShop(HALF_BREED_MASTERY_SHOP)
+    ..defineAsResearchSkillShop(
+        HALF_BREED_BLOODTHIRST,
+        HALF_BREED_SHARPENED_CLEAVER,
+        HALF_BREED_SLEIGHT_OF_HAND,
+        HALF_BREED_HAVOC,
+        HALF_BREED_DEATH_WISH,
+        HALF_BREED_OGRE_LUNGS,
+        HALF_BREED_ENDLESS_RAGE,
+        HALF_BREED_VICTORY_RUSH,
+        HALF_BREED_CHARGE
+    )
+
+init
+    HALF_BREED.setMasteryShopType(HALF_BREED_MASTERY_SHOP)

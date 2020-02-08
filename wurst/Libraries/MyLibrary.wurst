@@ -2,9 +2,9 @@ package MyLibrary
 
 /** Gets the unit nearest the spawnedUnit from the spawner's targetRect.*/
 public function unit.getNearestEnemyTargetInRect(rect whichRect) returns unit 
-    group targets = ENUM_GROUP
+    let targets = ENUM_GROUP
     targets.enumUnitsInRect(whichRect)
-    player owner = this.getOwner()
+    let owner = this.getOwner()
 
     // Removing the units not to be hit
     for u in targets
@@ -14,14 +14,20 @@ public function unit.getNearestEnemyTargetInRect(rect whichRect) returns unit
     // Finding nearest target
     real shortestDist = 999999
     unit target = null
-    vec2 originPos = this.getPos()
+    let originPos = this.getPos()
     for u from targets
-        real distance = u.getPos().distanceTo(originPos)
+        let distance = u.getPos().distanceTo(originPos)
         if distance < shortestDist
             shortestDist = distance
             target = u
         
     return target
+
+/** Just for testing purposes */
+public function onChatCommand( string command, code someFunc)
+    CreateTrigger()
+    ..registerPlayerChatEvent(Player(0), command, true)
+    ..addAction(someFunc)
 
 
 /** Checks how many of a certain item type the unit has */
@@ -41,7 +47,11 @@ public function isFriendly() returns boolean
     return false
 
 public function unit.isValidEnemyTarget(player enemy) returns boolean
-    return this.getOwner().isEnemyOf(enemy) and this.isAliveTrick()
+    return this.getOwner().isEnemyOf(enemy) and this.isAlive()
+
+
+public function unit.isFriendlyTarget(player ally) returns boolean
+    return not this.getOwner().isEnemyOf(ally) and this.isAliveTrick()
 
 
 public function group.enumEnemyTargets(player enemy, vec2 pos, real range)
@@ -50,6 +60,15 @@ public function group.enumEnemyTargets(player enemy, vec2 pos, real range)
     if this.size() > 0
         for target in this
             if not target.isValidEnemyTarget(enemy)
+                this.removeUnit(target)
+
+
+public function group.enumFriendlyTargets(player ally, vec2 pos, real range)
+    this.enumUnitsInRange(pos, range)
+
+    if this.size() > 0
+        for target in this
+            if not target.isFriendlyTarget(ally)
                 this.removeUnit(target)
     
 

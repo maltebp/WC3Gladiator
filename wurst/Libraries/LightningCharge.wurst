@@ -8,7 +8,6 @@ package LightningCharge
 
 import TimerUtils
 import TimedSpecialEffects
-import RegisterEvents
 import HashMap
 import Damage
 
@@ -80,8 +79,8 @@ constant boolean DEBUG = false
 /** Print a debugMsg, that is toggleable
     with the DEBUG variable*/
 function debugMsg(string stringToPrint)
-         if DEBUG
-             print(stringToPrint)
+    if DEBUG
+        print(stringToPrint)
 
 // ----------------------------------------------------------------------------------------------------------------------------------
 
@@ -138,7 +137,7 @@ public class LightningCharge
 
         timer_Explosion.startPeriodic(CHARGE_EXPLOSION_FREQ, function callback_Explosion )
 
-        real adjustedDuration = (duration < 2) ? 2 : duration
+        let adjustedDuration = (duration < 2) ? 2 : duration
         timer_Duration.start(adjustedDuration+0.1, function callback_durationEnds )
 
 
@@ -296,14 +295,14 @@ public class LightningExplosion
         rippleCount++
 
         if(rippleCount>1)
-            int numberOfOrbs = (rippleCount div 3) +3
-            real angleOffsetPerOrb = PI2 / numberOfOrbs + rippleCount
+            let numberOfOrbs = (rippleCount div 3) +3
+            let angleOffsetPerOrb = PI2 / numberOfOrbs + rippleCount
             
             // Creating explosion sfx
             for i=0 to numberOfOrbs
-                real angleDeviation = GetRandomReal(0, 0.5)
-                real distanceDeviation = GetRandomReal(0,1)
-                vec2 pos = this.pos.polarOffset(angle(angleOffsetPerOrb*i+angleDeviation), (rippleCount*rangeBetweenExplosions-rangeBetweenExplosions)+distanceDeviation)
+                let angleDeviation = GetRandomReal(0, 0.5)
+                let distanceDeviation = GetRandomReal(0,1)
+                let pos = this.pos.polarOffset(angle(angleOffsetPerOrb*i+angleDeviation), (rippleCount*rangeBetweenExplosions-rangeBetweenExplosions)+distanceDeviation)
                 explosionSfx(pos.withTerrainZ(50))
             
         debugMsg("explosion!")

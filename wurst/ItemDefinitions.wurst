@@ -1,0 +1,88 @@
+package ItemDefinitions
+
+import Stats
+
+init
+    
+    // Dull Blade
+    'I000'
+    ..setStatFlat(STAT_DAMAGE, 4)
+
+    //Amulet
+    'I02E'
+    ..setStatFlat(STAT_RESISTANCE, 0.15)
+
+    //Common Gem
+    'I00A'
+    ..setStatFlat(STAT_HEALTH, 75)
+    
+    // Leather Armor
+    'I006'
+    ..setStatFlat(STAT_ARMOR,4)
+
+    // Gnoll's Old Boots
+    'I007'
+    ..setStatFlat(STAT_ARMOR,3)
+    ..setStatFlat(STAT_MOVESPEED, 30)
+
+    // Magic Gem
+    'I00J'
+    ..setStatFlat(STAT_DAMAGE, 8) 
+
+    // Enchanted Sword
+    'I00L'
+    ..setStatFlat(STAT_DAMAGE, 8) 
+    ..setStatPercentage(STAT_ATTACKSPEED, 0.25)
+
+    // Gargoyle's Cloak
+    'I00N'
+    ..setStatFlat(STAT_ARMOR,5)
+
+    // Footman's Helm
+    'I00M'
+    ..setStatFlat(STAT_ARMOR,5)
+    ..setStatFlat(STAT_HEALTH, 150)
+
+    // Magic Talisman
+    'I00I'
+    ..setStatFlat(STAT_HEALTH, 75)
+    ..setStatFlat(STAT_RESISTANCE, 0.25)
+
+    // Lava Tempered Boots 
+    'I01G'
+    ..setStatFlat(STAT_DAMAGE, 8) 
+    ..setStatFlat(STAT_MOVESPEED,50)
+    
+
+    // Demon Figurine
+    'I00T'
+    ..setStatFlat(STAT_DAMAGE, 14) 
+
+    // Storm Lord's Crown
+    'I00E'
+    ..setStatFlat(STAT_RESISTANCE,0.4)
+    
+
+    // Bone gloves
+    'I01F' 
+    ..setStatPercentage(STAT_ATTACKSPEED, 0.20)
+    ..setStatFlat(STAT_ARMOR,4)
+
+    // Spider BRacers
+    'I01U'
+    ..setStatFlat(STAT_ARMOR,4)
+    ..setStatPercentage(STAT_ATTACKSPEED, 0.20)
+
+    // Deflective Disc Device
+    'I00B'
+    ..setStatFlat(STAT_ARMOR,8)
+
+    // Tinker's Personal Hammer
+    'I009'.setStatFlat(STAT_DAMAGE, 10) 
+    
+    'I01R'.setStatFlat(STAT_DAMAGE, 25) // Fel Stone
+    'I01T'.setStatFlat(STAT_DAMAGE, 15) // Trident
+
+    // Editor's Items
+    'I00S'.setStatFlat(STAT_DAMAGE, 30)
+    'I00P'.setStatFlat(STAT_DAMAGE, 80)

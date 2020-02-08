@@ -15,7 +15,7 @@ package LightningUtil
         Use the getLightning() to get the lightning, and model it directly.
 
 ========================================================================================================================= */
-
+    
 import LinkedList
 import TimerUtils
 import ErrorHandling
@@ -112,21 +112,21 @@ public class Lightning
         if connectedToSourceUnit and connectedToTargetUnit
 
             if targetUnit != null and targetUnit.isAlive() and sourceUnit != null and sourceUnit.isAlive()
-                lightningSfx.move(true, sourceUnit.getPos3with(sourceZOffset), targetUnit.getPos3with(targetZOffset))
+                lightningSfx.move(true, sourceUnit.getPos().withTerrainZ(sourceZOffset), targetUnit.getPos().withTerrainZ(targetZOffset))
 
             else if removeOnUnitDeath
                 destroy this
         
         else if connectedToSourceUnit
             if sourceUnit != null and sourceUnit.isAlive()
-                lightningSfx.move(true, sourceUnit.getPos3with(sourceZOffset), targetPos)
+                lightningSfx.move(true, sourceUnit.getPos().withTerrainZ(sourceZOffset), targetPos)
 
             else if removeOnUnitDeath
                 destroy this
 
         else if connectedToTargetUnit
             if targetUnit != null and targetUnit.isAlive()
-                lightningSfx.move(true, sourcePos, targetUnit.getPos3with(targetZOffset))
+                lightningSfx.move(true, sourcePos, targetUnit.getPos().withTerrainZ(targetZOffset))
 
             else if removeOnUnitDeath
                 destroy this
@@ -166,3 +166,4 @@ public class Lightning
     /** Enables so that the lightning will be removed if the targetUnit or sourceUnit are dead or null */
     function setRemoveOnUnitDeath( boolean toggle)
         removeOnUnitDeath = toggle
+

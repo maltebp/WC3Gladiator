@@ -1,0 +1,186 @@
+
+///////////////////////
+package CompileTimeData
+///////////////////////
+
+/*
+=======================================================================================================================================
+
+    COMPILE TIME DATA
+    By Lake
+
+        Small library to allow dynamically save data during compile time, which may
+        be loaded within run time. I.e. save a "list" of defined units, to a list, which may be loaded by the
+        library on init.
+    
+    How to use:
+        Compile time:
+        1) Define a data obj using 'defineDataObj()'
+        2) Use addData() on that data obj to add a data entry
+        
+        Run time:
+        3) Load list of data entries by using getData() on the defined data object
+
+
+    Limitations:
+        Each data object may store at most 8191 characters. Each entry takes up the data you want
+        to store + 1 character (the delimiter).
+        This limitation is due to the fact that the system uses the extended tooltip of item definitions
+        to store the data string, and this tooltip is limited to 8191 characters.
+
+
+    TODO:
+        - Create a dynamic data structure for data objects during compiletime, so you can add and remove items.
+
+=======================================================================================================================================
+*/
+
+// ----------------------------------------------------------------------------
+import ItemObjEditing
+import HashMap
+import ObjectIdGenerator
+import Assets
+import ErrorHandling
+import MapBounds
+import LinkedList
+// ----------------------------------------------------------------------------
+
+let DELIMITER = "\n"
+let MAX_CHARS = 8191
+
+// Compiletime maps to temporarily store ItemDefinitions and data
+let dataObjects = new HashMap<int, ItemDefinition>
+let dataStrings = new HashMap<int, string>
+
+// Keeps count of number of data objects defined
+var count = 0
+
+
+/**
+    Add a data entry to a data object defined by this integer.
+    The entry must not contain the newline char '\n', as this
+    is used to split the data entries apart.  
+*/
+public function defineDataObj() returns int
+
+    if( not compiletime )
+        error("Function should only be used at compiletime")
+
+    let id = ITEM_ID_GEN.next()
+    count++
+
+    let obj = new ItemDefinition(id, 'ratc')
+    ..setName("Data Object " + count.toString())
+    ..setGoldCost(0)
+    ..setInterfaceIcon(Icons.bTNBox)
+    ..setTooltipBasic("Data Object " + count.toString())
+    ..setTooltipExtended("")
+    ..setModelUsed("")
+
+    dataObjects.put( id, obj )
+    dataStrings.put( id, "" )
+
+    return id
+
+
+/**
+    Add a data entry to a data object defined by this integer.
+    The entry must not contain the newline char '\n', as this
+    is used to split the data entries apart.  
+
+    @data: The string data that you want to store in the data object
+*/
+public function int.addData(string data)
+
+    if( not compiletime )
+        error("Function should only be used at compile time")
+
+    // Check if object is defined
+    if( not dataStrings.has(this) or not dataObjects.has(this) )
+        compileError(this.toString() + " is not a defined dataobject!" )
+
+    if( data.contains("\n") )
+        compileError("Data entry must not contain new line character (they're used to split data)")
+
+    // Fetch data object and string
+    var dataString = dataStrings.get(this)
+    var dataObject = dataObjects.get(this)
+
+    // Update data object 
+    dataString += data + "\n"
+    if( dataString.length() > MAX_CHARS )
+        compileError("Data object full! It contains "+dataString.length().toString() + " characters, and may contain "+MAX_CHARS.toString()+" at most (including 1 delimiter character per entry.")
+
+    dataObject.setTooltipExtended(dataString)
+
+    // Update string
+    dataStrings.remove(this)
+    dataStrings.put(this, dataString)
+
+
+
+
+/**
+    Compile time function
+
+    Clears the data on a defined data object. The object will still be
+    created, but will contain no entries, if none are added this function.
+*/
+public function int.clearData()
+    if( not compiletime )
+        error("Function should only be used at compile time")
+
+    // Check if object is defined
+    if( not dataStrings.has(this) or not dataObjects.has(this) )
+        compileError(this.toString() + " is not a defined dataobject!" )
+
+    // Fetch data object and update
+    var dataObject = dataObjects.get(this)
+    dataObject.setTooltipExtended("")
+
+    // Replace string with emptry string
+    dataStrings.remove(this)
+    dataStrings.put(this, "")
+
+    
+
+/**
+    Fetch data stored within the data object defined by this
+    integer id.
+    Each entry in the object is split into its own string element
+    and put into the returned LinkedList. If there are no data
+    entries in the list, the LinkedList will just be empty
+    
+    WARNING: Remember to destroy the returned list after use!
+*/
+public function int.getData() returns LinkedList<string>
+    
+    // Creating temporary item outside out of sight
+    let dataItem = createItem( this, vec2(boundMin.x, boundMax.y))
+
+    // Error checking
+    if( dataItem == null )
+        error("Data item "+this.toString() +" is not defined")
+
+    if( not dataItem.getName().contains("Data Object") )
+        error("Item created from data object "+this.toString()+" is not a data object item")
+
+    // Fetch data
+    let dataString = dataItem.getExtendedTooltip()
+    let dataList = new LinkedList<string>
+
+    var buildString = ""
+
+    if( dataString.length() > 0 )
+        // Split lines into list elements
+        for char in dataString
+            if( char == "\n")
+                dataList.add(buildString)
+                buildString = ""
+            else
+                buildString += char
+        
+    dataItem.remove()
+    return dataList
+    
+    

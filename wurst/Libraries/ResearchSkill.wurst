@@ -1,0 +1,472 @@
+////////////////////
+package ResearchSkill
+/////////////////////
+
+/*
+===========================================================================================================
+
+    RESEARCH SKILL SYSTEM
+
+    Provide functionality to easily implement a skill system based on regular researches/upgrades.
+
+    How to use:
+        Compile time:
+            1) Define the research skills using 'defineResearchSkill()' method
+            2) Create a building, and add the research skills using 'defineAsResearchSkillShop'
+            Optionally: Define requirements, and add them to your research skills, to limit
+                        the use as to when they may buy the skills.
+        
+        Run time:
+            1) Add actions to run when a player buys a skill using 'onResearchSkillChanged()' function.
+            2) Toggle player requirements fulfillment using   
+
+    NOTE:
+    The system is not explicitly for "skills" but can be used for anything where players may buy, train,
+    level up (and so on) by buying "researchs"
+
+    -------------------------
+
+    Example: 
+        let MY_SKILL = compiletime( defineResearchSkill() )
+        let REQUIREMENT = compiletime( defineRequirement("Level 5"))
+        let SHOP = compiletime(UNIT_ID_GEN.next())
+        
+        @compiletime
+        function definitions()
+            MY_SKILL
+            ..setName((int lvl) -> "My Skill - Level "+lvl.toString() )
+            ..setLevels(10)
+            ..setRequirements( REQUIREMENT )
+        
+            new BuildingDefinition(SHOP, 'SOMEID')
+            ..
+            ..defineAsResearchSkillShop(MY_SKILL)
+
+    //TODO:
+        - Make it possible to add to a shop skills dynamically, rather than having to define all skills at once
+            
+=============================================================================================================
+*/
+
+import ObjectIdGenerator
+import UpgradeObjEditing
+import UnitObjEditing
+import CompileTimeData
+import Assets
+import ObjectIds
+import RegisterEvents
+import Orders
+import HashMap
+import MapBounds
+import LinkedList
+import ErrorHandling
+import ObjEditingNatives
+
+// ==================================================================================================================================================
+// COMPILE TIME
+
+// List of Research Skill Definitions (used during compiletime)
+let skillDefinitions = new IterableMap<int, ResearchSkillDefinition>
+
+let shopIdsData = compiletime( defineDataObj() )
+let skillIdsData = compiletime( defineDataObj() )
+
+/**
+    Define a new Research Skill represented by an integer id.
+
+    The settings of the skill can be changed by retrieving the data
+    object using the getSkillDefinition() function.
+    At run time the skill can be referenced as used as the ID returned
+    by this function at compile time.
+
+    @return integer id identifiying the ResearchSkill
+*/
+public function defineResearchSkill() returns int
+    if( not compiletime )
+        error("Function can only be used at compile time")
+    return ResearchSkillDefinition.create().id
+
+
+/**
+    Retrieves the object definition of a particular Research Skill
+    id. On the object, you may use a following methods to change
+    the "settings" of the skill.
+*/
+public function int.getSkillDefinition() returns ResearchSkillDefinition
+    if( not compiletime )
+        error("Function can only be used during compile time!")
+    if( not skillDefinitions.has(this) )
+        error("Research skill has not been defined yet")
+    return skillDefinitions.get(this)
+
+
+/**
+    Define a new Research Skill requirement. The requirement is not
+    assigned automatically to any particuar skill - this should be 
+    done manually using the returned integer id.
+    The requirement may be added to more than one Research Skill.
+
+    @param name: The name of the requirement. Will show like requirements when building units/buildings
+    @return: The integer id representing the requirement
+*/
+public function defineRequirement(string name) returns int
+    if( not compiletime )
+        error("Function can only be used at compile time")
+
+    let id = UNIT_ID_GEN.next()
+
+    // Requirements are simply defined as hidden units
+    new UnitDefinition(id, 'hfoo')
+    ..setName(name)
+    ..setHitPointsMaximumBase(150000000)
+    ..setCanFlee(false)
+    ..setHideMinimapDisplay(true)
+    ..setMovementType(MovementType.Fly)
+    ..setCollisionSize(0)
+    ..setModelFile("")
+    ..setAttacksEnabled(0)
+    ..setUnitSoundSet("")
+    ..setFoodCost(0)
+    ..setNormalAbilities("")
+
+    return id
+
+
+/**
+Define this BuildingDefinition as a Research Shop with the particular 
+Research Skills available.
+
+@param skills: Variable list of skill ids of defined skills to add to the shop
+*/
+public function BuildingDefinition.defineAsResearchSkillShop(vararg int skills)
+    if( not compiletime )
+        error("Function should only be used during compile time")
+
+    // Add skills to shop
+    string skillList = ""
+    for skill in skills
+        if( not skillDefinitions.has(skill) )
+            error("Research Skill with id "+skill.toString()+" is not defined")
+        if( skillList != "" )
+            skillList += ","
+        skillList += skill.toRawCode()
+    this.setResearchesAvailable( skillList )
+
+
+    // Save shop id for runtime
+    shopIdsData.addData( this.getNewId().toRawCode() )
+    
+
+
+/** Class representing a Research Skill to defined for compile time. */
+public class ResearchSkillDefinition
+
+    private UpgradeDefinition upgradeDefinition
+    
+    protected int id
+    protected int lumberCost = 0
+    protected int goldCost = 0
+    protected int levels = 2
+    protected bool hideOnMaxLevel = true
+
+    /* Closures for presetting name and descriptions are saved in case we need to
+        set them again after level change */
+    private StringLevelClosure namePreset = null
+    private StringLevelClosure descriptionPreset = null
+
+
+    /* Private to prevent outside classes from creating objects of this class
+        (protected can't be used for classes). Use create() instead. */
+    private construct()
+        id = UPGD_ID_GEN.next()
+
+        upgradeDefinition = new UpgradeDefinition(id)
+        ..presetName( (int lvl) -> "Research Skill")
+        ..presetTooltip( (int lvl) -> "Research Skill" )
+        ..presetTooltipExtended( (int lvl) -> "No description")
+        ..presetIcon( (int lvl) -> Icons.bTNAcorn )
+        ..setLevels(levels)
+        ..setTimeBase(100)
+        
+        skillDefinitions.put(id, this)
+
+        // Saving to compiletime date to be consistent (even though it's "empty")
+        updateCompileTimeData() 
+
+    
+    /* Use instead of regular constructor to prevent
+        outside packages to create objects of this class */
+    protected static function create() returns ResearchSkillDefinition
+        return new ResearchSkillDefinition()
+
+
+    /**
+        Set the number of levels the Research Skill has */
+    function setLevels(int levels)
+        this.levels = levels
+
+
+        if( levels == 0 )
+            // Can't set level to 0 on object (then it won't show at all)
+            upgradeDefinition.setLevels( 1 )
+        else if( not hideOnMaxLevel )
+            // this.levels + 1 because we need an "all levels researched" state
+            upgradeDefinition.setLevels( this.levels+1 )
+        else
+            upgradeDefinition.setLevels( this.levels )
+
+        // Level has changed, so we need to update the name and description, if they' has been set
+        if( namePreset != null )
+            setName(namePreset)
+        if( descriptionPreset != null )
+            setDescription(descriptionPreset)
+
+        updateCompileTimeData()
+
+
+    function setDescription( StringLevelClosure closure )
+        if(descriptionPreset != null and descriptionPreset != closure)
+            destroy descriptionPreset
+        descriptionPreset = closure
+        upgradeDefinition.presetTooltipExtended(closure)
+
+
+    function setName( StringLevelClosure closure )
+        if(namePreset != null and namePreset != closure)
+            destroy namePreset
+        namePreset = closure
+        upgradeDefinition.presetName(closure)
+        upgradeDefinition.presetTooltip(closure)
+
+
+    /**
+        Toggle whether or not the research should be hidden when
+        it has reached max level. If false, an extra level for the skill
+        will be created, which the skill will be set to, once it has reached
+        max level.*/
+    function hideOnMaxLevel( bool hide )
+        if( hideOnMaxLevel != hide )
+            // Levels needs to be updated (levels+1)
+            this.hideOnMaxLevel = hide
+            setLevels(levels)                    
+
+    function setButtonPosition( int x, int y)
+        upgradeDefinition.setButtonPositionX(x)
+        upgradeDefinition.setButtonPositionY(y)
+            
+    function setIcon(string icon)
+        upgradeDefinition.presetIcon( (int lvl) -> icon)
+
+    /**
+        Sets the gold and lumber cost. The cost will not increase/decrease
+        when level changes */
+    function setCost( int goldCost, int lumberCost)
+        this.goldCost = goldCost
+        this.lumberCost = lumberCost
+        upgradeDefinition.setGoldCostBase(goldCost)
+        upgradeDefinition.setLumberCostBase(lumberCost)
+        updateCompileTimeData()
+
+    /**
+        Set the requirements for this skill, using ids of defined
+        Requirements.
+        @param requirements: Variable list of requirement ids
+    */
+    function setRequirements( vararg int requirements )
+        string requirementsString = ""
+        for requirement in requirements
+            if(requirementsString != "")
+                requirementsString += ","
+            requirementsString += requirement.toRawCode()
+        upgradeDefinition.setRequirements(1, requirementsString)
+
+
+/*  Clears all the data saved to the compile time data object,
+and re-add them with the updated version. */ 
+function updateCompileTimeData()
+    if( skillDefinitions.size() > 0  )
+        skillIdsData.clearData()
+        
+        for key in skillDefinitions
+            let definition = skillDefinitions.get(key)
+            skillIdsData.addData( definition.id.toRawCode() )
+            skillIdsData.addData( definition.levels.toString() )
+            skillIdsData.addData( definition.goldCost.toString() )
+            skillIdsData.addData( definition.lumberCost.toString() )
+            skillIdsData.addData( definition.hideOnMaxLevel ? "1" : "0" )
+
+    
+//=========================================================================================================================================================
+// RUN TIME
+
+// Ids of registered shops
+let shopIds = new LinkedList<int>
+
+// Skill Ids pointing to data class for that skill
+let skillData = new HashMap<int, SkillData>
+
+class SkillData
+    int id = 0
+    int lumberCost = 0
+    int goldCost = 0
+    int levels = 0
+    bool hideOnMaxLevel = true
+
+
+/**
+    Get the level of a particular Research Skill for a current player.
+    If the skill max level is 0 (meaning no levels), the function returns 0.
+*/
+public function player.getResearchSkillLevel(int skillId) returns int
+    if( not skillData.has(skillId) )
+        error("Research skill with id "+skillId.toString()+" has not been defined")
+    return GetPlayerTechCount(this, skillId, true)
+
+
+// Requirements ----------------------------------------------------------------------------------------------
+
+public HashMap<player, HashMap<int, unit>> playerRequirementUnits = new HashMap<player, HashMap<int, unit>>
+
+
+/**
+    Toggle a defined requirement to be fulfilled or not for this player.
+    You may define the requirement using the defineRequirement() at compile time.
+
+    @param requirementId: Integer id representing the requirement
+    @param fulfilled: True if this player should fulfill the requirement, false if not
+*/
+public function player.toggleRequirement( int requirementId, bool fulfilled )
+    
+    HashMap<int, unit> requirementUnits
+
+    // Assign requirement units
+    if( not playerRequirementUnits.has(this) )
+        // Create new map
+        requirementUnits = new HashMap<int,unit>
+        playerRequirementUnits.put(this, requirementUnits)
+    else
+        requirementUnits = playerRequirementUnits.get(this)
+
+    // Adjust the requirement (remove/add the requirement unit)
+    if( fulfilled )
+        if( not requirementUnits.has(requirementId) )
+            requirementUnits.put( requirementId, createUnit(this, requirementId, vec2(boundMin.x, boundMax.y), angle(0)) )
+
+    else
+        if( requirementUnits.has(requirementId) )
+            let requirementUnit = requirementUnits.get(requirementId)
+            requirementUnits.remove(requirementId)
+            requirementUnit.remove()
+
+
+
+// -----------------------------------------------------------------------------------------------------------
+// Research Changed "observer pattern"
+
+public interface ResearchSkillChangedAction
+    function run( player researchingPlayer, int lvl )
+
+let skillChangeActions = new HashMap<int, LinkedList<ResearchSkillChangedAction>>
+
+
+/**
+    Add an action to fire when a particular skill changes. This includes
+    when the skill is reset using the resetResearchSkill() function.
+
+    @param skillId: Id of the Research Skill to check for changes on
+    @param action: Closure defining the code to fire when change occurs
+*/
+public function onResearchSkillChanged( int skillId, ResearchSkillChangedAction action )
+    LinkedList<ResearchSkillChangedAction> actions
+
+    // Check if action list exists for skillId
+    if( not skillChangeActions.has(skillId) )
+        actions = new LinkedList<ResearchSkillChangedAction>
+        skillChangeActions.put( skillId, actions )
+    else
+        actions = skillChangeActions.get(skillId)
+
+    // Add the action
+    actions.add(action)
+        
+    
+// Run all user-defined actions, which should run when a skill changes
+function int.skillChanged(player researchingPlayer)
+    if( skillChangeActions.has(this) )
+        for action in skillChangeActions.get(this)
+            action.run(researchingPlayer, researchingPlayer.getResearchSkillLevel(this))
+        
+
+
+
+// Init Functions --------------------------------------------------------------------------------------
+
+init
+    loadData()
+    onResearchTrigger()
+
+// Loads compiletime data. Called at library init
+function loadData()
+    LinkedList<string> data
+
+    // Shop Ids
+    data = shopIdsData.getData()
+    for idString in data
+        shopIds.add( idString.fromRawCode() )
+    destroy data
+    
+    // Skill Id Data (id, gold cost, lumber cost)
+    
+    data = skillIdsData.getData()
+    if( data.size() > 0)
+        let entriesPerSkill = 5
+        if( data.size() % entriesPerSkill != 0 )
+            error("There is not "+entriesPerSkill.toString()+" data entries per skill. There are a total of "+data.size().toString() +" entries")
+        
+        // For each skill we get id, levels, gold/lumber cost and whether or not the skill should be hidden on max level
+        for i=0 to (data.size()/entriesPerSkill).toInt()-1
+            let skill = new SkillData()
+            skill.id = data.get(entriesPerSkill*i).fromRawCode()
+            skill.levels = data.get(entriesPerSkill*i+1).toInt()
+            skill.goldCost = data.get((entriesPerSkill*i)+2).toInt()
+            skill.lumberCost = data.get((entriesPerSkill*i)+3).toInt()
+            skill.hideOnMaxLevel = data.get((entriesPerSkill*i)+4).toInt() == 0 ? false : true
+            skillData.put(skill.id, skill)
+    destroy data
+
+
+// Sets up trigger which detects when a skill has been researched
+function onResearchTrigger()
+
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_RESEARCH_START) ->
+            
+        let skillId = GetResearched()
+        
+        if( skillData.has(skillId) )
+            let shop = GetResearchingUnit()
+            let owner = shop.getOwner()
+            let skill = skillData.get(skillId)
+            let currentLevel = GetPlayerTechCount( owner, skill.id, true)
+
+            // We stop research, and increase it manually to prevent speaker announcement
+            shop.issueImmediateOrderById(Orders.cancel)
+
+            // If skill doesn't hide on max level, and current level is the "maxed out level", then do nothing
+            if( skill.hideOnMaxLevel or currentLevel != skill.levels)
+                
+                // Only increment level if it's not a "repeat" skill (levels = 0)
+                if( skill.levels > 0 )
+                    AddPlayerTechResearched( owner, skill.id, 1)
+
+                // Update gold / lumber 
+                owner.setGold( owner.getGold()-skill.goldCost )
+                owner.setLumber( owner.getLumber()-skill.lumberCost )
+
+                // Signal skill change
+                skillId.skillChanged(owner)
+
+            // Debug message
+            //print( GetPlayerTechCount( owner, skill.id, true))
+    
+
+    

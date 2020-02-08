@@ -18,15 +18,16 @@ import MyLibrary
 import Damage
 import DummyRecycler
 import TimerUtils
+import LinkedList
 
 // ===========================================================================================================================
 // SETTINGS
 
-let POISON_DMG = 1. // Per second
+let POISON_DMG = 0.5 // Per second
 let POISON_DIMINISH_DELAY = 2.
-let POISON_DIMINISH_RATE = 0.5 // time between each diminish
+let POISON_DIMINISH_RATE = 0.2 // time between each diminish
 let POISON_ATTACK_RANGE = 600.
-let POISON_SPEED = 600.
+let POISON_SPEED = 500.
 let POISON_AOE = 150.
 let POISON_SPIT_DMG = 5.
 let POISON_SPIT_RATE = 2.
@@ -46,6 +47,9 @@ let WEB_DUMMY_ID = compiletime( ABIL_ID_GEN.next() )
 let POISON_SPIT_ID = compiletime( ABIL_ID_GEN.next() )
 let POISON_BUFF_ID = compiletime( createDummyBuffObject("Poison", "You have been poisoned by a spider", Icons.bTNCorrosiveBreath ))
 
+Round round = null
+
+
 
 // ===========================================================================================================================
 // SETUP
@@ -56,80 +60,80 @@ init
     ..setDescription("They're everywhere!")
     ..setHealthOrbSpawn(100, 75, 0.1, 25, 0.02)
     ..setReward(30, 3)
+    ..addArtifactRewards(1)
     ..addItemRewards(ITEM_SPIDERBRACERS)
     ..setCodeOnLastUnitDeath() r ->
         PoisonedUnit.clearAll()
 
 
     // Hatchling 1
-    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    round.addSpawner(new UnitSpawner( HATCHLING, ENEMY, vec2(0,0), 2))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(120)
+    ..setSpawnCount(60)
     // ..setSpawnEffect( Abilities.orbVenomMissile )
 
     // Hatchling 2
-    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    round.addSpawner(new UnitSpawner( HATCHLING, ENEMY, vec2(0,0), 3))
     ..setStartDelay(3)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(120)
+    ..setSpawnCount(40)
     // ..setSpawnEffect( Abilities.orbVenomMissile )
 
     // Hatchling 2
-    round.addSpawner(new UnitSpawner( HATCHLING, ENEMYPLAYER, vec2(0,0), 1))
+    round.addSpawner(new UnitSpawner( HATCHLING, ENEMY, vec2(0,0), 2))
     ..setStartDelay(50)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(70)
+    ..setSpawnCount(35)
     // ..setSpawnEffect( Abilities.orbVenomMissile )
 
     // Webber 3
-    round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 8))
+    round.addSpawner(new UnitSpawner( WEBBER, ENEMY, vec2(0,0), 15))
     ..setStartDelay(10)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(15)
+    ..setSpawnCount(8)
     // ..setSpawnEffect( Abilities.orbVenomMissile )
     ..setSoundOnSpawn( Sounds.arachnathidWhat2)
 
     // Webber 3
-    round.addSpawner(new UnitSpawner( WEBBER, ENEMYPLAYER, vec2(0,0), 15))
+    round.addSpawner(new UnitSpawner( WEBBER, ENEMY, vec2(0,0), 22))
     ..setStartDelay(40)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSpawnCount(4)
+    // ..setSpawnEffect( Abilities.orbVenomMissile )
+    ..setSoundOnSpawn( Sounds.arachnathidWhat2)
+
+    // Spitter 1
+    round.addSpawner(new UnitSpawner( SPITTER, ENEMY, vec2(0,0), 18))
+    ..setStartDelay(12)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSpawnCount(7)
     // ..setSpawnEffect( Abilities.orbVenomMissile )
-    ..setSoundOnSpawn( Sounds.arachnathidWhat2)
-
-    // Spitter 1
-    round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 12))
-    ..setStartDelay(12)
-    ..setFrequencyDeviation(0.1)
-    ..setRandomSpawn(gg_rct_Arena_Spawn1)
-    ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(10)
-    // ..setSpawnEffect( Abilities.orbVenomMissile )
     ..setSoundOnSpawn( Sounds.arachnathidWhat1)
 
     // Spitter 2
-    round.addSpawner(new UnitSpawner( SPITTER, ENEMYPLAYER, vec2(0,0), 6))
+    round.addSpawner(new UnitSpawner( SPITTER, ENEMY, vec2(0,0), 12))
     ..setStartDelay(50)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSpawnCount(10)
+    ..setSpawnCount(5)
 
 
     // ..setSpawnEffect( Abilities.orbVenomMissile )
     ..setSoundOnSpawn( Sounds.arachnathidWhat1)
-
 
     // Player Color
     UnitVisuals.addUnitType(HATCHLING).setPlayerColor(PLAYER_COLOR_COAL)
@@ -149,6 +153,15 @@ init
     registerSpellEffectEvent( WEB_ID, function webOnCast )
     registerSpellEffectEvent( POISON_SPIT_ID, function onPoisonSpit )
     
+    
+    //================================================================================================================================================================================================
+    // STATS SCALING
+
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == HATCHLING or id == SPITTER or id == WEBBER )
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
 
 
 
@@ -208,7 +221,7 @@ function webOnCast()
     projectile.addActionOnFinish() ->
         if target.isAliveTrick()
 
-            InstantDummyCaster.castTarget( ENEMYPLAYER, WEB_DUMMY_ID, 1, Orders.ensnare, target)
+            InstantDummyCaster.castTarget( ENEMY, WEB_DUMMY_ID, 1, Orders.ensnare, target)
             
             let sfx = addEffect(Abilities.webTarget, target.getPos().withTerrainZ(40))
             ..setScale(1.25)
@@ -228,6 +241,7 @@ function webOnCast()
 
 
     projectile.fireUnit(target, 50, true, 600, 0.25)
+
 
 
 
@@ -256,7 +270,7 @@ function onPoisonSpit()
     new Projectile( caster.getPos().withTerrainZ(30), Abilities.chimaeraAcidMissile )
     ..firePoint( targetPos, POISON_SPEED, 0.2)
     ..addActionOnFinish() ->
-        let targets = ENUM_GROUP..enumEnemyTargets( ENEMYPLAYER, targetPos.toVec2(), POISON_AOE )
+        let targets = ENUM_GROUP..enumEnemyTargets( ENEMY, targetPos.toVec2(), POISON_AOE )
     
         for target from targets
             caster.damageTargetPhysical(target, POISON_SPIT_DMG)
@@ -265,7 +279,7 @@ function onPoisonSpit()
 
 class PoisonedUnit extends Updater
     private static let TEXTSIZE = 11.
-    private static let TEXT_Z_OFFSET = 160.
+    private static let TEXT_Z_OFFSET = 200.
     
     private static let instances = new LinkedList<thistype>
     private static let units = new IterableMap<unit, thistype>
@@ -329,7 +343,8 @@ class PoisonedUnit extends Updater
 
 
     override function update()
-        damageSource.damageTargetPhysical(theUnit, POISON_DMG*stacks )
+        let damage = POISON_DMG*stacks * (1 + (round.getLevel()-1) * ROUND_LVL_SCALE_POWER) 
+        damageSource.damageTargetPhysical(theUnit, damage )
 
 
     function startDiminish()

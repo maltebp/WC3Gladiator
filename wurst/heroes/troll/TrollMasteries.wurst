@@ -1,0 +1,208 @@
+package TrollMasteries
+
+import public Mastery
+
+import ObjectIdGenerator
+import HalfBreed
+import GladiatorSystem
+import Stats
+import Abilities
+import Troll
+import RegisterEvents
+import LinkedList
+import UnitIndexer
+import ClosureTimers
+import TimedSpecialEffects
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// GREED 
+
+public let GREED_INC = 0.125
+public let GREED_DURATION = 6.
+public let GREED = compiletime(defineMastery(
+    "Greed",
+    Icons.bTNBerserkForTrolls,
+    TROLL_COLOR,
+    rank -> "When you use Blood Pact, you gain {0} Voodoo from the next Blood Pact within {1} seconds.".format(
+        (rank*GREED_INC).toPercentageString(),
+        GREED_DURATION.toInt().toString()
+    ),
+    1
+))
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// VENGEFUL SPIRIT 
+
+public let VENGEFUL_SPIRIT_DURATION = 6 // Per level
+public let VENGEFUL_SPIRIT_CHANCE = 0.15 // Proc chance
+public let VENGEFUL_SPIRIT = compiletime(defineMastery(
+    "Vengeful Spirit",
+    Icons.bTNPossession,
+    TROLL_COLOR,
+    rank -> "Whenever your cast Soul Siphon, there is a {0} chance to spawn a Vengeful Spirit. The spirit inherits your stats, and attack your enemies for {1} seconds.".format(
+        VENGEFUL_SPIRIT_CHANCE.toPercentageString(),
+        (rank*VENGEFUL_SPIRIT_DURATION).toString()
+    ),
+    1 
+))
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// SOUL HARVEST 
+
+public let SOUL_HARVEST_TARGETS = 4
+public let SOUL_HARVEST_FACTOR = 0.125
+public let SOUL_HARVEST_RADIUS = 300.
+public let SOUL_HARVEST = compiletime(defineMastery(
+    "Soul Harvest",
+    Icons.bTNUnsummonBuilding,
+    TROLL_COLOR,
+    rank -> "Your Soul Siphon ability also drains the life of {0} additional nearby enemy targets with a  {1} effect.".format(
+        SOUL_HARVEST_TARGETS.toString(),
+        (rank*SOUL_HARVEST_FACTOR).toPercentageString()
+    ),
+    2
+))
+
+
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// WILDFIRE
+
+public let WILDFIRE_RADIUS_FACTOR = 0.125
+public let WILDFIRE = compiletime(defineMastery(
+    "Wildfire",
+    Icons.bTNIncinerate,
+    TROLL_COLOR,
+    rank -> "Increases the radius of your Fiery Concoction's explosion and fire by {0}".format(
+        (rank*WILDFIRE_RADIUS_FACTOR).toPercentageString()
+    ),
+    3
+))
+
+
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// WICKED TROPHY
+
+public let WICKED_TROPHY_CHANCE = 0.125
+public let WICKED_TROPHY_COOLDOWN = 10.
+public let WICKED_TROPHY = compiletime( defineMastery(
+    "Wicked Trophy",
+    Icons.bTNBloodLust,
+    TROLL_COLOR,
+    rank -> "Whenever you kill an enemy, there is a {0} chance for you to restore your energy to full. This effect cannot occur more than once every {1} seconds.".format(
+        (rank*WICKED_TROPHY_CHANCE).toPercentageString(),
+        WICKED_TROPHY_COOLDOWN.toInt().toString()
+    ),
+    4
+))
+
+// Half-assed safety measure to keep indexes instead of units
+let wickedTrophyCooldowns = new LinkedList<int>
+
+init
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH) ->
+        let u = GetKillingUnit()
+        let index =u.getIndex()
+        let wickedTrophyLevel = u.getOwner().getMasteryLevel(WICKED_TROPHY)
+        if( wickedTrophyLevel > 0 and not wickedTrophyCooldowns.has(index) )
+            if( GetRandomReal(0, 1) < wickedTrophyLevel * WICKED_TROPHY_CHANCE )
+                u.setMana( u.getMaxMana() )
+                u.addEffect(Abilities.darkRitualTarget, "origin")..setDuration(5)
+                wickedTrophyCooldowns.add(index)
+                doAfter(WICKED_TROPHY_COOLDOWN) ->
+                    wickedTrophyCooldowns.remove(index)
+                
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Wicked Voodoo
+
+public let WICKED_VOODOO_EFFECT_INC = 0.04
+public let WICKED_VOODOO = compiletime( defineMastery(
+    "Wicked Voodoo",
+    Icons.bTNDoom,
+    TROLL_COLOR,
+    rank -> "Increases the amount of damage shared to enemies linked by your Voodoo Link by {0} percentage points.".format(
+        (rank*WICKED_VOODOO_EFFECT_INC).toPercentageString()
+    ),
+    5
+))
+
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// TRIBAL MOJO
+
+public let TRIBAL_MOJO_COOLDOWN_DEC = 0.125
+public let TRIBAL_MOJO_DURATION_INC = 0.125
+public let TRIBAL_MOJO = compiletime(defineMastery(
+    "Tribal Mojo",
+    Icons.bTNHealingWard,
+    TROLL_COLOR,
+    rank -> "Reduces your Mojo's cooldown by {0} and its duration by {1}.".format(
+        (rank*TRIBAL_MOJO_COOLDOWN_DEC).toPercentageString(),
+        (rank*TRIBAL_MOJO_DURATION_INC).toPercentageString()
+    ),
+    7
+))
+
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Euphoria
+
+public let EUPHORIA_ENERGY_REGEN_INC = 0.08
+public let EUPHORIA = compiletime( defineMastery(
+    "Euphoria",
+    Icons.bTNResistMagic,
+    TROLL_COLOR,
+    rank -> "You Mojo also increases the target's Energy regeneration by {0}.".format(
+        (rank*EUPHORIA_ENERGY_REGEN_INC).toPercentageString()
+    ),
+    8
+))
+
+
+
+
+
+
+
+
+
+
+//================================================================================================================================================================================================
+// Shop definition
+
+public let TROLL_MASTERY_SHOP = compiletime( UNIT_ID_GEN.next() )
+    
+@compiletime
+function defineShop()
+    defineMasteryShop(TROLL_MASTERY_SHOP)
+    ..defineAsResearchSkillShop(
+        GREED,
+        VENGEFUL_SPIRIT,
+        SOUL_HARVEST,
+        WILDFIRE,
+        WICKED_TROPHY,
+        WICKED_VOODOO,
+        TRIBAL_MOJO,
+        EUPHORIA
+    )
+
+init
+    TROLL.setMasteryShopType(TROLL_MASTERY_SHOP)
+    
+
+    

@@ -1,0 +1,18 @@
+package TestPlayer
+
+import Players
+import UtilCommands
+import GladiatorSystem
+import GameSettings
+import HalfBreed
+
+init
+    defineUtilCommand("addtestplayer")
+    ..setAction()  (p, args, opts) -> 
+        p.addTestPlayers( Player(1) )
+        Player(1).newGladiator(HALF_BREED, SHOP_SPAWN, angle(0) )
+
+
+        
+        
+    

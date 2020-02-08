@@ -2,42 +2,56 @@ package Round11
 
 
 //=========================================================================================================================================================
-// Rock Giants
+// FEL ORCS
 
 import public Round10
 
 import RegisterEvents
 import AutoCastAbility
 import UnitVisualsUtils
-import OnUnitTypeEnter
-import DeathSpawn
-import Shockwave
-import ClosureTimers
-import EarthquakeNoChannel
 import Preloader
+import AbilityObjEditing
+import ObjectIdGenerator
+import BuffObjEditing
+import ObjectIds
+import Assets
+import Ensnare
+import ClosureTimers
 
 
 // ================================================================================================================================
 // Settings
 
-constant ROCKGIANT = 'e000'
-constant SHARDLING = 'n00O'
 
-constant let SHARDLINGS_SPAWNNUMBER = 4
-constant let SHOCKWAVE_STARTCOOLDOWN = 5.
-constant let SHOCKWAVE_COOLDOWN = 15.
-constant let SHOCKWAVE_DAMAGE = 300.
-constant let SHOCKWAVE_SPEED = 800.
-constant let SHOCKWAVE_WIDTH = 175.
-constant let SHOCKWAVE_CASTDELAY = 2.
-constant let EARTHQUAKE_DURATION = 30.
-constant let EARTHQUAKE_COOLDOWN = 120.
-constant let EARTHQUAKE_STARTCOOLDOWN = 10.
-constant let EARTHQUAKE_SLOWFACTOR = 0.4
-constant let EARTHQUAKE_RANGE = 250.
-// For other earthquake adjustments see the dummy spell
+let BERSERKER = 'n00Q'
+let WOLFRIDER = 'n00R'
+let DOOMSAYER = 'n00P'
 
-constant let snd_Shockwave = new SoundDefinition(Sounds.mountainGiantPissed1, false)
+let BERSERK_DMG_TAKEN_INC  = 3.
+let BERSERK_DMG_INC      = 3. // Flat bonus
+let BERSERK_STARTCOOLDOWN   = 20.
+let BERSERK_ATTACKSPEEDINC  = .5
+let BERSERK_MOVESPEEDINC    = .5
+
+let BERSERK_ABILITYID   = compiletime(ABIL_ID_GEN.next())
+let BERSERK_BUFFID      = compiletime( BUFF_ID_GEN.next() )
+let BERSERK_SND         = new SoundDefinition(Sounds.bloodlustTarget, false, true)
+
+let RAINOFFIRE_ABILITYID = compiletime(ABIL_ID_GEN.next())
+let RAINOFFIRE_DAMAGE_SHARD = 60. //TODO: SCALE THIS  
+let RAINOFFIRE_RANGE = 250.
+let RAINOFFIRE_CHANNELDURATION = 10 // Each wave is 1 second
+let RAINOFFIRE_COOLDOWN = 15.
+let RAINOFFIRE_STARTCOOLDOWN = 10.
+
+let ENSNARE_ABILITYID = compiletime( ABIL_ID_GEN.next() )
+let ENSNARE_BUFFID = compiletime( BUFF_ID_GEN.next() )
+let ENSNARE_STARTCOOLDOWN = 5.
+let ENSNARE_COOLDOWN = 30.
+let ENSNARE_HP =       75. // (Base)
+
+Round round = null
+
 
 //=========================================================================================================================================================
 //  Setup
@@ -46,83 +60,184 @@ init
 
     round = new Round()
     ..setReward(30, 3)
-    ..addItemRewards(ITEM_STONEDOLL, ITEM_GIANTSSKIN)
-    ..addAbilityReward(4)
-    ..setTitle("Rock Giants")
-    ..setDescription("It's probably best if you clean up the rubbles you smash them into.")
+    ..addItemRewards(ITEM_FELSTONE)
+    ..setTitle("Fel Orcs")
+    ..addAbilityReward(1)
+    ..setDescription("Don't let them pin you down, or they'll burn you.")
     ..setHealthOrbSpawn(125, 75, 0.1, 30, 0.02)
-    ..setCodeOnClear() r ->
-        Earthquake.clearAll()
+    ..setCodeOnLastUnitDeath() r ->
+        Ensnare.clearAll()
 
-    // Spawner 1
-    round.addSpawner(new UnitSpawner(ROCKGIANT, ENEMYPLAYER, vec2(-639,1025), 15))
-    ..setStartDelay(3)
+    // BERSERKER 1
+    round.addSpawner(new UnitSpawner(BERSERKER, ENEMY, vec2(-639,1025), 20))
+    ..setStartDelay(4)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSoundOnSpawn(Sounds.mountainGiantYes3)
-    ..setSpawnEffect("Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl")
-    ..setSpawnCount(8)
+    ..setSoundOnSpawn(Sounds.gruntYesAttack2)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    ..setSpawnCount(6)
 
-    // Spawner 2
-    round.addSpawner(new UnitSpawner(ROCKGIANT, ENEMYPLAYER, vec2(-639,1025), 30))
-    ..setStartDelay(50)
+    // BERSERKER 2
+    round.addSpawner(new UnitSpawner(BERSERKER, ENEMY, vec2(-639,1025), 30))
+    ..setStartDelay(70)
     ..setFrequencyDeviation(0.1)
     ..setRandomSpawn(gg_rct_Arena_Spawn1)
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
-    ..setSoundOnSpawn(Sounds.mountainGiantYes3)
-    ..setSpawnEffect("Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl")
+    ..setSoundOnSpawn(Sounds.gruntYesAttack2)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
     ..setSpawnCount(2)
 
-    // Other setup
+    // DOOM SAYER 1
+    round.addSpawner(new UnitSpawner(DOOMSAYER, ENEMY, vec2(-639,1025), 30))
+    ..setStartDelay(15)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.shamanYesAttack3)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    ..setSpawnCount(4)
 
-    UnitVisuals.addUnitType(ROCKGIANT)
-    ..setPlayerColor(PLAYER_COLOR_LIGHT_GRAY)
+    // DOOM SAYER 2
+    round.addSpawner(new UnitSpawner(DOOMSAYER, ENEMY, vec2(-639,1025), 30))
+    ..setStartDelay(90)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.shamanYesAttack3)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    ..setSpawnCount(1)
 
-    UnitVisuals.addUnitType(SHARDLING)
-    ..setPlayerColor(PLAYER_COLOR_LIGHT_GRAY)
+    // WOLF RIDER 1
+    round.addSpawner(new UnitSpawner(WOLFRIDER, ENEMY, vec2(-639,1025), 20))
+    ..setStartDelay(12)
+    ..setFrequencyDeviation(0.1)
+    ..setRandomSpawn(gg_rct_Arena_Spawn1)
+    ..setNearestTargetOnSpawn(GetPlayableMapRect())
+    ..setSoundOnSpawn(Sounds.wolfriderYes2)
+    ..setSpawnEffect("Abilities\\Spells\\Human\\Polymorph\\PolyMorphDoneGround.mdl")
+    ..setSpawnCount(6)
 
-    onUnitTypeEnter(ROCKGIANT) rockGiant ->
-        new DeathSpawnData(rockGiant, SHARDLING, SHARDLINGS_SPAWNNUMBER)
-        ..setEffectOnSpawn("Objects\\Spawnmodels\\Undead\\ImpaleTargetDust\\ImpaleTargetDust.mdl")
-        ..setCodeOnUnitSpawn() spawnedUnit ->
-            rockGiant.getSpawner().addSummonedUnit(spawnedUnit)
+    // Auto Casting
+    addAutoCastAbilityToUnitType(BERSERKER, new AutoCastAbilityType(BERSERK_ABILITYID, Orders.berserk, TargetType.SELF_IMMEDIATE, 1000, 30, 1000))
+    addAutoCastAbilityToUnitType(DOOMSAYER, new AutoCastAoePoint(RAINOFFIRE_ABILITYID, Orders.rainoffire, TargetType.ENEMY_POINT, 800, RAINOFFIRE_STARTCOOLDOWN, RAINOFFIRE_COOLDOWN))
+    addAutoCastAbilityToUnitType(WOLFRIDER, new AutoCastNoBuff(ENSNARE_ABILITYID, Orders.ensnare, TargetType.ENEMY_UNIT, 500, ENSNARE_STARTCOOLDOWN, ENSNARE_COOLDOWN, ENSNARE_BUFFID))
 
-    addAutoCastAbilityToUnitType(ROCKGIANT, new AutoCastAoePoint('A01U', Orders.carrionswarm, TargetType.ENEMY_POINT, 600, SHOCKWAVE_STARTCOOLDOWN, SHOCKWAVE_COOLDOWN))
-    
-    addAutoCastAbilityToUnitType(ROCKGIANT, new AutoCastAoePoint('A01W', Orders.dispel, TargetType.ENEMY_POINT, 800, EARTHQUAKE_STARTCOOLDOWN, EARTHQUAKE_COOLDOWN))
-    
+    UnitVisuals.addUnitType(BERSERKER)
+    ..setPlayerColor(PLAYER_COLOR_COAL)
 
-    registerSpellEffectEvent('A01U', function shockWaveEffect)
+    UnitVisuals.addUnitType(DOOMSAYER)
+    ..setPlayerColor(PLAYER_COLOR_PEANUT)
 
-    registerSpellEffectEvent('A01W', function earthquakeCast)
+    UnitVisuals.addUnitType(WOLFRIDER)
+    ..setPlayerColor(PLAYER_COLOR_COAL)
 
+//================================================================================================================================================================================================
+// STATS SCALING
 
-    preloadAbility('A01U')
-    preloadAbility('A01W')
+    round.setStatScalingCallback() (unit u) ->
+        let id = u.getTypeId()
+        if( id == BERSERKER or id == WOLFRIDER or id == DOOMSAYER ) // Last is ensnare
+            round.scaleUnitStats(u)
+            u.adjustToDifficulty()
+        if( id == 'o004' )
+            doAfter(0.1) ->
+                round.scaleUnitStats(u)
+                u.adjustToDifficulty()
 
 
 //=========================================================================================================================================================
 // 
 //
 
-function earthquakeCast()
-    new Earthquake(GetSpellAbilityUnit(), vec2(GetSpellTargetX(), GetSpellTargetY()), EARTHQUAKE_DURATION, EARTHQUAKE_RANGE, EARTHQUAKE_SLOWFACTOR)
 
 
-function shockWaveEffect()
+
+function berserk_OnCast()
     let caster = GetSpellAbilityUnit()
-    let targetPos = vec2(GetSpellTargetX(), GetSpellTargetY())
-
-    caster.setAnimation("spell")
-    snd_Shockwave.play() 
-
-    doAfter(SHOCKWAVE_CASTDELAY) ->
-        if caster.isAlive()
-            caster.setAnimation("attack")
-            caster.castShockwave(targetPos, SHOCKWAVE_DAMAGE, 2500, SHOCKWAVE_WIDTH, SHOCKWAVE_SPEED)
-
-   
+    BERSERK_SND.playOnPoint(caster.getPos3with(100))
+    caster.adjustStatPercentage(STAT_DAMAGE, BERSERK_DMG_INC)
+    caster.adjustStatFlat(STAT_DAMAGE_TAKEN, BERSERK_DMG_TAKEN_INC)
+    caster.issueImmediateOrder("stop")
 
 
-    
+init
+    registerSpellEffectEvent(BERSERK_ABILITYID, function berserk_OnCast)
+
+    preloadAbility('A023')
+
+    new EnsnareDefinition(ENSNARE_ABILITYID, ENSNARE_BUFFID, 0, ENSNARE_HP)
+
+@compiletime
+function createAbilities()
+
+
+
+// BERSERK
+    new BuffDefinition(BERSERK_BUFFID,'bbsk')
+    ..setName(1,"Berserk")
+    ..setArtTarget(1, Abilities.bloodLustTarget)
+    ..setTargetAttachmentPoint0(1, "right,hand")
+    ..setTargetAttachmentPoint1(1, "left,hand")
+    ..setTooltipNormal(1, "Berserk")
+    ..setTooltipNormalExtended(1, "Increased speed but also takes more damage.")
+    ..setIcon(Icons.bTNBerserk)
+
+    new AbilityDefinitionBeserk(BERSERK_ABILITYID)
+    ..setName("Berserk")
+    ..setTooltipNormal(1, "Berserk")
+    ..setTooltipNormalExtended(1, "")
+    ..setAnimationNames("spell")
+    ..setBuffs(1, BERSERK_BUFFID.toRawCode())
+    ..setAttackSpeedIncrease(1, BERSERK_ATTACKSPEEDINC)
+    ..setMovementSpeedIncrease(1, BERSERK_MOVESPEEDINC)
+    ..setDamageTakenIncrease(1, 0)
+    ..setCooldown(1, 0)
+    ..setDurationHero(1, 0)
+    ..setDurationNormal(1, 0)
+
+
+// RAIN OF FIRE
+    new AbilityDefinitionRainofFirecreep(RAINOFFIRE_ABILITYID)
+    ..setTooltipNormal(1, "Rain of Fire")
+    ..setTooltipNormalExtended(1, "")
+    ..setManaCost(1, 0)  
+    ..setNumberofWaves(1, RAINOFFIRE_CHANNELDURATION)   
+    ..setDamage(1, RAINOFFIRE_DAMAGE_SHARD)
+    ..setAreaofEffect(1, RAINOFFIRE_RANGE)
+    ..setCooldown(1, 0)
+    ..setDurationHero(1, 0.01)
+    ..setDurationNormal(1, 0.01)
+    ..setDamagePerSecond(1, 0)
+    ..setTargetsAllowed(1, "ground,enemy")
+
+
+
+// ENSNARE
+
+
+    let tempBuff = BUFF_ID_GEN.next()
+
+    new BuffDefinition(ENSNARE_BUFFID,'Beng')
+    ..setTooltipNormal(1, "Ensnare")
+    ..setTooltipNormalExtended(1, "Can't move.")
+    new BuffDefinition(tempBuff,'Bena')
+    ..setTooltipNormal(1, "Ensnare")
+    ..setArtTarget(1, Abilities.ensnareTarget )
+
+    new AbilityDefinitionEnsnare(ENSNARE_ABILITYID)
+    ..setTooltipNormal(1, "Ensnare")
+    ..setTooltipNormalExtended(1, "")
+    ..setManaCost(1, 0)  
+    ..setCooldown(1, 0)
+    ..setDurationHero(1, 0.00)
+    ..setDurationNormal(1, 0.00)
+    ..setRequirements("")
+    ..setBuffs( 1, tempBuff.toRawCode()+","+ENSNARE_BUFFID.toRawCode())
+
+
+
+
+
+
+

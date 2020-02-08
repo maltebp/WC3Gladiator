@@ -1,0 +1,362 @@
+package GameSetup
+
+import public Round
+import Music
+import Preloader
+import Dialog
+import GladiatorSystem
+import LinkedList
+import ClosureTimers
+import GameSettings
+import PlayerFunctions
+import PickHero
+import GladiatorShop
+import Players
+import FadeUtil
+import Intro
+import Mastery
+import TrainingPoints
+import Attempts
+import TestUnit
+import HalfBreed
+import Troll
+
+constant boolean    SPAWNHEROINARENA        = false
+constant boolean    ARENACORNERSPAWN        = true
+constant boolean    PREPAREHERO             = false
+constant boolean    LOCKCAMBOUNDS           = false
+constant boolean    MAKEMAPVISIBLE          = false
+constant boolean    CUSTOMROUNDSTART        = false
+constant boolean    STARTATSPECIFICROUND    = false
+constant boolean    SELECTHERO              = true
+int        STARTINGROUND                    = 2
+public let                 FINALROUND       = 15
+constant boolean    PRINTALPHAINTRO         = false
+
+
+let HEROSPAWN_CAMLOCK = Rect(-8129, -8198, -8129, -8198)
+
+constant int array STARTINGITEMS = ['I00M', 'I00M','I00M', 'I009']
+
+
+
+public constant vec2 HEROSPAWN_SHOP = vec2(-8129,-8198)
+public constant vec2 HEROSPAWN_ARENA = vec2(173,501)
+public constant vec2 HEROSPAWN_ARENACORNER = vec2(600,-100)
+public SoundDefinition snd_HeroInit = new SoundDefinition(Sounds.gromWhat3, false)
+public SoundDefinition snd_Text = new SoundDefinition(Sounds.questActivateWhat1, false)
+let SND_ENTEREDROUNDNUMBER = new SoundDefinition(Sounds.questNew, false)
+
+public unit         hero
+public Gladiator    gladiator
+public let gladiatorTypes = new LinkedList<GladiatorType>
+
+
+public region MAPREGION
+public boolean escapeIsEnabled = false
+boolean canSkipGameInfo
+boolean canTypeStartingRound = false
+
+public timer timer_GameIntro = getTimer()
+
+vec2 spawnPosOnInit
+
+public dialog dialog_RoundPick
+public button array dialogButton_RoundPick
+
+
+
+// Game Init --------------------------------------------------------------------------------------------------------------------
+
+
+init
+    instantSetup()
+    doAfter(0.01, () -> delayedSetup())
+
+
+function instantSetup()
+    //playMusic(Sounds.orcX1)
+    playMusic(MUSIC_SHOP)
+    for p in allPlayers
+        p.fadeOut(0)
+        p.toggleCinematicMode(true, 0)
+
+
+function delayedSetup()
+    initializePlayerList()
+
+    CameraSetSmoothingFactor(20)
+
+
+    // Setting up variables
+    MAPREGION = CreateRegion()..addRect(GetPlayableMapRect())
+
+    initializeGladiatorShop()
+    initializeAttemptsWindow()
+
+    for p in allPlayers
+        CreateFogModifierRect(p, FOG_OF_WAR_VISIBLE, BARRACKS_RECT, false, false).start()
+        CreateFogModifierRect(p, FOG_OF_WAR_VISIBLE, gg_rct_Shop_Visibility, false, false).start()
+        CreateFogModifierRect(p, FOG_OF_WAR_VISIBLE, gg_rct_Arena_Visibility, false, false).start()
+        CreateFogModifierRect(p, FOG_OF_WAR_MASKED, GetPlayableMapRect(), false, false).start()
+    
+        SetTimeOfDay(12)
+    SetTimeOfDayScale(0)
+
+
+
+    for p in allPlayers
+        p 
+        ..addMasteryPoints(START_MASTERY)
+        ..addTrainingPoints(START_TRAININGPOINTS)
+        ..setGold(START_GOLD)
+        
+    setAttemptsLeft(ATTEMPTS)
+
+
+    if SPAWNHEROINARENA
+        Player(0).setCameraPosition(gg_rct_Arena_CamBounds.getCenter())
+        
+    else if LOCKCAMBOUNDS
+        Player(0)
+        ..setCameraPosition(gg_rct_Shop_CamBounds.getCenter())
+        ..setCameraBoundsToRect(HEROSPAWN_CAMLOCK)
+        
+    
+    Round.setCurrentRound(1)
+    
+
+    // TODO: Move this to somewhere else
+    ITEM_DULLBLADE.release()
+    ITEM_LEATHERARMOR.release()
+    ITEM_COMMONGEM.release()
+    ITEM_AMULET.release()
+    
+    if not DEBUG or not TEST_MODE
+        for p in allPlayers
+            p.startIntro()
+    else
+        for p in allPlayers
+            p.fadeIn(0)
+            p.toggleCinematicMode(false, 0)
+            p.setCameraPosition(vec2(0,0))
+            p.enableMasteryShop()
+            let gladiator = p.newGladiator(TROLL, vec2(600,100), angle(0))
+
+            if( TEST_MODE_UNLOCK_ABIL )
+                for i=1 to 6
+                    gladiator.unlockNextAbility()       
+        
+        let basePos = vec2(-350, 900)
+        for i=1 to TEST_DUMMIES
+            let adjustedPos = basePos + vec2(GetRandomReal(-300, 300), GetRandomReal(-300, 300))
+            createTestUnit(adjustedPos)
+
+
+
+    // CreateTrigger()
+    // ..registerPlayerEvent(Player(0), EVENT_PLAYER_END_CINEMATIC)
+    // ..addAction(function startRound)
+
+
+    // // new Fade
+    // // ..setCinematicMode(not CUSTOMROUNDSTART)
+    // // ..setFadeOutDuration(0)
+    // // ..start(FADEOUT)
+
+    // if CUSTOMROUNDSTART
+    //     EnableSelect(false, false)
+    //     EnablePreSelect(false, false)
+
+    // getTimer().start(1, function delayedInit)
+
+
+    // if PRINTALPHAINTRO
+    //     timer_GameIntro.start(3.0, function preStartInfo )
+    // else
+    //     timer_GameIntro.start(3.0, function roundPick )
+
+    
+
+
+
+/** Information give before alpha start */
+function preStartInfo()
+
+    snd_Text.play()
+    printTimed(  "|cffff9933Welcome to 'Gladiator'|r"+
+            "\n"+
+            "\n"+"|cffaaaaaa Version "+VERSION+"|r"+
+            "\n"+
+            "\n This is an Alpha version, meaning that multiplayer, more Gladiators, more rounds and a score/life system are yet to be implemented."+
+            "\n"+
+            "\nAny suggestions, bug report or critiscm that you might have are "+
+            "appreciated"+
+            "\nCatch me on |cfffff0b6Hiveworkshop.com|r or |cfffff0b6lakewc3@gmail.com|r"+
+            "\n"+
+            "\nThank you for playing!"+
+            "\n- Lake",14)
+
+    timer_GameIntro.start(14, function roundPick )
+
+
+function roundPick()
+    if CUSTOMROUNDSTART
+
+        canTypeStartingRound = true
+
+        ClearTextMessages()
+        snd_Text.play()
+        print("|cffff9933Choose starting round|r")
+        print("Type the round number you want to start at (between 1 and "+FINALROUND.toString()+"):")
+
+
+
+        timer_GameIntro.start(10, function gameIntroDelay)
+
+    else
+        gameIntroDelay()
+
+
+function roundPicked()
+    let pressedButton = GetClickedButton()
+    
+    int round = 1
+
+    for i=1 to 10
+        if pressedButton == dialogButton_RoundPick[i]
+            round = i
+            break
+
+    STARTINGROUND = round
+
+    dialog_RoundPick.display(Player(0), false)
+
+    printTimed("Starting at round "+round.toString(),5)
+
+
+    timer_GameIntro.start(8, function gameIntroDelay )
+
+
+function gameIntroDelay()
+
+    if CUSTOMROUNDSTART
+        ShowInterface(false, 1)
+
+    canTypeStartingRound = false
+    timer_GameIntro.start(4, function gameIntro )
+
+
+function gameIntro()
+    snd_Text.play()
+    canSkipGameInfo = true
+    ClearTextMessages()
+    printTimed("|cffffcc00"+"Welcome Gladiator!"+"|r",10)
+    printTimed("You will have to face fierce opponents, whose only goal is make you regret the day you "+
+       "stepped into the arena. To call yourself the true champion, you have to survive "+FINALROUND.toString()+ " merciless rounds of"+
+       " slaughter.",10)
+    printTimed("At least you will die with honor.", 10)
+
+    timer_GameIntro.start(13, function fadeIn)
+
+
+function fadeIn()
+    canSkipGameInfo = false
+
+    ClearTextMessages()
+    timer_GameIntro.pause()
+
+    Player(0).startPickHero()
+
+    // new Fade
+    // ..setEndDelay(1)
+    // ..onFadeIn(function createHero )
+    // ..start(FADEIN)
+
+
+// function createHero()
+
+    
+//     gladiator = Player(0).newGladiator( GLADIATOR_TROLL, spawnPosOnInit, angle(3*PIHALF))
+
+//     gladiator.releaseAbility(0)
+
+//     hero = gladiator.getUnit()
+//     ..setInvulnerable(true)
+//     ..pause()
+
+//     doAfter(0.01) ->
+//         for gladiatorType in GladiatorType.getAllTypes()
+//             gladiatorType.releaseNextArtifact()
+//             for i=1 to 4
+//                 gladiatorType.unlockComboMove()
+
+
+//     ITEM_DULLBLADE.release()
+//     ITEM_LEATHERARMOR.release()
+//     ITEM_COMMONGEM.release()
+//     ITEM_AMULET.release()
+
+//     setDamageTestUnit(hero)
+
+//     setRound()
+    
+//     addEffect("Abilities\\Spells\\Human\\MassTeleport\\MassTeleportCaster.mdl", hero.getPos() )
+//     ..setDuration(3)
+
+//     if PREPAREHERO
+//         for i = 0 to 4
+//             hero.addItemById(STARTINGITEMS[i])
+            
+        
+
+//     getTimer().start(1.25, function playHeroSound)
+
+
+
+function delayedInit()
+    GetExpiredTimer().release()
+
+    
+
+function startRound()
+
+    // if escapeIsEnabled
+
+    //     if not Round.isARoundRunning()
+    //         Round.startNextRound()
+
+    // else if canSkipGameInfo
+    //     fadeIn()
+        
+
+function enteredRoundNumber()
+    if canTypeStartingRound
+        ClearTextMessages()
+        let roundNumber = GetEventPlayerChatString().toInt()
+        STARTINGROUND = roundNumber
+        printTimed("Starting at round "+roundNumber.toString(),5)
+        SND_ENTEREDROUNDNUMBER.play()   
+        gameIntroDelay()     
+
+
+
+
+
+init
+    preloadAbility('A004')
+    preloadAbility('A002')
+    preloadAbility('A001')
+    preloadAbility('A003')
+    
+    finishPreload()
+
+
+    let customRoundTrg = CreateTrigger()
+    for int index = 1 to FINALROUND
+        customRoundTrg.registerPlayerChatEvent(Player(0), index.toString(), true)
+        customRoundTrg.addAction(function enteredRoundNumber)
+        
+    
+
+

@@ -1,0 +1,137 @@
+package VileSpirit
+import AbilityTools
+import MyLibrary
+import ClosureTimers
+import Updater
+import Orders
+import RandomAngle
+import LinkedList
+import Voodoo
+
+//================================================================================================================================================================================================
+// Settings
+
+let VILE_SPIRIT = 'n015'
+
+let DURATION = 10.
+let VOODOO_FACTOR = 0.01
+
+
+public let TROLL_VILE_SPIRIT = compiletime(defineSingleTarget2(
+    "Vile Spirit",
+    ("Summon a Vile Spirit to haunt an enemy target for {0} seconds. The spirit inherits your power, movement and attack speed."+
+    "\n\nThis ability consumes all your voodoo, and the duration of the spirit is increased by {0} for each charge consumed.").format(
+        DURATION.toInt().toString(),
+        VOODOO_FACTOR.toPercentageString()
+    ),
+    Icons.bTNCannibalize,
+    "E",
+    12,
+    50,
+    600,
+    "spell",
+    false
+)) 
+
+public let SND_SPIRIT_SPAWN = new SoundDefinition( Sounds.spiritWolfBirth1,  false, true)
+
+
+//================================================================================================================================================================================================
+init
+    registerSpellEffectEvent(TROLL_VILE_SPIRIT) ->
+        onCast()
+
+function onCast()
+    let caster = GetSpellAbilityUnit()
+    let target = GetSpellTargetUnit()
+
+    let voodoo = caster.consumeVoodoo()
+    let duration = DURATION * (1 + voodoo * VOODOO_FACTOR)
+
+    let spawnPos = caster.getPos().polarOffset( randomAngle(), 125)
+
+    new VileSpirit(caster, target, spawnPos, duration).spirit
+    ..setStatBase(STAT_MOVESPEED, caster.getStat(STAT_MOVESPEED))
+    ..setStatBase(STAT_ATTACKSPEED, caster.getStat(STAT_ATTACKSPEED))
+    ..setStatBase(STAT_DAMAGE, caster.getStat(STAT_DAMAGE))
+    
+
+
+
+class VileSpirit extends Updater
+    protected static let instances = new LinkedList<thistype>
+
+    protected unit spirit
+    protected unit target
+    protected unit caster
+
+    protected effect array[2] sfx
+
+    protected CallbackSingle durationCb = null
+
+    construct( unit caster, unit target, vec2 spawnPos, real duration )
+        instances.add(this)
+
+        spirit = createUnit( caster.getOwner(), VILE_SPIRIT, spawnPos, randomAngle() )
+        ..setVertexColor(colorA(255,30,30,150))
+        addEffect( Abilities.stampedeMissileDeath, spawnPos.withTerrainZ(30))
+        ..destr()
+        SND_SPIRIT_SPAWN.playOnPoint(spawnPos.withTerrainZ())
+        
+        sfx[0] = spirit.addEffect( Objects.humanBloodRifleman, "chest")..setTimeScale(0.75)
+        sfx[1] = spirit.addEffect( Objects.humanBloodRifleman, "head")..setTime(1)
+
+        this.caster = caster
+        this.target = target
+
+        if target != null
+            spirit.issueTargetOrderById( Orders.attack, target)
+
+        updateFreq = 0.25
+        startUpdate()
+    
+        durationCb = doAfter(duration) ->
+            durationCb = null
+            destroy this
+            
+
+    ondestroy
+        if durationCb != null
+            destroy durationCb
+        
+        addEffect( Objects.humanLargeDeathExplode, spirit.getPos().withTerrainZ(30))
+        ..setScale(1.)
+        ..destr()
+        addEffect( Abilities.stampedeMissileDeath, spirit.getPos().withTerrainZ(30))
+        ..destr()
+
+        sfx[0].destr()
+        sfx[1].destr()
+    
+        spirit.remove()
+        instances.remove(this)
+
+
+    override function update()
+        if( caster != null and caster.isAlive() )
+            if target == null or not target.isAlive()
+                let targets = ENUM_GROUP..enumEnemyTargets( spirit.getOwner(), spirit.getPos(), 3000 )
+                if targets.size() > 0
+                    let target = targets.getNearestUnit( spirit.getPos())
+                    spirit.issueTargetOrderById(Orders.attack, target)
+        else
+            destroy this
+            
+
+//================================================================================================================================================================================================
+// RESET
+
+public function unit.resetVileSpirit()
+    this.removeSpirits()
+    this.resetAbilityCooldown(VILE_SPIRIT)
+
+
+function unit.removeSpirits()
+    for instance in VileSpirit.instances
+        if( instance.caster == this )
+            destroy instance
