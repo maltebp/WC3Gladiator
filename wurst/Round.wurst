@@ -20,6 +20,7 @@ import Players
 import TrainingPoints
 import Mastery
 import UtilCommands
+import ObjectIds
 
 
 //=========================================================================================================================================================
@@ -27,7 +28,8 @@ import UtilCommands
 
 public class Round
 
-    private static let rounds = new LinkedList<Round>
+    protected static let rounds = new LinkedList<Round>
+    protected static var nextId = 0
     
     private static int totalNumberOfRounds = 0
     private static int currentRoundNumber = 0
@@ -44,6 +46,7 @@ public class Round
     static unit bossUnit = null
 
     protected let spawners = new LinkedList<UnitSpawner>
+    protected int id
     protected int number
     protected int goldReward
     protected int trainingPointsReward
@@ -95,6 +98,9 @@ public class Round
 
         timer_HealthOrbDuration = getTimer()..setData(this castTo int)
         timer_HealthOrbSpawn = getTimer()..setData(this castTo int)
+
+        id = nextId
+        nextId++
         rounds.push(this)
     
     
@@ -171,6 +177,9 @@ public class Round
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Getters
+
+    function getId() returns int
+        return id
 
     function getNumber() returns int
         return number
@@ -411,6 +420,13 @@ public class Round
     function getNumberOfItemRewards() returns int
         return itemRewards.size()
 
+    /** Returns round with given ID (not level/number) */ 
+    static function getRound(int id) returns thistype
+        for round in rounds
+            if( round.id == id )
+                return round
+        return null
+
 
                
 public interface Round_RemoteFunction
@@ -442,6 +458,16 @@ init
 
 init
     let cmd = defineUtilCommand("round")
+
+    cmd.addSubCommand("all")
+    ..setAction() (p,args,opts) ->
+        SND_CLICK.playForPlayer(p)
+        if( Round.rounds.size() == 0 )
+            p.print("There are no rounds...", 15)
+        else
+            p.print("\nPrinting {0} rounds:".format(Round.rounds.size().toString()).highlight(), 15)
+            for round in Round.rounds
+                p.print( "    {0} (ID: {1}, Level/Number: {2})".format(round.title, round.id.toString(), round.level.toString()), 15)
 
     cmd.addSubCommand("level")
     ..addArgument(ArgumentType.INT)
@@ -483,3 +509,23 @@ init
     ..setAction() (p, args, opts) ->
         if( Round.isARoundRunning() )
             Round.roundLost()
+
+    cmd.addSubCommand("spawners")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p,args,opts) ->
+        let id = args.getInt()
+        if( id < 0 )
+            p.print("\nRound ID cannot be negative", 15)
+            SND_ERROR.playForPlayer(p)
+        else
+            let round = Round.getRound(id)
+            if( round == null )
+                p.print("\nCouldn't find round with ID {0}".format(id.toString().highlight()), 15)
+            else
+                SND_CLICK.playForPlayer(p)
+                p.print("\nPrinting IDs for {0} spawners for {1}".format(
+                     round.spawners.size().toString().highlight(),
+                     "Round {1} ({2})".format(round.title, id.toString()).highlight()
+                ), 15)
+                for spawner in round.spawners
+                    p.print("    {0} {1}".format(spawner.getId().toString(), spawner.getSpawnedUnitId().toRawCode().withColor(COLOR_GREY)), 15)

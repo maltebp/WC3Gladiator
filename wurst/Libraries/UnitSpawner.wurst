@@ -6,6 +6,8 @@ import LinkedList
 import OnUnitEnterLeave
 import UtilCommands
 import StringUtils
+import GameSettings
+import ObjectIds
 
 
 /*
@@ -37,8 +39,10 @@ public class UnitSpawner
 
     // Class Variables
     protected static LinkedList<UnitSpawner> allSpawners = new LinkedList<UnitSpawner>
+    protected static var nextSpawnerId = 0
 
     // Instance Variables
+    protected int id
     private real spawnFrequency
     private int spawnCount
     private int currentSpawnCount = 0
@@ -78,9 +82,11 @@ public class UnitSpawner
         this.spawnPos = spawnPos
         this.owner = owner
         
+        id = nextSpawnerId
+        nextSpawnerId++
         allSpawners.add(this)
 
-        if ACTIVATEONCONSTRUCT
+        if( ACTIVATEONCONSTRUCT )
             activate()
 
     ondestroy
@@ -233,6 +239,12 @@ public class UnitSpawner
 //---------------------------------------------------------------------------------------------------------------------------------------
 // Getters
 
+    function getId() returns int
+        return id
+
+    function getSpawnedUnitId() returns int
+        return unitId
+
     /** Checks if the spawner is finished; it has been stopped (either by stop()
         or becuase it has spawned spawnCount units)*/
     function isFinished() returns boolean
@@ -240,7 +252,11 @@ public class UnitSpawner
 
 
     
-        
+    static function getSpawner(int id) returns thistype
+        for spawner in allSpawners
+            if( spawner.id == id )
+                return spawner
+        return null
 
     /** Returns a list of ALL the spawners (deactivated, running, stopped etc.)
         @return: A copy of the list of all spawners as arraylist of UnitSpawner type.  */
@@ -380,6 +396,27 @@ public class UnitSpawner
             for i = 0 to spawnCount
                 timer_Spawn.start(0,function spawn ) 
 
+
+
+    function toString() returns string
+        return ("UnitSpawner {0}:\n".highlight() +
+                "   unitId = {1}\n" +
+                "   spawnCount = {2}\n" +
+                "   spawning = {3}\n" +
+                "   currentSpawnCount = {4}\n" +
+                "   spawned units = {5}\n" +
+                "   summoned units = {6}" ).format(
+                    id.toString(),
+                    unitId.toRawCode().withColor(COLOR_ACCENT),
+                    spawnCount.toString().withColor(COLOR_ACCENT),
+                    spawning.toString().withColor(COLOR_ACCENT),
+                    currentSpawnCount.toString().withColor(COLOR_ACCENT),
+                    spawnedUnits.size().toString().withColor(COLOR_ACCENT),
+                    summonedUnits.size().toString().withColor(COLOR_ACCENT)
+                )
+              
+
+    
         
 
 //---------------------------------------------------------------------------------------------------------------------------------------
@@ -424,21 +461,64 @@ init
 
 
 
-    defineUtilCommand("spawners")
-    ..setAction() (p,args,opts) ->
-        print("\nChecking spawners")
-        for spawner in UnitSpawner.allSpawners
-            if( spawner.spawnedUnits.size() > 0 or spawner.spawnedUnits.size() > 0)
-                print("\nSpawner---------".highlight())
-                print("Regular units:".withColor(color(200,200,200)))
-                for u in spawner.spawnedUnits
-                    print("    {0} ({1})".format(
-                        u.getName(),
-                        u.isAlive() ? "alive" : "dead"
-                    ))
-                print("Summoned units:".withColor(color(200,200,200)))   
-                for u in spawner.summonedUnits
-                    print("    {0} ({1})".format(
-                        u.getName(),
-                        u.isAlive() ? "alive" : "dead"
-                    ))
+
+//================================================================================================================================================================================================
+// Chat Command
+
+init
+    let cmd = defineUtilCommand("unitspawner")
+    
+    cmd.addSubCommand("all")
+    ..setAction() (p, args, opts) ->
+        SND_CLICK.playForPlayer(p)
+        p.print("\nPrinting all UnitSpawner ids:", 15)
+        if( UnitSpawner.allSpawners.size() == 0 )
+            p.print("   No spawners...", 15)
+        else
+            for spawner in UnitSpawner.allSpawners
+                p.print("    " + spawner.id.toString(), 15)
+    
+    cmd.addSubCommand("info")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p, args, opts) ->
+        let id = args.getInt()
+        if( id < 0 )
+            p.print("\nSpawner ID cannot be negative", 15)
+            SND_ERROR.playForPlayer(p)
+        else
+            let spawner = UnitSpawner.getSpawner(id)
+            if( spawner == null )
+                p.print("\nCouldn't find spawner with ID {0}".format(id.toString().highlight()), 15)
+            else
+                p.print("\n" + spawner.toString())
+                SND_CLICK.playForPlayer(p)
+            
+    cmd.addSubCommand("units")
+    ..addArgument(ArgumentType.INT)
+    ..setAction() (p, args, opts) ->
+        let id = args.getInt()
+        if( id < 0 )
+            p.print("\nSpawner id must be 0 or positive!", 15)
+            SND_ERROR.playForPlayer(p)
+        else
+            let spawner = UnitSpawner.getSpawner(id)
+            if( spawner == null )
+                p.print("\nCouldn't find spawner with id {0}".format(id.toString()).highlight(), 15)
+            else
+                p.print("\nPrinting units for spawner {0}".format(id.toString()).highlight(), 15)
+
+                if( spawner.spawnedUnits.size() == 0)
+                    p.print("No spawned units", 15)
+                else
+                    p.print("{0} spawned units:".format(spawner.spawnedUnits.size().toString()), 15)
+                    for u in spawner.spawnedUnits
+                        p.print("    {0} ({1})".format(u.getName(), u.isAlive() ? "alive" : "dead" ), 15)
+
+                if( spawner.summonedUnits.size() == 0)
+                    p.print("No summoned units", 15)
+                else
+                    p.print("{0} summoned units:".format(spawner.summonedUnits.size().toString()), 15)
+                    for u in spawner.summonedUnits
+                        p.print("    {0} ({1})".format(u.getName(), u.isAlive() ? "alive" : "dead" ), 15)
+                   
+                   
