@@ -390,12 +390,12 @@ init
             let adjustedName = gladiator.getName().replace(" ", "").replace("-", "").toLowerCase()
             if( adjustedName == gladName )
                 gladType = gladiator
-            if(allNames == "")
+            if(allNames != "")
                 allNames += ", "
             allNames += adjustedName
         
         if( gladType == null )
-            p.print("Couldn't find gladiator type '{}'. Available types are: {1}".format(gladName.highlight(), allNames))
+            p.print("Couldn't find gladiator type '{0}'. Available types are: {1}".format(gladName.highlight(), allNames))
         else
             new Gladiator(gladType, p, p.getMousePos(), angle(0))
 

@@ -22,7 +22,6 @@ public function player.addTestPlayers(vararg player players)
             allPlayers.add(p)
             p.setPlayerAlliance(this, ALLIANCE_SHARED_CONTROL, true)
             
-
     // Sort the new player list
     allPlayers.sortWith( (p1, p2) -> p1.getId() - p2.getId() )
 

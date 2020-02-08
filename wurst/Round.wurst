@@ -21,20 +21,13 @@ import TrainingPoints
 import Mastery
 import UtilCommands
 
-public class Round
 
 //=========================================================================================================================================================
-
-//  Settings 
-
-    private static let HEALTHORB_SPAWNFREQ = 25.
-    private static let HEALTHORB_DURATION  = 8.
-
-//=========================================================================================================================================================
-
  
 
-    private static LinkedList<Round> rounds = new LinkedList<Round>
+public class Round
+
+    private static let rounds = new LinkedList<Round>
     
     private static int totalNumberOfRounds = 0
     private static int currentRoundNumber = 0
@@ -232,7 +225,7 @@ public class Round
             
     function stopSpawners()
         for spawner in spawners
-            spawner.stop()
+            spawner.stopSpawning()
         
     private function activateSpawners()
 
@@ -442,12 +435,13 @@ init
                 round.scaleStatsCallback.run(u)
         
 
+
 //================================================================================================================================================================================================
 // CHAT COMMAND
+/* Chat commands to handle the rounds with */
 
 init
     let cmd = defineUtilCommand("round")
-
 
     cmd.addSubCommand("level")
     ..addArgument(ArgumentType.INT)
@@ -485,6 +479,7 @@ init
 
 
     cmd.addSubCommand("reset")
+    ..addHelpCommand("Reset a running round by making you lose it.")
     ..setAction() (p, args, opts) ->
         if( Round.isARoundRunning() )
             Round.roundLost()

@@ -19,7 +19,6 @@ import StringUtils
     Create a new object. Doing this will grant you a ready spawner, but it may be altered with the set
     methods.
 
-
     To Be Updated:
     - Add several sound, and let it pick a random one (so it's not the same sound, again, again, again)
 
@@ -56,7 +55,7 @@ public class UnitSpawner
     private timer timer_Spawn
     private boolean isActivated = ACTIVATEONCONSTRUCT
     private string spawnEffect
-    private boolean isRunning = false
+    private boolean spawning = false
     private unit targetOnSpawn
     private rect targetRect // The rect in which it has to search for a random target
     private boolean getNearestTarget = false
@@ -97,14 +96,14 @@ public class UnitSpawner
     function start()
         if not isActivated
             activate()
-        isRunning = true
+        spawning = true
         currentSpawnCount = 0
         timer_Spawn.start(getRealWithDeviation(startDelay), function spawn) 
         
     /** Stops the unit spawner from spawning. Does not remove units or deactivate
         the spawner. Use deactivate() and clear() for that.*/
-    function stop()
-        isRunning = false
+    function stopSpawning()
+        spawning = false
         timer_Spawn.pause()
 
     /** Stops the spawner, and removes all the units that it has made */
@@ -124,7 +123,7 @@ public class UnitSpawner
                     summonedUnit.remove()
             
         lastSpawnedUnit = null
-        stop()
+        stopSpawning()
      
     /** Sets up the spawner (creating timers and triggers) */
     function activate()
@@ -144,7 +143,6 @@ public class UnitSpawner
                     spawnedUnit.kill()
         
 
-    
     function removeUnit(unit u)
         spawnedUnits.remove(u)
         summonedUnits.remove(u)
@@ -238,7 +236,7 @@ public class UnitSpawner
     /** Checks if the spawner is finished; it has been stopped (either by stop()
         or becuase it has spawned spawnCount units)*/
     function isFinished() returns boolean
-        return not isRunning
+        return not spawning
 
 
     
@@ -256,7 +254,6 @@ public class UnitSpawner
 
     /** Checks if all spawned units and summoned units connected to this UnitSpawner are dead. */
     function allUnitsAreDead() returns boolean
-        
         if spawnedUnits.size() > 0
             for spawnedUnit in spawnedUnits
                 if spawnedUnit != null and spawnedUnit.isAlive()
@@ -365,12 +362,12 @@ public class UnitSpawner
         /*  Rerun Timer
             It first checks if it's restricted by a number of spawns,
             or if it has spawned what it should.*/
-        if instance.spawnCount != 0
+        if( instance.spawnCount > 0 )
             instance.currentSpawnCount++
-            if instance.currentSpawnCount < instance.spawnCount 
+            if( instance.currentSpawnCount < instance.spawnCount )
                 instance.timer_Spawn.start(instance.getRealWithDeviation(instance.spawnFrequency), function spawn)
             else
-                instance.stop()
+                instance.stopSpawning()
         else
             instance.timer_Spawn.start(instance.getRealWithDeviation(instance.spawnFrequency), function spawn)
   
