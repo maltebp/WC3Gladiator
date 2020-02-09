@@ -2,12 +2,10 @@ package FieryConcoction
 
 
 import AbilityTools
-import LinkedList
 import ClosureTimers
 import Projectile
 
 import MyLibrary
-import GroundEffect
 import Voodoo
 import initlater TrollMasteries
 
@@ -22,8 +20,8 @@ let RADIUS      = 150.
 let VOODOO_DMG_FACTOR = 0.01
 
 let BURN_RADIUS         = 150.
-let BURN_DMG_FACTOR     = 0.4
-let BURN_DURATION       = 10.
+let BURN_DMG_FACTOR     = 0.20
+let BURN_DURATION       = 15.
 let BURN_FREQ           = 1.
 
 
@@ -32,10 +30,9 @@ let BURN_FREQ           = 1.
 
 public let TROLL_FIERY_CONCOCTION = compiletime(defineAOE1(
     "Fiery Concoction",
-    ("Throw a fiery concoction, which deals {0} of your power as damage to all enemies it hits."+
-        "The concoction leaves the ground fiery, and deals {1} of your power as damage to any enemies"
-        +" standing within it, every second for {2} seconds.\n\n"+
-        "This ability consumes all your voodoo, and its damage is increased by {0} for each charge consumed.").format(
+    ("Throw a fiery concoction, which deals {0} of your Power as damage to all enemies it hits."+
+        "Enemies within the fiery explosion are set on fire, and will take {1} of your Power in damage every second, for {2} seconds.\n\n"+
+        "This ability consumes all your voodoo, and its damage is increased by {3} for each charge consumed.").format(
         DMG_FACTOR.toPercentageString(),
         BURN_DMG_FACTOR.toPercentageString(),
         BURN_DURATION.toInt().toString(),
@@ -48,6 +45,12 @@ public let TROLL_FIERY_CONCOCTION = compiletime(defineAOE1(
     600,
     RADIUS,
     "attack"
+))
+
+let FIERY_CONCOCTION_BUFF = compiletime(defineBuff(
+    "Fiery Concoction", "Taking damage periodically",
+    Icons.bTNLiquidFire,
+    Abilities.flameStrikeEmbers, "chest", ""
 ))
 
 let SND_EXPLODE = new SoundDefinition(Sounds.alchemistAcidBurnMissileDeath1, false, true)
@@ -64,12 +67,11 @@ function onCast()
     let voodoo = caster.consumeVoodoo()
 
     let projectile = new Projectile(caster.getPos().withTerrainZ(60), Abilities.batTrollMissile)
-    ..firePoint(targetPos.withTerrainZ(), 700, 0.4)
+    ..firePoint(targetPos.withTerrainZ(), 700, 0.6)
     projectile.getEffect().setScale(1.25)
 
     projectile
     ..addActionOnFinish() ->
-        let radiusFactor = (1 + caster.getOwner().getMasteryLevel(WILDFIRE) * WILDFIRE_RADIUS_FACTOR)
         SND_EXPLODE.playOnPoint(targetPos.withTerrainZ())
 
         addEffect( Abilities.fireLordDeathExplode, targetPos.withTerrainZ(100))
@@ -82,290 +84,73 @@ function onCast()
         ..setTimeScale(2.)
         
         let baseDmg = caster.getPower() * (1+voodoo*VOODOO_DMG_FACTOR)
+        let burnDmg = caster.getPower() * BURN_DMG_FACTOR
 
         // Effect
         let explodeDmg = baseDmg * DMG_FACTOR
-        forEnemiesInRange( caster.getOwner(), targetPos, RADIUS * radiusFactor ) target ->
+        let wildFireLvl = caster.getOwner().getMasteryLevel(WILDFIRE)
+        let wildFireFreq = wildFireLvl > 0 ? (WILDFIRE_FREQ_BASE - WILDFIRE_FREQ_RED * (wildFireLvl-1)).toReal() : 0.
+        forEnemiesInRange( caster.getOwner(), targetPos, RADIUS ) target ->
             caster.damageTargetSpell( target, explodeDmg )
+            target.applyBuff(new FieryConcoctionBuff(burnDmg, wildFireFreq), caster, BURN_DURATION)
             target.addEffect( Abilities.incinerateBuff,  "chest" )
             ..destr()
 
-        /* Note: Apparently it bugs out if you create a new instance of class
-            withing this function. Therefor I created this doAfter thingy. */
-        doAfter(0.01) ->
-            new Flames( caster, targetPos, baseDmg * BURN_DMG_FACTOR, BURN_DURATION, BURN_FREQ, RADIUS * radiusFactor )
 
+class FieryConcoctionBuff extends Buff
+    let WILDFIRE_RADIUS = 200.
 
+    CallbackPeriodic spreadCb = null
+    CallbackPeriodic damageCb = null
+    real damage
+    real wildFireFreq = 0
 
-class Flames extends GroundEffect
-
-    private static let hitTargets = new LinkedList<unit>
-    private unit sourceUnit
-    private real damage 
-    private real freq
-    private real radius
-
-    construct( unit sourceUnit, vec2 pos, real damage, real duration, real freq, real radius )
-        super( pos, Abilities.flameStrikeDamageTarget )
-        
-        this.sourceUnit = sourceUnit
+    construct(real damage, real wildFireFreq)
+        super(FIERY_CONCOCTION_BUFF, true)
         this.damage = damage
-        this.freq = freq
-        this.radius = radius
+        this.wildFireFreq = wildFireFreq
 
-        baseSfxScale = 1
+    ondestroy
+        if( spreadCb != null )
+            destroy spreadCb
 
-        let layers = radius.toInt() div 50
-        let layerDistance = radius / layers
-
-        for i=1 to layers
-            addLayer( i*layerDistance - 25, i.squared() + 2 )
-
-        setFrequency( freq )
-        addDuration( duration )
+    override function onApply()
+        if( target != null )
+            // Reducing freq by small amount to allow for x-1 damage ticks with x duration
+            damageCb = doPeriodically(BURN_FREQ*0.99) (CallbackPeriodic cb) ->
+                source.damageTargetSpell(target, damage)
+            if( wildFireFreq > 0 )
+                spreadCb = doPeriodically(wildFireFreq * GetRandomReal(0.97, 0.99)) (CallbackPeriodic cb) ->
+                    spread()
         
-        
-    override function doEffect()
-        forEnemiesInRange( sourceUnit.getOwner(), pos, radius ) target ->
-            sourceUnit.damageTargetSpell( target, damage )
-            hitTargets.add(target)
-            doAfter( freq-0.01) ->
-                if hitTargets.has(target)
-                    hitTargets.remove(target)
+    override function onRemove()
+        if( damageCb != null )
+            destroy damageCb
+            damageCb = null
 
+    function spread()
+        if( target != null )
+            let targets = enemiesInRange(source.getOwner(), target.getPos(), WILDFIRE_RADIUS)
+            for u in targets
+                if( u.hasBuff(FIERY_CONCOCTION_BUFF, source) )
+                    targets.removeUnit(u)
+            
+            if( targets.size() > 0)
+                let spreadTarget = targets.getNearestUnit(target.getPos())
+                spreadTarget.applyBuff(new FieryConcoctionBuff(damage, wildFireFreq), source, remainingDuration())
+            
     
-
-
-let CASTERBUFF_DURATION = 5.
-let DURATION = 12.
-let EXPLODE_RADIUS = 100.
-let SPREAD_FREQ = 3.
-let INITIAL_DAMAGE_FACTOR = 0.8
-let DAMAGE_FACTOR = 0.2
-let DAMAGE_FREQ = 1.
-let SPREAD_COUNT = 2 // Number of units it spreads to each time
-let SPREAD_RADIUS = 150.
-
-let CARRIONCHARM_SPREADFREQ = 1.
-let CARRIONCHARM_SPREADRADIUS = 2 * SPREAD_RADIUS
-
-let SHRINKHEAD_DURATION = CASTERBUFF_DURATION * 2
-
 
 
 
 //================================================================================================================================================================================================
 // WILDFIRE
 
+    
 
-public function unit.castLivingPlaguePotion( vec2 pos )
-
-
-    // A bonus projectile effect (has not practical effect - only visual)
-    let diseaseProjectile = new Projectile(this.getPos().withTerrainZ(60), Abilities.plagueCloudCaster)
-    ..firePoint(pos.withTerrainZ(), 700, 0.4)
-    diseaseProjectile.getEffect().setScale(0.05)
-
-    let projectile = new Projectile(this.getPos().withTerrainZ(60), Abilities.bottleMissile)
-    ..firePoint(pos.withTerrainZ(), 700, 0.4)
-    projectile.getEffect().setScale(1.25)
-
-    projectile
-    ..addActionOnFinish() ->
         
-        let targets = CreateGroup()..enumEnemyTargets( this.getOwner(), pos, EXPLODE_RADIUS )
-        
-        SND_GRAVEYARDWHAT.playOnPoint(pos.withTerrainZ())
-
-        addEffect(Abilities.plagueCloudCaster, pos.withTerrainZ(-50))
-        ..setScale(1.2)
-        ..setDuration(3.)
-
-        for target in targets
-            if target.isPlaguedByCaster(this)
-                targets.removeUnit(target)
-
-        if targets.size() > 0
-
-            doAfter(0.01) ->
-                let casterDamage = this.getDamage()
-
-                let hasCarrionCharm = this.hasArtifact(ARTIFACT_TROLL_CARRIONCHARM)
-                let spreadFreq = hasCarrionCharm ? CARRIONCHARM_SPREADFREQ : SPREAD_FREQ
-                let spreadRadius = hasCarrionCharm ? CARRIONCHARM_SPREADRADIUS : SPREAD_RADIUS
-
-                LivingPlague plague = new LivingPlague(this, casterDamage * DAMAGE_FACTOR, DURATION, spreadRadius, SPREAD_COUNT, spreadFreq )
-            
-                for target in targets
-                    if target.consumeVoodoo(this)
-                        this.damageTargetSpell(target, casterDamage * INITIAL_DAMAGE_FACTOR )
-                    new PlaguedUnit( target, plague).applyBuff()
-
-            /* Doing it with a minimal delay between each new plague to ensure that
-                they won't try  to spread the plague to the same targets.  */
 
     
-
-
-class LivingPlague
-
-    static let instances = new LinkedList<thistype>
-
-    let plaguedUnits = new LinkedList<PlaguedUnit>
-    let hitTargets = new LinkedList<unit>
-
-    real damage
-    real duration
-    unit caster
-    real spreadRadius
-    real spreadFreq
-    int spreadCount
-
-    construct( unit caster, real damage, real duration, real spreadRadius, int spreadCount, real spreadFreq )
-        this.caster = caster
-        this.damage = damage
-        this.duration = duration
-        this.spreadRadius = spreadRadius
-        this.spreadFreq = spreadFreq
-        this.spreadCount = spreadCount
-
-        instances.add(this)
-
-    function addUnit( PlaguedUnit plaguedUnit )
-        plaguedUnits.add(plaguedUnit)
-        hitTargets.add(plaguedUnit.buffUnit)
-
-    function removeUnit( PlaguedUnit plaguedUnit)
-        if plaguedUnits.has(plaguedUnit)
-            plaguedUnits.remove(plaguedUnit)
-            
-            if plaguedUnits.size() == 0
-                destroy this
-
-    ondestroy
-        if plaguedUnits.size() > 0
-            for plaguedUnit in plaguedUnits
-                destroy plaguedUnit
-           
-        destroy hitTargets
-
-        instances.remove(this)
-
-
-public function unit.isPlaguedByCaster( unit caster ) returns boolean
-    for casterInstance in LivingPlague.instances
-        if casterInstance.caster == caster
-            for targetInstance in casterInstance.plaguedUnits
-                if targetInstance.buffUnit == this
-                    return true
-                    
-    return false            
-    
-
-
-class PlaguedUnit extends Updater
-
-    static let instances = new LinkedList<thistype>
-
-    unit buffUnit
-    LivingPlague plague
-    boolean isHit = false
-    effect sfx
-    
-    CallbackSingle durationCb
-    CallbackPeriodic spreadCb
-
-    construct( unit buffUnit, LivingPlague plague )
-        this.buffUnit = buffUnit
-        this.plague = plague
-
-        sfx = buffUnit.addEffect( Units.plagueCloudTarget, "head")
-
-        plague.addUnit(this)
-        instances.add(this)
-
-    
-    function applyBuff()
-
-        if buffUnit != null and buffUnit.isAlive()
-        
-            spreadCb = doPeriodically(plague.spreadFreq) cb ->
-                spread()
-
-            updateFreq = DAMAGE_FREQ
-            startUpdate()
-
-            durationCb = doAfter( plague.duration ) ->
-                durationCb = null
-                destroy this
-
-        else
-            destroy this
-        
-        
-    ondestroy
-        destroy spreadCb
-        if durationCb != null
-            destroy durationCb
-
-        sfx.destr()
-        
-        plague.removeUnit(this)
-        instances.remove(this)
-
-
-    function getInstance( unit caster, unit buffUnit ) returns thistype
-        for instance in instances
-            if buffUnit == instance.buffUnit and caster == instance.buffUnit
-                return instance
-        return null
-
-    
-    // Deal damage
-    override function update()
-        if buffUnit != null and buffUnit.isAlive()
-            plague.caster.damageTargetSpell( buffUnit, plague.damage )
-
-    
-
-    function spread()
-
-        if buffUnit != null and buffUnit.isAlive()
-
-            // Finding targets
-            let originPos = buffUnit.getPos()
-            let potentialTargets = ENUM_GROUP..enumEnemyTargets( plague.caster.getOwner(), buffUnit.getPos(), plague.spreadRadius ) 
-
-            for potentialTarget in potentialTargets
-                if potentialTarget.isPlaguedByCaster(plague.caster) or plague.hitTargets.has(potentialTarget)
-                    potentialTargets.removeUnit(potentialTarget)
-
-            // Applying buff
-            for i=1 to plague.spreadCount
-                let target = potentialTargets.getNearestUnit(originPos)
-
-                if target == null
-                    break
-                
-                potentialTargets.removeUnit(target)
-
-                let plaguedUnit = new PlaguedUnit( target, plague )
-
-                let projectile = new Projectile( originPos.withTerrainZ(60), Abilities.plagueCloudCaster)
-                projectile.getEffect().setScale(0.1)
-                projectile.fireUnit( target, 60, true, 500, 0)
-                projectile.addActionOnFinish() ->
-                    if plaguedUnit != null
-                        plaguedUnit.applyBuff()
-
-        else
-            destroy this
-            
-    
-
-    
-
-            
                     
 
                 

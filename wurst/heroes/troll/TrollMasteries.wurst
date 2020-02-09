@@ -76,13 +76,15 @@ public let SOUL_HARVEST = compiletime(defineMastery(
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // WILDFIRE
 
-public let WILDFIRE_RADIUS_FACTOR = 0.125
+public let WILDFIRE_FREQ_BASE = 5
+public let WILDFIRE_FREQ_RED = 1 // Per extra Level
 public let WILDFIRE = compiletime(defineMastery(
     "Wildfire",
-    Icons.bTNIncinerate,
+    Icons.bTNWallOfFire,
     TROLL_COLOR,
-    rank -> "Increases the radius of your Fiery Concoction's explosion and fire by {0}".format(
-        (rank*WILDFIRE_RADIUS_FACTOR).toPercentageString()
+    rank -> ("The burning effect of your Fiery Concoction will spread to nearby enemies. The spread occurs every {0} seconds,"+
+            " and the burning effect lasts for the same duration as the remaining duration of the source fire.").format(
+        (WILDFIRE_FREQ_BASE - WILDFIRE_FREQ_RED * (rank-1)).toString()
     ),
     3
 ))

@@ -173,6 +173,29 @@ public function unit.removeBuff(int buffId) returns bool
                 count++
             return count > 0            
     return false
+
+
+/** Returns true if the unit has a buff with a given ID, from the given unit source.
+    The buff must be applied with unit.applyBuff(...). */ 
+public function unit.hasBuff(int buffId, unit source) returns bool
+    if( unitBuffMap.has(this) )
+        let buffMap = unitBuffMap.get(this)
+        if( buffMap.has(buffId))
+            let buffList = buffMap.get(buffId)
+            for unitBuff in buffList
+                if( unitBuff.source == source )
+                    return true
+    return false
+    
+
+/** Returns true if the unit has a buff with a given ID, from any unit source.
+    The buff must have been applied with unit.applyBuff(...). */ 
+public function unit.hasBuff(int buffId) returns bool
+    if( unitBuffMap.has(this) )
+        let buffMap = unitBuffMap.get(this)
+        if( buffMap.has(buffId))
+            return buffMap.get(buffId).size() > 0
+    return false
     
 
 
@@ -191,6 +214,7 @@ public abstract class Buff
     protected int buffId
     protected unit source = null
     protected unit target = null
+    protected real duration = 0
 
     construct(int buffId, bool stacks)
         this.buffId = buffId
@@ -226,6 +250,7 @@ public abstract class Buff
         restarts the duration with the new duration. */
     function setDuration(real duration)
         if( duration > 0)
+            this.duration = duration
             durationTimer.start(duration, () -> destroy GetExpiredTimer().getData() castTo thistype )
         
     /** Gets the remaining duration of the buff */
@@ -252,7 +277,8 @@ function unit.removeAllBuffs(int buffId)
             let buffList = buffMap.get(buffId)  
             for unitBuff in buffList
                 destroy unitBuff
-    
+
+
 
 init
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH) ->
