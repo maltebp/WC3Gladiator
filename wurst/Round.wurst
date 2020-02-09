@@ -366,26 +366,25 @@ public class Round
 
 
     protected static function anyUnitDies()
-        if aRoundIsRunning and not roundWon
-            let dying = GetDyingUnit()
-            
-            if( dying.isGladiator() )
-                var allDead = true
-                for gladiator in getAllGladiators()
-                    if( gladiator.getUnit().isAlive() ) 
-                        allDead = false
-                if( allDead )
-                    roundLost()
-            
-            else if isBossRound and dying == bossUnit
-                roundWon = true
-                currentRound.killSpawnedUnits()
-                roundWon()           
-                    
-            else if wasLastUnit()
-                doAfter(0.1) ->
-                    if wasLastUnit()
-                        roundWon()
+        let dyingUnit = GetDyingUnit()
+        doAfter(0.1) ->
+            if( aRoundIsRunning and not roundWon )
+                
+                if( dyingUnit.isGladiator() )
+                    var allDead = true
+                    for gladiator in getAllGladiators()
+                        if( gladiator.getUnit().isAlive() ) 
+                            allDead = false
+                    if( allDead )
+                        roundLost()
+                
+                else if( isBossRound and dyingUnit == bossUnit )
+                    roundWon = true
+                    currentRound.killSpawnedUnits()
+                    roundWon()           
+                        
+                else if( wasLastUnit() )
+                    roundWon()
 
             
     
@@ -436,7 +435,7 @@ public interface Round_RemoteFunction
 init
     CreateTrigger()
     ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_DEATH)
-    ..addAction(function Round.anyUnitDies)
+    ..addAction( () -> Round.anyUnitDies() )
         
 
     /*  Single listener on unit stats initialzied for all rounds, to improve
@@ -525,7 +524,7 @@ init
                 SND_CLICK.playForPlayer(p)
                 p.print("\nPrinting IDs for {0} spawners for {1}".format(
                      round.spawners.size().toString().highlight(),
-                     "Round {1} ({2})".format(round.title, id.toString()).highlight()
+                     "Round {0} ({1})".format(round.title, id.toString()).highlight()
                 ), 15)
                 for spawner in round.spawners
                     p.print("    {0} {1}".format(spawner.getId().toString(), spawner.getSpawnedUnitId().toRawCode().withColor(COLOR_GREY)), 15)

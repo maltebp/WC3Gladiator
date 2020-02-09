@@ -11,6 +11,7 @@ import Stats
 import VileSpirit
 import SoulSiphon
 import Mojo
+import Buff
 
 public let TROLL = new GladiatorType("Troll")
 public let TROLL_UNIT_ID = compiletime(HERO_ID_GEN.next())
@@ -28,7 +29,6 @@ init
         TROLL_BLOOD_PACT,
         TROLL_SOUL_SIPHON,
         TROLL_FIERY_CONCOCTION,
-        
         TROLL_VOODOO_LINK,
         TROLL_MOJO,
         TROLL_VILE_SPIRIT
@@ -40,6 +40,14 @@ init
         gladiator.setStatBase(STAT_CHARGE_DEREGEN, 5)
         gladiator.onFullCharge() (unit chargeUnit) ->
             chargeUnit.voodooFull()
+
+    TROLL.onRefresh() (gladiator) ->
+        gladiator
+        ..setCharge(0)
+        ..removeBuff(MOJO_BUFF)
+        ..removeBuff(GREED_BUFF)
+
+
 
 
 //================================================================================================================================================================================================

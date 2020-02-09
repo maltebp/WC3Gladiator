@@ -94,12 +94,14 @@ public class Gladiator
         return gladiatorType.getSoundOnNewAbility()
 
     /** Refreshes the gladiator, healing it and running all RefreshFunctions defined for the 
-        GladiatorType (refresh cooldowns i.e.) */ 
-        // TODO: Implement refresh functions
+        GladiatorType (refresh cooldowns i.e.) */
     function refresh()
         if( gladiatorUnit.isAlive() )
-            gladiatorUnit.setMaxHP(gladiatorUnit.getMaxHP().toInt())
+            gladiatorUnit.setHP(gladiatorUnit.getMaxHP())
             gladiatorUnit.setMana(gladiatorUnit.getMaxMana())
+            gladiatorUnit.resetCooldown()
+            for action in gladiatorType.refreshActions
+                action.run(gladiatorUnit )
 
     
     function getOwner() returns player
@@ -152,10 +154,6 @@ public class GladiatorType
 
     protected int masteryShopType = 0
 
-    protected int QAbility
-    protected int WAbility
-    protected int EAbility
-
     private let abilities = new LinkedList<int>
     private let artifacts = new LinkedList<Artifact>
 
@@ -164,6 +162,7 @@ public class GladiatorType
     private SoundDefinition snd_NewAbility = null
     
     private LinkedList<GladiatorAction> actions_OnSpawn = null
+    protected let refreshActions = new LinkedList<GladiatorAction>
 
     construct(string name)
         allTypes.add(this)
@@ -245,12 +244,6 @@ public class GladiatorType
     function getColor() returns color
         return col
 
-    function setBaseAbilities( int q, int w, int e)
-        QAbility = q
-        WAbility = w
-        EAbility = e
-
-
     function addActionOnSpawn( GladiatorAction action )
         if actions_OnSpawn == null
             actions_OnSpawn = new LinkedList<GladiatorAction>
@@ -291,6 +284,9 @@ public class GladiatorType
 
     function unlockComboMove() returns string
         return ComboUnitDefinition.getDefinition(unitType).unlockMove().getName()
+
+    function onRefresh(GladiatorAction action)
+        refreshActions.add(action)
 
     static function getAllTypes() returns LinkedList<thistype>
         return allTypes

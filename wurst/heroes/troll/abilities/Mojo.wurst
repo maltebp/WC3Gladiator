@@ -34,7 +34,7 @@ public let TROLL_MOJO = compiletime(defineSingleTarget4(
     true
 ))
 
-let MOJO_BUFF = compiletime(defineBuff("Mojo", "Maximum energy increased", Icons.bTNBigBadVoodooSpell, Abilities.crippleTarget, "origin", ""))
+public let MOJO_BUFF = compiletime(defineBuff("Mojo", "Maximum energy increased", Icons.bTNBigBadVoodooSpell, Abilities.crippleTarget, "origin", ""))
 
 
 //================================================================================================================================================================================================
@@ -62,8 +62,6 @@ function onCast()
     target.applyBuff( new MojoBuff(energyInc, energyRegen), caster, duration )
     
 
-
-
 class MojoBuff extends Buff
 
     real energyInc
@@ -83,4 +81,3 @@ class MojoBuff extends Buff
         if( target != null )
             target.adjustStatFlat(STAT_ENERGY, -energyInc)
             target.adjustStatPercentage(STAT_ENERGY_REGEN, -energyRegen)
-    

@@ -61,7 +61,7 @@ function onCast()
 
 //================================================================================================================================================================================================
 
-let GREED_BUFF = compiletime(defineBuff(
+public let GREED_BUFF = compiletime(defineBuff(
     "Greed", "Gain extra voodoo next time you use Blood Pact",
     Icons.bTNBerserkForTrolls,
     Abilities.phoenix_Missile_mini, "weapon",""

@@ -272,12 +272,12 @@ public class UnitSpawner
     function allUnitsAreDead() returns boolean
         if spawnedUnits.size() > 0
             for spawnedUnit in spawnedUnits
-                if spawnedUnit != null and spawnedUnit.isAlive()
+                if( spawnedUnit.isAlive() )
                     return false
 
         if summonedUnits.size() > 0
             for summonedUnits in summonedUnits
-                if summonedUnits.isAlive()
+                if( summonedUnits.isAlive() )
                     return false
         return true
 
