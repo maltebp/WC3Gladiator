@@ -26,6 +26,7 @@ let BURN_DMG_FACTOR     = 0.4
 let BURN_DURATION       = 10.
 let BURN_FREQ           = 1.
 
+
 // // =========================================================================================================
 
 
@@ -132,4 +133,250 @@ class Flames extends GroundEffect
                 if hitTargets.has(target)
                     hitTargets.remove(target)
 
+    
+
+
+let CASTERBUFF_DURATION = 5.
+let DURATION = 12.
+let EXPLODE_RADIUS = 100.
+let SPREAD_FREQ = 3.
+let INITIAL_DAMAGE_FACTOR = 0.8
+let DAMAGE_FACTOR = 0.2
+let DAMAGE_FREQ = 1.
+let SPREAD_COUNT = 2 // Number of units it spreads to each time
+let SPREAD_RADIUS = 150.
+
+let CARRIONCHARM_SPREADFREQ = 1.
+let CARRIONCHARM_SPREADRADIUS = 2 * SPREAD_RADIUS
+
+let SHRINKHEAD_DURATION = CASTERBUFF_DURATION * 2
+
+
+
+
+//================================================================================================================================================================================================
+// WILDFIRE
+
+
+public function unit.castLivingPlaguePotion( vec2 pos )
+
+
+    // A bonus projectile effect (has not practical effect - only visual)
+    let diseaseProjectile = new Projectile(this.getPos().withTerrainZ(60), Abilities.plagueCloudCaster)
+    ..firePoint(pos.withTerrainZ(), 700, 0.4)
+    diseaseProjectile.getEffect().setScale(0.05)
+
+    let projectile = new Projectile(this.getPos().withTerrainZ(60), Abilities.bottleMissile)
+    ..firePoint(pos.withTerrainZ(), 700, 0.4)
+    projectile.getEffect().setScale(1.25)
+
+    projectile
+    ..addActionOnFinish() ->
+        
+        let targets = CreateGroup()..enumEnemyTargets( this.getOwner(), pos, EXPLODE_RADIUS )
+        
+        SND_GRAVEYARDWHAT.playOnPoint(pos.withTerrainZ())
+
+        addEffect(Abilities.plagueCloudCaster, pos.withTerrainZ(-50))
+        ..setScale(1.2)
+        ..setDuration(3.)
+
+        for target in targets
+            if target.isPlaguedByCaster(this)
+                targets.removeUnit(target)
+
+        if targets.size() > 0
+
+            doAfter(0.01) ->
+                let casterDamage = this.getDamage()
+
+                let hasCarrionCharm = this.hasArtifact(ARTIFACT_TROLL_CARRIONCHARM)
+                let spreadFreq = hasCarrionCharm ? CARRIONCHARM_SPREADFREQ : SPREAD_FREQ
+                let spreadRadius = hasCarrionCharm ? CARRIONCHARM_SPREADRADIUS : SPREAD_RADIUS
+
+                LivingPlague plague = new LivingPlague(this, casterDamage * DAMAGE_FACTOR, DURATION, spreadRadius, SPREAD_COUNT, spreadFreq )
+            
+                for target in targets
+                    if target.consumeVoodoo(this)
+                        this.damageTargetSpell(target, casterDamage * INITIAL_DAMAGE_FACTOR )
+                    new PlaguedUnit( target, plague).applyBuff()
+
+            /* Doing it with a minimal delay between each new plague to ensure that
+                they won't try  to spread the plague to the same targets.  */
+
+    
+
+
+class LivingPlague
+
+    static let instances = new LinkedList<thistype>
+
+    let plaguedUnits = new LinkedList<PlaguedUnit>
+    let hitTargets = new LinkedList<unit>
+
+    real damage
+    real duration
+    unit caster
+    real spreadRadius
+    real spreadFreq
+    int spreadCount
+
+    construct( unit caster, real damage, real duration, real spreadRadius, int spreadCount, real spreadFreq )
+        this.caster = caster
+        this.damage = damage
+        this.duration = duration
+        this.spreadRadius = spreadRadius
+        this.spreadFreq = spreadFreq
+        this.spreadCount = spreadCount
+
+        instances.add(this)
+
+    function addUnit( PlaguedUnit plaguedUnit )
+        plaguedUnits.add(plaguedUnit)
+        hitTargets.add(plaguedUnit.buffUnit)
+
+    function removeUnit( PlaguedUnit plaguedUnit)
+        if plaguedUnits.has(plaguedUnit)
+            plaguedUnits.remove(plaguedUnit)
+            
+            if plaguedUnits.size() == 0
+                destroy this
+
+    ondestroy
+        if plaguedUnits.size() > 0
+            for plaguedUnit in plaguedUnits
+                destroy plaguedUnit
+           
+        destroy hitTargets
+
+        instances.remove(this)
+
+
+public function unit.isPlaguedByCaster( unit caster ) returns boolean
+    for casterInstance in LivingPlague.instances
+        if casterInstance.caster == caster
+            for targetInstance in casterInstance.plaguedUnits
+                if targetInstance.buffUnit == this
+                    return true
+                    
+    return false            
+    
+
+
+class PlaguedUnit extends Updater
+
+    static let instances = new LinkedList<thistype>
+
+    unit buffUnit
+    LivingPlague plague
+    boolean isHit = false
+    effect sfx
+    
+    CallbackSingle durationCb
+    CallbackPeriodic spreadCb
+
+    construct( unit buffUnit, LivingPlague plague )
+        this.buffUnit = buffUnit
+        this.plague = plague
+
+        sfx = buffUnit.addEffect( Units.plagueCloudTarget, "head")
+
+        plague.addUnit(this)
+        instances.add(this)
+
+    
+    function applyBuff()
+
+        if buffUnit != null and buffUnit.isAlive()
+        
+            spreadCb = doPeriodically(plague.spreadFreq) cb ->
+                spread()
+
+            updateFreq = DAMAGE_FREQ
+            startUpdate()
+
+            durationCb = doAfter( plague.duration ) ->
+                durationCb = null
+                destroy this
+
+        else
+            destroy this
+        
+        
+    ondestroy
+        destroy spreadCb
+        if durationCb != null
+            destroy durationCb
+
+        sfx.destr()
+        
+        plague.removeUnit(this)
+        instances.remove(this)
+
+
+    function getInstance( unit caster, unit buffUnit ) returns thistype
+        for instance in instances
+            if buffUnit == instance.buffUnit and caster == instance.buffUnit
+                return instance
+        return null
+
+    
+    // Deal damage
+    override function update()
+        if buffUnit != null and buffUnit.isAlive()
+            plague.caster.damageTargetSpell( buffUnit, plague.damage )
+
+    
+
+    function spread()
+
+        if buffUnit != null and buffUnit.isAlive()
+
+            // Finding targets
+            let originPos = buffUnit.getPos()
+            let potentialTargets = ENUM_GROUP..enumEnemyTargets( plague.caster.getOwner(), buffUnit.getPos(), plague.spreadRadius ) 
+
+            for potentialTarget in potentialTargets
+                if potentialTarget.isPlaguedByCaster(plague.caster) or plague.hitTargets.has(potentialTarget)
+                    potentialTargets.removeUnit(potentialTarget)
+
+            // Applying buff
+            for i=1 to plague.spreadCount
+                let target = potentialTargets.getNearestUnit(originPos)
+
+                if target == null
+                    break
+                
+                potentialTargets.removeUnit(target)
+
+                let plaguedUnit = new PlaguedUnit( target, plague )
+
+                let projectile = new Projectile( originPos.withTerrainZ(60), Abilities.plagueCloudCaster)
+                projectile.getEffect().setScale(0.1)
+                projectile.fireUnit( target, 60, true, 500, 0)
+                projectile.addActionOnFinish() ->
+                    if plaguedUnit != null
+                        plaguedUnit.applyBuff()
+
+        else
+            destroy this
+            
+    
+
+    
+
+            
+                    
+
+                
+                
+                
+            
+            
+            
+
+                
+                
+
+        
     

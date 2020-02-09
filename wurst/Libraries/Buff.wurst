@@ -44,16 +44,15 @@ import CompileTimeData
 import HashMap
 import BuffObjEditing
 import ObjectIds
-import DummyRecycler
 import Orders
 import ErrorHandling
 import LinkedList
-import ClosureTimers
 import OnUnitEnterLeave
 import ObjectIdGenerator
 import AbilityObjEditing
 import RegisterEvents
 import DummyCaster
+import TimerUtils
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -154,12 +153,7 @@ public function unit.applyBuff(Buff buffObject, unit source, real duration)
     buffList.add(buffObject)
     buffObject.buffList = buffList
     buffObject.onApply()
-
-    // Add duration
-    if( duration > 0 )
-        buffObject.durationCb = doAfter(duration) ->
-            buffObject.durationCb = null
-            destroy buffObject
+    buffObject.setDuration(duration)
 
 
 /** Remove ALL buffs of the particular type from this unit. This
@@ -190,7 +184,7 @@ public function unit.removeBuff(int buffId) returns bool
     Use the internal variables 'source' and 'target' to get the
     buff source and target. These MAY BE NULL. */
 public abstract class Buff
-    protected CallbackSingle durationCb = null
+    protected timer durationTimer
     protected LinkedList<Buff> buffList = null // The list of buffs it belongs to
 
     protected bool stacks
@@ -201,11 +195,10 @@ public abstract class Buff
     construct(int buffId, bool stacks)
         this.buffId = buffId
         this.stacks = stacks
+        durationTimer = getTimer()
+        ..setData(this castTo int)
 
     ondestroy
-        if( durationCb != null )
-            destroy durationCb
-
         // Remove buff From list
         if( buffList != null and buffList.has(this) ) 
             buffList.remove(this)
@@ -215,6 +208,7 @@ public abstract class Buff
             target.removeAbility(buffId)
 
         onRemove()
+        durationTimer.release()
 
     /** Is run when a buff of this type is applied to a unit. Use
         the internal variables 'source' and 'target' to get the
@@ -227,6 +221,17 @@ public abstract class Buff
         buff source and target. These MAY BE NULL */
     function onRemove()
         skip
+
+    /** Set the duration of the buff. If the duration has already been set, this resets
+        restarts the duration with the new duration. */
+    function setDuration(real duration)
+        if( duration > 0)
+            durationTimer.start(duration, () -> destroy GetExpiredTimer().getData() castTo thistype )
+        
+    /** Gets the remaining duration of the buff */
+    function remainingDuration() returns real
+        return durationTimer.getRemaining()
+        
 
 
 function unit.removeAllBuffs()
