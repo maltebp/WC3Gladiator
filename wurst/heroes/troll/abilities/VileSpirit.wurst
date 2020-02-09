@@ -14,7 +14,7 @@ import Voodoo
 let VILE_SPIRIT = 'n015'
 
 let DURATION = 10.
-let VOODOO_FACTOR = 0.01
+let VOODOO_FACTOR = 0.015
 let POWER_FACTOR = 2.
 let SPEED_FACTOR = 1.
 

@@ -11,7 +11,7 @@ public let DEBUG = true
 public let SKIP_INTRO       = true 
 public let SKIP_DIFFICULTY  = true 
 public let SKIP_SHOP_INTRO  = true 
-public let SKIP_HERO_SELECTION = false 
+public let SKIP_HERO_SELECTION = true 
 
 public let LOCK_CAM_BOUNDS  = false
 public let INSTANT_SPAWN    = false   // Toggle rounds to spawn all units at the same time!

@@ -20,7 +20,7 @@ import MyLibrary
 let DRAIN_FACTOR = 2.5           // Equilavent to damage factor
 let TRANSFER_FACTOR = 0.25       // Amount healed by the caster
 let MAX_HEAL = 0.1
-let VOODOO_FACTOR = 0.015
+let VOODOO_FACTOR = 0.02
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

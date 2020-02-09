@@ -9,7 +9,7 @@ import initlater TrollMasteries
 // Settings
 
 let VOODOO_GAINED   = 40
-let HEALTH_COST     = 0.04
+let HEALTH_COST     = 0.08
 
 public let TROLL_BLOOD_PACT = compiletime(defineInstantCast1(
     "Blood Pact",

@@ -167,13 +167,13 @@ public let TRIBAL_MOJO = compiletime(defineMastery(
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Euphoria
 
-public let EUPHORIA_ENERGY_REGEN_INC = 0.08
+public let EUPHORIA_ENERGY_INC = 0.10
 public let EUPHORIA = compiletime( defineMastery(
     "Euphoria",
     Icons.bTNResistMagic,
     TROLL_COLOR,
-    rank -> "You Mojo also increases the target's Energy regeneration by {0}.".format(
-        (rank*EUPHORIA_ENERGY_REGEN_INC).toPercentageString()
+    rank -> "You Mojo also increases the target's maximum Energy by {0}.".format(
+        (rank*EUPHORIA_ENERGY_INC).toPercentageString()
     ),
     8
 ))

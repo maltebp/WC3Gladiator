@@ -25,6 +25,9 @@ public function player.addMasteryPoints(int points)
 public function player.getMasteryLevel( int masteryId ) returns int
     return this.getResearchSkillLevel(masteryId)
 
+public function unit.getMasteryLevel(int masteryId) returns int
+    return this.getOwner().getMasteryLevel(masteryId)
+
 public function int.onMasteryChanged( ResearchSkillChangedAction action )
     onResearchSkillChanged(this, action)
 

@@ -17,7 +17,7 @@ import initlater TrollMasteries
 let DMG_FACTOR  = 1.5
 let RADIUS      = 150.
 
-let VOODOO_DMG_FACTOR = 0.01
+let VOODOO_DMG_FACTOR = 0.02
 
 let BURN_RADIUS         = 150.
 let BURN_DMG_FACTOR     = 0.20

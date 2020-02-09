@@ -5,12 +5,13 @@ import AbilityTools
 import Voodoo
 import initlater TrollMasteries
 
+
 //================================================================================================================================================================================================
 // Settings
 
-let ENERGY_INC = 30.
+let ENERGY_REGEN_INC = 0.25
 let DURATION = 20.
-let VOODOO_FACTOR = 0.01
+let VOODOO_FACTOR = 0.015
 let COOLDOWN = 20.
 
 // // =========================================================================================================
@@ -18,9 +19,9 @@ let COOLDOWN = 20.
 
 public let TROLL_MOJO = compiletime(defineSingleTarget4(
     "Mojo",
-    ("Increase the maximum Energy of you or one of your allies by {0} for {1} seconds.\n\n"+
+    ("Increase the Energy Regeneration of the target by {0} for {1} seconds.\n\n"+
         "This ability consumes all your voodoo, and its effect is increase by {2} for each charge consumed.").format(
-        ENERGY_INC.toInt().toString(),
+        ENERGY_REGEN_INC.toPercentageString(),
         DURATION.toInt().toString(),
         VOODOO_FACTOR.toPercentageString()
     ),
@@ -46,8 +47,10 @@ function onCast()
     let target = GetSpellTargetUnit()
 
     let voodoo = caster.consumeVoodoo()
-    let energyInc = ENERGY_INC * (1 + voodoo * VOODOO_FACTOR)
-    let energyRegen = caster.getOwner().getMasteryLevel(EUPHORIA) * EUPHORIA_ENERGY_REGEN_INC
+
+    
+    let energyRegen = ENERGY_REGEN_INC * (1 + voodoo * VOODOO_FACTOR)
+    let energyInc = caster.getMasteryLevel(EUPHORIA) * EUPHORIA_ENERGY_INC
 
     let tribalMojoLvl = caster.getOwner().getMasteryLevel(TRIBAL_MOJO)
     
@@ -66,7 +69,7 @@ class MojoBuff extends Buff
     real energyInc
     real energyRegen
 
-    construct(real energyInc, real energyRegenInc)
+    construct(real energyRegenInc, real energyInc)
         super(MOJO_BUFF, false)
         this.energyInc = energyInc
         this.energyRegen = energyRegenInc
