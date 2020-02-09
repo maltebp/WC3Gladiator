@@ -210,9 +210,9 @@ public abstract class Buff
         if( buffList != null and buffList.has(this) ) 
             buffList.remove(this)
 
-            // Remove actual buff if this was the last buff
-            if( buffList.size() == 0 and target != null)
-                target.removeAbility(buffId)
+        // Remove actual buff if this was the last buff
+        if( buffList.size() == 0 and target != null)
+            target.removeAbility(buffId)
 
         onRemove()
 

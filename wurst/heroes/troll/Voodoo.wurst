@@ -1,22 +1,28 @@
 package Voodoo
 
 import Charge
-import AbilityObjEditing
 import ObjectIdGenerator
 import SoundUtils
-import ClosureTimers
-import DummyCaster
-import GameSettings
-import Orders
+import Buff
+import Stats
+import TimedSpecialEffects
+
 
 //================================================================================================================================================================================================
 // Settings
 
-let HEX = compiletime(ABIL_ID_GEN.next())
-let STUN = compiletime(ABIL_ID_GEN.next())
-let HEX_DURATION = 4.
+let CURSE_MOVE_SPEED_RED = 1.00
+let CURSE_ENERGY_REGEN_RED = 1.00
+let CURSE_ATTACK_SPEED_RED = 0.75
+let CURSE_DURATION = 5.
 
-let SND_HEX = new SoundDefinition(Sounds.rokhanWarcry1, false, true)
+
+let CURSE = compiletime(ABIL_ID_GEN.next())
+let CURSE_BUFF = compiletime(defineBuff("Cursed", "Reduced movement speed, attack speed and energy regeneration.", Icons.bTNDoom, Abilities.curseTarget, "overehead", ""))
+
+let SND_CURSE = new SoundDefinition(Sounds.parasite1, false, true)
+let SND_LAUGH = new SoundDefinition(Sounds.sargerasLaugh, false, true)
+
 
 //================================================================================================================================================================================================
 
@@ -27,31 +33,43 @@ public function unit.consumeVoodoo() returns real
     return voodoo.toReal()
 
 public function unit.voodooFull()
-    this.setCharge(0)
-    doAfter(0.5) ->
-        SND_HEX.playOnPoint(this.getPos().withTerrainZ(200))
+    this
+    ..setCharge(0)
+    ..setMana(0)
 
-    new DummyCaster()
-    ..owner(ENEMY)
-    ..delay(5)
-    ..castTarget(STUN, 1, Orders.thunderbolt, this)
+    SND_CURSE.playOnPoint(this.getPos().withTerrainZ(200))
+    SND_LAUGH.playOnPoint(this.getPos().withTerrainZ(200))
 
+    addEffect(Abilities.animateDeadTarget, this.getPos().withTerrainZ())
+    ..setScale(1.5)
+    ..setColor(255, 0, 0)
+    ..setDuration(4)
 
-@compiletime
-function defineHex()
-    
-    // new AbilityDefinitionHexCreep(HEX)
-    // ..setCooldown(1, 999)
-    // ..setManaCost(1, 0)
-    // ..setDurationHero(1, HEX_DURATION)
-    // ..setDurationNormal(1, HEX_DURATION)
+    addEffect(Abilities.avengerMissile, this.getPos().withTerrainZ(50))
+    ..setScale(2.)
+    ..destr()
 
-    new AbilityDefinitionThunderBoltCreep(STUN)
-    ..setDamage(1, 0)
-    ..setManaCost(1, 0)
-    ..setCooldown(1, 100)
-    ..setDurationHero(1, 4)
-    ..setDurationNormal(1,4)
-    ..setCastRange(1,1000)
+    addEffect(Abilities.deathandDecayTarget, this.getPos().withTerrainZ(60))
+    ..setScale(2.)
+    ..setDuration(4.)
+
+    this.applyBuff(new CurseBuff(), this, CURSE_DURATION)
 
     
+
+class CurseBuff extends Buff
+
+    construct()
+        super(CURSE_BUFF, false)
+    
+    override function onApply()
+        if( target != null )
+            target.adjustStatPercentage(STAT_MOVESPEED, -CURSE_MOVE_SPEED_RED)
+            target.adjustStatPercentage(STAT_ATTACKSPEED, -CURSE_ATTACK_SPEED_RED)
+            target.adjustStatPercentage(STAT_ENERGY_REGEN, -CURSE_ENERGY_REGEN_RED)
+
+    override function onRemove()
+        if( target != null )
+            target.adjustStatPercentage(STAT_MOVESPEED, CURSE_MOVE_SPEED_RED)
+            target.adjustStatPercentage(STAT_ATTACKSPEED, CURSE_ATTACK_SPEED_RED)
+            target.adjustStatPercentage(STAT_ENERGY_REGEN, CURSE_ENERGY_REGEN_RED)

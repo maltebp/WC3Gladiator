@@ -47,7 +47,7 @@ function onCast()
     
 
     var voodoo = VOODOO_GAINED
-    if( caster.hasAbility(GREED_BUFF))
+    if( caster.hasAbility(GREED_BUFF) )
         caster.removeBuff(GREED_BUFF)
         voodoo = (voodoo *  (1 + greedLvl * GREED_INC)).toInt()
     else
