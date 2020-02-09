@@ -19,17 +19,18 @@ import MyLibrary
 
 let DRAIN_FACTOR = 2.5           // Equilavent to damage factor
 let TRANSFER_FACTOR = 0.25       // Amount healed by the caster
-
+let MAX_HEAL = 0.1
 let VOODOO_FACTOR = 0.015
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 public let TROLL_SOUL_SIPHON = compiletime(defineSingleTarget3(
     "Soul Siphon",
-    ("Drain the soul of enemy target, dealing {0} of your power in damage, and healing you by {1} of the damage dealt."+
-        "\n\nThis ability consumes all your voodoo, and the amount drained is increased by {2} for each charge consumed.").format(
+    ("Drain the soul of enemy target, dealing {0} of your power in damage, and healing you by {1} of the damage dealt, up to a maximum of {2} of your maximum health."+
+        "\n\nThis ability consumes all your voodoo, and the amount drained is increased by {3} for each charge consumed.").format(
         DRAIN_FACTOR.toPercentageString(),
         TRANSFER_FACTOR.toPercentageString(),
+        MAX_HEAL.toPercentageString(),
         VOODOO_FACTOR.toPercentageString()
     ),
     Icons.bTNManaDrain,
@@ -61,21 +62,28 @@ function onCast()
     let drainAmount =  caster.getPower() * DRAIN_FACTOR  * (1 + voodoo*VOODOO_FACTOR)
     let heal = drainAmount * TRANSFER_FACTOR
 
-    caster.siphon(target, drainAmount, heal, false)
+    caster.siphon(target, drainAmount, false)
 
     // Soul Harvest
     let soulHarvestLvl = caster.getOwner().getMasteryLevel(SOUL_HARVEST)
     if( soulHarvestLvl > 0)
         let extraTargets = enemiesInRange(caster.getOwner(), target.getPos(), SOUL_HARVEST_RADIUS)
         extraTargets.removeUnit(target)
-        for i=1 to SOUL_HARVEST_TARGETS
+        for i=1 to SOUL_HARVEST_TARGETS*soulHarvestLvl
             if( extraTargets.size() > 0)
             let extraTarget = extraTargets.getRandomUnit()
-            caster.siphon(extraTarget, drainAmount * SOUL_HARVEST_FACTOR * soulHarvestLvl, heal * SOUL_HARVEST_FACTOR * soulHarvestLvl, true)
+            
+            caster.siphon(extraTarget,
+                drainAmount * SOUL_HARVEST_FACTOR,
+                true)
             extraTargets.removeUnit(extraTarget)
             
 
-function unit.siphon(unit target, real drain, real heal, bool small)
+function unit.siphon(unit target, real drain, bool small)
+    let adjustedDrain = small ? drain * SOUL_HARVEST_FACTOR : drain
+    let maxHealAmount =  this.getMaxHP() * (small ? SOUL_HARVEST_MAX_HEAL : MAX_HEAL)
+    let heal = adjustedDrain * TRANSFER_FACTOR > maxHealAmount ? maxHealAmount : adjustedDrain * TRANSFER_FACTOR
+    
     this.damageTargetSpell( target, drain )  
     let projectile = new Projectile(target.getPos().withTerrainZ(60), Abilities.zigguratMissile)
     ..fireUnit( this, 60, true, 1000, 0)
@@ -83,7 +91,7 @@ function unit.siphon(unit target, real drain, real heal, bool small)
     projectile.addActionOnFinish() ->
         if this != null and this.isAlive()
             
-            this.setHP( this.getHP()+ (small ? heal*0.5 : heal ) )
+            this.setHP( this.getHP()+ heal )
 
         if( not small )
             let vengefulSpiritLvl = this.getOwner().getMasteryLevel(VENGEFUL_SPIRIT)

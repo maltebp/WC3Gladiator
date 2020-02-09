@@ -15,13 +15,17 @@ let VILE_SPIRIT = 'n015'
 
 let DURATION = 10.
 let VOODOO_FACTOR = 0.01
+let POWER_FACTOR = 2.
+let SPEED_FACTOR = 1.
 
 
 public let TROLL_VILE_SPIRIT = compiletime(defineSingleTarget2(
     "Vile Spirit",
-    ("Summon a Vile Spirit to haunt an enemy target for {0} seconds. The spirit inherits your power, movement and attack speed."+
-    "\n\nThis ability consumes all your voodoo, and the duration of the spirit is increased by {0} for each charge consumed.").format(
+    ("Summon a Vile Spirit to haunt an enemy target for {0} seconds. The spirit inherits {1} of your Movement and Attack Speed, and {2} of your Power."+
+    "\n\nThis ability consumes all your voodoo, and the duration of the spirit is increased by {3} for each charge consumed.").format(
         DURATION.toInt().toString(),
+        POWER_FACTOR.toPercentageString(),
+        SPEED_FACTOR.toPercentageString(),
         VOODOO_FACTOR.toPercentageString()
     ),
     Icons.bTNCannibalize,
@@ -51,9 +55,9 @@ function onCast()
     let spawnPos = caster.getPos().polarOffset( randomAngle(), 125)
 
     new VileSpirit(caster, target, spawnPos, duration).spirit
-    ..setStatBase(STAT_MOVESPEED, caster.getStat(STAT_MOVESPEED))
-    ..setStatBase(STAT_ATTACKSPEED, caster.getStat(STAT_ATTACKSPEED))
-    ..setStatBase(STAT_DAMAGE, caster.getStat(STAT_DAMAGE))
+    ..setStatBase(STAT_MOVESPEED, caster.getStat(STAT_MOVESPEED) * SPEED_FACTOR)
+    ..setStatBase(STAT_ATTACKSPEED, caster.getStat(STAT_ATTACKSPEED) * SPEED_FACTOR)
+    ..setStatBase(STAT_DAMAGE, caster.getStat(STAT_DAMAGE) * POWER_FACTOR )
     
 
 

@@ -52,16 +52,19 @@ public let VENGEFUL_SPIRIT = compiletime(defineMastery(
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // SOUL HARVEST 
 
-public let SOUL_HARVEST_TARGETS = 4
-public let SOUL_HARVEST_FACTOR = 0.125
+public let SOUL_HARVEST_TARGETS = 1
+public let SOUL_HARVEST_FACTOR = 0.5
 public let SOUL_HARVEST_RADIUS = 300.
+public let SOUL_HARVEST_MAX_HEAL = 0.02
 public let SOUL_HARVEST = compiletime(defineMastery(
     "Soul Harvest",
     Icons.bTNUnsummonBuilding,
     TROLL_COLOR,
-    rank -> "Your Soul Siphon ability also drains the life of {0} additional nearby enemy targets with a  {1} effect.".format(
-        SOUL_HARVEST_TARGETS.toString(),
-        (rank*SOUL_HARVEST_FACTOR).toPercentageString()
+    rank -> "Your Soul Siphon ability also drains the life of {0} additional nearby {1} with a {2} reduced effect, and with a maximum heal of {3} of your maximum health.".format(
+        (rank*SOUL_HARVEST_TARGETS).toString(),
+        rank > 1 ? "enemies" : "enemy",
+        (1 - SOUL_HARVEST_FACTOR).toPercentageString(),
+        SOUL_HARVEST_MAX_HEAL.toPercentageString()
     ),
     2
 ))

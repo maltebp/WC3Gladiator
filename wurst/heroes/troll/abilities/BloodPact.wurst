@@ -36,7 +36,6 @@ function onCast()
     let caster = GetSpellAbilityUnit()
     let greedLvl = caster.getOwner().getMasteryLevel(GREED)
 
-    SND_CAST.playOnPoint(caster.getPos().withTerrainZ(70))
     addEffect(Abilities.aIilTarget, caster.getPos().withTerrainZ(20))
     ..setColor(255, 0, 50)
     ..setDuration(3)
@@ -45,7 +44,6 @@ function onCast()
     ..setTime(0.25)
     ..setTimeScale(1.5)
     
-
     var voodoo = VOODOO_GAINED
     if( caster.hasAbility(GREED_BUFF) )
         caster.removeBuff(GREED_BUFF)

@@ -37,7 +37,7 @@ public function unit.voodooFull()
     ..setCharge(0)
     ..setMana(0)
 
-    SND_CURSE.playOnPoint(this.getPos().withTerrainZ(200))
+    SND_CURSE.playOnPoint(this.getPos().withTerrainZ(200)).snd.setVolume(75)
     SND_LAUGH.playOnPoint(this.getPos().withTerrainZ(200))
 
     addEffect(Abilities.animateDeadTarget, this.getPos().withTerrainZ())
