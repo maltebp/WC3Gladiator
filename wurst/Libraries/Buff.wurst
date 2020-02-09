@@ -14,8 +14,9 @@ package Buff
                 let MY_BUFF = compiletime(defineBuff(...))
 
         2) Implement Buff Class:
-            The implementation defines the buff "type", and is used to
-            add the buff to targets
+            The implementation defines the buff "type", and is used
+            for when the buff will be added to the target.
+            In onApply and onRemove you define the "buff logic"
 
                 class MyBuff extends Buff
                     
@@ -126,12 +127,12 @@ public function unit.applyBuff(Buff buffObject, unit source, real duration)
     buffObject.source = source
     buffObject.target = this
     
-    // Create / Get buff map
+    // Create / Get target's buff map
     if( not unitBuffMap.has(this) )
         unitBuffMap.put(this, new IterableMap<int, LinkedList<Buff>>)
     let buffMap = unitBuffMap.get(this)
     
-    // Create / Get buff list
+    // Create / Get target's buff list of buff being applied
     if( not buffMap.has(buffObject.buffId) )
         buffMap.put(buffObject.buffId, new LinkedList<Buff>)
     let buffList = buffMap.get(buffObject.buffId)
@@ -155,7 +156,7 @@ public function unit.applyBuff(Buff buffObject, unit source, real duration)
     buffObject.onApply()
 
     // Add duration
-    if( duration > 0)
+    if( duration > 0 )
         buffObject.durationCb = doAfter(duration) ->
             buffObject.durationCb = null
             destroy buffObject
@@ -189,10 +190,10 @@ public function unit.removeBuff(int buffId) returns bool
     Use the internal variables 'source' and 'target' to get the
     buff source and target. These MAY BE NULL. */
 public abstract class Buff
-    protected bool stacks
     protected CallbackSingle durationCb = null
     protected LinkedList<Buff> buffList = null // The list of buffs it belongs to
 
+    protected bool stacks
     protected int buffId
     protected unit source = null
     protected unit target = null
@@ -206,7 +207,7 @@ public abstract class Buff
             destroy durationCb
 
         // Remove buff From list
-        if( buffList != null) 
+        if( buffList != null and buffList.has(this) ) 
             buffList.remove(this)
 
             // Remove actual buff if this was the last buff
@@ -234,7 +235,6 @@ function unit.removeAllBuffs()
         for buffId in buffMap
             let buffList = buffMap.get(buffId)
             for unitBuff in buffList
-                unitBuff.onRemove()
                 destroy unitBuff
             destroy buffList
         destroy buffMap
@@ -246,7 +246,6 @@ function unit.removeAllBuffs(int buffId)
         if( buffMap.has(buffId) )
             let buffList = buffMap.get(buffId)  
             for unitBuff in buffList
-                unitBuff.onRemove()
                 destroy unitBuff
     
 
