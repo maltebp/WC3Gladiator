@@ -30,7 +30,7 @@ let BURN_FREQ           = 1.
 
 public let TROLL_FIERY_CONCOCTION = compiletime(defineAOE1(
     "Fiery Concoction",
-    ("Throw a fiery concoction, which deals {0} of your Power as damage to all enemies it hits."+
+    ("Throw a fiery concoction, which deals {0} of your Power as damage to all enemies it hits. "+
         "Enemies within the fiery explosion are set on fire, and will take {1} of your Power in damage every second, for {2} seconds.\n\n"+
         "This ability consumes all your voodoo, and its damage is increased by {3} for each charge consumed.").format(
         DMG_FACTOR.toPercentageString(),
@@ -138,13 +138,6 @@ class FieryConcoctionBuff extends Buff
             if( targets.size() > 0)
                 let spreadTarget = targets.getNearestUnit(target.getPos())
                 spreadTarget.applyBuff(new FieryConcoctionBuff(damage, wildFireFreq), source, remainingDuration())
-            
-    
-
-
-
-//================================================================================================================================================================================================
-// WILDFIRE
 
     
 

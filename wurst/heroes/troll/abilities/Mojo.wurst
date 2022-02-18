@@ -47,7 +47,6 @@ function onCast()
     let target = GetSpellTargetUnit()
 
     let voodoo = caster.consumeVoodoo()
-
     
     let energyRegen = ENERGY_REGEN_INC * (1 + voodoo * VOODOO_FACTOR)
     let energyInc = caster.getMasteryLevel(EUPHORIA) * EUPHORIA_ENERGY_INC
@@ -59,7 +58,7 @@ function onCast()
 
     let duration = DURATION * (1+tribalMojoLvl*TRIBAL_MOJO_DURATION_INC)
     
-    target.applyBuff( new MojoBuff(energyInc, energyRegen), caster, duration )
+    target.applyBuff( new MojoBuff(energyRegen, energyInc), caster, duration )
     
 
 class MojoBuff extends Buff
@@ -74,10 +73,10 @@ class MojoBuff extends Buff
     
     override function onApply()
         if( target != null )
-            target.adjustStatFlat(STAT_ENERGY, energyInc)
+            target.adjustStatPercentage(STAT_ENERGY, energyInc)
             target.adjustStatPercentage(STAT_ENERGY_REGEN, energyRegen)
     
     override function onRemove()
         if( target != null )
-            target.adjustStatFlat(STAT_ENERGY, -energyInc)
+            target.adjustStatPercentage(STAT_ENERGY, -energyInc)
             target.adjustStatPercentage(STAT_ENERGY_REGEN, -energyRegen)

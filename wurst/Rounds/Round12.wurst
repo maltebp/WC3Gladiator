@@ -115,8 +115,8 @@ init
     registerSpellEffectEvent('A016', function lightningChargeCast )
     registerSpellEffectEvent('A019', function SummonLightningWard.onCast )
 
-    addAutoCastAbilityToUnitType('n00E', new AutoCastAbilityType( 'A016', Orders.roar, TargetType.ENEMY_IMMEDIATE, 200, 14, 30 ))
-    addAutoCastAbilityToUnitType('n00E', new AutoCastBoundWard( 1000, 6, 18, gg_rct_Arena_Spawn1 ))
+    addAutoCastAbilityToUnitType('n00E', new AutoCastAbilityType( 'A016', Orders.roar, TargetType.ENEMY_IMMEDIATE, 200, 8, 25 ))
+    addAutoCastAbilityToUnitType('n00E', new AutoCastBoundWard( 1000, 2, 18, gg_rct_Arena_Spawn1 ))
 
 
     let map = CreateRegion()..addRect(GetPlayableMapRect())

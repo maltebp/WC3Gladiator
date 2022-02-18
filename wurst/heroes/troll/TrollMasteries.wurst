@@ -172,7 +172,7 @@ public let EUPHORIA = compiletime( defineMastery(
     rank -> "You Mojo also increases the target's maximum Energy by {0}.".format(
         (rank*EUPHORIA_ENERGY_INC).toPercentageString()
     ),
-    8
+    9
 ))
 
 

@@ -20,9 +20,8 @@ public function player.startIntro()
             SND_MESSAGE.playForPlayer(p) 
             p.print(
                 "Welcome Gladiator!".withColor(COLOR_HIGHLIGHT) + 
-                "\nYou will have to face fierce opponents, whose only goal is make you regret the day you "+
-                "stepped into the arena. To call yourself the true champion, you have to survive " + FINAL_ROUND.toString() +" merciless rounds of slaughter." +
-            "\nAt least you will die with honor."
+                "\nYou have been chosen to enter the arena, where you must face the fiercest of opponents, whose only goal is to make you regret the day you "+
+                "stepped onto their turf. To be named the true champion, you must survive " + FINAL_ROUND.toString() +" merciless rounds of slaughter."
             , 12)
         scene.wait(14)
 

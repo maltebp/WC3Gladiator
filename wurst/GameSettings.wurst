@@ -9,9 +9,9 @@ import SoundUtils
 public let DEBUG = true
 
 public let SKIP_INTRO               = true 
-public let SKIP_DIFFICULTY          = true 
+public let SKIP_DIFFICULTY          = false 
 public let SKIP_SHOP_INTRO          = true 
-public let SKIP_HERO_SELECTION      = true 
+public let SKIP_HERO_SELECTION      = true
 
 public let LOCK_CAM_BOUNDS          = true
 public let INSTANT_SPAWN            = false   // Toggle rounds to spawn all units at the same time!
@@ -29,7 +29,7 @@ public let START_GOLD           = 50
 public let START_MASTERY        = 0
 public let ATTEMPTS             = 5
 public let ENEMY                = Player(11)
-public let FINAL_ROUND       = 15
+public let FINAL_ROUND       = 13
 public let MASTERY_MAX_LEVEL = 4
 public let MASTERY_PER_ROUND = 2
 public let TRAINING_POINTS_PER_ROUND = 3

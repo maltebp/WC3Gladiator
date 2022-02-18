@@ -34,7 +34,7 @@ let MYRMIDON_ID     = 'n00X'
 // Tornado
 let TORNADO_DMG_FACTOR = 3.
 let TORNADO_RANGE   = 125.
-let TORNADO_SPEED   = 50.
+let TORNADO_SPEED   = 100.
 
 // Storm Charge
 let STORMCHARGE_DMG_FACTOR = 1.
@@ -48,7 +48,6 @@ let WOUNDINGSTRIKE_COOLDOWN = 15.
 let WOUNDINGSTRIKE_DURATION = 6.
 let WOUNDINGSTRIKE_ATTACKSPEEDRED = 0.
 let WOUNDINGSTRIKE_MOVESPEEDRED = 0.4
-
 
 // Summon Elemental
 let SUMMONELEMENTAL_COOLDOWN = 15.
@@ -173,7 +172,7 @@ init
         new AutoCastAbilityType(WOUNDINGSTRIKE_ABIL_ID, Orders.slow, TargetType.ENEMY_UNIT, 1000, 3, WOUNDINGSTRIKE_COOLDOWN) )
 
     addAutoCastAbilityToUnitType( WATERCALLER_ID, 
-        new AutoCastAbilityType(SUMMONELEMENTAL_ID, Orders.roar, TargetType.ENEMY_IMMEDIATE, 1500, 6, SUMMONELEMENTAL_COOLDOWN ) )
+        new AutoCastAbilityType(SUMMONELEMENTAL_ID, Orders.roar, TargetType.ENEMY_IMMEDIATE, 1500, 3, SUMMONELEMENTAL_COOLDOWN ) )
 
     addAutoCastAbilityToUnitType( WATERBEING_ID, 
         new AutoCastAbilityType( ELEMENTAL_ATTACK_ID, Orders.fingerofdeath, TargetType.ENEMY_UNIT, 3000, 1, ELEMENTAL_COOLDOWN ) )

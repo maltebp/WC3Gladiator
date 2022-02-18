@@ -38,7 +38,7 @@ public function player.startShopIntro(GladiatorType gladiatorType)
         
         ..do() p ->
             SND_MESSAGE.playForPlayer(p)
-            p.print("Prepare yourself now, and when you're ready, write '{0}' to start the round.".format("-ready".withColor(COLOR_HIGHLIGHT)),5)
+            p.print("When you have prepared yourself write '{0}' to start the round.".format("-ready".withColor(COLOR_HIGHLIGHT)),5)
         scene
         ..wait(8)
         ..do() p ->

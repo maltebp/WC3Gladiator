@@ -305,7 +305,7 @@ public class Round
             roundLost()
             return
 
-        if( isBossRound and bossUnit.isAlive() )
+        if( isBossRound and not bossUnit.isAlive() )
             roundWon = true
             currentRound.killSpawnedUnits()
             roundWon()

@@ -40,14 +40,14 @@ let BERSERK_SND         = new SoundDefinition(Sounds.bloodlustTarget, false, tru
 let RAINOFFIRE_ABILITYID = compiletime(ABIL_ID_GEN.next())
 let RAINOFFIRE_DAMAGE_SHARD = 60. //TODO: SCALE THIS  
 let RAINOFFIRE_RANGE = 250.
-let RAINOFFIRE_CHANNELDURATION = 10 // Each wave is 1 second
-let RAINOFFIRE_COOLDOWN = 15.
+let RAINOFFIRE_CHANNELDURATION = 6 // Each wave is 1 second
+let RAINOFFIRE_COOLDOWN = 12.
 let RAINOFFIRE_STARTCOOLDOWN = 10.
 
 let ENSNARE_ABILITYID = compiletime( ABIL_ID_GEN.next() )
 let ENSNARE_BUFFID = compiletime( BUFF_ID_GEN.next() )
-let ENSNARE_STARTCOOLDOWN = 5.
-let ENSNARE_COOLDOWN = 30.
+let ENSNARE_STARTCOOLDOWN = 2.
+let ENSNARE_COOLDOWN = 25.
 let ENSNARE_HP =       75. // (Base)
 
 Round round = null

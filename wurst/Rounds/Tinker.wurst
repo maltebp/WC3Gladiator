@@ -77,8 +77,6 @@ init
         let boss = createUnit(ENEMY, TINKER, vec2(14,1000), angle(PIHALF+PI))
         Round.setBossUnit(boss)
         Round.bossUnit.pause()
-        round.scaleUnitStats(boss)
-        boss.adjustToDifficulty()
     end
 
     round.codeOnPrepare = roundFunction
@@ -367,9 +365,9 @@ init
         let caster = GetSpellAbilityUnit()
         doAfter(2.2) ->
             caster.adjustStatPercentage(STAT_DAMAGE, 0.001)
-            print(caster.getName() + " {0}".format( caster.getTypeId().toRawCode()) )
-            for stat in StatType.getAllTypes()
-                print(caster.getStatInstance(stat).toString())
+            // print(caster.getName() + " {0}".format( caster.getTypeId().toRawCode()) )
+            // for stat in StatType.getAllTypes()
+                // print(caster.getStatInstance(stat).toString())
 
 
 //=========================================================================================================================================================
