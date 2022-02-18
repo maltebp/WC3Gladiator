@@ -18,7 +18,7 @@ public function player.startShopIntro(GladiatorType gladiatorType)
     scene.do() p ->
         p.resetToGameCamera(0)
         p.setCameraPosition(SHOP_SPAWN)
-        if LOCK_CAM_BOUNDS
+        if not DEBUG or LOCK_CAM_BOUNDS
             p.setCameraBoundsToRect(gg_rct_Shop_CamBounds)
 
     if( not DEBUG or not SKIP_SHOP_INTRO)

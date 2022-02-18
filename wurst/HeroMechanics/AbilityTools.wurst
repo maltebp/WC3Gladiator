@@ -6,10 +6,10 @@ import public RegisterEvents
 import public SoundUtils
 import public Damage
 import public GameSettings
-import public GroupUtils
+import public GroupUtilsX
 import public Stats
 import public TimedSpecialEffects
-import public StringUtils
+import public StringUtilsX
 import public Buff
 import public Charge
 

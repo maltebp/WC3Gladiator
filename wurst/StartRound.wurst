@@ -48,16 +48,19 @@ function player.preparePlayer()
     this.setCameraPosition(ARENA_SPAWN)
     this.getGladiator().refresh()
 
+
 function player.moveGladiator()
     let gladiator = this.getGladiator().getUnit()
     gladiator.setPos(ARENA_SPAWN)
     addEffect(Abilities.massTeleportCaster, gladiator.getPos())
     ..setDuration(5)
 
+
 function player.readyGladiator()
     let gladiator = this.getGladiator().getUnit()
     this.selectSingle(gladiator)
     gladiator.unpause()
+    
 
 function Round.showInfo()
     SND_ROUND_INFO.play()

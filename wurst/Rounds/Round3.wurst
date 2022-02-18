@@ -14,7 +14,7 @@ import AbilityObjEditing
 import AutoCastAbility
 import RegisterEvents
 import Projectile
-import GroupUtils
+import GroupUtilsX
 import HashMap
 import OnUnitEnterLeave
 

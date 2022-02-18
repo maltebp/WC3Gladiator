@@ -1,6 +1,6 @@
 package Intro
 import GameSettings
-import StringUtils
+import StringUtilsX
 import PickHero
 import Scene
 import Players

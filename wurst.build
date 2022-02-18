@@ -1,7 +1,7 @@
 ---
 projectName: WC3Gladiator
 dependencies:
-- https://github.com/wurstscript/wurstStdlib2
+- https://github.com/maltebp/wurstStdlib2:1.29.2-new
 - https://github.com/maltebp/ProjectileSystem
 - https://github.com/maltebp/ChatCommands
 - https://github.com/maltebp/LakeStatSystem

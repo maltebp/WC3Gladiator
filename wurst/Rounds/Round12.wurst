@@ -13,7 +13,7 @@ import RegisterEvents
 import AutoCastAbility
 import LightningCharge
 import LightningUtil
-import GroupUtils
+import GroupUtilsX
 import TimedSpecialEffects
 import UnitVisualsUtils
 import InstantDummyCaster

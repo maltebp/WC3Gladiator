@@ -5,7 +5,7 @@ import LinkedList
 import Players
 import UtilCommands
 import ClosureTimers
-import StringUtils
+import StringUtilsX
 import GameSettings
 import Round
 import Music
@@ -81,7 +81,7 @@ function allAreReady()
         SND_ALLREADY.play()
         
         print("\nAll players ready - starting round {0}!".format(Round.getCurrentRoundNumber().toString().withColor(COLOR_HIGHLIGHT)), 7)
-        delay = allPlayers.size() > 1 ? 4. : 0.
+        delay = allPlayers.size() > 1 ? 3. : 1.
         doAfter(delay) ->
             startRound()
 

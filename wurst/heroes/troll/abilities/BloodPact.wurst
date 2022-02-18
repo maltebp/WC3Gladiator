@@ -5,6 +5,14 @@ import AbilityTools
 import initlater TrollMasteries
 
 
+public let GREED_BUFF = compiletime(defineBuff(
+    "Greed", "Gain extra voodoo next time you use Blood Pact",
+    Icons.bTNBerserkForTrolls,
+    Abilities.phoenix_Missile_mini, "weapon",""
+))
+    
+
+
 //================================================================================================================================================================================================
 // Settings
 
@@ -61,12 +69,7 @@ function onCast()
 
 //================================================================================================================================================================================================
 
-public let GREED_BUFF = compiletime(defineBuff(
-    "Greed", "Gain extra voodoo next time you use Blood Pact",
-    Icons.bTNBerserkForTrolls,
-    Abilities.phoenix_Missile_mini, "weapon",""
-))
-    
+
 
 class GreedBuff extends Buff
     construct()

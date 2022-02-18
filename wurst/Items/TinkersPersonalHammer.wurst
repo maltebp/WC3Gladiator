@@ -3,7 +3,7 @@ package TinkersPersonalHammer
 import ClosureTimers
 import RegisterEvents
 import LinkedList
-import GroupUtils
+import GroupUtilsX
 import Damage
 
 

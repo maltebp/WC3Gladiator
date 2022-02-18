@@ -1,4 +1,4 @@
-package StringUtils
+package StringUtilsX
 
 /**
     Create a percentage string from a real number. I.e.0.1 becomes 10%. */

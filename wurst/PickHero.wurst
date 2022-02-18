@@ -13,6 +13,7 @@ import GladiatorSystem
 import GameSettings
 import HalfBreed
 import Troll
+import ClosureForGroups
 
 let CAMERA = gg_cam_Barracks
 public let BARRACKS_RECT = gg_rct_BarracksFog
@@ -68,7 +69,7 @@ function player.choseGladiator( unit chosenGladiator )
     chosenGladiator.remove()
 
     gladiatorType.getSoundOnNewAbility().playForPlayer(this)
-    
+
     let scene = new Scene()
     ..wait(2)
     ..do( p -> p.fadeOut(1, null))

@@ -10,9 +10,14 @@ function onSpellCast()
 
     if caster.hasItemById(ITEMID)
 
-        let finalHealth = ((caster.getHP() + HEALAMOUNT) > caster.getMaxHP()) ? caster.getMaxHP() : caster.getHP() + HEALAMOUNT
-        doAfter(0.1) ->
-            caster.setHP(finalHealth)
+        // If ability that was cast reduces HP (e.g. Blood Pact) then it is
+        // necessary to delay the setting of the HP
+        doAfter(0.17) ->
+            if( caster.isAlive() )
+                let finalHealth = ((caster.getHP() + HEALAMOUNT) > caster.getMaxHP()) ? caster.getMaxHP() : caster.getHP() + HEALAMOUNT
+                print("caster.getHP(): " + caster.getHP().toString())
+                print("caster.getMaxHP(): " + caster.getHP().toString())
+                caster.setHP(finalHealth)
 
 init
     CreateTrigger()

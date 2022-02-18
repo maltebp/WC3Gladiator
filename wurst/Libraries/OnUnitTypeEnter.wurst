@@ -19,6 +19,7 @@ import OnUnitEnterLeave
 
 // ------------------------------------------------------------------------------------------------------------------
 
+HashMap<int, LinkedList<ActionFunction>> unitTypeActions
 
 /** Adds an action for when a specific unit type enters the map */
 public function onUnitTypeEnter(int unitType, ActionFunction actionFunction)
@@ -29,9 +30,6 @@ public function onUnitTypeEnter(int unitType, ActionFunction actionFunction)
 
 
 // =================================================================================================================    
-
-HashMap<int, LinkedList<ActionFunction>> unitTypeActions
-
 
 /** Gets the action list (LinkedList) of a unit types actions,
     or creates a new one if one doesn't exist. */

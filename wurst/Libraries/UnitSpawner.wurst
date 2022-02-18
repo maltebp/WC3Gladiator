@@ -5,7 +5,7 @@ import public SoundUtils
 import LinkedList
 import OnUnitEnterLeave
 import UtilCommands
-import StringUtils
+import StringUtilsX
 import GameSettings
 import ObjectIds
 
