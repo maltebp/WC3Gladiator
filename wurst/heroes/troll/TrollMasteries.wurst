@@ -53,7 +53,7 @@ public let VENGEFUL_SPIRIT = compiletime(defineMastery(
 // SOUL HARVEST 
 
 public let SOUL_HARVEST_TARGETS = 1
-public let SOUL_HARVEST_FACTOR = 0.5
+public let SOUL_HARVEST_FACTOR = 0.4
 public let SOUL_HARVEST_RADIUS = 300.
 public let SOUL_HARVEST_MAX_HEAL = 0.02
 public let SOUL_HARVEST = compiletime(defineMastery(
@@ -68,9 +68,6 @@ public let SOUL_HARVEST = compiletime(defineMastery(
     ),
     2
 ))
-
-
-
 
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

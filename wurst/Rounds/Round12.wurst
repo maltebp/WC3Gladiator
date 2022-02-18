@@ -75,9 +75,6 @@ init
             u.adjustToDifficulty()
 
 
-    
-
-
 public class DelayedBloodlustCast
 
     private unit target

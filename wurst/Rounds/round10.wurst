@@ -20,6 +20,7 @@ import RandomAngle
 import ClosureTimers
 import LinkedList
 import Gladiator
+import AbilityTools
 
 // ======================================================================================================================================
 
@@ -53,7 +54,7 @@ let WOUNDINGSTRIKE_MOVESPEEDRED = 0.4
 let SUMMONELEMENTAL_COOLDOWN = 15.
 
 // Elemental Attack
-let ELEMENTAL_DMG_BASE = 7. 
+let ELEMENTAL_DMG_BASE = 12. 
 let ELEMENTAL_RANGE = 700.
 let ELEMENTAL_COOLDOWN = 1.25
 let ELEMENTAL_DISTANCE = 1000.
@@ -62,15 +63,12 @@ let ELEMENTAL_SPEED = 350.
 
 
 
-// OTHER CONSTANTS
-let TORNADOES_ID = compiletime(ABIL_ID_GEN.next())
-
-let WOUNDINGSTRIKE_ABIL_ID = compiletime( ABIL_ID_GEN.next() )
-let WOUNDINGSTRIKE_BUFF_ID = compiletime( BUFF_ID_GEN.next() )
-
-let SUMMONELEMENTAL_ID = compiletime( ABIL_ID_GEN.next() )
-
-let ELEMENTAL_ATTACK_ID = compiletime( ABIL_ID_GEN.next() )
+// Ability Ids
+let TORNADOES_ID            = compiletime(ABIL_ID_GEN.next())
+let WOUNDINGSTRIKE_ABIL_ID  = compiletime(ABIL_ID_GEN.next())
+let WOUNDINGSTRIKE_BUFF_ID  = compiletime(BUFF_ID_GEN.next())
+let SUMMONELEMENTAL_ID      = compiletime(ABIL_ID_GEN.next())
+let ELEMENTAL_ATTACK_ID     = compiletime(ABIL_ID_GEN.next())
 
 
 Round round = null
@@ -193,7 +191,6 @@ init
         if( id == WATERBEING_ID or id == MYRMIDON_ID or id == STORMCALLER_ID or  id == WATERCALLER_ID )
             round.scaleUnitStats(u)
             u.adjustToDifficulty()
-
 
 
 // ======================================================================================================================================
@@ -528,28 +525,25 @@ function generateWoundingStrike()
 // ======================================================================================================================================
 
 
-// Summon the water elemental
 function summonElemental()
     let caster = GetSpellAbilityUnit()
 
     let spawnPos = caster.getPos().polarOffset( caster.getFacingAngle() + angle(PIHALF), 250 )
     let finalPos = ( gg_rct_Arena_Spawn1.contains(spawnPos) ) ? spawnPos : gg_rct_Arena_Spawn1.getCenter()
 
-
     let elemental = createUnit( ENEMY, WATERBEING_ID, finalPos, randomAngle() )
     ..setAnimation("birth")
     ..queueAnimation("stand")
     ..pause()
+
+    caster.getSpawner().addSummonedUnit(elemental)
     
     doAfter(0.9) ->
         elemental.unpause()
 
-    caster.getSpawner().addSummonedUnit(elemental)
-
 
 
 class WaveAttack extends Updater
-
 
     private angle direction
     private real damage
@@ -578,38 +572,32 @@ class WaveAttack extends Updater
         wave = addEffect( Abilities.crushingWaveMissile, currentPos )
         ..setHeight(50)
         ..setColor( 170, 255, 90)
-        ..setOrientation(0, 0, direction.radians() )
+        ..setOrientation(direction.radians(), 0, 0)
         ..setScale(0.5)
 
         startUpdate()
         
 
-
     ondestroy
         wave.destr()
         destroy targetsHit
 
+
     override function update()
         
         currentPos = currentPos.polarOffset( direction, movePerUpdate )
-        wave.setPos( currentPos )
+        wave.setPos(currentPos)
 
-        let targets = ENUM_GROUP..enumUnitsInRange(currentPos, width)
+        let targets = enemiesInRange(source.getOwner(), currentPos, width)
 
         for target from targets
-            if target.isAliveTrick() and target.isEnemyOf(source) and not targetsHit.has(target)
+            if not targetsHit.has(target)
                 source.damageTargetSpell(target, damage)
                 targetsHit.add(target)
-
 
         distanceTravelled += movePerUpdate
         if distanceTravelled >= distance
             destroy this
-
-
-    
-
-
 
 
 @compiletime
@@ -622,7 +610,6 @@ function generateSummonElementalAbil()
     ..setTargetsAllowed(1, "none")
     ..setManaCost(1, 0)
 
-
     new AbilityDefinitionFingerofDeath( ELEMENTAL_ATTACK_ID )
     ..setName("Crushing Wave Attack")
     ..setCastRange( 1, ELEMENTAL_RANGE )
@@ -634,16 +621,3 @@ function generateSummonElementalAbil()
     ..setArtEffect("")
     ..setAnimationNames("attack")
     ..setCooldown(1, 0)
-
-
-
-
-
-
-
-
-// ======================================================================================================================================
-
-
-    
-

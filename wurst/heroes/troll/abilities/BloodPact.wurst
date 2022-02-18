@@ -17,7 +17,7 @@ public let GREED_BUFF = compiletime(defineBuff(
 // Settings
 
 let VOODOO_GAINED   = 40
-let HEALTH_COST     = 0.08
+let HEALTH_COST     = 0.06
 
 public let TROLL_BLOOD_PACT = compiletime(defineInstantCast1(
     "Blood Pact",

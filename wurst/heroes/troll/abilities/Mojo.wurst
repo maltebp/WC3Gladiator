@@ -28,7 +28,7 @@ public let TROLL_MOJO = compiletime(defineSingleTarget4(
     Icons.bTNBigBadVoodooSpell,
     "D",
     COOLDOWN,
-    50,
+    40,
     600,
     "spell",
     true

@@ -15,8 +15,6 @@ function onSpellCast()
         doAfter(0.17) ->
             if( caster.isAlive() )
                 let finalHealth = ((caster.getHP() + HEALAMOUNT) > caster.getMaxHP()) ? caster.getMaxHP() : caster.getHP() + HEALAMOUNT
-                print("caster.getHP(): " + caster.getHP().toString())
-                print("caster.getMaxHP(): " + caster.getHP().toString())
                 caster.setHP(finalHealth)
 
 init
