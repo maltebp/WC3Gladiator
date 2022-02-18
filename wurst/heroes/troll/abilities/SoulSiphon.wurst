@@ -69,14 +69,23 @@ function onCast()
     if( soulHarvestLvl > 0)
         let extraTargets = enemiesInRange(caster.getOwner(), target.getPos(), SOUL_HARVEST_RADIUS)
         extraTargets.removeUnit(target)
+
+        for extraTarget in extraTargets
+            if( extraTarget.isInvulnerable())
+                extraTargets.removeUnit(extraTarget)
+
         for i=1 to SOUL_HARVEST_TARGETS*soulHarvestLvl
-            if( extraTargets.size() > 0)
+            if( extraTargets.size() == 0)
+                break
+        
             let extraTarget = extraTargets.getRandomUnit()
-            
-            caster.siphon(extraTarget,
-                drainAmount * SOUL_HARVEST_FACTOR,
-                true)
             extraTargets.removeUnit(extraTarget)
+
+            caster.siphon(
+                extraTarget,
+                drainAmount * SOUL_HARVEST_FACTOR,
+                true
+            )
             
 
 function unit.siphon(unit target, real drain, bool small)
