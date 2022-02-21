@@ -219,8 +219,6 @@ public class Round
 
             
     function initialize()
-        aRoundIsRunning = true
-        
         timer_RoundFinishCheck.startPeriodic(ROUND_FINISH_CHECK_FREQ, function checkRoundFinish)
         activateSpawners()
         activateHealthOrbSpawn()
@@ -385,6 +383,7 @@ public class Round
         
 
     function prepare()
+        aRoundIsRunning = true
         if( level == 0)
             level = number
 

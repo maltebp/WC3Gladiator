@@ -29,7 +29,7 @@ let MECHANIC = 'o001'
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-let HOMING_ROCKETS_DMG_BASE = 80.
+let HOMING_ROCKETS_DMG_BASE = 90.
 let HOMINGROCKETS_FREQ     = 0.5
 let HOMING_ROCKETS_DURATION = 7.
 
@@ -97,13 +97,11 @@ init
     end
     round.codeOnLastUnitDeath = roundFunction
     
-
     // On Hero Death
     roundFunction = (Round round) -> begin
         snd_HeroDeath.play()
     end
     round.codeOnHeroDeath = roundFunction
-
 
     // Mechanic
     round.addSpawner(new UnitSpawner(MECHANIC, ENEMY, vec2(-639,1025), 24))
@@ -151,7 +149,6 @@ init
     ..setNearestTargetOnSpawn(GetPlayableMapRect())
     ..setSoundOnSpawn(Sounds.steamTankWhat3)
 
-
     // Unit Colors
     UnitVisuals.addUnitType(MECHANIC)..setPlayerColor(PLAYER_COLOR_COAL)
     UnitVisuals.addUnitType(TINKER)..setPlayerColor(PLAYER_COLOR_AQUA)
@@ -163,21 +160,11 @@ init
     ..setUnitTypeStat(STAT_DAMAGE_TAKEN, -10.00)
     ..setUnitTypeStat(STAT_RESISTANCE, 10.)
 
-    TINKER_TANK
-    ..setUnitTypeStat(STAT_DAMAGE_TAKEN, -10.00)
-    ..setUnitTypeStat(STAT_RESISTANCE, 10.)
-
-    
-    //================================================================================================================================================================================================
-    // STATS SCALING
-
     round.setStatScalingCallback() (unit u) ->
         let id = u.getTypeId()
-        if( id == TINKER or id == TINKER_TANK or id == MECHANIC or id == EXPLODINGGOBLIN or id == MINITANK )
+        if( id == TINKER or id == MECHANIC or id == EXPLODINGGOBLIN or id == MINITANK )
             round.scaleUnitStats(u)
             u.adjustToDifficulty()
-
-
 
 // =============================================================================================================================
 
