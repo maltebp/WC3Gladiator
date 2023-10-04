@@ -192,7 +192,7 @@ init
 //================================================================================================================================================================================================
 // Charge
 
-let CHARGE = compiletime(defineSingleTarget1("Charge","",Icons.bTNMagnataurBrown, "Q", 0, 0, 4000, "attack", false))
+let CHARGE = compiletime(defineTargetPoint1("Charge","",Icons.bTNMagnataurBrown, "Q", 0, 0, 4000, "attack"))
 let CHARGE_SLOW_BUFF = compiletime( defineBuff("Dizzy", "This unit is slowed.", Icons.bTNWarStomp, Abilities.stasisTotemTarget, "overhead",""))
 
 
@@ -201,7 +201,7 @@ init
     onUnitTypeEnter(TASKMASTER) u ->
         u.addAbility(CHARGE)
     registerSpellEffectEvent(CHARGE) ->
-        new ChargeInstance(GetSpellAbilityUnit(), GetSpellTargetUnit().getPos())
+        new ChargeInstance(GetSpellAbilityUnit(), vec2(GetSpellTargetX(), GetSpellTargetY()))
 
 
 class ChargeInstance
