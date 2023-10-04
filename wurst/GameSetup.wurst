@@ -18,7 +18,6 @@ import Mastery
 import TrainingPoints
 import Attempts
 import TestUnit
-import HalfBreed
 import Troll
 
 constant boolean    SPAWNHEROINARENA        = false
@@ -63,10 +62,6 @@ vec2 spawnPosOnInit
 
 public dialog dialog_RoundPick
 public button array dialogButton_RoundPick
-
-
-
-// Game Init --------------------------------------------------------------------------------------------------------------------
 
 
 init
@@ -150,37 +145,11 @@ function delayedSetup()
         let basePos = vec2(-350, 900)
         for i=1 to TEST_DUMMIES
             let adjustedPos = basePos + vec2(GetRandomReal(-300, 300), GetRandomReal(-300, 300))
-            createTestUnit(adjustedPos)
+            createTestUnit(adjustedPos)    
 
 
 
-    // CreateTrigger()
-    // ..registerPlayerEvent(Player(0), EVENT_PLAYER_END_CINEMATIC)
-    // ..addAction(function startRound)
-
-
-    // // new Fade
-    // // ..setCinematicMode(not CUSTOMROUNDSTART)
-    // // ..setFadeOutDuration(0)
-    // // ..start(FADEOUT)
-
-    // if CUSTOMROUNDSTART
-    //     EnableSelect(false, false)
-    //     EnablePreSelect(false, false)
-
-    // getTimer().start(1, function delayedInit)
-
-
-    // if PRINTALPHAINTRO
-    //     timer_GameIntro.start(3.0, function preStartInfo )
-    // else
-    //     timer_GameIntro.start(3.0, function roundPick )
-
-    
-
-
-
-/** Information give before alpha start */
+// Information give before alpha start
 function preStartInfo()
 
     snd_Text.play()
@@ -356,7 +325,3 @@ init
     for int index = 1 to FINALROUND
         customRoundTrg.registerPlayerChatEvent(Player(0), index.toString(), true)
         customRoundTrg.addAction(function enteredRoundNumber)
-        
-    
-
-

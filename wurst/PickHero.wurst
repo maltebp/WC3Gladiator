@@ -6,14 +6,11 @@ import GladiatorShop
 import LinkedList
 import Scene
 import HashMap
-import UtilCommands
 import RegisterEvents
 import ShopIntro
 import GladiatorSystem
 import GameSettings
-import HalfBreed
 import Troll
-import ClosureForGroups
 
 let CAMERA = gg_cam_Barracks
 public let BARRACKS_RECT = gg_rct_BarracksFog
