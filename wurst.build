@@ -6,6 +6,6 @@ dependencies:
 - https://github.com/maltebp/ChatCommands
 - https://github.com/maltebp/LakeStatSystem
 buildMapData:
-  name: Gladiator (v0.1.2 Alpha)
-  fileName: Gladiator-v0.1.2a
+  name: Gladiator (v0.3 Alpha)
+  fileName: Gladiator-v0.3a
   author: Lake
