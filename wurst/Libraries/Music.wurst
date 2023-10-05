@@ -3,23 +3,30 @@ package Music
 import public Sounds
 import TimerUtils
 
+
 string currentMusic
 real musicLength
 timer loopTimer = getTimer()
 
-function replayMusic()
-    StopMusic(false)
-    PlayMusic(currentMusic)
-    loopTimer.start(musicLength, function replayMusic)
-    
+
 public function playMusic(string music)
     currentMusic = music
     musicLength = GetSoundFileDurationBJ(music)
     loopTimer.pause()
     replayMusic()
 
+
 public function stopMusic()
     loopTimer.pause()
     StopMusic(false)
-  
 
+
+function replayMusic()
+    StopMusic(false)
+
+    // This function is needed after Reforged, otherwise the music playing
+    // behaves quite sporadic (e.g. some times it would not play)
+    ClearMapMusic()
+
+    PlayMusic(currentMusic)
+    loopTimer.start(musicLength, function replayMusic)
