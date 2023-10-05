@@ -55,19 +55,13 @@ public let ROUND_PLAYER_SCALE_POWER  = 0.60
 public let ROUND_LVL_SCALE_HEALTH = 0.25
 public let ROUND_LVL_SCALE_POWER  = 0.25
 
-
 // Difficulties
-public let DIFFICULTY_HILARIOUS_POWER    = -0.30
-public let DIFFICULTY_HILARIOUS_HEALTH   = -0.30
-public let DIFFICULTY_EASY_POWER    = -0.15
-public let DIFFICULTY_EASY_HEALTH   = -0.15
-public let DIFFICULTY_NORMAL_HEALTH = 0.
-public let DIFFICULTY_NORMAL_POWER  = 0.
-public let DIFFICULTY_HARD_POWER    = 0.15
-public let DIFFICULTY_HARD_HEALTH   = 0.15
-public let DIFFICULTY_INSANE_POWER    = 0.30
-public let DIFFICULTY_INSANE_HEALTH   = 0.30
-
+public let DIFFICULTY_EASY_POWER    = -0.30
+public let DIFFICULTY_EASY_HEALTH   = -0.30
+public let DIFFICULTY_NORMAL_HEALTH = -0.15
+public let DIFFICULTY_NORMAL_POWER  = -0.15
+public let DIFFICULTY_HARD_POWER    = 0.
+public let DIFFICULTY_HARD_HEALTH   = 0.
 
 // // Health Orbs
 public let ORB_INSTANT_FLAT = 75

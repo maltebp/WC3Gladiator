@@ -7,39 +7,32 @@ import GameSettings
 
 var difficulty = Difficulty.NORMAL
 
+public interface DifficultyCallback
+    function run(Difficulty chosenDifficulty)
+
 public enum Difficulty
-    HILARIOUS
     EASY
     NORMAL
     HARD
-    INSANE
 
 public function Difficulty.toString() returns string
     switch this
-        case HILARIOUS
-            return "Hilarious"
         case EASY
-            return "EASY"
+            return "Easy"
         case NORMAL
-            return "NORMAL"
+            return "Normal"
         case HARD
-            return "HARD"
-        case INSANE
-            return "INSANE"
+            return "Hard"
 
 public function getDifficulty() returns Difficulty
     return difficulty
 
 public function setDifficulty(Difficulty newDifficulty)
     difficulty = newDifficulty
-
     
 /** Adjusts the unit's stats the current difficulty. */
 public function unit.adjustToDifficulty()
     switch getDifficulty()
-        case HILARIOUS
-            this.adjustStatPercentage(STAT_DAMAGE, DIFFICULTY_HILARIOUS_POWER )
-            this.adjustStatPercentage(STAT_HEALTH, DIFFICULTY_HILARIOUS_HEALTH)
         case EASY
             this.adjustStatPercentage(STAT_DAMAGE, DIFFICULTY_EASY_POWER )
             this.adjustStatPercentage(STAT_HEALTH, DIFFICULTY_EASY_HEALTH)
@@ -49,23 +42,14 @@ public function unit.adjustToDifficulty()
         case HARD
             this.adjustStatPercentage(STAT_DAMAGE, DIFFICULTY_HARD_POWER)
             this.adjustStatPercentage(STAT_HEALTH, DIFFICULTY_HARD_HEALTH)
-        case INSANE
-            this.adjustStatPercentage(STAT_DAMAGE, DIFFICULTY_INSANE_POWER)
-            this.adjustStatPercentage(STAT_HEALTH, DIFFICULTY_INSANE_HEALTH)
-
-
-interface DifficultyCallback
-    function run(Difficulty chosenDifficulty)
 
 /** Shows a dialogbox with a button for each difficulty (Easy, Normal, Hard).
     The callback takes the chosen Difficulty as parameter */
 public function player.showDifficultyDialog(DifficultyCallback callback)
     let dialogBox = new DialogBox("Choose difficulty")
-    ..addDifficultyButton(Difficulty.HILARIOUS, callback)
     ..addDifficultyButton(Difficulty.EASY, callback)
     ..addDifficultyButton(Difficulty.NORMAL, callback)
     ..addDifficultyButton(Difficulty.HARD, callback)
-    ..addDifficultyButton(Difficulty.INSANE, callback)
     dialogBox.display(this, true)
 
 // Generic way of adding a difficulty button to dialogbox
@@ -75,8 +59,6 @@ function DialogBox.addDifficultyButton(Difficulty difficulty, DifficultyCallback
         callback.run(difficulty)
         destroy callback
         destroy this
-
-
 
 //================================================================================================================================================================================================
 // Test Command
@@ -89,9 +71,6 @@ init
     ..setAction() (p, args, opts) -> 
 
         switch args.getString()
-            case "hilarious"
-                setDifficulty(Difficulty.HILARIOUS)
-                p.print("The difficulty is now set to " + "hilarious".highlight())
             case "easy"
                 setDifficulty(Difficulty.EASY)
                 p.print("The difficulty is now set to "+"easy".highlight())
@@ -101,13 +80,9 @@ init
             case "hard"
                 setDifficulty(Difficulty.HARD)
                 p.print("The difficulty is now set to " + "hard".highlight())
-            case "insane"
-                setDifficulty(Difficulty.INSANE)
-                p.print("The difficulty is now set to " + "insane".highlight())
             default
                 p.print("Unknown difficulty. Must be either 'easy', 'normal' or 'hard'")
-   
-    
+       
     // Get Current difficulty
     cmd.addSubCommand("current")
     ..setAction() (p,args,opts) ->
