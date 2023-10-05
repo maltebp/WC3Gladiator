@@ -25,9 +25,12 @@ public function player.startIntro()
             , 12)
         scene.wait(14)
 
+    scene.do() p ->
+        p.toggleCinematicMode(false, 1.5)
+    scene.wait(1.5)
+
     if( not DEBUG or not SKIP_DIFFICULTY )
         scene.do() p ->
-            p.toggleCinematicMode(false, 1)
             if( p == getHost() )
                 p.print("\nChoose a difficulty", 1000)
                 p.showDifficultyDialog() difficulty ->
