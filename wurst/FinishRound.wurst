@@ -28,10 +28,10 @@ let SND_REWARD_ITEMS = new SoundDefinition(Sounds.itemReceived, false)
 let COLOR_ITEM = color(217,179,140)
 let COLOR_GOLD = color(255,204,0)
 let COLOR_TRAINING_POINTS = color( 0,250,154)
+let COLOR_MASTERY_POINTS = color(239, 33, 105)
 
 
 //================================================================================================================================================================================================
-
 
 
 public function finishRound(boolean hasWon)
@@ -99,6 +99,7 @@ function player.moveGladiator()
     this.selectSingle(gladiator)
     this.getGladiator().refresh()
     
+var masteryPointsHasBeenRewarded = false
 
 function Scene.addRoundReview(boolean hasWon)
     let currentRound = Round.getCurrentRound()
@@ -108,11 +109,12 @@ function Scene.addRoundReview(boolean hasWon)
         this
         ..do( -> SND_ROUND_COMPLETE.play() )
         ..do( -> print("|cff00cc66"+"Round "+Round.getCurrentRoundNumber().toString()+" completed!"+"|r",7))
+        ..do( -> currentRound.rewardPoints())
         ..wait(4)
-        ..do( -> rewardPoints(currentRound) )
-        ..wait(6)
+        // ..do( -> rewardPoints(currentRound) )
+        // ..wait(6)
 
-        // Reward Itemss
+        // Reward Items
         if( Round.getCurrentRound().getNumberOfItemRewards() > 0 )
             this
             ..do( -> rewardItems(currentRound))
@@ -125,6 +127,16 @@ function Scene.addRoundReview(boolean hasWon)
             ..wait(6)
         
         // Next Round
+        if not masteryPointsHasBeenRewarded
+            this.do() ->
+                SND_MESSAGE.play()
+                printTimed("\nYou have been granted {0}. Press {1} to open the mastery shop.".format(
+                    "Mastery Points".withColor(COLOR_MASTERY_POINTS),
+                    "Escape".withColor(COLOR_HIGHLIGHT)
+                ), 10)
+                masteryPointsHasBeenRewarded = true
+            this.wait(6)
+
         this
         ..do(   -> Round.setNextRound() )
         ..do( p -> Round.printNextRound(p) )
@@ -156,17 +168,15 @@ function player.rewardAbility()
     gladiator.getSoundOnNewAbility().playForPlayer(this)
 
 
-
-
-function rewardPoints(Round round)
-    round.rewardPoints()
-    SND_REWARD_GOLD.play()
-    printTimed("\nYou've been granted {0} gold and {1} training points.".format(
-        GOLD_PER_ROUND.toString().withColor(COLOR_GOLD),
-        TRAINING_POINTS_PER_ROUND.toString().withColor(COLOR_TRAINING_POINTS)
-    ), 5)
-    
-
+// This was the old point reward setup
+// function rewardPoints(Round round)
+//     round.rewardPoints()
+//     SND_REWARD_GOLD.play()
+//     printTimed("\nYou've been granted {0} gold, {1} training points and {2} mastery points.".format(
+//         GOLD_PER_ROUND.toString().withColor(COLOR_GOLD),
+//         TRAINING_POINTS_PER_ROUND.toString().withColor(COLOR_TRAINING_POINTS),
+//         MASTERY_PER_ROUND.toString().withColor(COLOR_MASTERY_POINTS)
+//     ), 5)
 
 /** Rewards items, including artifacts */
 function rewardItems(Round round)
