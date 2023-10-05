@@ -53,6 +53,7 @@ globals
     unit                    gg_unit_n002_0017          = null
     unit                    gg_unit_n000_0000          = null
     unit                    gg_unit_n003_0015          = null
+    trigger                 gg_trg_Untitled_Trigger_007 = null
 endglobals
 
 function InitGlobals takes nothing returns nothing
@@ -220,7 +221,7 @@ function CreateRegions takes nothing returns nothing
     local weathereffect we
 
     set gg_rct_Shop_CamBounds = Rect( -8288.0, -8576.0, -7904.0, -8160.0 )
-    set gg_rct_Shop_Visibility = Rect( -8960.0, -9088.0, -7360.0, -7712.0 )
+    set gg_rct_Shop_Visibility = Rect( -8832.0, -9088.0, -7360.0, -7712.0 )
     set we = AddWeatherEffect( gg_rct_Shop_Visibility, 'FDwl' )
     call EnableWeatherEffect( we, true )
     set gg_rct_Arena_CamBounds = Rect( -672.0, -512.0, 928.0, 1920.0 )
@@ -426,6 +427,20 @@ function InitTrig_CameraDefine takes nothing returns nothing
 endfunction
 
 //===========================================================================
+// Trigger: Untitled Trigger 007
+//===========================================================================
+function Trig_Untitled_Trigger_007_Actions takes nothing returns nothing
+    call ClearMapMusicBJ(  )
+endfunction
+
+//===========================================================================
+function InitTrig_Untitled_Trigger_007 takes nothing returns nothing
+    set gg_trg_Untitled_Trigger_007 = CreateTrigger(  )
+    call TriggerAddAction( gg_trg_Untitled_Trigger_007, function Trig_Untitled_Trigger_007_Actions )
+endfunction
+
+
+//===========================================================================
 function InitCustomTriggers takes nothing returns nothing
     call InitTrig_Untitled_Trigger_004(  )
     call InitTrig_Untitled_Trigger_012(  )
@@ -438,6 +453,7 @@ function InitCustomTriggers takes nothing returns nothing
     call InitTrig_Untitled_Trigger_003(  )
     call InitTrig_Untitled_Trigger_005(  )
     call InitTrig_CameraDefine(  )
+    call InitTrig_Untitled_Trigger_007(  )
 endfunction
 
 //***************************************************************************
