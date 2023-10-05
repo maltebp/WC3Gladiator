@@ -23,7 +23,7 @@ public function player.startIntro()
                 "\nYou have been chosen to enter the arena, where you must face the fiercest of opponents, whose only goal is to make you regret the day you "+
                 "stepped onto their turf. To be named the true champion, you must survive " + FINAL_ROUND.toString() +" merciless rounds of slaughter."
             , 12)
-        scene.wait(14)
+        scene.wait(16)
 
     scene.do() p ->
         p.toggleCinematicMode(false, 1.5)

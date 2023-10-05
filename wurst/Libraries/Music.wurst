@@ -26,11 +26,11 @@ public function stopMusic(bool fadeOut)
 
 
 function replayMusic()
-    StopMusic(false)
+    StopMusic(true)
 
     // This function is needed after Reforged, otherwise the music playing
     // behaves quite sporadic (e.g. some times it would not play)
     ClearMapMusic()
 
     PlayMusic(currentMusic)
-    loopTimer.start(musicLength, function replayMusic)
+    loopTimer.start(musicLength * 1.05, function replayMusic)

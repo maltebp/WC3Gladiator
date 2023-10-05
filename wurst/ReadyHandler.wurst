@@ -73,16 +73,14 @@ function allAreReady()
     for p in allPlayers
         p.setReadyState(false)
         p.disableReadyButton()
+
+    stopMusic(true)
     
-    var delay = allPlayers.size() > 1 ? 2. : 0.
-    doAfter(delay) ->
-        
-        stopMusic()
+    doAfter(2) ->
         SND_ALLREADY.play()
         
         print("\nAll players ready - starting round {0}!".format(Round.getCurrentRoundNumber().toString().withColor(COLOR_HIGHLIGHT)), 7)
-        delay = allPlayers.size() > 1 ? 3. : 1.
-        doAfter(delay) ->
+        doAfter(3) ->
             startRound()
 
 
