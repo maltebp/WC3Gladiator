@@ -53,6 +53,7 @@ import AbilityObjEditing
 import RegisterEvents
 import DummyCaster
 import TimerUtils
+import UnitStats
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -279,10 +280,12 @@ function unit.removeAllBuffs(int buffId)
                 destroy unitBuff
 
 
-
 init
     registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH) ->
         GetDyingUnit().removeAllBuffs()
     
     onLeave() ->
         getEnterLeaveUnit().removeAllBuffs()
+
+    beforeUnitStatsDeregistered() u -> 
+        u.removeAllBuffs()

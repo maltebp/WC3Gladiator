@@ -426,7 +426,7 @@ init
     /*  Single listener on unit stats initialzied for all rounds, to improve
         efficiency. This then call the approriate round's stat adjustment
         callback. */
-    afterUnitStatsInitialized() u ->
+    afterUnitStatsRegistered() u ->
         if( Round.isARoundRunning() )
             let round = Round.getCurrentRound()
             if( round.scaleStatsCallback == null )
