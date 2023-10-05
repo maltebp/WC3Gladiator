@@ -36,7 +36,7 @@ let COLOR_TRAINING_POINTS = color( 0,250,154)
 
 public function finishRound(boolean hasWon)
 
-    stopMusic()
+    stopMusic(true)
 
     if( not hasWon )
         removeAttempt()

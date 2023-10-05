@@ -17,8 +17,12 @@ public function playMusic(string music)
 
 
 public function stopMusic()
+    stopMusic(false)
+
+
+public function stopMusic(bool fadeOut)
     loopTimer.pause()
-    StopMusic(false)
+    StopMusic(fadeOut)
 
 
 function replayMusic()
