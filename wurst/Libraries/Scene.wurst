@@ -31,16 +31,10 @@ public interface SceneCallback
 public interface ScenePlayerCallback
     function run(player p)
 
-public interface ActionContainer
-    function run(player p)
-
-
-
 enum Instruction
     DO
     FORPLAYERS
     WAIT
-
 
 public class Scene
     protected let instructions = new LinkedList<Instruction>

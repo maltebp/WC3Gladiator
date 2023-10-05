@@ -4,37 +4,32 @@ import public TimerUtils
 import ClosureTimers
 
 
-
 public interface FadeCallback
     function run()
 
-public function player.toggleCinematicMode(bool toggle, real duration)
+public function player.toggleCinematicMode(bool toggle, real fadeDuration)
 
     if( localPlayer == this )
-        ShowInterface(not toggle, duration)
-
-        // Last argument doesn't seem to have an effect
+        ShowInterface(not toggle, fadeDuration)
         EnableSelect(not toggle, true)
         EnablePreSelect(not toggle, true)
         EnableDragSelect(not toggle, true)
         EnableUserControl(not toggle)
+
+        // This doesn't seem to have an effect, but better safe than sorry
         EnableUserUI(not toggle)
     
-
 public function player.fadeOut(real duration, FadeCallback onFinish)
     this.fade(true, duration, onFinish)
 
 public function player.fadeOut(real duration)
     this.fade(true, duration, null)
-        
 
 public function player.fadeIn(real duration, FadeCallback onFinish)
     this.fade(false, duration, onFinish) 
 
 public function player.fadeIn(real duration)
-    this.fade(false, duration, null) 
-        
-        
+    this.fade(false, duration, null)     
     
 function player.fade(bool fadeOut, real duration, FadeCallback onFinish)
     if( localPlayer == this )

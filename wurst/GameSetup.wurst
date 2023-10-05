@@ -82,7 +82,6 @@ function delayedSetup()
 
     CameraSetSmoothingFactor(20)
 
-
     // Setting up variables
     MAPREGION = CreateRegion()..addRect(GetPlayableMapRect())
 
@@ -98,8 +97,6 @@ function delayedSetup()
         SetTimeOfDay(12)
     SetTimeOfDayScale(0)
 
-
-
     for p in allPlayers
         p 
         ..addMasteryPoints(START_MASTERY)
@@ -108,19 +105,16 @@ function delayedSetup()
         
     setAttemptsLeft(ATTEMPTS)
 
-
     if SPAWNHEROINARENA
         Player(0).setCameraPosition(gg_rct_Arena_CamBounds.getCenter())
         
     else if LOCKCAMBOUNDS
         Player(0)
         ..setCameraPosition(gg_rct_Shop_CamBounds.getCenter())
-        ..setCameraBoundsToRect(HEROSPAWN_CAMLOCK)
-        
+        ..setCameraBoundsToRect(HEROSPAWN_CAMLOCK)    
     
     Round.setCurrentRound(1)
     
-
     // TODO: Move this to somewhere else
     ITEM_DULLBLADE.release()
     ITEM_LEATHERARMOR.release()

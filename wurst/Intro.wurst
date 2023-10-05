@@ -27,12 +27,13 @@ public function player.startIntro()
 
     if( not DEBUG or not SKIP_DIFFICULTY )
         scene.do() p ->
+            p.toggleCinematicMode(false, 1)
             if( p == getHost() )
                 p.print("\nChoose a difficulty", 1000)
                 p.showDifficultyDialog() difficulty ->
                     new Scene()
                     ..do(  -> ClearTextMessages() )
-                    ..do(p -> p.print("\nChosen difficulty: " + difficulty.toString().toLowerCase().firstUpper().withColor(COLOR_HIGHLIGHT), 3))
+                    ..do(p -> print("\nChosen difficulty: " + difficulty.toString().toLowerCase().firstUpper().withColor(COLOR_HIGHLIGHT), 3))
                     ..wait(4)
                     ..do(p -> p.startPickHero())
                     ..play(allPlayers)
