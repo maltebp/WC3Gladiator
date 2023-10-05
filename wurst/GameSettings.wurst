@@ -21,7 +21,7 @@ public let TEST_MODE                = false   // Test mode skips the entire intr
 public let TEST_DUMMIES             = 0    // Number of test dummies to spawn in the arena in TEST_MODE
 public let TEST_MODE_UNLOCK_ABIL    = true // Unlock all abilities in test mode
 
-public let VERSION = "0.3.0a"
+public let VERSION = "0.3.1 Alpha"
 
 public let NUM_OF_PLAYERS       = 5
 
