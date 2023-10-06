@@ -2,24 +2,20 @@ package GladiatorSystem
 
 import public Gladiator
 
-// So that you may just import the Gladiator system
-import RegisterEvents
-import Orders
-import ClosureTimers
-import LastOrder
-
-
 public function player.newGladiator( GladiatorType gladType, vec2 spawnPos, angle facing ) returns Gladiator
     return new Gladiator(gladType, this, spawnPos, facing)
     
-
 /** Checks if the unit is a Gladiator - meaning that it has connected to a Gladiator instance */
 public function unit.isGladiator() returns boolean
     return Gladiator.isUnitGladiator(this)
 
-/** Gets the Gladiator instance of a certain unit. Returns null, if the unit doesn't have an instance */
+/** Gets the Gladiator instance of a certain player. Returns null, if the unit doesn't have an instance */
 public function player.getGladiator() returns Gladiator
     return Gladiator.getInstance(this)
+
+/** Gets the Gladiator's unit for a certain player. Returns null, if player doesn't have a gladiator */
+public function player.getGladiatorUnit() returns unit
+    return Gladiator.getInstance(this).getUnit()
 
 public function unit.getGladiatorType() returns GladiatorType
     return this.getGladiatorInstance().getGladiatorType()
@@ -37,3 +33,8 @@ public function int.getGladiatorType() returns GladiatorType
         if( gladiatorType.getUnitType() == this )
             return gladiatorType
     return null
+
+/** Selects the player's gladiator for the given player.
+      lockSelection: whether the selection should be locked to the Gladiator (only has an effect if player has enabled selection lock) */
+public function player.selectGladiator()
+    this.selectSingle(this.getGladiatorUnit())

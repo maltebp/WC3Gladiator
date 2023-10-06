@@ -1,0 +1,84 @@
+package SelectionLock
+import HashSet
+import GladiatorSystem
+import RegisterEvents
+import Players
+import ChatCommands
+import UtilCommands
+
+let playersWithSelectionDisabled = new HashSet<player>
+
+// Players who want have locking enabled when they are in a place where locks
+// should be applied. This is set through some "option" by the player
+let playersWithSelectionLockingEnabled = new HashSet<player>
+
+// List of player who are in a place where selection should be locked if the 
+// player has locking enabled. This is set by the game.
+let playersWithLockingAllowed = new HashSet<player>
+
+var selectionIsCompletelyDisabled = false
+
+/** This should be used instead of the general setSelectionEnabled to keep it in sync with the selection locks */
+public function player.enableSelection()
+    playersWithSelectionDisabled.remove(this)    
+    this.updateSelection()
+
+/** This should be used instead of the general setSelectionEnabled to keep it in sync with the selection locks */
+public function player.disableSelection()
+    playersWithSelectionDisabled.add(this)    
+    this.setSelectionsEnabled(false, false)
+    this.updateSelection()
+
+public function player.hasSelectionEnabled() returns bool
+    return not playersWithSelectionDisabled.has(this)
+
+public function player.allowSelectionLocking()
+    playersWithLockingAllowed.add(this)
+    this.updateSelection()
+
+public function player.disallowSelectionLocking()
+    playersWithLockingAllowed.remove(this)
+    this.updateSelection()
+
+public function player.selectionLockingIsAllowed() returns bool
+    return playersWithLockingAllowed.has(this)
+
+public function player.enableSelectionLocking()
+    playersWithSelectionLockingEnabled.add(this)
+    this.updateSelection()
+
+public function player.disableSelectionLocking()
+    playersWithSelectionLockingEnabled.remove(this)
+    this.updateSelection()
+
+public function player.selectionLockIsEnabled() returns bool
+    return playersWithSelectionLockingEnabled.has(this)
+
+public function player.updateSelection()
+    if not this.hasSelectionEnabled() 
+        return
+
+    let gladiatorUnit = this.getGladiatorUnit()
+    let gladiatorIsAlive = gladiatorUnit != null and gladiatorUnit.isAliveTrick()
+    let selectionShouldBeLocked = gladiatorIsAlive and this.selectionLockingIsAllowed() and this.selectionLockIsEnabled()
+
+    this.setSelectionsEnabled(not selectionShouldBeLocked, true)
+    if selectionShouldBeLocked
+        this.selectSingle(gladiatorUnit)
+
+init 
+    registerPlayerUnitEvent(EVENT_PLAYER_UNIT_DEATH) ->
+        let dyingUnit = GetDyingUnit()
+        let dyingGladiator = dyingUnit.getGladiatorInstance()
+        if dyingGladiator != null 
+            dyingGladiator.getOwner().disallowSelectionLocking()
+            dyingGladiator.getOwner().updateSelection()
+            
+    new ChatCommand("-selectionlock")
+    ..setAction() (player whichPlayer, ArgumentList arguments, OptionList options) ->
+        if whichPlayer.selectionLockIsEnabled()
+            whichPlayer.disableSelectionLocking()
+            whichPlayer.print("Selection lock {0}".format("deactivated".highlight()), 4)
+        else
+            whichPlayer.enableSelectionLocking()
+            whichPlayer.print("Selection lock {0}".format("activated".highlight()), 4)

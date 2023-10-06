@@ -11,9 +11,12 @@ public function player.toggleCinematicMode(bool toggle, real fadeDuration)
 
     if( localPlayer == this )
         ShowInterface(not toggle, fadeDuration)
+
+        // Note: these may interfere with the selection locking system
         EnableSelect(not toggle, true)
         EnablePreSelect(not toggle, true)
         EnableDragSelect(not toggle, true)
+        
         EnableUserControl(not toggle)
 
         // This doesn't seem to have an effect, but better safe than sorry

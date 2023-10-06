@@ -11,14 +11,14 @@ public let DEBUG = true
 
 public let SKIP_INTRO               = true 
 public let SKIP_DIFFICULTY          = true 
-public let SKIP_SHOP_INTRO          = false
 public let SKIP_HERO_SELECTION      = false
+public let SKIP_SHOP_INTRO          = true
 
 public let LOCK_CAM_BOUNDS          = true
 public let INSTANT_SPAWN            = false   // Toggle rounds to spawn all units at the same time!
 
 public let TEST_MODE                = false   // Test mode skips the entire intro and just puts you in the map
-public let TEST_DUMMIES             = 0    // Number of test dummies to spawn in the arena in TEST_MODE
+public let TEST_DUMMIES             = 25    // Number of test dummies to spawn in the arena in TEST_MODE
 public let TEST_MODE_UNLOCK_ABIL    = true // Unlock all abilities in test mode
 
 public let VERSION = "0.3.1 Alpha"
