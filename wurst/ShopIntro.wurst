@@ -47,6 +47,7 @@ public function player.startShopIntro(GladiatorType gladiatorType)
         ..do() p ->
             Round.printNextRound(p)
             p.enableReadyCommand()
+        scene.do( -> Hints.restartAutoPrint(20))
     
     else
         scene

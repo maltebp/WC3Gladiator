@@ -26,7 +26,7 @@ public function stopMusic(bool fadeOut)
 
 
 function replayMusic()
-    StopMusic(true)
+    StopMusic(false)
 
     // This function is needed after Reforged, otherwise the music playing
     // behaves quite sporadic (e.g. some times it would not play)

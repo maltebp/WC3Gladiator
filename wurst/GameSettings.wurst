@@ -7,7 +7,7 @@ import SoundUtils
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Test Switches
 
-public let DEBUG = true
+public let DEBUG = false
 
 public let SKIP_INTRO               = true 
 public let SKIP_DIFFICULTY          = true 
