@@ -11,18 +11,17 @@ import TimedSpecialEffects
 //================================================================================================================================================================================================
 // Settings
 
-let CURSE_MOVE_SPEED_RED = 1.00
-let CURSE_ENERGY_REGEN_RED = 1.00
-let CURSE_ATTACK_SPEED_RED = 0.75
-let CURSE_DURATION = 5.
+public let CURSE_ENERGY_REGEN_RED = 0.75
 
+public let CURSE_ATTACK_SPEED_RED = 0.75
+
+public let CURSE_DURATION = 5.
 
 let CURSE = compiletime(ABIL_ID_GEN.next())
 let CURSE_BUFF = compiletime(defineBuff("Cursed", "Reduced movement speed, attack speed and energy regeneration.", Icons.bTNDoom, Abilities.curseTarget, "overehead", ""))
 
 let SND_CURSE = new SoundDefinition(Sounds.parasite1, false, true)
 let SND_LAUGH = new SoundDefinition(Sounds.sargerasLaugh, false, true)
-
 
 //================================================================================================================================================================================================
 
@@ -64,12 +63,14 @@ class CurseBuff extends Buff
     
     override function onApply()
         if( target != null )
-            target.adjustStatPercentage(STAT_MOVESPEED, -CURSE_MOVE_SPEED_RED)
+            // Reducing movement speed by 100% will bring it to it's minimum value of 50
+            // This value is set within the editor constants
+            target.adjustStatPercentage(STAT_MOVESPEED, -1.0)
             target.adjustStatPercentage(STAT_ATTACKSPEED, -CURSE_ATTACK_SPEED_RED)
             target.adjustStatPercentage(STAT_ENERGY_REGEN, -CURSE_ENERGY_REGEN_RED)
 
     override function onRemove()
         if( target != null )
-            target.adjustStatPercentage(STAT_MOVESPEED, CURSE_MOVE_SPEED_RED)
+            target.adjustStatPercentage(STAT_MOVESPEED, 1.0)
             target.adjustStatPercentage(STAT_ATTACKSPEED, CURSE_ATTACK_SPEED_RED)
             target.adjustStatPercentage(STAT_ENERGY_REGEN, CURSE_ENERGY_REGEN_RED)

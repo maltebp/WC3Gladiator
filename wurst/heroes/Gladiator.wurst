@@ -1,20 +1,13 @@
-// ================================================================================================================================
-
 package Gladiator
-
-// -----------------------------------------------------------------------------------------------------------------------------
-
 
 import public ObjectIdGenerator
 import public HeroDefaults
 import public Icons
 import public Charge
 import public initlater Artifact
-
-import public   SoundUtils
-
-import          LinkedList
-import          ErrorHandling
+import public SoundUtils
+import LinkedList
+import ErrorHandling
 import AbilityObjEditing
 import CompileTimeData
 import ObjectIds
@@ -24,18 +17,11 @@ import ClosureForGroups
 import Stats
 
 
-//================================================================================================================================================================================================
-// Settings
-
 let MASTERY_SHOP_POSITIONS = boundMax + vec2(-1000, 1000)
 
-
-//================================================================================================================================================================================================
 public function getAllGladiators() returns LinkedList<Gladiator>
     return Gladiator.instances
 
-
-// ================================================================================================================================
 public class Gladiator
     protected static let instances = new LinkedList<thistype>
 
@@ -145,13 +131,15 @@ public class GladiatorType
 
     private static boolean hasBeenInitialized
 
-    private int unitType
-
     private string name
+
+    private int unitType
 
     private color col
 
-    protected int masteryShopType = 0
+    private string chargeIcon
+    private string chargeName
+    private string chargeDescription
 
     private let abilities = new LinkedList<int>
     private let artifacts = new LinkedList<Artifact>
@@ -161,13 +149,17 @@ public class GladiatorType
     private SoundDefinition snd_NewAbility = null
     
     private LinkedList<GladiatorAction> actions_OnSpawn = null
+
     protected let refreshActions = new LinkedList<GladiatorAction>
+
+    protected int masteryShopType = 0
+
 
     construct(string name)
         allTypes.add(this)
         this.name = name
-
     
+
     function setUnitType(int unitType)
         this.unitType = unitType
 
@@ -176,7 +168,7 @@ public class GladiatorType
         tempUnit.remove()
 
 
-    function setBaseStats( real damage, real armor, real health, real attackSpeed, real moveSpeed, real energy, real energyRegen  )
+    function setBaseStats(real damage, real armor, real health, real attackSpeed, real moveSpeed, real energy, real energyRegen)
         unitType
         ..setUnitTypeStat(STAT_DAMAGE, damage)
         ..setUnitTypeStat(STAT_ARMOR, armor)
@@ -203,13 +195,14 @@ public class GladiatorType
     function setColor(color col)
         this.col = col
 
+
     function setMasteryShopType(int masteryShopType)
         this.masteryShopType = masteryShopType
+
 
     function addAbilities(vararg int abilities)
         for abil in abilities
             this.abilities.add(abil)
-
 
     function getSoundOnSpawn() returns SoundDefinition
         checkInit()
@@ -262,7 +255,6 @@ public class GladiatorType
                 action.run(gladiatorUnit)
     
         return gladiatorUnit
-
     
     function getName() returns string
         return name
@@ -287,23 +279,19 @@ public class GladiatorType
     static function getAllTypes() returns LinkedList<thistype>
         return allTypes
         
-// ================================================================================================================================
-// GLADIATOR TYPE SETUP
-
     private static function initialize()
         hasBeenInitialized = true
-
-                    
     
-//================================================================================================================================================================================================
-// OBJECT DEFINITIONS
-
 public let allGladiatorIds = new LinkedList<int>
 let data_GladiatorUnitIds = compiletime(defineDataObj())
 
+let HERO_GLOW_ABILITY_ID = 'A020'
+
 /** Defines the generics of a gladiator unit (hide minimap, set attack type etc. ) */
-public function defineGladiatorUnit( int newId, int originId, string name, string icon ) returns HeroDefinition
+public function defineGladiatorUnit(int newId, int originId, string name, string icon, bool addHeroGlow, string chargeName, string chargeDescription, string chargeIcon) returns HeroDefinition
     
+    let chargeAbilityId = defineGladiatorChargeAbility(chargeName, chargeDescription, chargeIcon)
+
     let definition = new HeroDefinition(newId, originId)
     ..setName(name)
     ..setProperNames(name)
@@ -323,7 +311,8 @@ public function defineGladiatorUnit( int newId, int originId, string name, strin
     ..setAttack1AttackType(AttackType.Normal)
     ..setSelectionScale(1.4)
     ..setHeroAbilities("")
-    ..setNormalAbilities("AInv")
+    ..setNormalAbilities(
+        AbilityIds.inventory.toRawCode() + "," + chargeAbilityId.toRawCode() + (addHeroGlow ? ", " + HERO_GLOW_ABILITY_ID.toRawCode() : ""))
     ..hideHeroDeathMsg(true)
     ..hideHeroInterfaceIcon(true)
     ..setTooltipBasic(name)
@@ -345,7 +334,6 @@ public function defineGladiatorUnit( int newId, int originId, string name, strin
     ..setAttack1DamageSidesperDie(1)
     ..setAttack1DamageNumberofDice(1)
     ..setAttack1AttackType(AttackType.Normal)
-
     ..setTurnRate(3)
     ..setOrientationInterpolation(0) // Allows for almost instant visual turning
 
@@ -353,12 +341,34 @@ public function defineGladiatorUnit( int newId, int originId, string name, strin
 
     return definition
 
+public function defineGladiatorChargeAbility(string name, string description, string icon) returns int
+    let abilityId = ABIL_ID_GEN.next()
+    
+    new AbilityDefinitionAuraEnduranceCreep(abilityId)
+    ..setTooltipNormal(1, "Charge: " + name)
+    ..setTooltipNormalExtended(1, description)
+    ..setIconNormal(icon)
+    ..setButtonPositionNormalX(3)
+    ..setButtonPositionNormalY(1)
+    ..setHotkeyNormal("none")
+    ..setTargetsAllowed(1, "none")
+    ..setAreaEffect("none")
+    ..setArtCaster("none")
+    ..setArtSpecial("none")
+    ..setArtTarget("none")
+    ..setAreaofEffect(1, 0)
+    ..setAttackSpeedIncrease(1, 0)
+    ..setMovementSpeedIncrease(1, 0)
+    
+    return abilityId
+    
+
 init
     for stringId in data_GladiatorUnitIds.getData()
         allGladiatorIds.add(stringId.fromRawCode())
         
 
-//================================================================================================================================================================================================
+// =================================================================================================
 // Chat Commands
 init    
     let cmd = defineUtilCommand("gladiator")

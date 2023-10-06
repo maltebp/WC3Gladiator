@@ -2,7 +2,6 @@ package Troll
 
 import Gladiator
 import Units
-import Abilities
 import Voodoo
 import BloodPact
 import FieryConcoction
@@ -12,19 +11,34 @@ import VileSpirit
 import SoulSiphon
 import Mojo
 import Buff
+import StringUtilsX
 
-public let TROLL = new GladiatorType("Troll")
+public let TROLL_NAME = "Troll"
+
+public let TROLL = new GladiatorType(TROLL_NAME)
+
 public let TROLL_UNIT_ID = compiletime(HERO_ID_GEN.next())
+
 public let TROLL_COLOR = color(113,78,168)
 
+
 init
+
     TROLL
     ..setUnitType(TROLL_UNIT_ID)
     ..setSoundOnSpawn(Sounds.headHunterWarcry1)
     ..setSoundOnRespawn(Sounds.rokhanReady1)
     ..setSoundOnNewAbility(Sounds.spiritLodgeWhat1)
     ..setColor(TROLL_COLOR)
-    ..setBaseStats( DEFAULT_DAMAGE, DEFAULT_ARMOR, DEFAULT_HEALTH, DEFAULT_ATTACKCOOLDOWN, DEFAULT_MOVESPEED, DEFAULT_ENERGY, DEFAULT_ENERGY_REGEN)
+    ..setBaseStats( 
+        DEFAULT_DAMAGE, 
+        DEFAULT_ARMOR, 
+        DEFAULT_HEALTH, 
+        DEFAULT_ATTACKCOOLDOWN, 
+        DEFAULT_MOVESPEED, 
+        DEFAULT_ENERGY, 
+        DEFAULT_ENERGY_REGEN)
+        
     ..addAbilities(
         TROLL_BLOOD_PACT,
         TROLL_SOUL_SIPHON,
@@ -48,18 +62,34 @@ init
         ..removeBuff(GREED_BUFF)
 
 
-
-
-//================================================================================================================================================================================================
-// Unit Definition
 @compiletime
 function defineUnit()
-    defineGladiatorUnit(TROLL_UNIT_ID, 'Oshd', "Troll", Icons.bTNForestTrollShadowPriest)
-    ..setTooltipBasic(TROLL.getNameColored())
+
+    // We cannot refer to the movement stats min value,
+    // because it's not available at compile time
+    let MOVE_SPEED_MIN_VALUE = 50
+
+    defineGladiatorUnit(
+        TROLL_UNIT_ID, 
+        'Oshd', 
+        TROLL_NAME, 
+        Icons.bTNForestTrollShadowPriest, 
+        true, 
+        "Voodoo",
+        "Use Blood Pact to accumulate voodoo power, which makes your other abilities more powerful. " + 
+        "But if your voodoo reaches full charge, you will curse yourself," +
+        " reducing your movement speed to {0}, your attack speed by {1} and your energy regeneration by {2} for {3} seconds".format(
+            MOVE_SPEED_MIN_VALUE.toString(), 
+            CURSE_ATTACK_SPEED_RED.toPercentageString(),
+            CURSE_ENERGY_REGEN_RED.toPercentageString(),
+            CURSE_DURATION.toInt().toString()
+        ),
+        Icons.pASBTNShadeTrueSight
+    )
+    ..setTooltipBasic(TROLL_NAME.withColor(TROLL_COLOR))
     ..setTooltipExtended("Trolls deal in wicked magic, and this one is no difference. With his voodoo he will curse and trick his enemies into submission, and aid himself and his allies with his mojo.")
     ..setModelFile(Units.witchDoctor1)
     ..setScalingValue(1.15)
-    ..setNormalAbilities("AInv,A020")
     ..setAnimationCastBackswing(0.520)
     ..setAnimationCastPoint(0.5)
     ..setAnimationRunSpeed(200)
@@ -68,5 +98,4 @@ function defineUnit()
     ..setAttack1AnimationDamagePoint(0.5)
     ..setAttack1ProjectileArt(Abilities.voidWalkerMissile)
     ..setAttack1ProjectileArc(0)
-    ..setAttack1ProjectileHomingEnabled(true)
-    
+    ..setAttack1ProjectileHomingEnabled(true)   

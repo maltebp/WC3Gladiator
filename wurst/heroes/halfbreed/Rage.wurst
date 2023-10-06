@@ -4,23 +4,20 @@ import OnUnitEnterLeave
 import Stats
 import Charge
 
-//================================================================================================================================================================================================
-// Settings
-
-let CHARGE_DMG_FACTOR = 0.003
-
-//================================================================================================================================================================================================
-
+public let RAEG_POWER_FACTOR = 0.003
 
 /*
     The percentage damage is stored in a map as an INT
     since the the map mess up the decimal values if its a real */
 let damageAdjustMap = new IterableMap<unit, int>
 
+/** Synchronizes the power adjustement with the current charge (rage) */
 public function unit.updateRage()
+    
     if( damageAdjustMap.has(this) )  
         this.adjustStatPercentage(STAT_DAMAGE, -(damageAdjustMap.get(this)/1000) )
-    let adjustment = this.getCharge() * CHARGE_DMG_FACTOR
+
+    let adjustment = this.getCharge() * RAEG_POWER_FACTOR
     this.adjustStatPercentage(STAT_DAMAGE, adjustment)
     damageAdjustMap.put(this, (adjustment*1000).round())
 

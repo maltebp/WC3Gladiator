@@ -1,9 +1,6 @@
 package HalfBreed
 
 import Gladiator
-import ObjectIdGenerator
-import HeroDefaults
-import Icons
 import Cleave
 import FlyingAxe
 import Frenzy
@@ -12,6 +9,7 @@ import WreckingStrike
 import ImpedingRoar
 import Stats
 import Rage
+import StringUtilsX
 
 
 public let HALF_BREED = new GladiatorType("Half-Breed")
@@ -50,6 +48,17 @@ init
 
 @compiletime
 function defineUnit()
-    defineGladiatorUnit(HALF_BREED_UNIT_ID, 'Orex', "Half-Breed", Icons.bTNBeastMaster)
+    defineGladiatorUnit(
+        HALF_BREED_UNIT_ID, 
+        'Orex', 
+        "Half-Breed", 
+        Icons.bTNBeastMaster,
+        false,
+        "Rage",
+        "Using your abilities increases your charge, and each point of charge increases your power by {0}.".format(
+            RAEG_POWER_FACTOR.toPercentageString(1)
+        ),
+        Icons.pASBTNIncinerate
+    )
     ..setTooltipBasic(HALF_BREED.getNameColored())
     ..setTooltipExtended("As half ogre and half orc this ferocious gladiatior rely on highly offensive close-combat.")
