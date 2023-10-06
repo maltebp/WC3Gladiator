@@ -15,7 +15,6 @@ import public   SoundUtils
 
 import          LinkedList
 import          ErrorHandling
-import ComboSystem
 import AbilityObjEditing
 import CompileTimeData
 import ObjectIds
@@ -281,9 +280,6 @@ public class GladiatorType
                 artifact.release()
                 return artifact
         return null
-
-    function unlockComboMove() returns string
-        return ComboUnitDefinition.getDefinition(unitType).unlockMove().getName()
 
     function onRefresh(GladiatorAction action)
         refreshActions.add(action)

@@ -50,10 +50,10 @@ globals
     trigger                 gg_trg_Untitled_Trigger_003 = null
     trigger                 gg_trg_Untitled_Trigger_005 = null
     trigger                 gg_trg_CameraDefine        = null
+    trigger                 gg_trg_Untitled_Trigger_007 = null
     unit                    gg_unit_n002_0017          = null
     unit                    gg_unit_n000_0000          = null
     unit                    gg_unit_n003_0015          = null
-    trigger                 gg_trg_Untitled_Trigger_007 = null
 endglobals
 
 function InitGlobals takes nothing returns nothing
