@@ -9,6 +9,7 @@ import Round
 import Mastery
 import Attempts
 import SelectionLock
+import Hints
 
 
 
@@ -56,9 +57,10 @@ public function player.startShopIntro(GladiatorType gladiatorType)
         ..do(p -> p.selectGladiator())
         ..do( p -> p.enableMasteryShop() )
         ..do( p -> p.toggleAttemptsWindow(true) )
-        ..do() p ->
+        scene.do() p ->
             Round.printNextRound(p)
             p.enableReadyCommand()
+        scene.do( -> Hints.restartAutoPrint(20))
     scene.play(this)
     
 

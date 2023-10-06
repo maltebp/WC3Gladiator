@@ -13,6 +13,8 @@ import ReadyHandler
 import Players
 import Mastery
 import LinkedList
+import SelectionLock
+import Hints
 
 //================================================================================================================================================================================================
 
@@ -66,6 +68,7 @@ public function finishRound(boolean hasWon)
         ..addRoundReview(hasWon)
         ..do( p -> p.enableReadyCommand() )
         ..do( -> playMusic(MUSIC_SHOP))
+        ..do( -> Hints.restartAutoPrint(20))
         ..play(allPlayers)
 
 function player.moveCam()
@@ -98,6 +101,7 @@ function player.moveGladiator()
     gladiator.setHP(gladiator.getMaxHP())
     this.selectSingle(gladiator)
     this.getGladiator().refresh()
+    this.disallowSelectionLocking()
     
 var masteryPointsHasBeenRewarded = false
 

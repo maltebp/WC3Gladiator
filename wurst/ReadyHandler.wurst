@@ -10,6 +10,7 @@ import GameSettings
 import Round
 import Music
 import StartRound
+import Hints
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Settings
@@ -59,7 +60,6 @@ function player.toggleReady()
         cooldownList.remove(this)
     
 
-
 function checkReadyStates()
     var allReady = true
     for p in allPlayers
@@ -76,16 +76,16 @@ function allAreReady()
 
     stopMusic(true)
     
+    Hints.stopAutoPrint()
+    
     doAfter(2) ->
         SND_ALLREADY.play()
-        
         print("\nAll players ready - starting round {0}!".format(Round.getCurrentRoundNumber().toString().withColor(COLOR_HIGHLIGHT)), 7)
         doAfter(3) ->
             startRound()
 
 
-
-//================================================================================================================================================================================================
+//==============================================================================
 // Ready Command
 init
     readyCommand

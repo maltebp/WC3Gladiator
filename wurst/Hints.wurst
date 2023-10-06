@@ -1,0 +1,53 @@
+package Hints
+
+import SoundUtils
+import LinkedList
+import GameSettings
+import StringUtilsX
+import TimerUtils
+import ErrorHandling
+
+public class Hints
+
+    private static let DISPLAY_DURATION = 12.0
+
+    private static let DISPLAY_INTERVAL = 120.0 // Seconds
+
+    private static let SOUND = new SoundDefinition(Sounds.hint, false, false)
+
+    private static let hints = new LinkedList<string>
+
+    private static var currentHintIndex = 0
+
+    private static let printTimer = getTimer()
+    private static var autoPrintIsEnabled = false
+
+    static function add(string hintText)
+        let indexToInsertAt = GetRandomInt(0, hints.size() - 1)
+        hints.addAt(hintText, indexToInsertAt)
+
+    static function restartAutoPrint(real firstHintDelay)
+        if hints.size() == 0
+            error("There are no hints registered")
+            return
+
+        printTimer.start(firstHintDelay, () -> printNext())
+        autoPrintIsEnabled = true
+
+    static function stopAutoPrint()
+        printTimer.pause()
+        autoPrintIsEnabled = false
+
+    private static function printNext()
+        let hint = hints.get(currentHintIndex)
+        currentHintIndex = (currentHintIndex + 1) mod hints.size()
+        print("Hint: ".withColor(COLOR_HINT) + hint, DISPLAY_DURATION)
+        SOUND.play() 
+
+        if autoPrintIsEnabled
+            printTimer.start(DISPLAY_INTERVAL, () -> printNext())
+
+init
+    Hints.add("This is an Alpha version, so you are welcome to send bug reports and suggestions to {0} on {1}.".format("Lake".withColor(COLOR_ACCENT), "hiveworkshop.com".withColor(COLOR_ACCENT)))
+    Hints.add("Masteries cannot be reset, so take future rounds into consideration.")
+    Hints.add("You can sell items for their full price, so make sure to match your gear with the next round.")

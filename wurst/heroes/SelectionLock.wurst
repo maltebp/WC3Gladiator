@@ -5,6 +5,9 @@ import RegisterEvents
 import Players
 import ChatCommands
 import UtilCommands
+import Hints
+import StringUtilsX
+import GameSettings
 
 let playersWithSelectionDisabled = new HashSet<player>
 
@@ -82,3 +85,6 @@ init
         else
             whichPlayer.enableSelectionLocking()
             whichPlayer.print("Selection lock {0}".format("activated".highlight()), 4)
+
+    Hints.add("Use the '{0}' command to lock/unlock selection to your gladiator when in the arena."
+        .format("-selectionlock".withColor(COLOR_HIGHLIGHT)))
