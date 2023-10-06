@@ -189,7 +189,7 @@ public function AbilityDefinition.setupGenerics(string name, string description,
     ..setName(name)
     ..setEditorSuffix("")
     ..setIconNormal(icon)
-    ..setTooltipNormal( 1, name + "  [" + hotkey.withColor(COLOR_HIGHLIGHT) + "]" )
+    ..setTooltipNormal( 1, name )
     ..setTooltipNormalExtended( 1, description + "\n\n" + "Cooldown: ".withColor(COLOR_HIGHLIGHT) + cooldown.toString(0) )
     ..setupHotkey(hotkey)
     ..setCooldown(1, cooldown)
