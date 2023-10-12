@@ -1,19 +1,25 @@
 package Music
 
+// TODO: Clean up this file
+
 import public Sounds
-import TimerUtils
+//import TimerUtils
 
 
-string currentMusic
-real musicLength
-timer loopTimer = getTimer()
+// string currentMusic
+// real musicLength
+// timer loopTimer = getTimer()
 
 
 public function playMusic(string music)
-    currentMusic = music
-    musicLength = GetSoundFileDurationBJ(music)
-    loopTimer.pause()
-    replayMusic()
+    //currentMusic = music
+    // musicLength = GetSoundFileDurationBJ(music)
+    // loopTimer.pause()
+    // replayMusic()
+
+    StopMusic(false)
+    ClearMapMusic()
+    PlayMusic(music)
 
 
 public function stopMusic()
@@ -21,16 +27,16 @@ public function stopMusic()
 
 
 public function stopMusic(bool fadeOut)
-    loopTimer.pause()
+   // loopTimer.pause()
     StopMusic(fadeOut)
 
 
-function replayMusic()
-    StopMusic(false)
+// function replayMusic()
+//     StopMusic(false)
 
-    // This function is needed after Reforged, otherwise the music playing
-    // behaves quite sporadic (e.g. some times it would not play)
-    ClearMapMusic()
+//     // This function is needed after Reforged, otherwise the music playing
+//     // behaves quite sporadic (e.g. some times it would not play)
+//     ClearMapMusic()
 
-    PlayMusic(currentMusic)
-    loopTimer.start(musicLength * 1.05, function replayMusic)
+//     PlayMusic(currentMusic)
+//     loopTimer.start(musicLength * 1.05, function replayMusic)
