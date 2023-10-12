@@ -46,8 +46,9 @@ public function unit.activateBloodthirst()
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // SLEIGHT OF HAND
-public let HALF_BREED_SLEIGHT_OF_HAND_ENERGY_RESTORE = 0.5
-public let HALF_BREED_SLEIGHT_OF_HAND_PROC_CHANCE = 0.06
+
+public let HALF_BREED_SLEIGHT_OF_HAND_ENERGY_RESTORE = 0.25
+public let HALF_BREED_SLEIGHT_OF_HAND_PROC_CHANCE = 0.08
 public let HALF_BREED_SLEIGHT_OF_HAND = compiletime(defineMastery(
     "Sleight of Hand",
     Icons.bTNOrcMeleeUpTwo,
