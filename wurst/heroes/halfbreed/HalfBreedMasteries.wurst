@@ -53,7 +53,7 @@ public let HALF_BREED_SLEIGHT_OF_HAND = compiletime(defineMastery(
     "Sleight of Hand",
     Icons.bTNOrcMeleeUpTwo,
     HALF_BREED_COLOR,
-    rank -> "When using your Flying Axe ability, there is a {0} to immediately reset its cooldown at restore {1} of its energy cost.".format(
+    rank -> "When using your Flying Axe ability, there is a {0} chance to immediately reset its cooldown and restore {1} of its energy cost.".format(
         (HALF_BREED_SLEIGHT_OF_HAND_PROC_CHANCE*rank).toPercentageString(),
         (HALF_BREED_SLEIGHT_OF_HAND_ENERGY_RESTORE*rank).toPercentageString()
     ),
